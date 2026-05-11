@@ -1,6 +1,5 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight, Package, RotateCcw, Ruler, Truck } from 'lucide-react';
 
@@ -61,9 +60,6 @@ const SectionTitle = ({
 );
 
 export default function HomePage() {
-  const params = useParams<{ lng?: string }>();
-  const lng = params.lng ?? 'en';
-
   return (
     <>
       {/* HERO */}
