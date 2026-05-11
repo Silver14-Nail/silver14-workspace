@@ -1,0 +1,92 @@
+{
+  "brand": "Silver14 Nail",
+
+  "stepIndicator": {
+    "ariaLabel": "Tiến trình thanh toán"
+  },
+
+  "steps": {
+    "contact": "Liên hệ",
+    "shipping": "Vận chuyển",
+    "payment": "Thanh toán"
+  },
+
+  "contact": {
+    "title": "Thông tin liên hệ",
+    "checkoutTypeAriaLabel": "Loại thanh toán",
+    "type": {
+      "guest": "Thanh toán không cần tài khoản",
+      "registered": "Đăng nhập / Đăng ký"
+    },
+    "email": "Địa chỉ email",
+    "phone": "Số điện thoại",
+    "createAccountLabel": "Tạo tài khoản để theo dõi đơn hàng và lưu thông tin cho lần mua sau",
+    "password": "Mật khẩu",
+    "guestHint": "💡 Sau khi đặt hàng không cần tài khoản, bạn có thể dùng số điện thoại và mã đơn hàng để theo dõi trạng thái.",
+    "cta": "Tiếp tục đến Vận chuyển"
+  },
+
+  "shipping": {
+    "title": "Địa chỉ giao hàng",
+    "back": "Quay lại Liên hệ",
+    "firstName": "Tên",
+    "lastName": "Họ",
+    "address": "Địa chỉ",
+    "apartment": "Căn hộ, tầng, v.v. (tùy chọn)",
+    "city": "Thành phố",
+    "postalCode": "Mã bưu chính",
+    "country": "Quốc gia",
+    "notes": "Ghi chú đơn hàng (tùy chọn)",
+    "notesPlaceholder": "Hướng dẫn đặc biệt, số đo tùy chỉnh...",
+    "cta": "Tiếp tục đến Thanh toán"
+  },
+
+  "payment": {
+    "title": "Phương thức thanh toán",
+    "back": "Quay lại Vận chuyển",
+    "methodAriaLabel": "Phương thức thanh toán",
+    "methods": {
+      "card": {
+        "label": "Thẻ tín dụng / Thẻ ghi nợ",
+        "description": "Chấp nhận Visa, Mastercard"
+      },
+      "paypal": {
+        "label": "PayPal",
+        "description": "Thanh toán bảo mật qua tài khoản PayPal"
+      }
+    },
+    "card": {
+      "number": "Số thẻ",
+      "name": "Tên chủ thẻ",
+      "namePlaceholder": "Như in trên thẻ",
+      "expiry": "Ngày hết hạn",
+      "cvc": "CVC"
+    },
+    "paypalHint": "Bạn sẽ được chuyển đến PayPal để hoàn tất thanh toán bảo mật.",
+    "securityNote": "Thông tin thanh toán được mã hóa và bảo mật. Chúng tôi không lưu trữ thông tin thẻ.",
+    "cta": "Thanh toán",
+    "processing": "Đang xử lý..."
+  },
+
+  "confirmation": {
+    "badge": "Đơn hàng đã xác nhận",
+    "heading": "Cảm ơn bạn, {{firstName}}!",
+    "description": "Đơn hàng của bạn đã được nhận và các nghệ nhân của chúng tôi sẽ bắt đầu thực hiện sớm. Xác nhận đã được gửi đến {{email}}.",
+    "orderIdLabel": "Mã đơn hàng của bạn",
+    "orderIdHint": "Lưu mã này để theo dõi đơn hàng",
+    "trackHint": "📱 Bạn có thể theo dõi đơn hàng bằng số điện thoại ({{phone}}) và mã đơn hàng ở trên.",
+    "trackOrder": "Theo dõi đơn hàng",
+    "continueShopping": "Tiếp tục mua sắm"
+  },
+
+  "sidebar": {
+    "title": "Tóm tắt đơn hàng",
+    "itemsAriaLabel": "Sản phẩm trong đơn hàng",
+    "quantityAriaLabel": "Số lượng: {{count}}",
+    "subtotal": "Tạm tính",
+    "discount": "Giảm giá",
+    "shipping": "Vận chuyển",
+    "shippingFree": "Miễn phí",
+    "total": "Tổng cộng"
+  }
+}

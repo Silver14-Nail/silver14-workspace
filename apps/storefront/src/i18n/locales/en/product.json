@@ -1,0 +1,15 @@
+{
+  "allProducts": "All Products",
+  "theCollection": "The Collection",
+  "results": "{{count}} products",
+  "noProducts": "No products found",
+  "clearFilters": "Clear filters",
+  "searchPlaceholder": "Search...",
+  "sort": {
+    "featured": "Featured",
+    "newest": "Newest First",
+    "bestseller": "Best Sellers",
+    "priceAsc": "Price: Low to High",
+    "priceDesc": "Price: High to Low"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "title": "Giỏ hàng",
+  "heading": "Giỏ hàng ({{count}})",
+
+  "empty": {
+    "heading": "Giỏ hàng của bạn đang trống",
+    "description": "Khám phá bộ sưu tập móng giả cao cấp của chúng tôi.",
+    "cta": "Mua ngay"
+  },
+
+  "table": {
+    "product": "Sản phẩm",
+    "quantity": "Số lượng",
+    "total": "Tổng"
+  },
+
+  "item": {
+    "remove": "Xóa sản phẩm"
+  },
+
+  "quantity": {
+    "decrease": "Giảm số lượng",
+    "increase": "Tăng số lượng"
+  },
+
+  "shipping": {
+    "progress": "Thêm <strong>${{amount}}</strong> để được <strong>miễn phí vận chuyển</strong>",
+    "qualified": "Bạn đã đủ điều kiện miễn phí vận chuyển!",
+    "free": "Miễn phí",
+    "calculated": "Tính khi thanh toán"
+  },
+
+  "discount": {
+    "placeholder": "Mã giảm giá",
+    "apply": "Áp dụng",
+    "applied": "Đã áp dụng mã \"{{code}}\"!",
+    "invalid": "Mã giảm giá không hợp lệ. Thử SILVER14, WELCOME15 hoặc EU20",
+    "codeApplied": "Đã áp dụng {{code}}",
+    "remove": "Xóa mã giảm giá"
+  },
+
+  "summary": {
+    "title": "Tóm tắt đơn hàng",
+    "subtotal": "Tạm tính",
+    "discount": "Giảm giá ({{code}})",
+    "shipping": "Vận chuyển",
+    "total": "Tổng cộng"
+  },
+
+  "checkout": {
+    "cta": "Tiến hành thanh toán",
+    "secure": "Thanh toán bảo mật qua PayPal, Visa & Mastercard"
+  }
+}

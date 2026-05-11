@@ -1,0 +1,14 @@
+{
+  "title": "Wholesale Inquiry",
+  "subtitle": "Partner with Silver14 Nail",
+  "description": "We offer exclusive wholesale pricing for boutiques, salons, and retailers. Fill out the form below and our team will get back to you within 24-48 hours.",
+  "businessName": "Business Name",
+  "contactName": "Contact Name",
+  "email": "Email",
+  "phone": "Phone",
+  "businessType": "Business Type",
+  "message": "Message",
+  "submit": "Submit Inquiry",
+  "success": "Your inquiry has been submitted successfully!",
+  "error": "Failed to submit inquiry. Please try again."
+}

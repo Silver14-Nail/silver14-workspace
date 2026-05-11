@@ -1,0 +1,32 @@
+{
+  "title": "Track Your Order",
+  "subtitle": "Order Status",
+  "description": "Enter your Order ID and the phone number used at checkout to view your order status.",
+  "orderId": "Order ID",
+  "phone": "Phone Number",
+  "trackButton": "Track Order",
+  "loading": "Searching...",
+  "notFound": {
+    "title": "Order not found",
+    "description": "Please check your Order ID and phone number. If you need assistance, contact us at hello@silver14nail.com"
+  },
+  "order": "Order",
+  "placedOn": "Placed on",
+  "shippingAddress": "Shipping Address",
+  "summary": "Summary",
+  "total": "Total",
+  "help": "Need help with your order?",
+  "contactUs": "Contact us",
+  "timeline": {
+    "Processing": "Order Received",
+    "Crafting": "Handcrafting",
+    "Shipped": "Shipped",
+    "Delivered": "Delivered"
+  },
+  "timelineDesc": {
+    "Processing": "Your order has been confirmed and is being prepared.",
+    "Crafting": "Our artisans are handcrafting your nails.",
+    "Shipped": "Your order is on its way to you.",
+    "Delivered": "Your order has been delivered. Enjoy!"
+  }
+}

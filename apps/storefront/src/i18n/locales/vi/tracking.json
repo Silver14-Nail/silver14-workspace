@@ -1,0 +1,32 @@
+{
+  "title": "Theo dõi đơn hàng",
+  "subtitle": "Trạng thái đơn hàng",
+  "description": "Nhập Order ID và số điện thoại đã dùng khi thanh toán để xem trạng thái đơn hàng.",
+  "orderId": "Mã đơn hàng",
+  "phone": "Số điện thoại",
+  "trackButton": "Tra cứu đơn hàng",
+  "loading": "Đang tìm kiếm...",
+  "notFound": {
+    "title": "Không tìm thấy đơn hàng",
+    "description": "Vui lòng kiểm tra lại Order ID và số điện thoại. Nếu cần hỗ trợ, liên hệ hello@silver14nail.com"
+  },
+  "order": "Đơn hàng",
+  "placedOn": "Đặt ngày",
+  "shippingAddress": "Địa chỉ giao hàng",
+  "summary": "Tóm tắt",
+  "total": "Tổng cộng",
+  "help": "Cần hỗ trợ đơn hàng?",
+  "contactUs": "Liên hệ chúng tôi",
+  "timeline": {
+    "Processing": "Đã nhận đơn",
+    "Crafting": "Đang chế tác",
+    "Shipped": "Đã giao vận chuyển",
+    "Delivered": "Đã giao hàng"
+  },
+  "timelineDesc": {
+    "Processing": "Đơn hàng của bạn đã được xác nhận và đang chuẩn bị.",
+    "Crafting": "Nghệ nhân đang chế tác móng tay cho bạn.",
+    "Shipped": "Đơn hàng đang trên đường đến với bạn.",
+    "Delivered": "Đơn hàng đã được giao. Hãy tận hưởng!"
+  }
+}

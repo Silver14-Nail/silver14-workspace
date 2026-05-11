@@ -1,0 +1,14 @@
+{
+  "title": "Yêu cầu bán sỉ",
+  "subtitle": "Hợp tác cùng Silver14 Nail",
+  "description": "Chúng tôi cung cấp mức giá bán sỉ độc quyền dành cho các cửa hàng, salon và nhà bán lẻ. Vui lòng điền vào biểu mẫu bên dưới, đội ngũ của chúng tôi sẽ phản hồi trong vòng 24-48 giờ.",
+  "businessName": "Tên doanh nghiệp",
+  "contactName": "Tên người liên hệ",
+  "email": "Email",
+  "phone": "Số điện thoại",
+  "businessType": "Loại hình kinh doanh",
+  "message": "Tin nhắn",
+  "submit": "Gửi yêu cầu",
+  "success": "Yêu cầu của bạn đã được gửi thành công!",
+  "error": "Gửi yêu cầu thất bại. Vui lòng thử lại."
+}

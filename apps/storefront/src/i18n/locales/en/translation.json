@@ -1,0 +1,19 @@
+{
+  "currency": "$",
+  "addToBag": "Add to Bag",
+  "continueShopping": "Continue Shopping",
+  "viewBag": "View Bag & Checkout",
+  "checkout": "Checkout",
+  "subtotal": "Subtotal",
+  "total": "Total",
+  "discount": "Discount",
+  "shippingFree": "Free Shipping",
+  "shippingCalculated": "Shipping calculated at checkout",
+  "quantity": "Qty",
+  "size": "Size",
+  "shape": "Shape",
+  "length": "Length",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success"
+}

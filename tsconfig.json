@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/storefront"
+    },
+    {
+      "path": "./apps/admin"
+    },
+    {
+      "path": "./libs/ui"
+    },
+    {
+      "path": "./libs/types"
+    },
+    {
+      "path": "./libs/validators"
+    },
+    {
+      "path": "./libs/api-client"
+    },
+    {
+      "path": "./libs/config"
+    },
+    {
+      "path": "./apps/api"
+    }
+  ]
+}

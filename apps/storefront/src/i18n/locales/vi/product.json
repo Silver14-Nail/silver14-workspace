@@ -1,0 +1,15 @@
+{
+  "allProducts": "Tất cả Sản phẩm",
+  "theCollection": "Bộ sưu tập",
+  "results": "{{count}} sản phẩm",
+  "noProducts": "Không tìm thấy sản phẩm nào",
+  "clearFilters": "Xóa bộ lọc",
+  "searchPlaceholder": "Tìm kiếm...",
+  "sort": {
+    "featured": "Nổi bật",
+    "newest": "Mới nhất trước",
+    "bestseller": "Bán chạy",
+    "priceAsc": "Giá: Thấp đến Cao",
+    "priceDesc": "Giá: Cao đến Thấp"
+  }
+}

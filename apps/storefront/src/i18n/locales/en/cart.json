@@ -1,0 +1,54 @@
+{
+  "title": "Your Bag",
+  "heading": "Shopping Bag ({{count}})",
+
+  "empty": {
+    "heading": "Your bag is empty",
+    "description": "Discover our luxury press-on nail collections.",
+    "cta": "Shop Now"
+  },
+
+  "table": {
+    "product": "Product",
+    "quantity": "Quantity",
+    "total": "Total"
+  },
+
+  "item": {
+    "remove": "Remove item"
+  },
+
+  "quantity": {
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity"
+  },
+
+  "shipping": {
+    "progress": "Add <strong>${{amount}}</strong> more to your bag for <strong>free shipping</strong>",
+    "qualified": "You qualify for free shipping!",
+    "free": "Free",
+    "calculated": "Calculated at checkout"
+  },
+
+  "discount": {
+    "placeholder": "Discount code",
+    "apply": "Apply",
+    "applied": "Code \"{{code}}\" applied!",
+    "invalid": "Invalid discount code. Try SILVER14, WELCOME15, or EU20",
+    "codeApplied": "{{code}} applied",
+    "remove": "Remove discount code"
+  },
+
+  "summary": {
+    "title": "Order Summary",
+    "subtotal": "Subtotal",
+    "discount": "Discount ({{code}})",
+    "shipping": "Shipping",
+    "total": "Total"
+  },
+
+  "checkout": {
+    "cta": "Proceed to Checkout",
+    "secure": "Secure checkout via PayPal, Visa & Mastercard"
+  }
+}

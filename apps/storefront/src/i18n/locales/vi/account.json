@@ -1,0 +1,21 @@
+{
+  "customerAccount": "Customer Account",
+  "email": "Email",
+  "role": "Role",
+  "accountDescription": "Account is optional. You can still checkout as a guest; this account area is reserved for order history, saved addresses, and wishlist.",
+  "continueShopping": "Continue Shopping",
+  "signOut": "Sign Out",
+  "signInTitle": "Customer Sign In",
+  "createAccountTitle": "Create Account",
+  "guestDescription": "Signing in is optional. Guests can still browse, add to cart, and complete checkout without an account.",
+  "signIn": "Sign In",
+  "register": "Register",
+  "name": "Name",
+  "password": "Password",
+  "pleaseWait": "Please wait...",
+  "createAccount": "Create Account",
+  "errors": {
+    "registerFailed": "Unable to create this account.",
+    "invalidCredentials": "Invalid email or password."
+  }
+}

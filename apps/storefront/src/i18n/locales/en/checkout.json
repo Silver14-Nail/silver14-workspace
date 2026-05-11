@@ -1,0 +1,92 @@
+{
+  "brand": "Silver14 Nail",
+
+  "stepIndicator": {
+    "ariaLabel": "Checkout progress"
+  },
+
+  "steps": {
+    "contact": "Contact",
+    "shipping": "Shipping",
+    "payment": "Payment"
+  },
+
+  "contact": {
+    "title": "Contact Information",
+    "checkoutTypeAriaLabel": "Checkout type",
+    "type": {
+      "guest": "Guest Checkout",
+      "registered": "Sign In / Register"
+    },
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "createAccountLabel": "Create an account to track orders and save your details for faster checkout",
+    "password": "Password",
+    "guestHint": "💡 After ordering as a guest, use your phone number and order ID to track your order status.",
+    "cta": "Continue to Shipping"
+  },
+
+  "shipping": {
+    "title": "Shipping Address",
+    "back": "Back to Contact",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "address": "Address",
+    "apartment": "Apartment, suite, etc. (optional)",
+    "city": "City",
+    "postalCode": "Postal Code",
+    "country": "Country",
+    "notes": "Order Notes (optional)",
+    "notesPlaceholder": "Special instructions, custom size measurements...",
+    "cta": "Continue to Payment"
+  },
+
+  "payment": {
+    "title": "Payment Method",
+    "back": "Back to Shipping",
+    "methodAriaLabel": "Payment method",
+    "methods": {
+      "card": {
+        "label": "Credit / Debit Card",
+        "description": "Visa, Mastercard accepted"
+      },
+      "paypal": {
+        "label": "PayPal",
+        "description": "Pay securely with your PayPal account"
+      }
+    },
+    "card": {
+      "number": "Card Number",
+      "name": "Cardholder Name",
+      "namePlaceholder": "As shown on card",
+      "expiry": "Expiry Date",
+      "cvc": "CVC"
+    },
+    "paypalHint": "You will be redirected to PayPal to complete your payment securely.",
+    "securityNote": "Your payment information is encrypted and secure. We never store card details.",
+    "cta": "Pay",
+    "processing": "Processing..."
+  },
+
+  "confirmation": {
+    "badge": "Order Confirmed",
+    "heading": "Thank You, {{firstName}}!",
+    "description": "Your order has been received and our artisans will begin crafting your nails shortly. A confirmation has been sent to {{email}}.",
+    "orderIdLabel": "Your Order ID",
+    "orderIdHint": "Save this to track your order",
+    "trackHint": "📱 You can track your order status using your phone number ({{phone}}) and order ID above.",
+    "trackOrder": "Track Order",
+    "continueShopping": "Continue Shopping"
+  },
+
+  "sidebar": {
+    "title": "Order Summary",
+    "itemsAriaLabel": "Items in your order",
+    "quantityAriaLabel": "Quantity: {{count}}",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "shipping": "Shipping",
+    "shippingFree": "Free",
+    "total": "Total"
+  }
+}

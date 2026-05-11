@@ -1,0 +1,19 @@
+{
+  "currency": "$",
+  "addToBag": "Thêm vào giỏ hàng",
+  "continueShopping": "Tiếp tục mua sắm",
+  "viewBag": "Xem giỏ hàng & Thanh toán",
+  "checkout": "Thanh toán",
+  "subtotal": "Tạm tính",
+  "total": "Tổng cộng",
+  "discount": "Giảm giá",
+  "shippingFree": "Miễn phí vận chuyển",
+  "shippingCalculated": "Phí vận chuyển sẽ được tính khi thanh toán",
+  "quantity": "SL",
+  "size": "Kích thước",
+  "shape": "Dáng móng",
+  "length": "Độ dài",
+  "loading": "Đang tải...",
+  "error": "Lỗi",
+  "success": "Thành công"
+}
