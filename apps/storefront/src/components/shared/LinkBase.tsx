@@ -27,3 +27,5 @@ export const LinkBase = ({ lng, href, children, ...props }: Props) => {
     </Link>
   );
 };
+
+export { Link };

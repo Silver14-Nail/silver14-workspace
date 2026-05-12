@@ -36,6 +36,11 @@ export default [
         project: './tsconfig.json',
         sourceType: 'module',
       },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        allowDefaultProject: ['*.js', '*.mjs'],
+      },
     },
 
     plugins: {

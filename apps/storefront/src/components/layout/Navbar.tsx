@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LinkBase } from '@/components/shared/LinkBase';
+import { LinkBase, Link } from '@/components/shared/LinkBase';
 import { usePathname } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import {
@@ -105,7 +105,7 @@ export function Navbar() {
             </button>
           </div>
 
-          <LinkBase
+          <Link
             href="/"
             className="text-center text-[#1A1A1A]"
             style={{
@@ -117,7 +117,7 @@ export function Navbar() {
             }}
           >
             Silver14 Nail
-          </LinkBase>
+          </Link>
 
           <div className="flex items-center justify-end gap-2 md:gap-4">
             <div className="hidden md:block">
