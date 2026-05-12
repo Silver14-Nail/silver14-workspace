@@ -27,10 +27,12 @@ export const LENGTHS = ['Short', 'Medium', 'Long', 'Extra Long'];
 
 export const COLLECTIONS = [
   { id: 'all', label: 'All Collections' },
-  { id: 'french-classic', label: 'French & Classic' },
-  { id: 'glitter-metallic', label: 'Glitter & Metallic' },
-  { id: 'nail-art', label: 'Nail Art' },
-  { id: 'solid-colors', label: 'Solid Colors' },
+  { id: 'summer', label: 'Summer' },
+  { id: 'cat-eye', label: 'Cat Eye' },
+  { id: 'cute-nails', label: 'Cute Nails' },
+  { id: 'valentines', label: 'Valentines' },
+  { id: 'christmas-eve', label: 'Christmas Eve' },
+  { id: 'cyber-y2k-chrome', label: 'Cyber & Y2K & Chrome Nails' },
   { id: 'custom', label: 'Custom' },
 ];
 
@@ -802,7 +804,7 @@ export const getRelatedProducts = (product: Product, count = 4) =>
     .slice(0, count);
 
 export const heroImages = {
-  main: 'https://images.unsplash.com/photo-1722061608664-f84242d3d2cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1800',
+  main: '/images/home/main-banner.svg',
   secondary:
     'https://images.unsplash.com/photo-1696341980130-4bdff3322802?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200',
   about1:

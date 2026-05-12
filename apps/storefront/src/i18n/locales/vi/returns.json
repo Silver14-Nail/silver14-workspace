@@ -1,0 +1,52 @@
+{
+  "hero": {
+    "subtitle": "Chính Sách Đổi Trả",
+    "title": "Chính Sách Đơn Hàng Handmade",
+    "description": "Mọi bộ móng đều được làm thủ công dựa trên thông tin khách hàng cung cấp. Vui lòng kiểm tra kỹ đơn hàng trước khi thanh toán."
+  },
+
+  "policyItems": [
+    {
+      "icon": "XCircle",
+      "title": "Không Hoàn Tiền",
+      "desc": "Đơn hàng không thể hoàn tiền sau khi đặt"
+    },
+    {
+      "icon": "AlertCircle",
+      "title": "Kiểm Tra Size",
+      "desc": "Vui lòng đo móng cẩn thận trước khi mua"
+    },
+    {
+      "icon": "MessageCircle",
+      "title": "Cần Hỗ Trợ?",
+      "desc": "Liên hệ qua chat trên website"
+    }
+  ],
+
+  "policy": {
+    "title": "Chính Sách Đổi Trả & Hủy Đơn",
+    "items": {
+      "1": "Chúng tôi không hỗ trợ hoàn tiền, đổi trả, hủy hoặc đổi sản phẩm sau khi đặt hàng.",
+      "2": "Vui lòng kiểm tra và đo size móng cẩn thận trước khi mua để đảm bảo sản phẩm vừa vặn nhất.",
+      "3": "Shop sẽ không chịu trách nhiệm đối với các trường hợp chọn sai kích thước.",
+      "4": "Tất cả sản phẩm đều được làm theo đúng thông tin khách đã đặt.",
+      "5": "Nếu cần hỗ trợ hoặc có thắc mắc, bạn có thể liên hệ với chúng tôi qua nút chat trên website."
+    }
+  },
+
+  "notes": {
+    "title": "Lưu Ý Quan Trọng",
+    "items": [
+      "Tất cả bộ móng đều được làm thủ công theo đơn.",
+      "Vui lòng đo size móng cẩn thận trước khi đặt hàng.",
+      "Màu sắc sản phẩm có thể chênh lệch nhẹ tùy màn hình hiển thị.",
+      "Thời gian xử lý và vận chuyển có thể thay đổi tùy khu vực."
+    ]
+  },
+
+  "cta": {
+    "title": "Cần Hỗ Trợ?",
+    "description": "Nếu bạn có câu hỏi trước khi đặt hàng, hãy liên hệ với chúng tôi qua chat hỗ trợ trên website.",
+    "button": "Liên Hệ Hỗ Trợ"
+  }
+}

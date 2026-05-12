@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useT } from 'next-i18next/client';
-import { Camera, CreditCard, Mail, MapPin, MessageCircle } from 'lucide-react';
+import { CreditCard, MapPin } from 'lucide-react';
+
+import { LinkBase } from '@/components/shared/LinkBase';
 
 export function Footer() {
   const { t } = useT('footer');
@@ -12,7 +13,6 @@ export function Footer() {
   const [subscribed, setSubscribed] = useState(false);
   const pathname = usePathname();
   const lng = pathname.split('/').filter(Boolean)[0] || 'en';
-  const localizedHref = (href: string) => `/${lng}${href}`;
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,17 +93,26 @@ export function Footer() {
             </p>
             <p className="text-[#6A6A6A] text-sm leading-relaxed mb-6">{t('brandDescription')}</p>
             <div className="flex gap-4">
-              <a href="#" className="text-[#6A6A6A] hover:text-white transition-colors">
-                <Camera className="size-4" />
-              </a>
-              <a href="#" className="text-[#6A6A6A] hover:text-white transition-colors">
-                <MessageCircle className="size-4" />
+              <a
+                href="https://www.instagram.com/silver14.nail?igsh=MWI2OHYxaXN6aXFmaQ%3D%3D&utm_source=qr "
+                className="text-[#6A6A6A] hover:text-white transition-colors"
+                target="blank"
+              >
+                <img src="/images/icons/instagram.png" alt="Instagram" className="size-4" />
               </a>
               <a
-                href="mailto:hello@silver14nail.com"
+                href="https://www.tiktok.com/@silver14nails"
                 className="text-[#6A6A6A] hover:text-white transition-colors"
+                target="blank"
               >
-                <Mail className="size-4" />
+                <img src="/images/icons/tiktok.png" alt="TikTok" className="size-4" />
+              </a>
+              <a
+                href="https://pin.it/67LetbRkT"
+                className="text-[#6A6A6A] hover:text-white transition-colors"
+                target="blank"
+              >
+                <img src="/images/icons/pinterest.png" alt="Pinterest" className="size-4" />
               </a>
             </div>
           </div>
@@ -118,26 +127,50 @@ export function Footer() {
             </p>
             <ul className="space-y-3">
               {[
-                { label: t('shop.allProducts'), href: localizedHref('/products') },
+                { label: t('shop.allProducts'), href: '/products' },
+
                 {
-                  label: 'French & Classic',
-                  href: localizedHref('/products?collection=french-classic'),
+                  label: 'Summer',
+                  href: '/products?collection=summer',
                 },
+
                 {
-                  label: 'Glitter & Metallic',
-                  href: localizedHref('/products?collection=glitter-metallic'),
+                  label: 'Cat Eye',
+                  href: '/products?collection=cat-eye',
                 },
-                { label: 'Nail Art', href: localizedHref('/products?collection=nail-art') },
-                { label: 'Solid Colors', href: localizedHref('/products?collection=solid-colors') },
-                { label: t('shop.wholesale'), href: localizedHref('/wholesales') },
+
+                {
+                  label: 'Cute Nails',
+                  href: '/products?collection=cute-nails',
+                },
+
+                {
+                  label: 'Valentines',
+                  href: '/products?collection=valentines',
+                },
+
+                {
+                  label: 'Christmas Eve',
+                  href: '/products?collection=christmas-eve',
+                },
+
+                {
+                  label: 'Cyber & Y2K & Chrome Nails',
+                  href: '/products?collection=cyber-y2k-chrome',
+                },
+
+                {
+                  label: t('shop.wholesale'),
+                  href: '/wholesales',
+                },
               ].map((l) => (
                 <li key={l.label}>
-                  <Link
+                  <LinkBase
                     href={l.href}
                     className="text-[#6A6A6A] hover:text-white text-sm transition-colors"
                   >
                     {l.label}
-                  </Link>
+                  </LinkBase>
                 </li>
               ))}
             </ul>
@@ -153,20 +186,19 @@ export function Footer() {
             </p>
             <ul className="space-y-3">
               {[
-                { label: t('info.about'), href: `/${lng}#about` },
-                { label: t('info.howToApply'), href: `/${lng}#how-to` },
-                { label: t('info.sizeGuide'), href: `/${lng}#size-guide` },
-                { label: t('info.trackOrder'), href: localizedHref('/order/tracking') },
-                { label: t('info.faq'), href: `/${lng}#faq` },
-                { label: t('info.contact'), href: 'mailto:hello@silver14nail.com' },
+                { label: t('info.about'), href: 'about-us' },
+                { label: t('info.sizeGuide'), href: 'size-guide' },
+                { label: t('info.trackOrder'), href: '/order/tracking' },
+                { label: t('info.faq'), href: '/faq' },
+                { label: t('info.contact'), href: '/contact' },
               ].map((l) => (
                 <li key={l.label}>
-                  <Link
+                  <LinkBase
                     href={l.href}
                     className="text-[#6A6A6A] hover:text-white text-sm transition-colors"
                   >
                     {l.label}
-                  </Link>
+                  </LinkBase>
                 </li>
               ))}
             </ul>
@@ -182,15 +214,16 @@ export function Footer() {
             </p>
             <ul className="space-y-3 mb-6">
               {[
-                t('policies.shipping'),
-                t('policies.returns'),
-                t('policies.privacy'),
-                t('policies.terms'),
+                { label: t('policies.shipping'), href: '/shipping-policy' },
+                { label: t('policies.returns'), href: '/returns' },
               ].map((l) => (
-                <li key={l}>
-                  <a href="#" className="text-[#6A6A6A] hover:text-white text-sm transition-colors">
-                    {l}
-                  </a>
+                <li key={l.label}>
+                  <LinkBase
+                    href={l.href}
+                    className="text-[#6A6A6A] hover:text-white text-sm transition-colors"
+                  >
+                    {l.label}
+                  </LinkBase>
                 </li>
               ))}
             </ul>

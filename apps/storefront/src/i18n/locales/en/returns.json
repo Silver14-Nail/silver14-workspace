@@ -1,0 +1,52 @@
+{
+  "hero": {
+    "subtitle": "Returns Policy",
+    "title": "Handmade Order Policy",
+    "description": "Every nail set is handmade based on the information provided by the customer. Please review your order carefully before checkout."
+  },
+
+  "policyItems": [
+    {
+      "icon": "XCircle",
+      "title": "No Refunds",
+      "desc": "Orders cannot be refunded after purchase"
+    },
+    {
+      "icon": "AlertCircle",
+      "title": "Check Your Size",
+      "desc": "Please measure carefully before ordering"
+    },
+    {
+      "icon": "MessageCircle",
+      "title": "Need Help?",
+      "desc": "Contact us via website chat support"
+    }
+  ],
+
+  "policy": {
+    "title": "Return & Cancellation Policy",
+    "items": {
+      "1": "We do not support refunds, returns, cancellations, or product exchanges after an order has been placed.",
+      "2": "Please carefully review your order details and measure your nail sizes correctly before purchasing to ensure the best fit.",
+      "3": "The shop is not responsible for incorrect sizes selected by the customer.",
+      "4": "All products are handmade according to the exact information provided in the order.",
+      "5": "If you need assistance or have any questions, please contact us through the live chat button on our website."
+    }
+  },
+
+  "notes": {
+    "title": "Important Notes",
+    "items": [
+      "All nail sets are handmade and made-to-order.",
+      "Please measure your nails carefully before ordering.",
+      "Colors may appear slightly different depending on screen settings.",
+      "Processing and shipping times may vary by region."
+    ]
+  },
+
+  "cta": {
+    "title": "Need Assistance?",
+    "description": "If you have questions before placing your order, feel free to contact us through the website chat support.",
+    "button": "Contact Support"
+  }
+}

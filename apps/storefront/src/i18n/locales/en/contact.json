@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "subtitle": "Get in Touch",
+    "title": "We're Here to Help",
+    "description": "Have a question, need sizing help, or want to place a custom order? Our team is ready to assist you."
+  },
+
+  "contactInfo": [
+    {
+      "icon": "Mail",
+      "title": "Email Us",
+      "content": "silver14nail@gmail.com",
+      "description": "We typically respond within 24 hours"
+    },
+    {
+      "icon": "MapPin",
+      "title": "Location",
+      "content": "Hanoi, Vietnam",
+      "description": "Shipping worldwide"
+    },
+    {
+      "icon": "Clock",
+      "title": "Business Hours",
+      "content": "Mon - Fri: 9 AM – 6 PM",
+      "description": "Closed on weekends"
+    }
+  ],
+
+  "form": {
+    "title": "Send Us a Message",
+    "name": "Name",
+    "email": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "subjectPlaceholder": "How can we help?",
+    "messagePlaceholder": "Tell us more about your inquiry...",
+    "submit": "Send Message"
+  },
+
+  "success": {
+    "title": "Message Sent!",
+    "description": "Thank you for contacting us. We'll get back to you within 24 hours."
+  },
+
+  "faq": {
+    "text": "Looking for quick answers?",
+    "button": "Visit Our FAQ"
+  }
+}

@@ -17,9 +17,8 @@
   "closeMenu": "Close menu",
   "closeSearch": "Close search",
   "promotions": [
-    "Free shipping on orders over $50",
-    "Price includes tax. No hidden fees at checkout.",
-    "Buy 3 sets and get 1 accessory kit free"
+    "Free shipping on orders over $100",
+    "Price includes tax. No hidden fees at checkout."
   ],
   "preferences": {
     "shipTo": "Ship to",

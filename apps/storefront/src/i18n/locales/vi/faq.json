@@ -1,0 +1,90 @@
+{
+  "header": {
+    "subtitle": "Câu Hỏi Thường Gặp",
+    "title": "Chúng Tôi Có Thể Giúp Gì Cho Bạn?",
+    "description": "Tìm câu trả lời cho các câu hỏi phổ biến về đơn hàng, vận chuyển, kích thước và nhiều hơn nữa."
+  },
+
+  "contactSection": {
+    "title": "Bạn Vẫn Còn Thắc Mắc?",
+    "description": "Không tìm thấy điều bạn cần? Đội ngũ hỗ trợ của chúng tôi luôn sẵn sàng giúp bạn.",
+    "button": "Liên Hệ Hỗ Trợ"
+  },
+
+  "categories": [
+    {
+      "id": "1",
+      "category": "Đơn Hàng & Vận Chuyển",
+      "questions": [
+        {
+          "q": "Thời gian vận chuyển mất bao lâu?",
+          "a": "Thời gian xử lý và vận chuyển thường khoảng 7–28 ngày làm việc tùy khu vực. Các đơn hàng đến Nam Phi và một số nước châu Phi có thể lâu hơn."
+        },
+        {
+          "q": "Tôi có thể theo dõi đơn hàng không?",
+          "a": "Có! Sau khi đơn hàng được gửi đi, mã tracking sẽ được gửi qua email của bạn."
+        },
+        {
+          "q": "Tôi có cần trả thuế nhập khẩu không?",
+          "a": "Có. Thuế nhập khẩu và phí hải quan phụ thuộc vào quy định của từng quốc gia và do người nhận thanh toán."
+        }
+      ]
+    },
+
+    {
+      "id": "2",
+      "category": "Thông Tin Sản Phẩm",
+      "questions": [
+        {
+          "q": "Móng giả có thể tái sử dụng không?",
+          "a": "Có, móng giả của chúng tôi có thể tái sử dụng nếu được tháo và bảo quản cẩn thận."
+        },
+        {
+          "q": "Shop có nhận custom không?",
+          "a": "Có! Chúng tôi nhận thiết kế press-on nails theo yêu cầu dựa trên ý tưởng hoặc ảnh tham khảo của bạn."
+        },
+        {
+          "q": "Mỗi bộ móng gồm những gì?",
+          "a": "Mỗi đơn hàng bao gồm 10 móng tay đã thiết kế, adhesive tabs, keo dán móng, dũa mini và que đẩy da."
+        }
+      ]
+    },
+
+    {
+      "id": "3",
+      "category": "Kích Thước & Sử Dụng",
+      "questions": [
+        {
+          "q": "Làm sao để chọn đúng size móng?",
+          "a": "Vui lòng đo móng cẩn thận theo bảng hướng dẫn size trước khi đặt hàng."
+        },
+        {
+          "q": "Nếu tôi chọn sai size thì sao?",
+          "a": "Chúng tôi không chịu trách nhiệm đối với các trường hợp cung cấp sai kích thước."
+        }
+      ]
+    },
+
+    {
+      "id": "4",
+      "category": "Hoàn Tiền & Đổi Trả",
+      "questions": [
+        {
+          "q": "Shop có hỗ trợ hoàn tiền hoặc đổi trả không?",
+          "a": "Không. Vì tất cả bộ móng đều được handmade theo đơn nên chúng tôi không hỗ trợ hoàn tiền, đổi trả, hủy hoặc đổi sản phẩm."
+        }
+      ]
+    },
+
+    {
+      "id": "5",
+      "category": "Liên Hệ & Hỗ Trợ",
+      "questions": [
+        {
+          "q": "Làm sao để liên hệ với shop?",
+          "a": "Bạn có thể liên hệ với chúng tôi qua Instagram @silver14nail hoặc email silver14nail@gmail.com."
+        }
+      ]
+    }
+  ]
+}

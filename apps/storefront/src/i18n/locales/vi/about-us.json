@@ -1,0 +1,53 @@
+{
+  "hero": {
+    "subtitle": "Về Chúng Tôi",
+    "title": "Móng Giả Handmade",
+    "description": "Silver14 Nail là thương hiệu móng giả handmade được thành lập tại Việt Nam, dành cho những người yêu thích nail art độc đáo, thời trang và cá tính riêng."
+  },
+
+  "story": {
+    "title": "Câu Chuyện Của Chúng Tôi",
+    "paragraphs": {
+      "1": "Mỗi bộ móng đều được làm thủ công tỉ mỉ bởi nail artists với chất liệu chất lượng salon, kết hợp giữa xu hướng hiện đại và sự chăm chút trong từng chi tiết.",
+      "2": "Từ phong cách nữ tính nhẹ nhàng đến cyber & Y2K cá tính, chúng tôi mong muốn tạo ra những bộ press-on nails nghệ thuật và có thể tái sử dụng.",
+      "3": "Shop cung cấp nhiều phong cách khác nhau như cute nails, chrome nails, cat eye effects, các bộ sưu tập theo mùa và cả thiết kế custom theo sở thích riêng của khách hàng.",
+      "4": "Móng giả của Silver14 Nail nhẹ, thoải mái khi sử dụng và có thể tái sử dụng nhiều lần.",
+      "5": "Mỗi bộ đều được làm và đóng gói cẩn thận dành cho khách hàng trên toàn thế giới. Cảm ơn bạn đã ủng hộ Silver14 Nail."
+    }
+  },
+
+  "values": {
+    "subtitle": "Giá Trị Của Chúng Tôi",
+    "title": "Điều Chúng Tôi Hướng Đến",
+    "items": [
+      {
+        "icon": "Heart",
+        "title": "Chất Lượng Handmade",
+        "description": "Mỗi bộ móng đều được làm thủ công với sự chăm chút trong từng chi tiết."
+      },
+      {
+        "icon": "Sparkles",
+        "title": "Thiết Kế Sáng Tạo",
+        "description": "Từ phong cách cute đến cyber Y2K cá tính, chúng tôi tạo ra nail art độc đáo cho mọi phong cách."
+      },
+      {
+        "icon": "Users",
+        "title": "Khách Hàng Toàn Cầu",
+        "description": "Chúng tôi tự hào phục vụ khách hàng trên khắp thế giới."
+      },
+      {
+        "icon": "Award",
+        "title": "Tái Sử Dụng Nhiều Lần",
+        "description": "Móng giả nhẹ, thoải mái khi sử dụng và có thể tái sử dụng nhiều lần."
+      }
+    ]
+  },
+
+  "contact": {
+    "title": "Liên Hệ",
+    "description": "Nếu bạn có bất kỳ câu hỏi, yêu cầu đặt mẫu custom hoặc cần hỗ trợ về đơn hàng, hãy liên hệ với chúng tôi.",
+    "responseTime": "Chúng tôi thường phản hồi trong vòng 1–24 giờ.",
+    "shopButton": "Mua Sắm",
+    "contactButton": "Liên Hệ"
+  }
+}

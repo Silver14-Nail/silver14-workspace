@@ -1,0 +1,103 @@
+{
+  "hero": {
+    "subtitle": "Thông Tin Vận Chuyển",
+    "title": "Giao Hàng Toàn Cầu",
+    "description": "Chúng tôi giao hàng quốc tế với tracking cho mọi đơn hàng."
+  },
+
+  "trustItems": [
+    {
+      "icon": "Truck",
+      "title": "Giao Hàng Toàn Cầu",
+      "desc": "Phí ship theo khu vực"
+    },
+    {
+      "icon": "Package",
+      "title": "Có Tracking",
+      "desc": "Theo dõi mọi đơn hàng"
+    },
+    {
+      "icon": "Globe",
+      "title": "Nhiều Quốc Gia",
+      "desc": "Hỗ trợ giao hàng quốc tế"
+    },
+    {
+      "icon": "Clock",
+      "title": "Thời Gian Xử Lý",
+      "desc": "7–28 ngày làm việc"
+    }
+  ],
+
+  "shippingRates": {
+    "title": "Phí Vận Chuyển",
+    "shippingFee": "Phí Ship",
+    "countries": "Quốc Gia"
+  },
+
+  "shippingZones": [
+    {
+      "region": "Khu Vực A",
+      "countries": "Malaysia, Brunei, Indonesia, Philippines, Thái Lan, Vanuatu",
+      "cost": "$10"
+    },
+    {
+      "region": "Khu Vực B",
+      "countries": "Đài Loan, Ấn Độ, Trung Quốc, Mông Cổ, Bangladesh, Lào, Campuchia, Myanmar, Kiribati, Tuvalu, Bỉ, Ý, Mỹ, Úc, Anh, Đức, các nước EU, Canada, Nhật Bản, New Zealand, Singapore, Hong Kong, UAE, Saudi Arabia",
+      "cost": "$15"
+    },
+    {
+      "region": "Khu Vực C",
+      "countries": "Thuỵ Sĩ, Hungary, Đan Mạch, Ba Lan, Estonia, Ireland, Na Uy, Gibraltar, Jersey, Chile, Mexico, Brazil, Ai Cập, Ecuador, Jordan, Paraguay",
+      "cost": "$20"
+    },
+    {
+      "region": "Khu Vực D",
+      "countries": "Argentina, Colombia, Kuwait",
+      "cost": "$25"
+    }
+  ],
+
+  "notes": {
+    "title": "Lưu Ý Vận Chuyển",
+    "items": {
+      "1": {
+        "title": "Thuế Nhập Khẩu",
+        "description": "Phí vận chuyển chưa bao gồm thuế nhập khẩu hoặc phí hải quan. Người nhận sẽ thanh toán thuế nhập khẩu theo quy định của từng quốc gia."
+      },
+
+      "2": {
+        "title": "Đơn Hàng Mỹ & Úc",
+        "description": "Riêng đơn hàng tại Mỹ, thuế nhập khẩu sẽ do người gửi thanh toán. Đơn hàng đến Úc thường không bị tính thuế nhập khẩu."
+      },
+
+      "3": {
+        "title": "Thời Gian Giao Hàng",
+        "description": "Một số khu vực tại Châu Phi và Nam Mỹ có thể có thời gian vận chuyển lâu hơn dự kiến."
+      }
+    }
+  },
+
+  "faqSection": {
+    "title": "Câu Hỏi Thường Gặp"
+  },
+
+  "faqs": [
+    {
+      "q": "Tôi có thể theo dõi đơn hàng không?",
+      "a": "Có! Sau khi đơn hàng được gửi đi, mã tracking sẽ được gửi qua email của bạn."
+    },
+    {
+      "q": "Phí vận chuyển đã bao gồm thuế nhập khẩu chưa?",
+      "a": "Chưa. Thuế nhập khẩu và phí hải quan không bao gồm trong phí vận chuyển."
+    },
+    {
+      "q": "Ai sẽ thanh toán thuế nhập khẩu?",
+      "a": "Người nhận sẽ thanh toán thuế nhập khẩu theo quy định của từng quốc gia."
+    }
+  ],
+
+  "cta": {
+    "description": "Bạn vẫn còn thắc mắc về vận chuyển?",
+    "button": "Liên Hệ Hỗ Trợ"
+  }
+}
