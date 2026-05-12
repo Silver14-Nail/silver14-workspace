@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import { CreditCard, MapPin } from 'lucide-react';
 
@@ -11,8 +10,6 @@ export function Footer() {
   const { t } = useT('footer');
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
-  const pathname = usePathname();
-  const lng = pathname.split('/').filter(Boolean)[0] || 'en';
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
