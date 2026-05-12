@@ -1,0 +1,35 @@
+{
+  "newsletter": {
+    "eyebrow": "Quyền truy cập độc quyền",
+    "title": "Gia nhập cộng đồng Silver14 Nail",
+    "description": "Đăng ký để nhận thông tin sớm về bộ sưu tập mới, ưu đãi riêng và cảm hứng làm đẹp.",
+    "success": "Cảm ơn bạn đã tham gia. Quà chào mừng đang chờ trong hộp thư của bạn.",
+    "placeholder": "Địa chỉ email của bạn",
+    "submit": "Đăng ký"
+  },
+  "brandDescription": "Móng úp cao cấp thủ công, giao hàng toàn cầu. Làm bằng yêu thương, đeo cùng sự tự tin.",
+  "shop": {
+    "title": "Cửa hàng",
+    "allProducts": "Tất cả sản phẩm",
+    "wholesale": "Bán sỉ"
+  },
+  "info": {
+    "title": "Thông tin",
+    "about": "Giới thiệu Silver14 Nail",
+    "howToApply": "Cách sử dụng",
+    "sizeGuide": "Hướng dẫn chọn size",
+    "trackOrder": "Theo dõi đơn hàng",
+    "faq": "Câu hỏi thường gặp",
+    "contact": "Liên hệ"
+  },
+  "policies": {
+    "title": "Chính sách",
+    "shipping": "Chính sách vận chuyển",
+    "returns": "Đổi trả",
+    "privacy": "Chính sách bảo mật",
+    "terms": "Điều khoản dịch vụ"
+  },
+  "shippingFrom": "Giao hàng toàn cầu từ Việt Nam",
+  "delivery": "Giao đến EU trong 7-14 ngày làm việc",
+  "copyright": "© 2026 Silver14 Nail. Đã đăng ký bản quyền."
+}

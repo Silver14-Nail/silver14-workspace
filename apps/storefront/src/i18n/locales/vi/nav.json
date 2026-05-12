@@ -1,10 +1,39 @@
 {
   "home": "Trang chủ",
   "shop": "Cửa hàng",
+  "shopAll": "Tất cả sản phẩm",
   "collections": "Bộ sưu tập",
   "wholesale": "Bán sỉ",
   "about": "Giới thiệu",
   "contact": "Liên hệ",
   "cart": "Giỏ hàng",
-  "trackOrder": "Theo dõi đơn hàng"
+  "account": "Tài khoản",
+  "trackOrder": "Theo dõi đơn hàng",
+  "search": "Tìm kiếm",
+  "searchProducts": "Tìm sản phẩm...",
+  "previousPromotion": "Khuyến mãi trước",
+  "nextPromotion": "Khuyến mãi tiếp theo",
+  "openMenu": "Mở menu",
+  "closeMenu": "Đóng menu",
+  "closeSearch": "Đóng tìm kiếm",
+  "promotions": [
+    "Miễn phí vận chuyển cho đơn hàng trên $50",
+    "Giá đã bao gồm thuế. Không có phí ẩn khi thanh toán.",
+    "Mua 3 bộ móng tặng 1 bộ phụ kiện"
+  ],
+  "preferences": {
+    "shipTo": "Giao đến",
+    "currency": "Tiền tệ",
+    "language": "Ngôn ngữ",
+    "destinations": {
+      "unitedStates": "Hoa Kỳ",
+      "germany": "Đức",
+      "france": "Pháp",
+      "unitedKingdom": "Vương quốc Anh"
+    },
+    "languages": {
+      "en": "English",
+      "vi": "Tiếng Việt"
+    }
+  }
 }

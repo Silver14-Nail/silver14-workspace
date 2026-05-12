@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ArrowRight, Package, RotateCcw, Ruler, Truck } from 'lucide-react';
+import { useT } from 'next-i18next/client';
 
 import { ProductCard } from '@/components/shared/ProductCard';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
@@ -12,26 +13,10 @@ const newArrivals = products.filter((p) => p.isNew).slice(0, 4);
 const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4);
 
 const policies = [
-  {
-    icon: Truck,
-    title: 'Worldwide Shipping',
-    desc: 'Express shipping to EU, UK, USA & 60+ countries. Tracking provided.',
-  },
-  {
-    icon: Package,
-    title: 'Handmade & Custom',
-    desc: 'Each set crafted by hand. Custom sizing available for every order.',
-  },
-  {
-    icon: RotateCcw,
-    title: 'Reusable Nails',
-    desc: 'Our premium nails can be re-applied up to 3 times with proper care.',
-  },
-  {
-    icon: Ruler,
-    title: 'Custom Sizing',
-    desc: 'XS to XL and custom measurements. Perfect fit guaranteed.',
-  },
+  { icon: Truck, key: 'shipping' },
+  { icon: Package, key: 'handmade' },
+  { icon: RotateCcw, key: 'reusable' },
+  { icon: Ruler, key: 'sizing' },
 ];
 
 const SectionTitle = ({
@@ -60,6 +45,8 @@ const SectionTitle = ({
 );
 
 export default function HomePage() {
+  const { t } = useT('home');
+
   return (
     <>
       {/* HERO */}
@@ -78,7 +65,7 @@ export default function HomePage() {
           className="relative z-10 text-center px-6 max-w-2xl mx-auto"
         >
           <p className="text-white/70 uppercase tracking-[0.3em] text-xs mb-5">
-            Handcrafted Luxury
+            {t('hero.eyebrow')}
           </p>
 
           <h1
@@ -91,13 +78,13 @@ export default function HomePage() {
               lineHeight: 1.1,
             }}
           >
-            Silver14 Nail
+            {t('hero.title')}
           </h1>
 
           <p className="text-white/80 mb-10 text-sm md:text-base leading-relaxed tracking-wide">
-            Press-on nails crafted with precision and passion.
+            {t('hero.descriptionLine1')}
             <br />
-            Shipped from our atelier to your door, worldwide.
+            {t('hero.descriptionLine2')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -105,14 +92,14 @@ export default function HomePage() {
               href="/products"
               className="inline-flex items-center justify-center gap-2 bg-white text-[#1A1A1A] px-9 py-4 text-xs uppercase tracking-[0.15em]"
             >
-              Shop Collection <ArrowRight className="size-3.5" />
+              {t('hero.shopNow')} <ArrowRight className="size-3.5" />
             </LinkBase>
 
             <LinkBase
               href="/wholesales"
               className="inline-flex items-center justify-center gap-2 border border-white text-white px-9 py-4 text-xs uppercase tracking-[0.15em]"
             >
-              Wholesale Enquiry
+              {t('hero.wholesale')}
             </LinkBase>
           </div>
         </motion.div>
@@ -122,11 +109,15 @@ export default function HomePage() {
       <section className="border-y border-[#E8E8E8] bg-[#F8F8F8]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#E8E8E8]">
-            {policies.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="text-center px-6 py-8">
+            {policies.map(({ icon: Icon, key }) => (
+              <div key={key} className="text-center px-6 py-8">
                 <Icon className="size-5 text-[#9A9A9A] mx-auto" />
-                <p className="text-xs uppercase tracking-widest mt-3">{title}</p>
-                <p className="text-[#8A8A8A] text-xs mt-2 hidden md:block">{desc}</p>
+                <p className="text-xs uppercase tracking-widest mt-3">
+                  {t(`policies.${key}.title`)}
+                </p>
+                <p className="text-[#8A8A8A] text-xs mt-2 hidden md:block">
+                  {t(`policies.${key}.description`)}
+                </p>
               </div>
             ))}
           </div>
@@ -136,9 +127,12 @@ export default function HomePage() {
       {/* NEW ARRIVALS */}
       <section className="py-20 max-w-7xl mx-auto px-4">
         <div className="flex justify-between mb-12">
-          <SectionTitle eyebrow="Just Arrived" title="New Collection" />
+          <SectionTitle
+            eyebrow={t('sections.newArrivalsEyebrow')}
+            title={t('sections.newArrivalsTitle')}
+          />
           <LinkBase href="/products?filter=new" className="text-xs uppercase">
-            View All
+            {t('sections.viewAll')}
           </LinkBase>
         </div>
 
@@ -152,9 +146,12 @@ export default function HomePage() {
       {/* BEST SELLERS */}
       <section className="py-20 max-w-7xl mx-auto px-4">
         <div className="flex justify-between mb-12">
-          <SectionTitle eyebrow="Customer Favourites" title="Best Sellers" />
+          <SectionTitle
+            eyebrow={t('sections.bestSellersEyebrow')}
+            title={t('sections.bestSellersTitle')}
+          />
           <LinkBase href="/products?filter=bestseller" className="text-xs uppercase">
-            View All
+            {t('sections.viewAll')}
           </LinkBase>
         </div>
 
@@ -167,16 +164,14 @@ export default function HomePage() {
 
       {/* CTA */}
       <section className="bg-[#1A1A1A] py-16 text-center">
-        <h2 className="text-white text-2xl mb-4">Partner with Silver14 Nail</h2>
-        <p className="text-white/60 mb-8 max-w-md mx-auto">
-          Wholesale partnerships available globally.
-        </p>
+        <h2 className="text-white text-2xl mb-4">{t('cta.title')}</h2>
+        <p className="text-white/60 mb-8 max-w-md mx-auto">{t('cta.description')}</p>
 
         <LinkBase
           href="/wholesales"
           className="bg-white text-black px-8 py-3 uppercase text-xs tracking-widest"
         >
-          Submit Enquiry <ArrowRight className="inline size-3 ml-2" />
+          {t('cta.button')} <ArrowRight className="inline size-3 ml-2" />
         </LinkBase>
       </section>
     </>

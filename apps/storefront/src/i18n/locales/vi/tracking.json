@@ -1,14 +1,14 @@
 {
   "title": "Theo dõi đơn hàng",
   "subtitle": "Trạng thái đơn hàng",
-  "description": "Nhập Order ID và số điện thoại đã dùng khi thanh toán để xem trạng thái đơn hàng.",
+  "description": "Nhập mã đơn hàng và số điện thoại đã dùng khi thanh toán để xem trạng thái đơn hàng.",
   "orderId": "Mã đơn hàng",
   "phone": "Số điện thoại",
   "trackButton": "Tra cứu đơn hàng",
   "loading": "Đang tìm kiếm...",
   "notFound": {
     "title": "Không tìm thấy đơn hàng",
-    "description": "Vui lòng kiểm tra lại Order ID và số điện thoại. Nếu cần hỗ trợ, liên hệ hello@silver14nail.com"
+    "description": "Vui lòng kiểm tra lại mã đơn hàng và số điện thoại. Nếu cần hỗ trợ, liên hệ hello@silver14nail.com"
   },
   "order": "Đơn hàng",
   "placedOn": "Đặt ngày",

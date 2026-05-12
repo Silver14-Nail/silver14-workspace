@@ -1,9 +1,40 @@
 {
   "hero": {
-    "title": "Móng Úp Cao Cấp",
-    "subtitle": "Vẻ đẹp thủ công tinh tế ngay trên đầu ngón tay",
-    "shopNow": "Mua ngay"
+    "eyebrow": "Sang trọng thủ công",
+    "title": "Silver14 Nail",
+    "descriptionLine1": "Móng úp được chế tác tỉ mỉ bằng niềm đam mê.",
+    "descriptionLine2": "Gửi từ xưởng của chúng tôi đến tận cửa nhà bạn, trên toàn thế giới.",
+    "shopNow": "Mua bộ sưu tập",
+    "wholesale": "Yêu cầu bán sỉ"
   },
-  "featured": "Bộ sưu tập nổi bật",
-  "newArrivals": "Sản phẩm mới"
+  "policies": {
+    "shipping": {
+      "title": "Giao hàng toàn cầu",
+      "description": "Giao nhanh đến EU, Anh, Mỹ và hơn 60 quốc gia. Có mã theo dõi."
+    },
+    "handmade": {
+      "title": "Thủ công & tùy chỉnh",
+      "description": "Mỗi bộ được làm thủ công. Hỗ trợ đo size riêng cho từng đơn hàng."
+    },
+    "reusable": {
+      "title": "Móng có thể tái sử dụng",
+      "description": "Móng cao cấp có thể dùng lại đến 3 lần nếu chăm sóc đúng cách."
+    },
+    "sizing": {
+      "title": "Size theo yêu cầu",
+      "description": "Từ XS đến XL và số đo riêng. Đảm bảo vừa vặn."
+    }
+  },
+  "sections": {
+    "newArrivalsEyebrow": "Vừa ra mắt",
+    "newArrivalsTitle": "Bộ sưu tập mới",
+    "bestSellersEyebrow": "Khách hàng yêu thích",
+    "bestSellersTitle": "Bán chạy nhất",
+    "viewAll": "Xem tất cả"
+  },
+  "cta": {
+    "title": "Hợp tác cùng Silver14 Nail",
+    "description": "Chúng tôi nhận hợp tác bán sỉ trên toàn cầu.",
+    "button": "Gửi yêu cầu"
+  }
 }

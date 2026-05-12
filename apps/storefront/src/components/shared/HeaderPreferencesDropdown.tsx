@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useT } from 'next-i18next/client';
 import { ChevronDown } from 'lucide-react';
 
-const shippingDestinations = ['United States', 'Germany', 'France', 'United Kingdom'];
+const shippingDestinations = [
+  { code: 'unitedStates', fallback: 'United States' },
+  { code: 'germany', fallback: 'Germany' },
+  { code: 'france', fallback: 'France' },
+  { code: 'unitedKingdom', fallback: 'United Kingdom' },
+];
 const currencies = ['USD'];
 const languages = [
-  { code: 'en', label: 'English' },
-  { code: 'vi', label: 'Tieng Viet' },
+  { code: 'vi', fallback: 'Tiếng Việt' },
+  { code: 'en', fallback: 'English' },
 ];
 
 type HeaderPreferencesDropdownProps = {
@@ -16,13 +22,16 @@ type HeaderPreferencesDropdownProps = {
 };
 
 export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferencesDropdownProps) {
+  const { t } = useT('nav');
   const [open, setOpen] = useState(false);
-  const [shipTo, setShipTo] = useState(shippingDestinations[0]);
+  const [shipTo, setShipTo] = useState(shippingDestinations[0].code);
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const segments = pathname.split('/').filter(Boolean);
   const currentLanguage = segments[0] || 'en';
+  const currentLanguageLabel =
+    languages.find((language) => language.code === currentLanguage)?.fallback ?? currentLanguage;
 
   useEffect(() => {
     setOpen(false);
@@ -49,9 +58,9 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
         onClick={() => setOpen((value) => !value)}
         className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] text-[#5A5A5A] hover:text-[#1A1A1A]"
       >
-        <span className="hidden sm:inline">Ship to</span>
-        <span>{shipTo}</span>
-        <span>/ USD / {currentLanguage.toUpperCase()}</span>
+        <span className="hidden sm:inline">{t('preferences.shipTo')}</span>
+        <span>{t(`preferences.destinations.${shipTo}`)}</span>
+        <span>/ USD / {currentLanguageLabel}</span>
         <ChevronDown className={`size-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
@@ -64,7 +73,7 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
           <div className="space-y-4">
             <label className="block">
               <span className="mb-1.5 block text-[10px] uppercase tracking-[0.14em] text-[#8A8A8A]">
-                Ship to
+                {t('preferences.shipTo')}
               </span>
               <select
                 value={shipTo}
@@ -72,8 +81,8 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
                 className="w-full border border-[#E0E0E0] bg-white px-3 py-2 text-xs uppercase tracking-[0.08em] text-[#1A1A1A] outline-none"
               >
                 {shippingDestinations.map((destination) => (
-                  <option key={destination} value={destination}>
-                    {destination}
+                  <option key={destination.code} value={destination.code}>
+                    {t(`preferences.destinations.${destination.code}`, destination.fallback)}
                   </option>
                 ))}
               </select>
@@ -81,7 +90,7 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
 
             <label className="block">
               <span className="mb-1.5 block text-[10px] uppercase tracking-[0.14em] text-[#8A8A8A]">
-                Currency
+                {t('preferences.currency')}
               </span>
               <select
                 defaultValue="USD"
@@ -97,7 +106,7 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
 
             <label className="block">
               <span className="mb-1.5 block text-[10px] uppercase tracking-[0.14em] text-[#8A8A8A]">
-                Language
+                {t('preferences.language')}
               </span>
               <select
                 value={currentLanguage}
@@ -106,7 +115,7 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
               >
                 {languages.map((language) => (
                   <option key={language.code} value={language.code}>
-                    {language.label}
+                    {t(`preferences.languages.${language.code}`, language.fallback)}
                   </option>
                 ))}
               </select>

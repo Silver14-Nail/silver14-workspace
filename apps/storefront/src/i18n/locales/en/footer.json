@@ -1,0 +1,35 @@
+{
+  "newsletter": {
+    "eyebrow": "Exclusive Access",
+    "title": "Join the Silver14 Nail Circle",
+    "description": "Subscribe for early access to new collections, exclusive offers, and beauty inspiration.",
+    "success": "Thank you for joining us. A welcome gift awaits in your inbox.",
+    "placeholder": "Your email address",
+    "submit": "Subscribe"
+  },
+  "brandDescription": "Handcrafted luxury press-on nails, shipped worldwide. Made with love, worn with confidence.",
+  "shop": {
+    "title": "Shop",
+    "allProducts": "All Products",
+    "wholesale": "Wholesale"
+  },
+  "info": {
+    "title": "Information",
+    "about": "About Silver14 Nail",
+    "howToApply": "How To Apply",
+    "sizeGuide": "Size Guide",
+    "trackOrder": "Track Your Order",
+    "faq": "FAQ",
+    "contact": "Contact Us"
+  },
+  "policies": {
+    "title": "Policies",
+    "shipping": "Shipping Policy",
+    "returns": "Returns & Exchanges",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "shippingFrom": "Ships worldwide from Vietnam",
+  "delivery": "EU delivery 7-14 business days",
+  "copyright": "© 2026 Silver14 Nail. All rights reserved."
+}

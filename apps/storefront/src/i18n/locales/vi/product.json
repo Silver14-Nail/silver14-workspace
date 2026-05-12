@@ -1,5 +1,5 @@
 {
-  "allProducts": "Tất cả Sản phẩm",
+  "allProducts": "Tất cả sản phẩm",
   "theCollection": "Bộ sưu tập",
   "results": "{{count}} sản phẩm",
   "noProducts": "Không tìm thấy sản phẩm nào",
@@ -9,7 +9,7 @@
     "featured": "Nổi bật",
     "newest": "Mới nhất trước",
     "bestseller": "Bán chạy",
-    "priceAsc": "Giá: Thấp đến Cao",
-    "priceDesc": "Giá: Cao đến Thấp"
+    "priceAsc": "Giá: Thấp đến cao",
+    "priceDesc": "Giá: Cao đến thấp"
   }
 }
