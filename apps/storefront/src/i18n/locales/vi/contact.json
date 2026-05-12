@@ -1,0 +1,49 @@
+{
+  "hero": {
+    "subtitle": "Liên Hệ",
+    "title": "Chúng Tôi Luôn Sẵn Sàng Hỗ Trợ",
+    "description": "Bạn cần hỗ trợ về size, đơn hàng hoặc custom press-on nails? Hãy liên hệ với chúng tôi."
+  },
+
+  "contactInfo": [
+    {
+      "icon": "Mail",
+      "title": "Email",
+      "content": "silver14nail@gmail.com",
+      "description": "Chúng tôi thường phản hồi trong vòng 24 giờ"
+    },
+    {
+      "icon": "MapPin",
+      "title": "Địa Điểm",
+      "content": "Hà Nội, Việt Nam",
+      "description": "Giao hàng toàn thế giới"
+    },
+    {
+      "icon": "Clock",
+      "title": "Giờ Làm Việc",
+      "content": "Thứ 2 - Thứ 6: 9h – 18h",
+      "description": "Nghỉ cuối tuần"
+    }
+  ],
+
+  "form": {
+    "title": "Gửi Tin Nhắn",
+    "name": "Tên",
+    "email": "Email",
+    "subject": "Chủ Đề",
+    "message": "Tin Nhắn",
+    "subjectPlaceholder": "Chúng tôi có thể giúp gì cho bạn?",
+    "messagePlaceholder": "Hãy mô tả chi tiết vấn đề của bạn...",
+    "submit": "Gửi Tin Nhắn"
+  },
+
+  "success": {
+    "title": "Gửi Thành Công!",
+    "description": "Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi trong vòng 24 giờ."
+  },
+
+  "faq": {
+    "text": "Bạn cần câu trả lời nhanh?",
+    "button": "Xem FAQ"
+  }
+}

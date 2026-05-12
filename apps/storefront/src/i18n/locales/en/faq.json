@@ -1,0 +1,90 @@
+{
+  "header": {
+    "subtitle": "Frequently Asked Questions",
+    "title": "How Can We Help?",
+    "description": "Find answers to common questions about ordering, shipping, sizing, and more."
+  },
+
+  "contactSection": {
+    "title": "Still Have Questions?",
+    "description": "Can't find what you're looking for? Our support team is here to help.",
+    "button": "Contact Support"
+  },
+
+  "categories": [
+    {
+      "id": "1",
+      "category": "Orders & Shipping",
+      "questions": [
+        {
+          "q": "How long does shipping take?",
+          "a": "Processing and shipping usually take around 7–28 business days depending on your region. Orders to South Africa and some African countries may take longer."
+        },
+        {
+          "q": "Can I track my order?",
+          "a": "Yes! Once your order has been shipped, you'll receive a tracking number via email."
+        },
+        {
+          "q": "Do I need to pay import taxes?",
+          "a": "Yes. Import taxes and customs fees depend on your country’s regulations and must be paid by the recipient."
+        }
+      ]
+    },
+
+    {
+      "id": "2",
+      "category": "Product Information",
+      "questions": [
+        {
+          "q": "Are the press-on nails reusable?",
+          "a": "Yes, our press-on nails can be reused if they are removed and stored carefully."
+        },
+        {
+          "q": "Do you offer custom nail designs?",
+          "a": "Yes! We accept custom press-on nail designs based on your ideas or reference images."
+        },
+        {
+          "q": "What is included in each set?",
+          "a": "Each order includes 10 designed nails, adhesive tabs, nail glue, a mini nail file, and a cuticle stick."
+        }
+      ]
+    },
+
+    {
+      "id": "3",
+      "category": "Sizing & Application",
+      "questions": [
+        {
+          "q": "How do I choose the correct nail size?",
+          "a": "Please measure your nails carefully according to our size guide before placing an order."
+        },
+        {
+          "q": "What if I choose the wrong size?",
+          "a": "We are not responsible for incorrect sizes provided by customers."
+        }
+      ]
+    },
+
+    {
+      "id": "4",
+      "category": "Returns & Exchanges",
+      "questions": [
+        {
+          "q": "Do you offer refunds or exchanges?",
+          "a": "No. Since all nail sets are handmade to order, we do not accept refunds, exchanges, cancellations, or product changes."
+        }
+      ]
+    },
+
+    {
+      "id": "5",
+      "category": "Contact & Support",
+      "questions": [
+        {
+          "q": "How can I contact the shop?",
+          "a": "You can contact us via Instagram @silver14nail or by email at silver14nail@gmail.com."
+        }
+      ]
+    }
+  ]
+}

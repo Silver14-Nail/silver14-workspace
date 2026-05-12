@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { usePathname } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import {
@@ -36,8 +36,6 @@ export function Navbar() {
   const { cartCount } = useCart();
   const { status, user } = useCustomerAuth();
   const pathname = usePathname();
-  const lng = pathname.split('/').filter(Boolean)[0] || 'en';
-  const localizedHref = (href: string) => `/${lng}${href}`;
   const announcementsResult = t('promotions', { returnObjects: true });
   const announcements = Array.isArray(announcementsResult) ? announcementsResult : [];
 
@@ -58,7 +56,7 @@ export function Navbar() {
     event.preventDefault();
 
     if (searchQuery.trim()) {
-      window.location.href = localizedHref(`/products?search=${encodeURIComponent(searchQuery)}`);
+      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`;
     }
   };
 
@@ -107,8 +105,8 @@ export function Navbar() {
             </button>
           </div>
 
-          <Link
-            href={`/${lng}`}
+          <LinkBase
+            href="/"
             className="text-center text-[#1A1A1A]"
             style={{
               fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
@@ -119,14 +117,14 @@ export function Navbar() {
             }}
           >
             Silver14 Nail
-          </Link>
+          </LinkBase>
 
           <div className="flex items-center justify-end gap-2 md:gap-4">
             <div className="hidden md:block">
               <HeaderPreferencesDropdown />
             </div>
-            <Link
-              href={localizedHref('/account')}
+            <LinkBase
+              href="/account"
               className="hidden items-center gap-1 p-1 text-[#5A5A5A] hover:text-[#1A1A1A] md:inline-flex"
               aria-label={t('account')}
             >
@@ -136,9 +134,9 @@ export function Navbar() {
                   {user.name.split(' ')[0]}
                 </span>
               ) : null}
-            </Link>
-            <Link
-              href={localizedHref('/cart')}
+            </LinkBase>
+            <LinkBase
+              href="/cart"
               className="relative p-1 text-[#5A5A5A] hover:text-[#1A1A1A]"
               aria-label={t('cart')}
             >
@@ -148,7 +146,7 @@ export function Navbar() {
                   {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}
-            </Link>
+            </LinkBase>
           </div>
         </div>
 
@@ -177,29 +175,29 @@ export function Navbar() {
                 >
                   <div className="border border-[#E5E5E5] bg-white py-2 shadow-lg">
                     {COLLECTIONS.map((collection) => (
-                      <Link
+                      <LinkBase
                         key={collection.id}
-                        href={localizedHref(
+                        href={
                           collection.id === 'all'
                             ? '/products'
-                            : `/products?collection=${collection.id}`,
-                        )}
+                            : `/products?collection=${collection.id}`
+                        }
                         className="block px-5 py-2.5 text-[12px] uppercase tracking-[0.12em] text-[#1A1A1A] hover:bg-[#F8F8F8]"
                       >
                         {collection.label}
-                      </Link>
+                      </LinkBase>
                     ))}
                   </div>
                 </div>
               </div>
             ) : (
-              <Link
+              <LinkBase
                 key={link.labelKey}
-                href={localizedHref(link.href)}
+                href={link.href}
                 className="text-[12px] uppercase tracking-[0.16em] text-[#303030] hover:text-[#8A8A8A]"
               >
                 {t(link.labelKey)}
-              </Link>
+              </LinkBase>
             ),
           )}
         </nav>
@@ -253,52 +251,52 @@ export function Navbar() {
               </button>
             </div>
             <nav className="flex-1 space-y-6 overflow-y-auto px-6 py-8">
-              <Link
-                href={localizedHref('/products')}
+              <LinkBase
+                href="/products"
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
                 {t('shopAll')}
-              </Link>
+              </LinkBase>
               <div className="space-y-3">
                 <p className="text-xs uppercase tracking-[0.15em] text-[#9A9A9A]">
                   {t('collections')}
                 </p>
                 {COLLECTIONS.slice(1).map((collection) => (
-                  <Link
+                  <LinkBase
                     key={collection.id}
-                    href={localizedHref(`/products?collection=${collection.id}`)}
+                    href={`/products?collection=${collection.id}`}
                     className="block pl-3 text-sm text-[#1A1A1A]"
                   >
                     {collection.label}
-                  </Link>
+                  </LinkBase>
                 ))}
               </div>
-              <Link
-                href={localizedHref('/wholesales')}
+              <LinkBase
+                href="/wholesales"
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
                 {t('wholesale')}
-              </Link>
-              <Link
-                href={localizedHref('/order/tracking')}
+              </LinkBase>
+              <LinkBase
+                href="/order/tracking"
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
                 {t('trackOrder')}
-              </Link>
-              <Link
-                href={localizedHref('/cart')}
+              </LinkBase>
+              <LinkBase
+                href="/cart"
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
                 {t('cart')} {cartCount > 0 && `(${cartCount})`}
-              </Link>
-              <Link
-                href={localizedHref('/account')}
+              </LinkBase>
+              <LinkBase
+                href="/account"
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
                 {status === 'authenticated' && user
                   ? `${t('account')} (${user.name})`
                   : t('account')}
-              </Link>
+              </LinkBase>
               <div className="space-y-4 border-t border-[#E8E8E8] pt-5">
                 <HeaderPreferencesDropdown align="left" />
               </div>

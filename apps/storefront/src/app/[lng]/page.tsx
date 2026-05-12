@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Package, RotateCcw, Ruler, Truck } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 
 import { ProductCard } from '@/components/shared/ProductCard';
@@ -11,13 +11,6 @@ import { products, heroImages } from '@/MOCK_DATAS/products';
 
 const newArrivals = products.filter((p) => p.isNew).slice(0, 4);
 const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4);
-
-const policies = [
-  { icon: Truck, key: 'shipping' },
-  { icon: Package, key: 'handmade' },
-  { icon: RotateCcw, key: 'reusable' },
-  { icon: Ruler, key: 'sizing' },
-];
 
 const SectionTitle = ({
   eyebrow,
@@ -82,7 +75,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-white/80 mb-10 text-sm md:text-base leading-relaxed tracking-wide">
-            {t('hero.descriptionLine1')}
+            <b className="text-[16px]">{t('hero.descriptionLine1')}</b>
             <br />
             {t('hero.descriptionLine2')}
           </p>
@@ -103,25 +96,6 @@ export default function HomePage() {
             </LinkBase>
           </div>
         </motion.div>
-      </section>
-
-      {/* POLICIES */}
-      <section className="border-y border-[#E8E8E8] bg-[#F8F8F8]">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#E8E8E8]">
-            {policies.map(({ icon: Icon, key }) => (
-              <div key={key} className="text-center px-6 py-8">
-                <Icon className="size-5 text-[#9A9A9A] mx-auto" />
-                <p className="text-xs uppercase tracking-widest mt-3">
-                  {t(`policies.${key}.title`)}
-                </p>
-                <p className="text-[#8A8A8A] text-xs mt-2 hidden md:block">
-                  {t(`policies.${key}.description`)}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* NEW ARRIVALS */}

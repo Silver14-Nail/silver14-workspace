@@ -1,0 +1,53 @@
+{
+  "hero": {
+    "subtitle": "About Us",
+    "title": "Handmade Press-On Nails",
+    "description": "Silver14 Nail is a handmade press-on nail brand founded in Vietnam for people who love unique nail art, fashion, and personal style."
+  },
+
+  "story": {
+    "title": "Our Story",
+    "paragraphs": {
+      "1": "Every nail set is carefully handmade by skilled nail artists using salon-quality materials, combining modern trends with attention to detail.",
+      "2": "From soft feminine styles to bold cyber and Y2K aesthetics, we aim to create artistic and reusable press-on nails.",
+      "3": "Our shop offers a variety of styles including cute nails, chrome nails, cat eye effects, seasonal collections, and custom designs based on customer preferences.",
+      "4": "Silver14 Nail press-on nails are lightweight, comfortable to wear, and reusable multiple times.",
+      "5": "Each set is carefully crafted and packaged for customers all around the world. Thank you for supporting Silver14 Nail."
+    }
+  },
+
+  "values": {
+    "subtitle": "What We Create",
+    "title": "Our Values",
+    "items": [
+      {
+        "icon": "Heart",
+        "title": "Handmade Quality",
+        "description": "Every set is individually handmade with care and attention to detail."
+      },
+      {
+        "icon": "Sparkles",
+        "title": "Creative Designs",
+        "description": "From cute styles to cyber Y2K aesthetics, we create unique nail art for every personality."
+      },
+      {
+        "icon": "Users",
+        "title": "Worldwide Customers",
+        "description": "We proudly create and ship nail sets for customers around the world."
+      },
+      {
+        "icon": "Award",
+        "title": "Reusable Comfort",
+        "description": "Our press-on nails are lightweight, comfortable, and designed to be reusable."
+      }
+    ]
+  },
+
+  "contact": {
+    "title": "Contact Us",
+    "description": "If you have any questions, custom order requests, or need help with your order, feel free to contact us.",
+    "responseTime": "We usually reply within 1–24 hours.",
+    "shopButton": "Shop Collection",
+    "contactButton": "Get in Touch"
+  }
+}

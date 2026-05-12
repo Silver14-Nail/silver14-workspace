@@ -17,9 +17,8 @@
   "closeMenu": "Đóng menu",
   "closeSearch": "Đóng tìm kiếm",
   "promotions": [
-    "Miễn phí vận chuyển cho đơn hàng trên $50",
-    "Giá đã bao gồm thuế. Không có phí ẩn khi thanh toán.",
-    "Mua 3 bộ móng tặng 1 bộ phụ kiện"
+    "Miễn phí vận chuyển cho đơn hàng trên $100",
+    "Giá đã bao gồm thuế. Không có phí ẩn khi thanh toán."
   ],
   "preferences": {
     "shipTo": "Giao đến",

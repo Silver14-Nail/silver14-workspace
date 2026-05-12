@@ -1,0 +1,103 @@
+{
+  "hero": {
+    "subtitle": "Shipping Information",
+    "title": "Worldwide Delivery",
+    "description": "We ship internationally with tracking included on every order."
+  },
+
+  "trustItems": [
+    {
+      "icon": "Truck",
+      "title": "Worldwide Shipping",
+      "desc": "Zone-based shipping rates"
+    },
+    {
+      "icon": "Package",
+      "title": "Tracking Included",
+      "desc": "Track every order"
+    },
+    {
+      "icon": "Globe",
+      "title": "Global Delivery",
+      "desc": "Shipping to many countries"
+    },
+    {
+      "icon": "Clock",
+      "title": "Processing Time",
+      "desc": "7–28 business days"
+    }
+  ],
+
+  "shippingRates": {
+    "title": "Shipping Rates",
+    "shippingFee": "Shipping Fee",
+    "countries": "Countries"
+  },
+
+  "shippingZones": [
+    {
+      "region": "Zone A",
+      "countries": "Malaysia, Brunei, Indonesia, Philippines, Thailand, Vanuatu",
+      "cost": "$10"
+    },
+    {
+      "region": "Zone B",
+      "countries": "Taiwan, India, China, Mongolia, Bangladesh, Laos, Cambodia, Myanmar, Kiribati, Tuvalu, Belgium, Italy, United States, Australia, United Kingdom, Germany, EU countries, Canada, Japan, New Zealand, Singapore, Hong Kong, UAE, Saudi Arabia",
+      "cost": "$15"
+    },
+    {
+      "region": "Zone C",
+      "countries": "Switzerland, Hungary, Denmark, Poland, Estonia, Ireland, Norway, Gibraltar, Jersey, Chile, Mexico, Brazil, Egypt, Ecuador, Jordan, Paraguay",
+      "cost": "$20"
+    },
+    {
+      "region": "Zone D",
+      "countries": "Argentina, Colombia, Kuwait",
+      "cost": "$25"
+    }
+  ],
+
+  "notes": {
+    "title": "Shipping Notes",
+    "items": {
+      "1": {
+        "title": "Import Taxes & Duties",
+        "description": "Shipping fees do not include import taxes or customs duties. Import taxes must be paid by the recipient according to local regulations."
+      },
+
+      "2": {
+        "title": "USA & Australia Orders",
+        "description": "For orders shipped to the United States, import taxes will be covered by the sender. Orders shipped to Australia are usually not subject to import taxes."
+      },
+
+      "3": {
+        "title": "Delivery Time",
+        "description": "Some regions in Africa and South America may experience longer shipping times than expected."
+      }
+    }
+  },
+
+  "faqSection": {
+    "title": "Common Questions"
+  },
+
+  "faqs": [
+    {
+      "q": "Can I track my order?",
+      "a": "Yes! Once your order has been shipped, you'll receive a tracking number via email."
+    },
+    {
+      "q": "Do shipping fees include import taxes?",
+      "a": "No. Import taxes and customs duties are not included in shipping fees."
+    },
+    {
+      "q": "Who pays import taxes?",
+      "a": "Import taxes are paid by the recipient according to local customs regulations."
+    }
+  ],
+
+  "cta": {
+    "description": "Still have questions about shipping?",
+    "button": "Contact Support"
+  }
+}
