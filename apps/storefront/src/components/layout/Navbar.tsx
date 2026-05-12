@@ -109,12 +109,13 @@ export function Navbar() {
 
           <Link
             href={`/${lng}`}
-            className="text-center uppercase text-[#1A1A1A]"
+            className="text-center text-[#1A1A1A]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
+              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+              fontSize: '1.6rem',
+              fontWeight: 400,
+              letterSpacing: '0.02em',
+              lineHeight: 1,
             }}
           >
             Silver14 Nail
@@ -232,12 +233,13 @@ export function Navbar() {
           <div className="absolute left-0 top-0 flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-[#E8E8E8] px-6 py-5">
               <span
-                className="uppercase text-[#1A1A1A]"
+                className="text-[#1A1A1A]"
                 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: '1.1rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.12em',
+                  fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+                  fontSize: '1.4rem',
+                  fontWeight: 400,
+                  letterSpacing: '0.02em',
+                  lineHeight: 1,
                 }}
               >
                 Silver14 Nail

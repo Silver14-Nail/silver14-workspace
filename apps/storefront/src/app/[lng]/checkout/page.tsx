@@ -57,10 +57,11 @@ export default function CheckoutPage() {
             href="/"
             className="text-[#1A1A1A]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontWeight: 600,
-              fontSize: '1.5rem',
-              letterSpacing: '0.25em',
+              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+              fontWeight: 400,
+              fontSize: '1.9rem',
+              letterSpacing: '0.02em',
+              lineHeight: 1,
             }}
           >
             {t('brand')}

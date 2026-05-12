@@ -82,10 +82,11 @@ export function Footer() {
             <p
               className="text-white mb-4"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontWeight: 600,
-                fontSize: '1.3rem',
-                letterSpacing: '0.25em',
+                fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+                fontWeight: 400,
+                fontSize: '1.65rem',
+                letterSpacing: '0.02em',
+                lineHeight: 1,
               }}
             >
               Silver14 Nail
@@ -208,7 +209,14 @@ export function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-white/10 py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[#5A5A5A] text-xs">{t('copyright')}</p>
+          <p
+            className="text-[#5A5A5A] text-xs"
+            style={{
+              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+            }}
+          >
+            {t('copyright')}
+          </p>
           <div className="flex items-center gap-3">
             <CreditCard className="size-4 text-[#5A5A5A]" />
             {/* Payment logos text */}
