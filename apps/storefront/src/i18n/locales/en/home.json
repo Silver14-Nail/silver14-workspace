@@ -1,9 +1,40 @@
 {
-    "hero": {
-      "title": "Luxury Press-On Nails",
-      "subtitle": "Handcrafted elegance at your fingertips",
-      "shopNow": "Shop Now"
+  "hero": {
+    "eyebrow": "Handcrafted Luxury",
+    "title": "Silver14 Nail",
+    "descriptionLine1": "Press-on nails crafted with precision and passion.",
+    "descriptionLine2": "Shipped from our atelier to your door, worldwide.",
+    "shopNow": "Shop Collection",
+    "wholesale": "Wholesale Enquiry"
+  },
+  "policies": {
+    "shipping": {
+      "title": "Worldwide Shipping",
+      "description": "Express shipping to EU, UK, USA & 60+ countries. Tracking provided."
     },
-    "featured": "Featured Collections",
-    "newArrivals": "New Arrivals"
+    "handmade": {
+      "title": "Handmade & Custom",
+      "description": "Each set crafted by hand. Custom sizing available for every order."
+    },
+    "reusable": {
+      "title": "Reusable Nails",
+      "description": "Our premium nails can be re-applied up to 3 times with proper care."
+    },
+    "sizing": {
+      "title": "Custom Sizing",
+      "description": "XS to XL and custom measurements. Perfect fit guaranteed."
+    }
+  },
+  "sections": {
+    "newArrivalsEyebrow": "Just Arrived",
+    "newArrivalsTitle": "New Collection",
+    "bestSellersEyebrow": "Customer Favourites",
+    "bestSellersTitle": "Best Sellers",
+    "viewAll": "View All"
+  },
+  "cta": {
+    "title": "Partner with Silver14 Nail",
+    "description": "Wholesale partnerships available globally.",
+    "button": "Submit Enquiry"
+  }
 }

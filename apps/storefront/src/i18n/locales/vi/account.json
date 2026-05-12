@@ -1,21 +1,21 @@
 {
-  "customerAccount": "Customer Account",
+  "customerAccount": "Tài khoản khách hàng",
   "email": "Email",
-  "role": "Role",
-  "accountDescription": "Account is optional. You can still checkout as a guest; this account area is reserved for order history, saved addresses, and wishlist.",
-  "continueShopping": "Continue Shopping",
-  "signOut": "Sign Out",
-  "signInTitle": "Customer Sign In",
-  "createAccountTitle": "Create Account",
-  "guestDescription": "Signing in is optional. Guests can still browse, add to cart, and complete checkout without an account.",
-  "signIn": "Sign In",
-  "register": "Register",
-  "name": "Name",
-  "password": "Password",
-  "pleaseWait": "Please wait...",
-  "createAccount": "Create Account",
+  "role": "Vai trò",
+  "accountDescription": "Tài khoản là tùy chọn. Bạn vẫn có thể thanh toán với tư cách khách; khu vực tài khoản dùng để xem lịch sử đơn hàng, địa chỉ đã lưu và danh sách yêu thích.",
+  "continueShopping": "Tiếp tục mua sắm",
+  "signOut": "Đăng xuất",
+  "signInTitle": "Đăng nhập khách hàng",
+  "createAccountTitle": "Tạo tài khoản",
+  "guestDescription": "Đăng nhập là tùy chọn. Khách vẫn có thể xem sản phẩm, thêm vào giỏ và hoàn tất thanh toán mà không cần tài khoản.",
+  "signIn": "Đăng nhập",
+  "register": "Đăng ký",
+  "name": "Tên",
+  "password": "Mật khẩu",
+  "pleaseWait": "Vui lòng chờ...",
+  "createAccount": "Tạo tài khoản",
   "errors": {
-    "registerFailed": "Unable to create this account.",
-    "invalidCredentials": "Invalid email or password."
+    "registerFailed": "Không thể tạo tài khoản này.",
+    "invalidCredentials": "Email hoặc mật khẩu không đúng."
   }
 }

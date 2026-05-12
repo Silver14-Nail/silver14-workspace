@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useT } from 'next-i18next/client';
 import {
   ChevronDown,
   ChevronLeft,
@@ -19,19 +20,14 @@ import { COLLECTIONS } from '../../MOCK_DATAS/products';
 import { HeaderPreferencesDropdown } from '../shared/HeaderPreferencesDropdown';
 
 const navLinks = [
-  { label: 'Shop', href: '/products' },
-  { label: 'Collections', href: '/products', hasDropdown: true },
-  { label: 'Wholesale', href: '/wholesales' },
-  { label: 'Track Order', href: '/order/tracking' },
-];
-
-const announcements = [
-  'Free shipping on orders over $50',
-  'Price includes tax. No hidden fees at checkout.',
-  'Buy 3 sets and get 1 accessory kit free',
+  { labelKey: 'shop', href: '/products' },
+  { labelKey: 'collections', href: '/products', hasDropdown: true },
+  { labelKey: 'wholesale', href: '/wholesales' },
+  { labelKey: 'trackOrder', href: '/order/tracking' },
 ];
 
 export function Navbar() {
+  const { t } = useT('nav');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -42,6 +38,8 @@ export function Navbar() {
   const pathname = usePathname();
   const lng = pathname.split('/').filter(Boolean)[0] || 'en';
   const localizedHref = (href: string) => `/${lng}${href}`;
+  const announcementsResult = t('promotions', { returnObjects: true });
+  const announcements = Array.isArray(announcementsResult) ? announcementsResult : [];
 
   useEffect(() => {
     setMobileOpen(false);
@@ -70,7 +68,7 @@ export function Navbar() {
         <div className="flex h-9 items-center justify-center border-b border-[#E6E6E6] bg-[#1A1A1A] px-4 text-white">
           <button
             type="button"
-            aria-label="Previous promotion"
+            aria-label={t('previousPromotion')}
             onClick={showPreviousAnnouncement}
             className="absolute left-4 p-1 text-white/75 hover:text-white"
           >
@@ -81,7 +79,7 @@ export function Navbar() {
           </p>
           <button
             type="button"
-            aria-label="Next promotion"
+            aria-label={t('nextPromotion')}
             onClick={showNextAnnouncement}
             className="absolute right-4 p-1 text-white/75 hover:text-white"
           >
@@ -94,7 +92,7 @@ export function Navbar() {
             <button
               className="p-1 md:hidden"
               type="button"
-              aria-label="Open menu"
+              aria-label={t('openMenu')}
               onClick={() => setMobileOpen(true)}
             >
               <Menu className="size-5" />
@@ -105,7 +103,7 @@ export function Navbar() {
               onClick={() => setSearchOpen((open) => !open)}
             >
               <Search className="size-4" />
-              <span className="hidden sm:inline">Search</span>
+              <span className="hidden sm:inline">{t('search')}</span>
             </button>
           </div>
 
@@ -129,7 +127,7 @@ export function Navbar() {
             <Link
               href={localizedHref('/account')}
               className="hidden items-center gap-1 p-1 text-[#5A5A5A] hover:text-[#1A1A1A] md:inline-flex"
-              aria-label="Account"
+              aria-label={t('account')}
             >
               <User className="size-4" />
               {status === 'authenticated' && user ? (
@@ -141,7 +139,7 @@ export function Navbar() {
             <Link
               href={localizedHref('/cart')}
               className="relative p-1 text-[#5A5A5A] hover:text-[#1A1A1A]"
-              aria-label="Shopping cart"
+              aria-label={t('cart')}
             >
               <ShoppingBag className="size-4" />
               {cartCount > 0 && (
@@ -157,7 +155,7 @@ export function Navbar() {
           {navLinks.map((link) =>
             link.hasDropdown ? (
               <div
-                key={link.label}
+                key={link.labelKey}
                 className="relative"
                 onMouseEnter={() => setCollectionsOpen(true)}
                 onMouseLeave={() => setCollectionsOpen(false)}
@@ -166,7 +164,7 @@ export function Navbar() {
                   type="button"
                   className="inline-flex items-center gap-1 text-[12px] uppercase tracking-[0.16em] text-[#303030] hover:text-[#8A8A8A]"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                   <ChevronDown className="size-3" />
                 </button>
                 <div
@@ -195,11 +193,11 @@ export function Navbar() {
               </div>
             ) : (
               <Link
-                key={link.label}
+                key={link.labelKey}
                 href={localizedHref(link.href)}
                 className="text-[12px] uppercase tracking-[0.16em] text-[#303030] hover:text-[#8A8A8A]"
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ),
           )}
@@ -213,10 +211,14 @@ export function Navbar() {
                 autoFocus
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search products..."
+                placeholder={t('searchProducts')}
                 className="flex-1 bg-transparent text-sm text-[#1A1A1A] outline-none placeholder:text-[#9A9A9A]"
               />
-              <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                aria-label={t('closeSearch')}
+              >
                 <X className="size-4 text-[#9A9A9A]" />
               </button>
             </form>
@@ -240,7 +242,11 @@ export function Navbar() {
               >
                 Silver14 Nail
               </span>
-              <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close menu">
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label={t('closeMenu')}
+              >
                 <X className="size-5 text-[#1A1A1A]" />
               </button>
             </div>
@@ -249,10 +255,12 @@ export function Navbar() {
                 href={localizedHref('/products')}
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
-                Shop All
+                {t('shopAll')}
               </Link>
               <div className="space-y-3">
-                <p className="text-xs uppercase tracking-[0.15em] text-[#9A9A9A]">Collections</p>
+                <p className="text-xs uppercase tracking-[0.15em] text-[#9A9A9A]">
+                  {t('collections')}
+                </p>
                 {COLLECTIONS.slice(1).map((collection) => (
                   <Link
                     key={collection.id}
@@ -267,25 +275,27 @@ export function Navbar() {
                 href={localizedHref('/wholesales')}
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
-                Wholesale
+                {t('wholesale')}
               </Link>
               <Link
                 href={localizedHref('/order/tracking')}
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
-                Track Order
+                {t('trackOrder')}
               </Link>
               <Link
                 href={localizedHref('/cart')}
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
-                Cart {cartCount > 0 && `(${cartCount})`}
+                {t('cart')} {cartCount > 0 && `(${cartCount})`}
               </Link>
               <Link
                 href={localizedHref('/account')}
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
               >
-                {status === 'authenticated' && user ? `Account (${user.name})` : 'Account'}
+                {status === 'authenticated' && user
+                  ? `${t('account')} (${user.name})`
+                  : t('account')}
               </Link>
               <div className="space-y-4 border-t border-[#E8E8E8] pt-5">
                 <HeaderPreferencesDropdown align="left" />

@@ -9,6 +9,8 @@ const i18nConfig: I18nConfig = {
     'account',
     'cart',
     'checkout',
+    'footer',
+    'home',
     'product',
     'nav',
     'tracking',
