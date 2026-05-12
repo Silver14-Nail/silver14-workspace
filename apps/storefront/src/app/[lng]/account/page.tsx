@@ -92,7 +92,19 @@ export default function AccountPage() {
   return (
     <main className="min-h-screen bg-[#FAFAFA] px-4 py-20">
       <section className="mx-auto max-w-md bg-white p-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-[#9A9A9A]">Silver14 Nail</p>
+        <p
+          className="text-[#9A9A9A]"
+          style={{
+            fontFamily: "'Grenze Gotisch', 'Pirata One', cursive",
+            fontSize: '1.45rem',
+            fontWeight: 500,
+            letterSpacing: '0.03em',
+            lineHeight: 1,
+            opacity: 0.9,
+          }}
+        >
+          Silver14 Nail
+        </p>
 
         <h1 className="mt-2 text-2xl text-[#1A1A1A]">
           {mode === 'login' ? t('signInTitle') : t('createAccountTitle')}

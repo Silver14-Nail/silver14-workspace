@@ -71,10 +71,10 @@ export default function HomePage() {
           <h1
             className="text-white mb-6"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontWeight: 300,
+              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+              fontWeight: 400,
               fontSize: 'clamp(3rem, 8vw, 5.5rem)',
-              letterSpacing: '0.1em',
+              letterSpacing: '0.02em',
               lineHeight: 1.1,
             }}
           >
