@@ -13,8 +13,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('owner@silver14.test');
   const [password, setPassword] = useState('password123');
   const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [twoFactorChallenge, setTwoFactorChallenge] =
-    useState<AdminTwoFactorChallenge | null>(null);
+  const [twoFactorChallenge, setTwoFactorChallenge] = useState<AdminTwoFactorChallenge | null>(
+    null,
+  );
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -86,9 +87,7 @@ export default function LoginPage() {
             <button
               className="rounded-md bg-neutral-950 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-400"
               disabled={
-                submitting ||
-                status === 'checking' ||
-                twoFactorCode.replace(/\s/g, '').length !== 6
+                submitting || status === 'checking' || twoFactorCode.replace(/\s/g, '').length !== 6
               }
               type="submit"
             >
@@ -108,32 +107,32 @@ export default function LoginPage() {
           </form>
         ) : (
           <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-700">
-            {t('form.email')}
-            <input
-              className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950 outline-none focus:border-neutral-600"
-              onChange={(event) => setEmail(event.target.value)}
-              type="email"
-              value={email}
-            />
-          </label>
-          <label className="grid gap-1.5 text-sm font-medium text-neutral-700">
-            {t('form.password')}
-            <input
-              className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950 outline-none focus:border-neutral-600"
-              onChange={(event) => setPassword(event.target.value)}
-              type="password"
-              value={password}
-            />
-          </label>
-          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
-          <button
-            className="rounded-md bg-neutral-950 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-400"
-            disabled={submitting || status === 'checking'}
-            type="submit"
-          >
-            {submitting ? t('login.signingIn') : t('action.signIn')}
-          </button>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-700">
+              {t('form.email')}
+              <input
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950 outline-none focus:border-neutral-600"
+                onChange={(event) => setEmail(event.target.value)}
+                type="email"
+                value={email}
+              />
+            </label>
+            <label className="grid gap-1.5 text-sm font-medium text-neutral-700">
+              {t('form.password')}
+              <input
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-normal text-neutral-950 outline-none focus:border-neutral-600"
+                onChange={(event) => setPassword(event.target.value)}
+                type="password"
+                value={password}
+              />
+            </label>
+            {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+            <button
+              className="rounded-md bg-neutral-950 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-400"
+              disabled={submitting || status === 'checking'}
+              type="submit"
+            >
+              {submitting ? t('login.signingIn') : t('action.signIn')}
+            </button>
           </form>
         )}
       </section>

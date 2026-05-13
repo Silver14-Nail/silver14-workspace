@@ -6,12 +6,9 @@ const ORDERS_STORAGE_KEY = 'lunelle_orders';
 
 const isSameCartItem = (
   item: CartItem,
-  target: { productId: string; size: string; shape: string; length: string },
+  target: { productId: string; size: string; shape: string },
 ) =>
-  item.product.id === target.productId &&
-  item.size === target.size &&
-  item.shape === target.shape &&
-  item.length === target.length;
+  item.product.id === target.productId && item.size === target.size && item.shape === target.shape;
 
 export const getCartItemCount = (items: CartItem[]) =>
   items.reduce((sum, item) => sum + item.quantity, 0);
@@ -26,7 +23,7 @@ export const getDiscountRate = (code: string) => DISCOUNT_CODES[code.toUpperCase
 
 export const removeCartItem = (
   items: CartItem[],
-  target: { productId: string; size: string; shape: string; length: string },
+  target: { productId: string; size: string; shape: string },
 ) => items.filter((item) => !isSameCartItem(item, target));
 
 export const readCartState = (initialState: CartState): CartState => {

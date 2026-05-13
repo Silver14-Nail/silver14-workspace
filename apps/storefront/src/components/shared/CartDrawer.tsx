@@ -18,23 +18,17 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     setHydrated(true);
   }, []);
 
-  const updateQuantity = (
-    productId: string,
-    size: string,
-    shape: string,
-    length: string,
-    newQuantity: number,
-  ) => {
+  const updateQuantity = (productId: string, size: string, shape: string, newQuantity: number) => {
     dispatch({
       type: 'UPDATE_QUANTITY',
-      payload: { productId, size, shape, length, quantity: newQuantity },
+      payload: { productId, size, shape, quantity: newQuantity },
     });
   };
 
-  const removeItem = (productId: string, size: string, shape: string, length: string) => {
+  const removeItem = (productId: string, size: string, shape: string) => {
     dispatch({
       type: 'REMOVE_ITEM',
-      payload: { productId, size, shape, length },
+      payload: { productId, size, shape },
     });
   };
 
@@ -98,7 +92,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                   return (
                     <div
-                      key={`${item.product.id}-${item.size}-${item.shape}-${item.length}`}
+                      key={`${item.product.id}-${item.size}-${item.shape}`}
                       className="flex gap-4 pb-4 border-b border-[#F0F0F0]"
                     >
                       {/* Image */}
@@ -120,9 +114,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <p className="text-[#9A9A9A] text-xs">{item.product.collection}</p>
                           </div>
                           <button
-                            onClick={() =>
-                              removeItem(item.product.id, item.size, item.shape, item.length)
-                            }
+                            onClick={() => removeItem(item.product.id, item.size, item.shape)}
                             className="text-[#9A9A9A] hover:text-[#1A1A1A] transition-colors p-1"
                           >
                             <X className="size-4" />
@@ -134,8 +126,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           <span>Size: {item.size}</span>
                           <span>·</span>
                           <span>Shape: {item.shape}</span>
-                          <span>·</span>
-                          <span>{item.length}</span>
                         </div>
 
                         {/* Quantity + Price */}
@@ -147,7 +137,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                   item.product.id,
                                   item.size,
                                   item.shape,
-                                  item.length,
                                   item.quantity - 1,
                                 )
                               }
@@ -164,7 +153,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                   item.product.id,
                                   item.size,
                                   item.shape,
-                                  item.length,
                                   item.quantity + 1,
                                 )
                               }

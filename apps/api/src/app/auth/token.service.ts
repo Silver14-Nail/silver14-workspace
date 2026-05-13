@@ -23,9 +23,7 @@ export class TokenService {
       throw new UnauthorizedException('Invalid token format');
     }
 
-    const expectedSignature = this.createSignature(
-      `${encodedHeader}.${encodedPayload}`,
-    );
+    const expectedSignature = this.createSignature(`${encodedHeader}.${encodedPayload}`);
 
     if (!this.safeCompare(signature, expectedSignature)) {
       throw new UnauthorizedException('Invalid token signature');
@@ -54,9 +52,7 @@ export class TokenService {
       sub: user.id,
       type,
     };
-    const encodedHeader = this.base64UrlEncode(
-      JSON.stringify({ alg: 'HS256', typ: 'JWT' }),
-    );
+    const encodedHeader = this.base64UrlEncode(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
     const encodedPayload = this.base64UrlEncode(JSON.stringify(payload));
     const signature = this.createSignature(`${encodedHeader}.${encodedPayload}`);
 
@@ -64,19 +60,14 @@ export class TokenService {
   }
 
   private createSignature(value: string) {
-    return createHmac('sha256', this.getSecret())
-      .update(value)
-      .digest('base64url');
+    return createHmac('sha256', this.getSecret()).update(value).digest('base64url');
   }
 
   private safeCompare(left: string, right: string) {
     const leftBuffer = Buffer.from(left);
     const rightBuffer = Buffer.from(right);
 
-    return (
-      leftBuffer.length === rightBuffer.length &&
-      timingSafeEqual(leftBuffer, rightBuffer)
-    );
+    return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
   }
 
   private base64UrlEncode(value: string) {
@@ -89,9 +80,7 @@ export class TokenService {
 
   private parsePayload(encodedPayload: string): AuthTokenPayload {
     try {
-      const payload = JSON.parse(
-        this.base64UrlDecode(encodedPayload),
-      ) as Partial<AuthTokenPayload>;
+      const payload = JSON.parse(this.base64UrlDecode(encodedPayload)) as Partial<AuthTokenPayload>;
 
       if (
         typeof payload.email !== 'string' ||

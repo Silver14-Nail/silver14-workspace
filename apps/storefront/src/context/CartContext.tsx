@@ -51,11 +51,11 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | {
       type: 'REMOVE_ITEM';
-      payload: { productId: string; size: string; shape: string; length: string };
+      payload: { productId: string; size: string; shape: string };
     }
   | {
       type: 'UPDATE_QUANTITY';
-      payload: { productId: string; size: string; shape: string; length: string; quantity: number };
+      payload: { productId: string; size: string; shape: string; quantity: number };
     }
   | { type: 'APPLY_DISCOUNT'; payload: { code: string; rate: number } }
   | { type: 'REMOVE_DISCOUNT' }
