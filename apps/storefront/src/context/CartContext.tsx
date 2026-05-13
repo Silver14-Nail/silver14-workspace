@@ -17,7 +17,6 @@ export interface CartItem {
   product: Product;
   size: string;
   shape: string;
-  length: string;
   quantity: number;
 }
 
@@ -75,8 +74,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         (i) =>
           i.product.id === action.payload.product.id &&
           i.size === action.payload.size &&
-          i.shape === action.payload.shape &&
-          i.length === action.payload.length,
+          i.shape === action.payload.shape,
       );
       if (existing !== -1) {
         const updated = [...state.items];
@@ -105,8 +103,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         items: state.items.map((i) =>
           i.product.id === action.payload.productId &&
           i.size === action.payload.size &&
-          i.shape === action.payload.shape &&
-          i.length === action.payload.length
+          i.shape === action.payload.shape
             ? { ...i, quantity: action.payload.quantity }
             : i,
         ),

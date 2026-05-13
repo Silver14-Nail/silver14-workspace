@@ -17,6 +17,7 @@ const i18nConfig: I18nConfig = {
     'returns',
     'about-us',
     'product',
+    'product-details',
     'nav',
     'tracking',
     'trust',

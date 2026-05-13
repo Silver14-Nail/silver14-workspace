@@ -1,0 +1,77 @@
+{
+  "notFound": {
+    "message": "Product not found",
+    "backToShop": "Back to Shop"
+  },
+  "breadcrumb": {
+    "ariaLabel": "Page navigation",
+    "back": "Back",
+    "shop": "Shop"
+  },
+  "gallery": {
+    "thumbnailsAriaLabel": "Product image thumbnails",
+    "thumbnailAriaLabel": "View image {{index}} of {{name}}",
+    "saleBadge": "Sale"
+  },
+  "rating": {
+    "ariaLabel": "Rated {{rating}} out of 5, {{count}} reviews",
+    "reviews": "{{count}} reviews"
+  },
+  "price": {
+    "save": "Save €{{amount}}"
+  },
+  "shipping": {
+    "label": "Shipping",
+    "calculated_at_checkout": "calculated at checkout."
+  },
+  "selectors": {
+    "shape": {
+      "label": "Nail Shape",
+      "placeholder": "Select a shape"
+    },
+    "size": {
+      "label": "Nail Size",
+      "placeholder": "Select a size"
+    },
+    "customization": {
+      "label": "Customization",
+      "hint": "If you choose custom (strongly recommended), leave your nail size here. Kindly check your email regularly so we can support you promptly if there's any sizing concern.",
+      "placeholder": "Enter custom text or design ideas"
+    }
+  },
+  "quantity": {
+    "ariaLabel": "Quantity selector",
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity"
+  },
+  "actions": {
+    "soldOut": "Sold Out",
+    "selectOptions": "Select Options",
+    "addToBag": "Add to Bag",
+    "addToWishlist": "Add to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "selectHint": "Please select size, shape, and length"
+  },
+  "trust": {
+    "freeShipping": "Free shipping over €100",
+    "handmade": "Handmade with care"
+  },
+  "accordion": {
+    "description": {
+      "title": "Description",
+      "processingTime": "Processing Time:"
+    },
+    "shipping": {
+      "title": "Shipping & Returns",
+      "worldwide": "🌍 <strong>Worldwide Shipping</strong> – We ship to over 60 countries including all EU members.",
+      "timing": "⏱ <strong>Delivery Time</strong> – 7–28 days. Delivery to Africa, South America, or remote areas may take longer than expected.",
+      "freeThreshold": "📦 <strong>Free Shipping</strong> – Available on all orders over $100.",
+      "support": "💬 <strong>Customer Support</strong> – Contact us via the chat button or social media for 24h support.",
+      "noRefund": "We do not support refunds, exchanges, cancellations, or product swaps after an order is placed. Please carefully check and measure your nail size before purchasing to ensure the best fit. The shop is not responsible for incorrect size selections. All products are made according to the information provided at the time of order."
+    }
+  },
+  "related": {
+    "eyebrow": "You May Also Like",
+    "heading": "Related Products"
+  }
+}

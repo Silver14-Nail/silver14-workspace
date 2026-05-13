@@ -43,54 +43,104 @@ export default function HomePage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Desktop Image */}
         <ImageWithFallback
-          src={heroImages.main}
+          src={heroImages.desktop}
           alt="Silver14 Nail Hero"
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="
+            absolute inset-0
+            hidden md:block
+            w-full h-full
+            object-cover object-center
+          "
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/50" />
 
+        {/* Mobile Image */}
+        <ImageWithFallback
+          src={heroImages.mobile}
+          alt="Silver14 Nail Hero Mobile"
+          className="
+            absolute inset-0
+            block md:hidden
+            w-full h-full
+            object-cover object-center
+          "
+        />
+
+        {/* Softer overlay */}
+        <div className="absolute inset-0 bg-black/35" />
+
+        {/* Content */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="relative z-10 text-center px-6 max-w-2xl mx-auto"
+          className="relative z-10 text-center px-6 max-w-[720px] mx-auto"
         >
-          <p className="text-white/70 uppercase tracking-[0.3em] text-xs mb-5">
+          {/* Eyebrow */}
+          <p className="text-white/80 uppercase tracking-[0.35em] text-[11px] md:text-xs mb-6">
             {t('hero.eyebrow')}
           </p>
 
+          {/* Title */}
           <h1
             className="text-white mb-6"
             style={{
-              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
-              fontWeight: 400,
-              fontSize: 'clamp(3rem, 8vw, 5.5rem)',
-              letterSpacing: '0.02em',
-              lineHeight: 1.1,
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 300,
+              fontSize: 'clamp(3.5rem, 9vw, 6.5rem)',
+              lineHeight: 1,
+              letterSpacing: '-0.02em',
             }}
           >
             {t('hero.title')}
           </h1>
 
-          <p className="text-white/80 mb-10 text-sm md:text-base leading-relaxed tracking-wide">
-            <b className="text-[16px]">{t('hero.descriptionLine1')}</b>
-            <br />
-            {t('hero.descriptionLine2')}
-          </p>
+          {/* Description */}
+          <div className="space-y-5 mb-10">
+            <p className="text-white font-semibold text-[18px] md:text-[22px] leading-snug">
+              {t('hero.descriptionLine1')}
+            </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <p className="text-white/85 text-[15px] md:text-[18px] leading-relaxed max-w-[640px] mx-auto">
+              {t('hero.descriptionLine2')}
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex flex-col gap-4 w-full max-w-[520px] mx-auto">
             <LinkBase
               href="/products"
-              className="inline-flex items-center justify-center gap-2 bg-white text-[#1A1A1A] px-9 py-4 text-xs uppercase tracking-[0.15em]"
+              className="
+          h-[64px]
+          bg-white
+          text-black
+          uppercase
+          tracking-[0.25em]
+          text-[13px]
+          flex items-center justify-center gap-3
+          transition-all duration-300
+          hover:bg-neutral-100
+        "
             >
-              {t('hero.shopNow')} <ArrowRight className="size-3.5" />
+              {t('hero.shopNow')}
+              <ArrowRight className="size-4" />
             </LinkBase>
 
             <LinkBase
               href="/wholesales"
-              className="inline-flex items-center justify-center gap-2 border border-white text-white px-9 py-4 text-xs uppercase tracking-[0.15em]"
+              className="
+          h-[64px]
+          border border-white/70
+          text-white
+          uppercase
+          tracking-[0.25em]
+          text-[13px]
+          flex items-center justify-center
+          transition-all duration-300
+          hover:bg-white/10
+        "
             >
               {t('hero.wholesale')}
             </LinkBase>

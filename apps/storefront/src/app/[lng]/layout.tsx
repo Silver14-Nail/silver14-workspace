@@ -8,6 +8,7 @@ import {
 } from 'next-i18next/server';
 import { I18nProvider } from 'next-i18next/client';
 import { CartProvider } from '../../context/CartContext';
+import { WishlistProvider } from '../../context/WishlistContext';
 import { Footer } from '../../components/layout/Footer';
 import { Navbar } from '../../components/layout/Navbar';
 import { CustomerAuthProvider } from '../../features/auth/customer-auth-provider';
@@ -66,11 +67,13 @@ export default async function RootLayout({
         </Script>
         <I18nProvider language={lng} resources={resources}>
           <CustomerAuthProvider>
-            <CartProvider>
-              <Navbar />
-              {children}
-              <Footer />
-            </CartProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <Navbar />
+                {children}
+                <Footer />
+              </CartProvider>
+            </WishlistProvider>
           </CustomerAuthProvider>
         </I18nProvider>
       </body>
