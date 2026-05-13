@@ -61,8 +61,6 @@ export function CartPreviewDialog({
               <span>Size: {addedItem.size}</span>
               <span>/</span>
               <span>Shape: {addedItem.shape}</span>
-              <span>/</span>
-              <span>Length: {addedItem.length}</span>
             </div>
             <div className="flex items-center gap-3 mt-2">
               <span

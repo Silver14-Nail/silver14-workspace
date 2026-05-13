@@ -11,6 +11,6 @@ export interface CartItemType {
   };
   size: string;
   shape: string;
-  length: string;
+  length?: string;
   quantity: number;
 }

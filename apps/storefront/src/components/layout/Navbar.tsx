@@ -18,6 +18,7 @@ import { useCart } from '../../context/CartContext';
 import { useCustomerAuth } from '../../features/auth/customer-auth-provider';
 import { COLLECTIONS } from '../../MOCK_DATAS/products';
 import { HeaderPreferencesDropdown } from '../shared/HeaderPreferencesDropdown';
+import { CartDrawer } from '../shared/CartDrawer';
 
 const navLinks = [
   { labelKey: 'shop', href: '/products' },
@@ -33,6 +34,9 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [announcementIndex, setAnnouncementIndex] = useState(0);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
   const { cartCount } = useCart();
   const { status, user } = useCustomerAuth();
   const pathname = usePathname();
@@ -43,6 +47,10 @@ export function Navbar() {
     setMobileOpen(false);
     setSearchOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   const showPreviousAnnouncement = () => {
     setAnnouncementIndex((index) => (index === 0 ? announcements.length - 1 : index - 1));
@@ -135,18 +143,17 @@ export function Navbar() {
                 </span>
               ) : null}
             </LinkBase>
-            <LinkBase
-              href="/cart"
-              className="relative p-1 text-[#5A5A5A] hover:text-[#1A1A1A]"
-              aria-label={t('cart')}
+            <button
+              onClick={() => setCartOpen(true)}
+              className={`relative  transition-all hover:opacity-70 p-1`}
             >
-              <ShoppingBag className="size-4" />
-              {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-[#1A1A1A] text-[9px] font-medium text-white">
+              <ShoppingBag className="size-[18px]" />
+              {hydrated && cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-[9px] rounded-full size-4 flex items-center justify-center font-medium">
                   {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}
-            </LinkBase>
+            </button>
           </div>
         </div>
 
@@ -283,12 +290,17 @@ export function Navbar() {
               >
                 {t('trackOrder')}
               </LinkBase>
-              <LinkBase
-                href="/cart"
-                className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+              <button
+                onClick={() => setCartOpen(true)}
+                className={`relative  transition-all hover:opacity-70 p-1`}
               >
-                {t('cart')} {cartCount > 0 && `(${cartCount})`}
-              </LinkBase>
+                <ShoppingBag className="size-[18px]" />
+                {hydrated && cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-[9px] rounded-full size-4 flex items-center justify-center font-medium">
+                    {cartCount > 99 ? '99+' : cartCount}
+                  </span>
+                )}
+              </button>
               <LinkBase
                 href="/account"
                 className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
@@ -304,6 +316,8 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

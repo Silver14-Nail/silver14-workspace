@@ -1,9 +1,11 @@
 'use client';
 
 import { motion } from 'motion/react';
+import { Heart } from 'lucide-react';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { Product } from '@/MOCK_DATAS/products';
+import { useWishlist } from '../../context/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +14,14 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className = '' }: ProductCardProps) {
   const displayPrice = product.salePrice ?? product.price;
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const inWishlist = isInWishlist(product.id);
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
 
   return (
     <motion.div
@@ -28,6 +38,17 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
+
+          {/* Wishlist Button */}
+          <button
+            onClick={handleWishlistClick}
+            className={`absolute top-3 right-3 p-2 rounded-full transition-all ${
+              inWishlist ? 'bg-[#1A1A1A] text-white' : 'bg-white/90 text-[#1A1A1A] hover:bg-white'
+            }`}
+          >
+            <Heart className={`size-4 ${inWishlist ? 'fill-white' : ''}`} />
+          </button>
+
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {product.isNew && (
@@ -92,11 +113,11 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
               className="text-[#1A1A1A] text-sm"
               style={{ fontWeight: product.salePrice ? 400 : 500 }}
             >
-              ${displayPrice.toFixed(2)}
+              €{displayPrice.toFixed(2)}
             </span>
             {product.salePrice && (
               <span className="text-[#9A9A9A] text-sm line-through">
-                ${product.price.toFixed(2)}
+                €{product.price.toFixed(2)}
               </span>
             )}
           </div>

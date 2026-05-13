@@ -1,0 +1,77 @@
+{
+  "notFound": {
+    "message": "Không tìm thấy sản phẩm",
+    "backToShop": "Quay lại cửa hàng"
+  },
+  "breadcrumb": {
+    "ariaLabel": "Điều hướng trang",
+    "back": "Quay lại",
+    "shop": "Cửa hàng"
+  },
+  "gallery": {
+    "thumbnailsAriaLabel": "Ảnh thu nhỏ của sản phẩm",
+    "thumbnailAriaLabel": "Xem ảnh {{index}} của {{name}}",
+    "saleBadge": "Khuyến mãi"
+  },
+  "rating": {
+    "ariaLabel": "Đánh giá {{rating}} trên 5, {{count}} đánh giá",
+    "reviews": "{{count}} đánh giá"
+  },
+  "price": {
+    "save": "Tiết kiệm €{{amount}}"
+  },
+  "shipping": {
+    "label": "Phí vận chuyển",
+    "calculated_at_checkout": "được tính khi thanh toán."
+  },
+  "selectors": {
+    "shape": {
+      "label": "Hình dạng móng",
+      "placeholder": "Chọn hình dạng"
+    },
+    "size": {
+      "label": "Kích cỡ móng",
+      "placeholder": "Chọn kích cỡ"
+    },
+    "customization": {
+      "label": "Tùy chỉnh",
+      "hint": "Nếu bạn chọn tùy chỉnh (được khuyến nghị), hãy để lại kích thước móng của bạn tại đây. Vui lòng kiểm tra email thường xuyên để chúng tôi có thể hỗ trợ kịp thời nếu có vấn đề về size.",
+      "placeholder": "Nhập nội dung tùy chỉnh hoặc ý tưởng thiết kế"
+    }
+  },
+  "quantity": {
+    "ariaLabel": "Chọn số lượng",
+    "decrease": "Giảm số lượng",
+    "increase": "Tăng số lượng"
+  },
+  "actions": {
+    "soldOut": "Hết hàng",
+    "selectOptions": "Chọn tùy chọn",
+    "addToBag": "Thêm vào giỏ",
+    "addToWishlist": "Thêm vào danh sách yêu thích",
+    "removeFromWishlist": "Xóa khỏi danh sách yêu thích",
+    "selectHint": "Vui lòng chọn kích cỡ, hình dạng và độ dài"
+  },
+  "trust": {
+    "freeShipping": "Miễn phí vận chuyển trên €100",
+    "handmade": "Được làm thủ công cẩn thận"
+  },
+  "accordion": {
+    "description": {
+      "title": "Mô tả",
+      "processingTime": "Thời gian xử lý:"
+    },
+    "shipping": {
+      "title": "Vận chuyển & Đổi trả",
+      "worldwide": "🌍 <strong>Giao hàng toàn cầu</strong> – Hỗ trợ vận chuyển đến hơn 60 quốc gia bao gồm tất cả các thành viên EU.",
+      "timing": "⏱ <strong>Thời gian giao hàng</strong> – Từ 7–28 ngày. Giao hàng đến châu Phi, Nam Mỹ hoặc các khu vực xa xôi có thể mất nhiều thời gian hơn dự kiến.",
+      "freeThreshold": "📦 <strong>Miễn phí vận chuyển</strong> – Áp dụng cho tất cả đơn hàng trên $100.",
+      "support": "💬 <strong>Hỗ trợ khách hàng</strong> – Liên hệ với chúng tôi qua nút chat hoặc mạng xã hội để được hỗ trợ 24h.",
+      "noRefund": "Chúng tôi không hỗ trợ hoàn tiền, đổi trả, hủy hoặc đổi sản phẩm sau khi đặt hàng. Vui lòng kiểm tra và đo size móng kĩ lưỡng trước khi mua để đảm bảo sản phẩm vừa vặn nhất. Shop sẽ không chịu trách nhiệm đối với các trường hợp chọn sai kích thước. Tất cả sản phẩm đều được làm theo đúng thông tin khách đã đặt."
+    }
+  },
+  "related": {
+    "eyebrow": "Bạn có thể thích",
+    "heading": "Sản phẩm liên quan"
+  }
+}

@@ -17,7 +17,6 @@ export interface CartItem {
   product: Product;
   size: string;
   shape: string;
-  length: string;
   quantity: number;
 }
 
@@ -52,11 +51,11 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | {
       type: 'REMOVE_ITEM';
-      payload: { productId: string; size: string; shape: string; length: string };
+      payload: { productId: string; size: string; shape: string };
     }
   | {
       type: 'UPDATE_QUANTITY';
-      payload: { productId: string; size: string; shape: string; length: string; quantity: number };
+      payload: { productId: string; size: string; shape: string; quantity: number };
     }
   | { type: 'APPLY_DISCOUNT'; payload: { code: string; rate: number } }
   | { type: 'REMOVE_DISCOUNT' }
@@ -75,8 +74,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         (i) =>
           i.product.id === action.payload.product.id &&
           i.size === action.payload.size &&
-          i.shape === action.payload.shape &&
-          i.length === action.payload.length,
+          i.shape === action.payload.shape,
       );
       if (existing !== -1) {
         const updated = [...state.items];
@@ -105,8 +103,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         items: state.items.map((i) =>
           i.product.id === action.payload.productId &&
           i.size === action.payload.size &&
-          i.shape === action.payload.shape &&
-          i.length === action.payload.length
+          i.shape === action.payload.shape
             ? { ...i, quantity: action.payload.quantity }
             : i,
         ),

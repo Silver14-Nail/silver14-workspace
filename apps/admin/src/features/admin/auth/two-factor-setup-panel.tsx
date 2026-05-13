@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  createAdminTwoFactorSetup,
-  enableAdminTwoFactor,
-} from './admin-auth.api';
+import { createAdminTwoFactorSetup, enableAdminTwoFactor } from './admin-auth.api';
 import { useAdminAuth } from './admin-auth-provider';
 import type { AdminTwoFactorSetup } from './admin-auth.types';
 
@@ -57,9 +54,8 @@ export function TwoFactorSetupPanel() {
     <div className="grid gap-5">
       <div>
         <p className="text-sm leading-6 text-neutral-500">
-          Add Silver14 Nail Admin to Google Authenticator or Microsoft
-          Authenticator, then enter the 6-digit code to enable 2FA for this
-          account.
+          Add Silver14 Nail Admin to Google Authenticator or Microsoft Authenticator, then enter the
+          6-digit code to enable 2FA for this account.
         </p>
       </div>
 
@@ -72,11 +68,7 @@ export function TwoFactorSetupPanel() {
       {setup?.enabled === false ? (
         <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
           <div className="w-fit max-w-full rounded-md border border-neutral-200 bg-white p-4">
-            <QRCodeSVG
-              className="h-auto max-w-full"
-              size={180}
-              value={setup.otpAuthUrl}
-            />
+            <QRCodeSVG className="h-auto max-w-full" size={180} value={setup.otpAuthUrl} />
           </div>
           <div className="grid content-start gap-4">
             <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3">

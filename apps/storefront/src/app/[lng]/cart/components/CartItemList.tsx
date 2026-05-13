@@ -33,7 +33,7 @@ export function CartItemList({ items, onQuantityChange, onRemove }: CartItemList
       <AnimatePresence>
         {items.map((item) => (
           <CartItemRow
-            key={`${item.product.id}-${item.size}-${item.shape}-${item.length}`}
+            key={`${item.product.id}-${item.size}-${item.shape}`}
             item={item}
             onQuantityChange={onQuantityChange}
             onRemove={onRemove}
@@ -82,7 +82,7 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
             {item.product.name}
           </Link>
           <p className="text-[#9A9A9A] text-xs mt-1">
-            {item.size} / {item.shape} / {item.length}
+            {item.size} / {item.shape}
           </p>
           <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">${lineTotal}</p>
         </div>

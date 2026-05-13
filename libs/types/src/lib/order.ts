@@ -4,7 +4,7 @@ export interface OrderItem {
   productImage: string;
   size: string;
   shape: string;
-  length: string;
+  length?: string;
   quantity: number;
   price: number;
   total: number;
