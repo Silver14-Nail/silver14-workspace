@@ -87,14 +87,14 @@ export class Coupon extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'starts_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   startsAt: Date | null;
 
   @Column({
     name: 'expires_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   expiresAt: Date | null;

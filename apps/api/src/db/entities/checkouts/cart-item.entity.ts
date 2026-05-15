@@ -36,7 +36,7 @@ export class CartItem extends AbstractEntity {
 
   @Column({
     name: 'custom_measurements',
-    type: 'jsonb',
+    type: 'json',
     nullable: true,
   })
   customMeasurements: {

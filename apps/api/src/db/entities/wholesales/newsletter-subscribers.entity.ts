@@ -32,7 +32,7 @@ export class NewsletterSubscriber extends AbstractEntity {
   status: NewsletterStatus;
 
   @Column({
-    type: 'jsonb',
+    type: 'json',
     nullable: true,
   })
   preferences: Record<string, boolean> | null;
@@ -45,7 +45,7 @@ export class NewsletterSubscriber extends AbstractEntity {
 
   @Column({
     name: 'unsubscribed_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   unsubscribedAt: Date | null;

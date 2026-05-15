@@ -54,14 +54,14 @@ export class Payment extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'gateway_response',
-    type: 'jsonb',
+    type: 'json',
     nullable: true,
   })
   gatewayResponse: Record<string, any> | null;
 
   @Column({
     name: 'paid_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   paidAt: Date | null;

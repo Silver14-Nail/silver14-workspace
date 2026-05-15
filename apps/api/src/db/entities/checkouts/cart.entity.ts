@@ -43,7 +43,7 @@ export class Cart extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'expires_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   expiresAt: Date | null;
