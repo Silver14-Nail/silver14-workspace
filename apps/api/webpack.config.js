@@ -1,19 +1,25 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
 const webpack = require('webpack');
+const path = require('path');
+const { join } = require('path');
 
 module.exports = {
   output: {
     path: join(__dirname, 'dist'),
     clean: true,
-    ...(process.env.NODE_ENV !== 'production' && {
-      devtoolModuleFilenameTemplate: '[absolute-resource-path]',
-    }),
   },
+
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+
   plugins: [
     new webpack.IgnorePlugin({
       resourceRegExp: /^@nestjs\/(microservices|websockets)/,
     }),
+
     new NxAppWebpackPlugin({
       target: 'node',
       compiler: 'tsc',
@@ -25,5 +31,14 @@ module.exports = {
       generatePackageJson: false,
       sourceMap: true,
     }),
+  ],
+
+  ignoreWarnings: [
+    { module: /typeorm/ },
+    { module: /@nestjs/ },
+    { module: /express/ },
+    { module: /iterare/ },
+    { module: /load-esm/ },
+    { module: /app-root-path/ },
   ],
 };
