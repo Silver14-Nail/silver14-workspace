@@ -80,7 +80,7 @@ export class WholesaleAccount extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'approved_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   approvedAt: Date | null;

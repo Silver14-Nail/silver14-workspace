@@ -65,7 +65,7 @@ export class Order extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'contact_snapshot',
-    type: 'jsonb',
+    type: 'json',
   })
   contactSnapshot: {
     email: string;
@@ -75,7 +75,7 @@ export class Order extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'shipping_snapshot',
-    type: 'jsonb',
+    type: 'json',
   })
   shippingSnapshot: {
     recipientName: string;

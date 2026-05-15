@@ -40,14 +40,14 @@ export class CheckoutSession extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'contact_snapshot',
-    type: 'jsonb',
+    type: 'json',
     nullable: true,
   })
   contactSnapshot: Record<string, any> | null;
 
   @Column({
     name: 'shipping_snapshot',
-    type: 'jsonb',
+    type: 'json',
     nullable: true,
   })
   shippingSnapshot: Record<string, any> | null;
@@ -78,7 +78,7 @@ export class CheckoutSession extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'expires_at',
-    type: 'timestamptz',
+    type: 'timestamp',
   })
   expiresAt: Date;
 }

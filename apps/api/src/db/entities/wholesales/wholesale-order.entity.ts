@@ -58,7 +58,7 @@ export class WholesaleOrder extends SoftDeleteAbstractEntity {
 
   @Column({
     name: 'due_date',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   dueDate: Date | null;

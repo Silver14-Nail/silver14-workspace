@@ -68,7 +68,7 @@ export class WholesaleEnquiry extends AbstractEntity {
 
   @Column({
     name: 'collections_of_interest',
-    type: 'jsonb',
+    type: 'json',
     nullable: true,
   })
   collectionsOfInterest: string[] | null;
@@ -103,7 +103,7 @@ export class WholesaleEnquiry extends AbstractEntity {
 
   @Column({
     name: 'responded_at',
-    type: 'timestamptz',
+    type: 'timestamp',
     nullable: true,
   })
   respondedAt: Date | null;
