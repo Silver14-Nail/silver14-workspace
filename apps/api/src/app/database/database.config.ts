@@ -1,7 +1,4 @@
-import type {
-  DatabaseConnectionOptions,
-  DatabaseProvider,
-} from './database.types';
+import type { DatabaseConnectionOptions, DatabaseProvider } from './database.types';
 
 const DEFAULT_PORT_BY_PROVIDER: Record<DatabaseProvider, number> = {
   mongodb: 27017,
@@ -31,10 +28,7 @@ function getDatabaseProvider(value: string | undefined): DatabaseProvider {
   return 'postgres';
 }
 
-function getDatabasePort(
-  value: string | undefined,
-  provider: DatabaseProvider,
-): number {
+function getDatabasePort(value: string | undefined, provider: DatabaseProvider): number {
   if (!value) {
     return DEFAULT_PORT_BY_PROVIDER[provider];
   }

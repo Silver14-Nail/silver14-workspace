@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 
@@ -16,6 +16,6 @@ export const AppDataSource = new DataSource({
   connectorPackage: 'mysql2',
   synchronize: false,
   logging: true,
-  entities: ['./src/db/entities/*.entity.ts'],
-  migrations: ['./src/db/migrations/*.ts'],
+  entities: ['src/db/entities/**/*.entity.ts'],
+  migrations: ['src/db/migrations/*.ts'],
 });

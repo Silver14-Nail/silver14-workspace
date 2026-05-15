@@ -1,79 +1,37 @@
 import { Injectable } from '@nestjs/common';
-import { getDatabaseConfig } from './database.config';
-import type {
-  DatabaseConnectionOptions,
-  DatabaseConnectionState,
-} from './database.types';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import type { DatabaseConnectionState } from './database.types';
 
 @Injectable()
 export class DatabaseService {
-  private connectionState: DatabaseConnectionState | null = null;
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  getConfig(): DatabaseConnectionOptions {
-    return getDatabaseConfig();
+  getConnectionState(): DatabaseConnectionState {
+    const options = this.dataSource.options as any;
+
+    return {
+      connected: this.dataSource.isInitialized,
+      database: options.database || 'not-configured',
+      host: options.host || 'not-configured',
+      port: options.port,
+      provider: options.type,
+      ssl: !!options.ssl,
+      reason: this.dataSource.isInitialized ? undefined : 'Database driver is not initialized',
+    };
   }
 
   async openConnection(): Promise<DatabaseConnectionState> {
-    const config = this.getConfig();
-    const missingKeys = this.getMissingRequiredKeys(config);
-
-    if (missingKeys.length > 0) {
-      this.connectionState = {
-        connected: false,
-        database: config.database || 'not-configured',
-        host: config.host || 'not-configured',
-        port: config.port,
-        provider: config.provider,
-        reason: `Missing database configuration: ${missingKeys.join(', ')}`,
-        ssl: config.ssl,
-      };
-
-      return this.connectionState;
+    if (!this.dataSource.isInitialized) {
+      try {
+        await this.dataSource.initialize();
+      } catch (error) {
+        const state = this.getConnectionState();
+        state.reason = error.message;
+        return state;
+      }
     }
 
-    // TODO(database): instantiate the real database client here.
-    // For example: create a Prisma/TypeORM/pg connection using config, then store
-    // that client in this service and inject it into repositories.
-    this.connectionState = {
-      connected: true,
-      database: config.database,
-      host: config.host,
-      port: config.port,
-      provider: config.provider,
-      ssl: config.ssl,
-    };
-
-    return this.connectionState;
-  }
-
-  getConnectionState(): DatabaseConnectionState {
-    if (this.connectionState) {
-      return this.connectionState;
-    }
-
-    const config = this.getConfig();
-
-    return {
-      connected: false,
-      database: config.database || 'not-configured',
-      host: config.host || 'not-configured',
-      port: config.port,
-      provider: config.provider,
-      reason: 'Connection has not been opened',
-      ssl: config.ssl,
-    };
-  }
-
-  private getMissingRequiredKeys(config: DatabaseConnectionOptions) {
-    const requiredEntries = {
-      DB_HOST: config.host,
-      DB_NAME: config.database,
-      DB_USERNAME: config.username,
-      DB_PASSWORD: config.password,
-    };
-
-    return Object.entries(requiredEntries)
-      .filter(([, value]) => !value)
-      .map(([key]) => key);
+    return this.getConnectionState();
   }
 }
