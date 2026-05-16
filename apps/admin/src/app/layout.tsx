@@ -1,23 +1,17 @@
-import './global.css';
-import { AdminAuthProvider } from '@/features/admin/auth/admin-auth-provider';
-import { AdminI18nProvider } from '@/features/admin/i18n/admin-i18n-provider';
+import AdminShell from '../components/layouts/AdminShell';
+
+import '../styles/index.css';
 
 export const metadata = {
   title: 'Silver14 Nail Admin',
   description: 'CMS and operations dashboard for Silver14 Nail.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <AdminI18nProvider>
-          <AdminAuthProvider>{children}</AdminAuthProvider>
-        </AdminI18nProvider>
+        <AdminShell>{children}</AdminShell>
       </body>
     </html>
   );
