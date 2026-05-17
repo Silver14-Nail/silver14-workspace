@@ -55,6 +55,19 @@ export const ProductAccordion = memo(function ProductAccordion({
         </div>
       ),
     },
+    {
+      key: 'includes',
+      title: t('accordion.includes.title'),
+      content: (
+        <div className="text-sm text-[#5A5A5A] space-y-3 leading-relaxed">
+          <p>✨ {t('accordion.includes.handPaintedNails')}</p>
+          <p>✨ {t('accordion.includes.miniNailFile')}</p>
+          <p>✨ {t('accordion.includes.cuticleStick')}</p>
+          <p>✨ {t('accordion.includes.nailGlue')}</p>
+          <p>✨ {t('accordion.includes.adhesiveTabs')}</p>
+        </div>
+      ),
+    },
   ];
 
   const wrapperClass =

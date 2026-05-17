@@ -23,29 +23,38 @@ import { CartDrawer } from '../shared/CartDrawer';
 const navLinks = [
   { labelKey: 'shop', href: '/products' },
   { labelKey: 'collections', href: '/products', hasDropdown: true },
+  { labelKey: 'sizeguide', href: '/size-guide' },
   { labelKey: 'wholesale', href: '/wholesales' },
   { labelKey: 'trackOrder', href: '/order/tracking' },
 ];
 
 export function Navbar() {
   const { t } = useT('nav');
+
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const [desktopCollectionsOpen, setDesktopCollectionsOpen] = useState(false);
+  const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(false);
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
   const [announcementIndex, setAnnouncementIndex] = useState(0);
+
   const [cartOpen, setCartOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   const { cartCount } = useCart();
   const { status, user } = useCustomerAuth();
+
   const pathname = usePathname();
+
   const announcementsResult = t('promotions', { returnObjects: true });
   const announcements = Array.isArray(announcementsResult) ? announcementsResult : [];
 
   useEffect(() => {
     setMobileOpen(false);
     setSearchOpen(false);
+    setMobileCollectionsOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -71,29 +80,34 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#E6E6E6] bg-white text-[#1A1A1A]">
-        <div className="flex h-9 items-center justify-center border-b border-[#E6E6E6] bg-[#1A1A1A] px-4 text-white">
+        {/* Announcement Bar */}
+        <div className="relative flex h-9 items-center justify-center border-b border-[#E6E6E6] bg-[#1A1A1A] px-4 text-white">
           <button
             type="button"
             aria-label={t('previousPromotion')}
             onClick={showPreviousAnnouncement}
-            className="absolute left-4 p-1 text-white/75 hover:text-white"
+            className="absolute left-4 p-1 text-white/75 transition hover:text-white"
           >
             <ChevronLeft className="size-4" />
           </button>
+
           <p className="max-w-[70vw] truncate text-center text-[11px] uppercase tracking-[0.16em]">
             {announcements[announcementIndex]}
           </p>
+
           <button
             type="button"
             aria-label={t('nextPromotion')}
             onClick={showNextAnnouncement}
-            className="absolute right-4 p-1 text-white/75 hover:text-white"
+            className="absolute right-4 p-1 text-white/75 transition hover:text-white"
           >
             <ChevronRight className="size-4" />
           </button>
         </div>
 
+        {/* Main Header */}
         <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:px-8">
+          {/* Left */}
           <div className="flex items-center gap-3">
             <button
               className="p-1 md:hidden"
@@ -103,16 +117,19 @@ export function Navbar() {
             >
               <Menu className="size-5" />
             </button>
+
             <button
-              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#5A5A5A] hover:text-[#1A1A1A]"
+              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#5A5A5A] transition hover:text-[#1A1A1A]"
               type="button"
               onClick={() => setSearchOpen((open) => !open)}
             >
               <Search className="size-4" />
+
               <span className="hidden sm:inline">{t('search')}</span>
             </button>
           </div>
 
+          {/* Logo */}
           <Link
             href="/"
             className="text-center text-[#1A1A1A]"
@@ -127,29 +144,34 @@ export function Navbar() {
             Silver14 Nail
           </Link>
 
+          {/* Right */}
           <div className="flex items-center justify-end gap-2 md:gap-4">
             <div className="hidden md:block">
               <HeaderPreferencesDropdown />
             </div>
+
             <LinkBase
               href="/account"
-              className="hidden items-center gap-1 p-1 text-[#5A5A5A] hover:text-[#1A1A1A] md:inline-flex"
+              className="hidden items-center gap-1 p-1 text-[#5A5A5A] transition hover:text-[#1A1A1A] md:inline-flex"
               aria-label={t('account')}
             >
               <User className="size-4" />
+
               {status === 'authenticated' && user ? (
                 <span className="text-[10px] uppercase tracking-[0.12em]">
                   {user.name.split(' ')[0]}
                 </span>
               ) : null}
             </LinkBase>
+
             <button
               onClick={() => setCartOpen(true)}
-              className={`relative  transition-all hover:opacity-70 p-1`}
+              className="relative p-1 transition hover:opacity-70"
             >
               <ShoppingBag className="size-[18px]" />
+
               {hydrated && cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-[9px] rounded-full size-4 flex items-center justify-center font-medium">
+                <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-[#1A1A1A] text-[9px] font-medium text-white">
                   {cartCount > 99 ? '99+' : cartCount}
                 </span>
               )}
@@ -157,25 +179,28 @@ export function Navbar() {
           </div>
         </div>
 
+        {/* Desktop Nav */}
         <nav className="hidden h-11 items-center justify-center gap-10 border-t border-[#EFEFEF] px-4 md:flex">
           {navLinks.map((link) =>
             link.hasDropdown ? (
               <div
                 key={link.labelKey}
                 className="relative"
-                onMouseEnter={() => setCollectionsOpen(true)}
-                onMouseLeave={() => setCollectionsOpen(false)}
+                onMouseEnter={() => setDesktopCollectionsOpen(true)}
+                onMouseLeave={() => setDesktopCollectionsOpen(false)}
               >
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 text-[12px] uppercase tracking-[0.16em] text-[#303030] hover:text-[#8A8A8A]"
+                  className="inline-flex items-center gap-1 text-[12px] uppercase tracking-[0.16em] text-[#303030] transition hover:text-[#8A8A8A]"
                 >
                   {t(link.labelKey)}
+
                   <ChevronDown className="size-3" />
                 </button>
+
                 <div
                   className={`absolute left-1/2 top-full z-50 min-w-[220px] -translate-x-1/2 pt-3 transition ${
-                    collectionsOpen
+                    desktopCollectionsOpen
                       ? 'pointer-events-auto opacity-100'
                       : 'pointer-events-none opacity-0'
                   }`}
@@ -189,7 +214,7 @@ export function Navbar() {
                             ? '/products'
                             : `/products?collection=${collection.id}`
                         }
-                        className="block px-5 py-2.5 text-[12px] uppercase tracking-[0.12em] text-[#1A1A1A] hover:bg-[#F8F8F8]"
+                        className="block px-5 py-2.5 text-[12px] uppercase tracking-[0.12em] text-[#1A1A1A] transition hover:bg-[#F8F8F8]"
                       >
                         {collection.label}
                       </LinkBase>
@@ -201,7 +226,7 @@ export function Navbar() {
               <LinkBase
                 key={link.labelKey}
                 href={link.href}
-                className="text-[12px] uppercase tracking-[0.16em] text-[#303030] hover:text-[#8A8A8A]"
+                className="text-[12px] uppercase tracking-[0.16em] text-[#303030] transition hover:text-[#8A8A8A]"
               >
                 {t(link.labelKey)}
               </LinkBase>
@@ -209,10 +234,12 @@ export function Navbar() {
           )}
         </nav>
 
+        {/* Search */}
         {searchOpen && (
           <div className="border-t border-[#EFEFEF] bg-white px-4 py-4">
             <form onSubmit={submitSearch} className="mx-auto flex max-w-3xl items-center gap-3">
               <Search className="size-4 text-[#9A9A9A]" />
+
               <input
                 autoFocus
                 value={searchQuery}
@@ -220,6 +247,7 @@ export function Navbar() {
                 placeholder={t('searchProducts')}
                 className="flex-1 bg-transparent text-sm text-[#1A1A1A] outline-none placeholder:text-[#9A9A9A]"
               />
+
               <button
                 type="button"
                 onClick={() => setSearchOpen(false)}
@@ -232,10 +260,16 @@ export function Navbar() {
         )}
       </header>
 
+      {/* Mobile Menu */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
+            onClick={() => setMobileOpen(false)}
+          />
+
           <div className="absolute left-0 top-0 flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-xl">
+            {/* Header */}
             <div className="flex items-center justify-between border-b border-[#E8E8E8] px-6 py-5">
               <span
                 className="text-[#1A1A1A]"
@@ -249,6 +283,7 @@ export function Navbar() {
               >
                 Silver14 Nail
               </span>
+
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
@@ -257,60 +292,94 @@ export function Navbar() {
                 <X className="size-5 text-[#1A1A1A]" />
               </button>
             </div>
-            <nav className="flex-1 space-y-6 overflow-y-auto px-6 py-8">
-              <LinkBase
-                href="/products"
-                className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
-              >
-                {t('shopAll')}
-              </LinkBase>
-              <div className="space-y-3">
-                <p className="text-xs uppercase tracking-[0.15em] text-[#9A9A9A]">
-                  {t('collections')}
-                </p>
-                {COLLECTIONS.slice(1).map((collection) => (
-                  <LinkBase
-                    key={collection.id}
-                    href={`/products?collection=${collection.id}`}
-                    className="block pl-3 text-sm text-[#1A1A1A]"
-                  >
-                    {collection.label}
-                  </LinkBase>
-                ))}
-              </div>
-              <LinkBase
-                href="/wholesales"
-                className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
-              >
-                {t('wholesale')}
-              </LinkBase>
-              <LinkBase
-                href="/order/tracking"
-                className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
-              >
-                {t('trackOrder')}
-              </LinkBase>
-              <button
-                onClick={() => setCartOpen(true)}
-                className={`relative  transition-all hover:opacity-70 p-1`}
-              >
-                <ShoppingBag className="size-[18px]" />
-                {hydrated && cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#1A1A1A] text-white text-[9px] rounded-full size-4 flex items-center justify-center font-medium">
-                    {cartCount > 99 ? '99+' : cartCount}
-                  </span>
-                )}
-              </button>
-              <LinkBase
-                href="/account"
-                className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
-              >
-                {status === 'authenticated' && user
-                  ? `${t('account')} (${user.name})`
-                  : t('account')}
-              </LinkBase>
-              <div className="space-y-4 border-t border-[#E8E8E8] pt-5">
-                <HeaderPreferencesDropdown align="left" />
+
+            {/* Content */}
+            <nav className="flex-1 overflow-y-auto px-6 py-8">
+              <div className="space-y-6">
+                {navLinks.map((link) => {
+                  if (link.hasDropdown) {
+                    return (
+                      <div key={link.labelKey} className="space-y-3">
+                        <button
+                          type="button"
+                          onClick={() => setMobileCollectionsOpen((prev) => !prev)}
+                          className="flex w-full items-center justify-between text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                        >
+                          <span>{t(link.labelKey)}</span>
+
+                          <ChevronDown
+                            className={`size-4 transition-transform ${
+                              mobileCollectionsOpen ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ${
+                            mobileCollectionsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                          }`}
+                        >
+                          <div className="space-y-3 pl-3 pt-2">
+                            {COLLECTIONS.map((collection) => (
+                              <LinkBase
+                                key={collection.id}
+                                href={
+                                  collection.id === 'all'
+                                    ? '/products'
+                                    : `/products?collection=${collection.id}`
+                                }
+                                className="block text-sm text-[#1A1A1A]"
+                              >
+                                {collection.label}
+                              </LinkBase>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <LinkBase
+                      key={link.labelKey}
+                      href={link.href}
+                      className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                    >
+                      {t(link.labelKey)}
+                    </LinkBase>
+                  );
+                })}
+
+                {/* Cart */}
+                <button
+                  onClick={() => setCartOpen(true)}
+                  className="relative flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                >
+                  <ShoppingBag className="size-[18px]" />
+
+                  <span>{t('cart')}</span>
+
+                  {hydrated && cartCount > 0 && (
+                    <span className="flex size-4 items-center justify-center rounded-full bg-[#1A1A1A] text-[9px] font-medium text-white">
+                      {cartCount > 99 ? '99+' : cartCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Account */}
+                <LinkBase
+                  href="/account"
+                  className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                >
+                  {status === 'authenticated' && user
+                    ? `${t('account')} (${user.name})`
+                    : t('account')}
+                </LinkBase>
+
+                {/* Preferences */}
+                <div className="border-t border-[#E8E8E8] pt-5">
+                  <HeaderPreferencesDropdown align="left" />
+                </div>
               </div>
             </nav>
           </div>

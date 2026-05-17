@@ -14,6 +14,7 @@ const i18nConfig: I18nConfig = {
     'faq',
     'contact',
     'shipping-policy',
+    'size-guide',
     'returns',
     'about-us',
     'product',

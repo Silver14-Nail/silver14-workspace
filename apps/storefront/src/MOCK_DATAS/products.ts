@@ -29,17 +29,19 @@ export const SIZES = [
   'Custom (strongly recommended)',
 ];
 export const SHAPES = [
-  'Natural Square - 14mm',
-  'Short Square - 16mm',
-  'Natural Oval - 14mm',
-  'Short Oval - 16mm',
-  'Extra Long Oval - 28mm',
-  'Short Coffin - 20mm',
-  'Long Coffin - 24mm',
-  'Extra Long Coffin - 28mm',
-  'Almond Shape - 22mm',
-  'Long Stiletto - 27mm',
-  'Extra Long Stiletto - 30mm (+ $10)',
+  'Short oval 2.0cm',
+  'Short almond 2.0cm',
+  'Short square 2.0cm',
+  'Medium almond 2.5cm',
+  'Medium square 2.5cm',
+  'Medium coffin 2.5cm',
+  'Long almond 2.8cm',
+  'Long coffin 3.0cm',
+  'Long square 3.0cm',
+  'Stiletto : 3.2cm',
+  'XXL Stiletto 5.5cm (+ $10)',
+  'XXL Coffin 4.0cm (+ $10)',
+  'XXL Square 4.0cm (+ $10)',
 ];
 
 export const COLLECTIONS = [

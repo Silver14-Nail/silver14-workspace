@@ -1,0 +1,33 @@
+{
+  "hero": {
+    "title": "Hướng Dẫn Chọn Size",
+    "description": "Vui lòng đo móng tay và chọn size phù hợp trước khi đặt hàng.",
+    "warning": "Chúng tôi sẽ không chịu trách nhiệm nếu móng giả không vừa do bạn không đo size trước khi đặt hàng."
+  },
+  "measure": {
+    "title": "Cách Đo Móng Tay",
+    "alt": "Cách đo móng tay"
+  },
+  "sizeChart": {
+    "title": "Bảng Size",
+    "alt": "Bảng size móng"
+  },
+  "shapes": {
+    "title": "Form Móng & Độ Dài",
+    "alt": "Form móng và độ dài"
+  },
+  "usage": {
+    "title": "Hướng Dẫn Sử Dụng",
+    "notesLabel": "Lưu ý",
+    "adhesive": "Adhesive Tabs (được cung cấp kèm bộ móng) dùng trong khoảng 24h. Sấy nóng bề mặt miếng dán sẽ giúp tăng độ bám. Có thể tái sử dụng móng sau khi tháo ra, giúp hạn chế trầy xước và sử dụng cho lần sau. Vui lòng bảo quản cẩn thận trong hộp đựng.",
+    "glue": "Nail Glue sẽ giữ được khoảng 2–3 tuần.",
+    "tabsTitle": "Với Miếng Dán",
+    "tabsAlt": "Hướng dẫn sử dụng với miếng dán",
+    "glueTitle": "Với Keo Dán Móng",
+    "glueAlt": "Hướng dẫn sử dụng với keo dán"
+  },
+  "cta": {
+    "description": "Đã chọn được size phù hợp?",
+    "button": "Mua Ngay"
+  }
+}
