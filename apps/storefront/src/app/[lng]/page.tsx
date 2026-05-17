@@ -87,7 +87,7 @@ export default function HomePage() {
           <h1
             className="text-white mb-6"
             style={{
-              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+              // fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
               fontWeight: 300,
               fontSize: 'clamp(3.5rem, 9vw, 6.5rem)',
               lineHeight: 1,

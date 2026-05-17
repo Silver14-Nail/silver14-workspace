@@ -165,7 +165,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             className="text-[#1A1A1A] text-sm"
                             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
                           >
-                            €{itemTotal.toFixed(2)}
+                            ${itemTotal.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -181,12 +181,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className="space-y-2 mb-5">
                 <div className="flex justify-between text-sm text-[#5A5A5A]">
                   <span>Subtotal</span>
-                  <span>€{subtotal.toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-[#5A5A5A]">Discount</span>
-                    <span className="text-[#4A7A5A]">−€{discountAmount.toFixed(2)}</span>
+                    <span className="text-[#4A7A5A]">−${discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between pt-2 border-t border-[#F0F0F0]">
@@ -204,7 +204,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       fontSize: '1.1rem',
                     }}
                   >
-                    €{total.toFixed(2)}
+                    ${total.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -230,7 +230,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
 
               <p className="text-[#9A9A9A] text-xs text-center mt-4">
-                Free shipping on orders over €50
+                Free shipping on orders over $100
               </p>
             </div>
           </>
