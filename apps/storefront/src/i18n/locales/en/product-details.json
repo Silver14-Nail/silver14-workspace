@@ -68,6 +68,14 @@
       "freeThreshold": "📦 <strong>Free Shipping</strong> – Available on all orders over $100.",
       "support": "💬 <strong>Customer Support</strong> – Contact us via the chat button or social media for 24h support.",
       "noRefund": "We do not support refunds, exchanges, cancellations, or product swaps after an order is placed. Please carefully check and measure your nail size before purchasing to ensure the best fit. The shop is not responsible for incorrect size selections. All products are made according to the information provided at the time of order."
+    },
+    "includes": {
+      "title": "Nail set includes",
+      "handPaintedNails": "10 Hand-Painted Nails",
+      "miniNailFile": "Mini Nail File Included",
+      "cuticleStick": "1 Cuticle Stick",
+      "nailGlue": "1 Nail Glue",
+      "adhesiveTabs": "24 Adhesive Tabs"
     }
   },
   "related": {

@@ -22,7 +22,7 @@
         },
         {
           "q": "Can I track my order?",
-          "a": "Yes! Once your order has been shipped, you'll receive a tracking number via email."
+          "a": "Yes! Once your order has been shipped for import and cleared through customs in your country, the tracking number will be sent to your email."
         },
         {
           "q": "Do I need to pay import taxes?",

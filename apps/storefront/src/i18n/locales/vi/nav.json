@@ -3,6 +3,7 @@
   "shop": "Cửa hàng",
   "shopAll": "Tất cả sản phẩm",
   "collections": "Bộ sưu tập",
+  "sizeguide": "Hướng dẫn đo móng",
   "wholesale": "Bán sỉ",
   "about": "Giới thiệu",
   "contact": "Liên hệ",
@@ -16,10 +17,7 @@
   "openMenu": "Mở menu",
   "closeMenu": "Đóng menu",
   "closeSearch": "Đóng tìm kiếm",
-  "promotions": [
-    "Miễn phí vận chuyển cho đơn hàng trên $100",
-    "Giá đã bao gồm thuế. Không có phí ẩn khi thanh toán."
-  ],
+  "promotions": ["Miễn phí vận chuyển cho đơn hàng trên $100"],
   "preferences": {
     "shipTo": "Giao đến",
     "currency": "Tiền tệ",

@@ -1,5 +1,5 @@
 import { dir } from 'i18next';
-import Script from 'next/script';
+// import Script from 'next/script';
 import {
   initServerI18next,
   getT,
@@ -49,7 +49,7 @@ export default async function RootLayout({
           }}
           type="application/ld+json"
         />
-        <Script id="crisp-chat" strategy="afterInteractive">
+        {/* <Script id="crisp-chat" strategy="afterInteractive">
           {`
             window.$crisp = [];
             window.CRISP_WEBSITE_ID = "accfed8c-e6fd-452b-a8c8-6eb8b3e1078a";
@@ -64,7 +64,7 @@ export default async function RootLayout({
               d.getElementsByTagName("head")[0].appendChild(s);
             })();
         `}
-        </Script>
+        </Script> */}
         <I18nProvider language={lng} resources={resources}>
           <CustomerAuthProvider>
             <WishlistProvider>

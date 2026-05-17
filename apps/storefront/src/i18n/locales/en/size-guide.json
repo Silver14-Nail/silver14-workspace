@@ -1,0 +1,33 @@
+{
+  "hero": {
+    "title": "Size Guide",
+    "description": "Please measure your nails and choose the correct size before placing your order.",
+    "warning": "We are not responsible for incorrect sizing if measurements are not taken before ordering."
+  },
+  "measure": {
+    "title": "How to Measure Your Nails",
+    "alt": "How to measure your nails"
+  },
+  "sizeChart": {
+    "title": "Size Chart",
+    "alt": "Nail size chart"
+  },
+  "shapes": {
+    "title": "Nail Shapes & Lengths",
+    "alt": "Nail shapes and lengths"
+  },
+  "usage": {
+    "title": "How to Use",
+    "notesLabel": "Notes",
+    "adhesive": "Adhesive Tabs (included with every nail set) last around 24 hours. Warming the adhesive tabs before application may improve durability. Nails can be reused after removal, helping prevent scratches and allowing future use. Please store them carefully in the provided box.",
+    "glue": "Nail Glue typically lasts around 2–3 weeks.",
+    "tabsTitle": "With Adhesive Tabs",
+    "tabsAlt": "How to use with adhesive tabs",
+    "glueTitle": "With Nail Glue",
+    "glueAlt": "How to use with nail glue"
+  },
+  "cta": {
+    "description": "Found your perfect size?",
+    "button": "Shop Now"
+  }
+}

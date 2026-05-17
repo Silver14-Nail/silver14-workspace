@@ -7,6 +7,6 @@ export interface ProductSelections {
   quantity: number;
 }
 
-export type AccordionKey = 'description' | 'nail-method' | 'shipping';
+export type AccordionKey = 'description' | 'nail-method' | 'shipping' | 'includes';
 
 export type { CartItem };

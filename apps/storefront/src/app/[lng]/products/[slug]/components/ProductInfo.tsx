@@ -105,12 +105,12 @@ export const ProductInfo = memo(function ProductInfo({
           className="text-[#1A1A1A]"
           style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1.6rem' }}
         >
-          €{displayPrice.toFixed(2)}
+          ${displayPrice.toFixed(2)}
         </span>
         {product.salePrice && (
           <>
             <span className="text-[#9A9A9A] line-through" style={{ fontSize: '1.1rem' }}>
-              €{product.price.toFixed(2)}
+              ${product.price.toFixed(2)}
             </span>
             <span className="bg-[#F0F0F0] text-[#6A6A6A] text-xs px-2 py-0.5 uppercase tracking-wider">
               {t('price.save', { amount: (product.price - product.salePrice).toFixed(2) })}

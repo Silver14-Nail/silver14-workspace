@@ -3,6 +3,7 @@
   "shop": "Shop",
   "shopAll": "Shop All",
   "collections": "Collections",
+  "sizeguide": "Size Guide",
   "wholesale": "Wholesale",
   "about": "About",
   "contact": "Contact",
@@ -16,10 +17,7 @@
   "openMenu": "Open menu",
   "closeMenu": "Close menu",
   "closeSearch": "Close search",
-  "promotions": [
-    "Free shipping on orders over $100",
-    "Price includes tax. No hidden fees at checkout."
-  ],
+  "promotions": ["Free shipping on orders over $100"],
   "preferences": {
     "shipTo": "Ship to",
     "currency": "Currency",
