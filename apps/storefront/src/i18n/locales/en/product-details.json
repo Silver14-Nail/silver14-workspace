@@ -18,7 +18,7 @@
     "reviews": "{{count}} reviews"
   },
   "price": {
-    "save": "Save €{{amount}}"
+    "save": "Save ${{amount}}"
   },
   "shipping": {
     "label": "Shipping",
@@ -53,7 +53,7 @@
     "selectHint": "Please select size, shape, and length"
   },
   "trust": {
-    "freeShipping": "Free shipping over €100",
+    "freeShipping": "Free shipping over $100",
     "handmade": "Handmade with care"
   },
   "accordion": {

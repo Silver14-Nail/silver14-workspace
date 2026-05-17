@@ -134,7 +134,7 @@ export function Navbar() {
             href="/"
             className="text-center text-[#1A1A1A]"
             style={{
-              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
+              // fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
               fontSize: '1.6rem',
               fontWeight: 400,
               letterSpacing: '0.02em',

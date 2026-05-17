@@ -18,7 +18,7 @@
     "reviews": "{{count}} đánh giá"
   },
   "price": {
-    "save": "Tiết kiệm €{{amount}}"
+    "save": "Tiết kiệm ${{amount}}"
   },
   "shipping": {
     "label": "Phí vận chuyển",
@@ -53,7 +53,7 @@
     "selectHint": "Vui lòng chọn kích cỡ, hình dạng và độ dài"
   },
   "trust": {
-    "freeShipping": "Miễn phí vận chuyển trên €100",
+    "freeShipping": "Miễn phí vận chuyển trên $100",
     "handmade": "Được làm thủ công cẩn thận"
   },
   "accordion": {
