@@ -23,6 +23,7 @@ const i18nConfig: I18nConfig = {
     'tracking',
     'trust',
     'wholesale',
+    'supplies',
   ],
   resourceLoader: (language: string, namespace: string) =>
     import(`./i18n/locales/${language}/${namespace}.json`),
