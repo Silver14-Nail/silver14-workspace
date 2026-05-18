@@ -7,7 +7,7 @@ import { AppModule } from './app/app.module';
 const DEFAULT_API_PORT = 3000;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   const globalPrefix = 'api';
 
   app.setGlobalPrefix(globalPrefix);

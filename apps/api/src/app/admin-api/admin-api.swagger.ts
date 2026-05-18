@@ -9,6 +9,8 @@ import { AdminUsersModule } from './users/users.module';
 import { WholesalesModule } from './wholesales/wholesales.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { PaymentsModule } from './payments/payments.module';
+import { CheckoutsModule } from './checkouts/checkouts.module';
 
 export const setupAdminApiSwagger = (app: INestApplication) => {
   const options = new DocumentBuilder()
@@ -26,6 +28,8 @@ export const setupAdminApiSwagger = (app: INestApplication) => {
       WholesalesModule,
       OrdersModule,
       CouponsModule,
+      PaymentsModule,
+      CheckoutsModule,
     ],
   });
 

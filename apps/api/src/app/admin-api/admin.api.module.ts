@@ -9,21 +9,25 @@ import { AdminUsersModule } from './users/users.module';
 import { WholesalesModule } from './wholesales/wholesales.module';
 import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { PaymentsModule } from './payments/payments.module';
+import { CheckoutsModule } from './checkouts/checkouts.module';
+
+const adminModules = [
+  ProductsModule,
+  AdminAuthModule,
+  AdminUsersModule,
+  WholesalesModule,
+  OrdersModule,
+  CouponsModule,
+  PaymentsModule,
+  CheckoutsModule,
+];
 
 @Module({
   imports: [
-    RouterModule.forRoutes(
-      [ProductsModule, AdminAuthModule, AdminUsersModule, WholesalesModule, OrdersModule, CouponsModule].map(
-        (module) => ({ path: 'admin-api', module }),
-      ),
-    ),
+    RouterModule.forRoutes(adminModules.map((module) => ({ path: 'admin-api', module }))),
     AuthModule,
-    ProductsModule,
-    AdminAuthModule,
-    AdminUsersModule,
-    WholesalesModule,
-    OrdersModule,
-    CouponsModule,
+    ...adminModules,
   ],
 })
 export class AdminApiModule implements NestModule {

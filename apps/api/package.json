@@ -108,6 +108,7 @@
     "nest-router": "^1.0.9",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "stripe": "^22.1.1",
     "tslib": "^2.3.0",
     "typeorm": "^0.3.29"
   },
