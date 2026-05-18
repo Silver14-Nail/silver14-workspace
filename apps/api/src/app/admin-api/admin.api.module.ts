@@ -8,11 +8,12 @@ import { AdminAuthModule } from './auth/auth.module';
 import { AdminUsersModule } from './users/users.module';
 import { WholesalesModule } from './wholesales/wholesales.module';
 import { OrdersModule } from './orders/orders.module';
+import { CouponsModule } from './coupons/coupons.module';
 
 @Module({
   imports: [
     RouterModule.forRoutes(
-      [ProductsModule, AdminAuthModule, AdminUsersModule, WholesalesModule, OrdersModule].map(
+      [ProductsModule, AdminAuthModule, AdminUsersModule, WholesalesModule, OrdersModule, CouponsModule].map(
         (module) => ({ path: 'admin-api', module }),
       ),
     ),
@@ -22,6 +23,7 @@ import { OrdersModule } from './orders/orders.module';
     AdminUsersModule,
     WholesalesModule,
     OrdersModule,
+    CouponsModule,
   ],
 })
 export class AdminApiModule implements NestModule {
