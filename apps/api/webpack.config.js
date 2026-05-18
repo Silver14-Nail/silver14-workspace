@@ -12,6 +12,7 @@ module.exports = {
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      'class-transformer/storage': require.resolve('class-transformer/cjs/storage'),
     },
   },
 

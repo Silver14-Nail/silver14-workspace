@@ -93,6 +93,7 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.0",
+    "@nestjs/mapped-types": "1.2.0",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.4.2",
     "@nestjs/typeorm": "^11.0.1",
@@ -113,5 +114,10 @@
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",
     "tsconfig-paths": "^4.2.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@nestjs/mapped-types": "1.2.0"
+    }
   }
 }
