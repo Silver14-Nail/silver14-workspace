@@ -1,154 +1,137 @@
-import { User } from './auths/user.entity';
-import { Address } from './auths/address.entity';
-import { UserAuthIdentity } from './auths/user-auth-identities.entity';
-import { AuthProvider } from './auths/auth-provider.entity';
-import { UserSession } from './auths/user-session.entity';
-import { PasswordReset } from './auths/password-resets.entity';
-import { EmailVerification } from './auths/email-verifications.entity';
-import { OAuthStateToken } from './auths/oauth-state-tokens.entity';
+import { UserEntity } from './auths/user.entity';
+import { AddressEntity } from './auths/address.entity';
+import { UserAuthIdentityEntity } from './auths/user-auth-identities.entity';
+import { AuthProviderEntity } from './auths/auth-provider.entity';
+import { UserSessionEntity } from './auths/user-session.entity';
+import { PasswordResetEntity } from './auths/password-resets.entity';
+import { EmailVerificationEntity } from './auths/email-verifications.entity';
+import { OAuthStateTokenEntity } from './auths/oauth-state-tokens.entity';
 
-import { Product } from './products/product.entity';
-import { ProductImage } from './products/product-image.entity';
-import { ProductShapePricing } from './products/product-shape-pricing.entity';
-import { ProductVariant } from './products/product-variants.entity';
-import { NailShape } from './products/nail-shape.entity';
-import { NailSize } from './products/nail-size.entity';
+import { ProductEntity } from './products/product.entity';
+import { ProductImageEntity } from './products/product-image.entity';
+import { ProductShapePricingEntity } from './products/product-shape-pricing.entity';
+import { ProductVariantEntity } from './products/product-variants.entity';
+import { NailShapeEntity } from './products/nail-shape.entity';
+import { NailSizeEntity } from './products/nail-size.entity';
 
-import { GuestCheckout } from './checkouts/guest-checkout.entity';
-import { Cart } from './checkouts/cart.entity';
-import { CartItem } from './checkouts/cart-item.entity';
-import { CheckoutSession } from './checkouts/checkout-session.entity';
-import { ShippingMethod } from './checkouts/shipping-method.entity';
+import { GuestCheckoutEntity } from './checkouts/guest-checkout.entity';
+import { CartEntity } from './checkouts/cart.entity';
+import { CartItemEntity } from './checkouts/cart-item.entity';
+import { CheckoutSessionEntity } from './checkouts/checkout-session.entity';
+import { ShippingMethodEntity } from './checkouts/shipping-method.entity';
 
-import { Coupon } from './coupons/coupon.entity';
-import { CouponRestriction } from './coupons/coupon-restriction.entity';
-import { CouponUsage } from './coupons/coupon-usage.entity';
-import { CouponUserWhitelist } from './coupons/coupon-user-whitelist.entity';
+import { CouponEntity } from './coupons/coupon.entity';
+import { CouponRestrictionEntity } from './coupons/coupon-restriction.entity';
+import { CouponUsageEntity } from './coupons/coupon-usage.entity';
+import { CouponUserWhitelistEntity } from './coupons/coupon-user-whitelist.entity';
 
-import { Order } from './orders/order.entity';
-import { OrderItem } from './orders/order-item.entity';
-import { CustomSizeRequest } from './orders/custom-size-request.entity';
+import { OrderEntity } from './orders/order.entity';
+import { OrderItemEntity } from './orders/order-item.entity';
+import { CustomSizeRequestEntity } from './orders/custom-size-request.entity';
 
-import { Payment } from './payments/payment.entity';
-import { PaypalDetail } from './payments/paypal-detail.entity';
-import { CardDetail } from './payments/card-detail.entity';
+import { PaymentEntity } from './payments/payment.entity';
+import { PaypalDetailEntity } from './payments/paypal-detail.entity';
+import { CardDetailEntity } from './payments/card-detail.entity';
 
-import { NewsletterSubscriber } from './wholesales/newsletter-subscribers.entity';
-import { WholesaleEnquiry } from './wholesales/wholesale-enquiry.entity';
-import { WholesaleAccount } from './wholesales/wholesale-account.entity';
-import { WholesaleTier } from './wholesales/wholesale-tier.entity';
-import { WholesaleProductPricing } from './wholesales/wholesale-product-pricing.entity';
-import { WholesaleOrder } from './wholesales/wholesale-order.entity';
+import { NewsletterSubscriberEntity } from './wholesales/newsletter-subscribers.entity';
+import { WholesaleEnquiryEntity } from './wholesales/wholesale-enquiry.entity';
+import { WholesaleAccountEntity } from './wholesales/wholesale-account.entity';
+import { WholesaleTierEntity } from './wholesales/wholesale-tier.entity';
+import { WholesaleProductPricingEntity } from './wholesales/wholesale-product-pricing.entity';
+import { WholesaleOrderEntity } from './wholesales/wholesale-order.entity';
 
 export {
-  User,
-  Address,
-  UserAuthIdentity,
-  AuthProvider,
-  UserSession,
-  PasswordReset,
-  EmailVerification,
-  OAuthStateToken,
-  Product,
-  ProductImage,
-  ProductShapePricing,
-  ProductVariant,
-  NailShape,
-  NailSize,
-  GuestCheckout,
-  Cart,
-  CartItem,
-  CheckoutSession,
-  ShippingMethod,
-  Coupon,
-  CouponRestriction,
-  CouponUsage,
-  CouponUserWhitelist,
-  Order,
-  OrderItem,
-  CustomSizeRequest,
-  Payment,
-  PaypalDetail,
-  CardDetail,
-  NewsletterSubscriber,
-  WholesaleEnquiry,
-  WholesaleAccount,
-  WholesaleTier,
-  WholesaleProductPricing,
-  WholesaleOrder,
+  UserEntity,
+  AddressEntity,
+  UserAuthIdentityEntity,
+  AuthProviderEntity,
+  UserSessionEntity,
+  PasswordResetEntity,
+  EmailVerificationEntity,
+  OAuthStateTokenEntity,
+  ProductEntity,
+  ProductImageEntity,
+  ProductShapePricingEntity,
+  ProductVariantEntity,
+  NailShapeEntity,
+  NailSizeEntity,
+  GuestCheckoutEntity,
+  CartEntity,
+  CartItemEntity,
+  CheckoutSessionEntity,
+  ShippingMethodEntity,
+  CouponEntity,
+  CouponRestrictionEntity,
+  CouponUsageEntity,
+  CouponUserWhitelistEntity,
+  OrderEntity,
+  OrderItemEntity,
+  CustomSizeRequestEntity,
+  PaymentEntity,
+  PaypalDetailEntity,
+  CardDetailEntity,
+  NewsletterSubscriberEntity,
+  WholesaleEnquiryEntity,
+  WholesaleAccountEntity,
+  WholesaleTierEntity,
+  WholesaleProductPricingEntity,
+  WholesaleOrderEntity,
 };
 
 export const AUTH_ENTITIES = [
-  User,
-  Address,
-  UserAuthIdentity,
-  AuthProvider,
-  UserSession,
-  PasswordReset,
-  EmailVerification,
-  OAuthStateToken,
+  UserEntity,
+  AddressEntity,
+  UserAuthIdentityEntity,
+  AuthProviderEntity,
+  UserSessionEntity,
+  PasswordResetEntity,
+  EmailVerificationEntity,
+  OAuthStateTokenEntity,
 ];
 
 export const PRODUCT_ENTITIES = [
-  Product,
-  ProductImage,
-  ProductShapePricing,
-  ProductVariant,
-  NailShape,
-  NailSize,
+  ProductEntity,
+  ProductImageEntity,
+  ProductShapePricingEntity,
+  ProductVariantEntity,
+  NailShapeEntity,
+  NailSizeEntity,
 ];
 
-export const CHECKOUT_ENTITIES = [GuestCheckout, Cart, CartItem, CheckoutSession, ShippingMethod];
-
-export const ORDER_ENTITES = [Order, OrderItem, CustomSizeRequest];
-
-export const COUPON_ENTITIES = [Coupon, CouponRestriction, CouponUsage, CouponUserWhitelist];
-
-export const WHOLE_SALES_ENTITIES = [
-  NewsletterSubscriber,
-  WholesaleEnquiry,
-  WholesaleAccount,
-  WholesaleTier,
-  WholesaleProductPricing,
-  WholesaleOrder,
+export const CHECKOUT_ENTITIES = [
+  GuestCheckoutEntity,
+  CartEntity,
+  CartItemEntity,
+  CheckoutSessionEntity,
+  ShippingMethodEntity,
 ];
 
-export const PAYMENT_ENTITIES = [Payment, PaypalDetail, CardDetail];
+export const ORDER_ENTITIES = [OrderEntity, OrderItemEntity, CustomSizeRequestEntity];
+
+export const COUPON_ENTITIES = [
+  CouponEntity,
+  CouponRestrictionEntity,
+  CouponUsageEntity,
+  CouponUserWhitelistEntity,
+];
+
+export const WHOLESALE_ENTITIES = [
+  NewsletterSubscriberEntity,
+  WholesaleEnquiryEntity,
+  WholesaleAccountEntity,
+  WholesaleTierEntity,
+  WholesaleProductPricingEntity,
+  WholesaleOrderEntity,
+];
+
+export const PAYMENT_ENTITIES = [PaymentEntity, PaypalDetailEntity, CardDetailEntity];
 
 export const ENTITIES = [
-  User,
-  Address,
-  UserAuthIdentity,
-  AuthProvider,
-  UserSession,
-  PasswordReset,
-  EmailVerification,
-  OAuthStateToken,
-  Product,
-  ProductImage,
-  ProductShapePricing,
-  ProductVariant,
-  NailShape,
-  NailSize,
-  GuestCheckout,
-  Cart,
-  CartItem,
-  CheckoutSession,
-  ShippingMethod,
-  Coupon,
-  CouponRestriction,
-  CouponUsage,
-  CouponUserWhitelist,
-  Order,
-  OrderItem,
-  CustomSizeRequest,
-  Payment,
-  PaypalDetail,
-  CardDetail,
-  NewsletterSubscriber,
-  WholesaleEnquiry,
-  WholesaleAccount,
-  WholesaleTier,
-  WholesaleProductPricing,
-  WholesaleOrder,
+  ...AUTH_ENTITIES,
+  ...PRODUCT_ENTITIES,
+  ...CHECKOUT_ENTITIES,
+  ...ORDER_ENTITIES,
+  ...COUPON_ENTITIES,
+  ...WHOLESALE_ENTITIES,
+  ...PAYMENT_ENTITIES,
 ];

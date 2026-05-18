@@ -40,13 +40,9 @@ export class TotpService {
     }
 
     const currentStep = Math.floor(Date.now() / 1000 / TOTP_STEP_SECONDS);
-    const validCodes = [-1, 0, 1].map((offset) =>
-      this.generateCode(secret, currentStep + offset),
-    );
+    const validCodes = [-1, 0, 1].map((offset) => this.generateCode(secret, currentStep + offset));
 
-    const matched = validCodes.some((validCode) =>
-      this.safeCompare(normalizedCode, validCode),
-    );
+    const matched = validCodes.some((validCode) => this.safeCompare(normalizedCode, validCode));
 
     if (!matched) {
       throw new UnauthorizedException('Invalid two-factor code');
@@ -66,10 +62,7 @@ export class TotpService {
       ((digest[offset + 2] & 0xff) << 8) |
       (digest[offset + 3] & 0xff);
 
-    return String(binary % 10 ** TOTP_CODE_DIGITS).padStart(
-      TOTP_CODE_DIGITS,
-      '0',
-    );
+    return String(binary % 10 ** TOTP_CODE_DIGITS).padStart(TOTP_CODE_DIGITS, '0');
   }
 
   private decodeBase32(value: string) {
@@ -117,9 +110,6 @@ export class TotpService {
     const leftBuffer = Buffer.from(left);
     const rightBuffer = Buffer.from(right);
 
-    return (
-      leftBuffer.length === rightBuffer.length &&
-      timingSafeEqual(leftBuffer, rightBuffer)
-    );
+    return leftBuffer.length === rightBuffer.length && timingSafeEqual(leftBuffer, rightBuffer);
   }
 }

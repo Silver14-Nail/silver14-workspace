@@ -3,10 +3,10 @@ import { NewsletterSource, NewsletterStatus } from '../../../common/enums/entity
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from '../auths/user.entity';
+import { UserEntity } from '../auths/user.entity';
 
 @Entity('newsletter_subscribers')
-export class NewsletterSubscriber extends AbstractEntity {
+export class NewsletterSubscriberEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -17,12 +17,12 @@ export class NewsletterSubscriber extends AbstractEntity {
   })
   email: string;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User | null;
+  user: UserEntity | null;
 
   @Column({
     type: 'enum',

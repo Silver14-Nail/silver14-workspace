@@ -2,18 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 
-@Entity('password_resets')
-export class PasswordReset extends AbstractEntity {
+@Entity('password_resetsEntity')
+export class PasswordResetEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (u) => u.passwordResets, {
+  @ManyToOne(() => UserEntity, (u) => u.passwordResets, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 
   @Column({
     name: 'token_hash',

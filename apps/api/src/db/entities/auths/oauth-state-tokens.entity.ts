@@ -2,10 +2,10 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { AuthProvider } from './auth-provider.entity';
+import { AuthProviderEntity } from './auth-provider.entity';
 
 @Entity('oauth_state_tokens')
-export class OAuthStateToken extends AbstractEntity {
+export class OAuthStateTokenEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -17,11 +17,11 @@ export class OAuthStateToken extends AbstractEntity {
   })
   stateToken: string;
 
-  @ManyToOne(() => AuthProvider, (p) => p.stateTokens, {
+  @ManyToOne(() => AuthProviderEntity, (p) => p.stateTokens, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'provider_id' })
-  provider: AuthProvider;
+  provider: AuthProviderEntity;
 
   @Column({
     name: 'redirect_uri',

@@ -1,25 +1,25 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { ProductVariant } from '../products/product-variants.entity';
+import { ProductVariantEntity } from '../products/product-variants.entity';
 
 import { AbstractEntity } from '../../../common/entities';
-import { Cart } from './cart.entity';
+import { CartEntity } from './cart.entity';
 
 @Entity('cart_items')
-export class CartItem extends AbstractEntity {
+export class CartItemEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Cart, (c) => c.items, {
+  @ManyToOne(() => CartEntity, (c) => c.items, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'cart_id' })
-  cart: Cart;
+  cart: CartEntity;
 
-  @ManyToOne(() => ProductVariant, {
+  @ManyToOne(() => ProductVariantEntity, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'variant_id' })
-  variant: ProductVariant;
+  variant: ProductVariantEntity;
 
   @Column({
     type: 'int',

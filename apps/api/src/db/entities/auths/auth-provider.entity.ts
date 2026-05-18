@@ -3,11 +3,11 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { AuthProviderName } from '../../../common/enums/entity.enum';
 
 import { AbstractEntity } from '../../../common/entities';
-import { OAuthStateToken } from './oauth-state-tokens.entity';
-import { UserAuthIdentity } from './user-auth-identities.entity';
+import { OAuthStateTokenEntity } from './oauth-state-tokens.entity';
+import { UserAuthIdentityEntity } from './user-auth-identities.entity';
 
 @Entity('auth_providers')
-export class AuthProvider extends AbstractEntity {
+export class AuthProviderEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -32,9 +32,9 @@ export class AuthProvider extends AbstractEntity {
   })
   isActive: boolean;
 
-  @OneToMany(() => UserAuthIdentity, (i) => i.provider)
-  identities: UserAuthIdentity[];
+  @OneToMany(() => UserAuthIdentityEntity, (i) => i.provider)
+  identities: UserAuthIdentityEntity[];
 
-  @OneToMany(() => OAuthStateToken, (t) => t.provider)
-  stateTokens: OAuthStateToken[];
+  @OneToMany(() => OAuthStateTokenEntity, (t) => t.provider)
+  stateTokens: OAuthStateTokenEntity[];
 }

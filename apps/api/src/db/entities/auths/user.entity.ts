@@ -4,14 +4,14 @@ import { UserRole } from '../../../common/enums/entity.enum';
 
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { Address } from './address.entity';
-import { UserAuthIdentity } from './user-auth-identities.entity';
-import { UserSession } from './user-session.entity';
-import { PasswordReset } from './password-resets.entity';
-import { EmailVerification } from './email-verifications.entity';
+import { AddressEntity } from './address.entity';
+import { UserAuthIdentityEntity } from './user-auth-identities.entity';
+import { UserSessionEntity } from './user-session.entity';
+import { PasswordResetEntity } from './password-resets.entity';
+import { EmailVerificationEntity } from './email-verifications.entity';
 
 @Entity('users')
-export class User extends SoftDeleteAbstractEntity {
+export class UserEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -80,18 +80,18 @@ export class User extends SoftDeleteAbstractEntity {
   })
   lastLoginAt: Date | null;
 
-  @OneToMany(() => UserAuthIdentity, (i) => i.user)
-  authIdentities: UserAuthIdentity[];
+  @OneToMany(() => UserAuthIdentityEntity, (i) => i.user)
+  authIdentities: UserAuthIdentityEntity[];
 
-  @OneToMany(() => UserSession, (s) => s.user)
-  sessions: UserSession[];
+  @OneToMany(() => UserSessionEntity, (s) => s.user)
+  sessions: UserSessionEntity[];
 
-  @OneToMany(() => PasswordReset, (r) => r.user)
-  passwordResets: PasswordReset[];
+  @OneToMany(() => PasswordResetEntity, (r) => r.user)
+  passwordResets: PasswordResetEntity[];
 
-  @OneToMany(() => EmailVerification, (v) => v.user)
-  emailVerifications: EmailVerification[];
+  @OneToMany(() => EmailVerificationEntity, (v) => v.user)
+  emailVerifications: EmailVerificationEntity[];
 
-  @OneToMany(() => Address, (a) => a.user)
-  addresses: Address[];
+  @OneToMany(() => AddressEntity, (a) => a.user)
+  addresses: AddressEntity[];
 }

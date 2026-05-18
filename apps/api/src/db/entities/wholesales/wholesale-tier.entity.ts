@@ -2,10 +2,10 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { WholesaleTierName } from '../../../common/enums/entity.enum';
 import { AbstractEntity } from '../../../common/entities';
 
-import { WholesaleAccount } from './wholesale-account.entity';
+import { WholesaleAccountEntity } from './wholesale-account.entity';
 
 @Entity('wholesale_tiers')
-export class WholesaleTier extends AbstractEntity {
+export class WholesaleTierEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -56,6 +56,6 @@ export class WholesaleTier extends AbstractEntity {
   })
   minOrderAmount: number;
 
-  @OneToMany(() => WholesaleAccount, (a) => a.tier)
-  accounts: WholesaleAccount[];
+  @OneToMany(() => WholesaleAccountEntity, (a) => a.tier)
+  accounts: WholesaleAccountEntity[];
 }

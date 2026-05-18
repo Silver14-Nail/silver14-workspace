@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { ProductImage } from './product-image.entity';
-import { ProductShapePricing } from './product-shape-pricing.entity';
-import { ProductVariant } from './product-variants.entity';
+import { ProductImageEntity } from './product-image.entity';
+import { ProductShapePricingEntity } from './product-shape-pricing.entity';
+import { ProductVariantEntity } from './product-variants.entity';
 
 @Entity('products')
-export class Product extends SoftDeleteAbstractEntity {
+export class ProductEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -44,12 +44,12 @@ export class Product extends SoftDeleteAbstractEntity {
   })
   isActive: boolean;
 
-  @OneToMany(() => ProductImage, (img) => img.product)
-  images: ProductImage[];
+  @OneToMany(() => ProductImageEntity, (img) => img.product)
+  images: ProductImageEntity[];
 
-  @OneToMany(() => ProductShapePricing, (p) => p.product)
-  shapePricings: ProductShapePricing[];
+  @OneToMany(() => ProductShapePricingEntity, (p) => p.product)
+  shapePricings: ProductShapePricingEntity[];
 
-  @OneToMany(() => ProductVariant, (v) => v.product)
-  variants: ProductVariant[];
+  @OneToMany(() => ProductVariantEntity, (v) => v.product)
+  variants: ProductVariantEntity[];
 }

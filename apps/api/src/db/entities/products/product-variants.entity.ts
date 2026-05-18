@@ -1,32 +1,32 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { NailShape } from './nail-shape.entity';
-import { NailSize } from './nail-size.entity';
-import { Product } from './product.entity';
+import { NailShapeEntity } from './nail-shape.entity';
+import { NailSizeEntity } from './nail-size.entity';
+import { ProductEntity } from './product.entity';
 
 @Entity('product_variants')
-export class ProductVariant extends SoftDeleteAbstractEntity {
+export class ProductVariantEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Product, (p) => p.variants, {
+  @ManyToOne(() => ProductEntity, (p) => p.variants, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: ProductEntity;
 
-  @ManyToOne(() => NailShape, (s) => s.variants, {
+  @ManyToOne(() => NailShapeEntity, (s) => s.variants, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'shape_id' })
-  shape: NailShape;
+  shape: NailShapeEntity;
 
-  @ManyToOne(() => NailSize, (s) => s.variants, {
+  @ManyToOne(() => NailSizeEntity, (s) => s.variants, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'size_id' })
-  size: NailSize;
+  size: NailSizeEntity;
 
   @Column({
     name: 'stock_qty',

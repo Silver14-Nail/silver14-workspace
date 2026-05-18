@@ -1,26 +1,26 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 
 import { AbstractEntity } from '../../../common/entities';
-import { Order } from './order.entity';
-import { ProductVariant } from '../products/product-variants.entity';
-import { CustomSizeRequest } from './custom-size-request.entity';
+import { OrderEntity } from './order.entity';
+import { ProductVariantEntity } from '../products/product-variants.entity';
+import { CustomSizeRequestEntity } from './custom-size-request.entity';
 
 @Entity('order_items')
-export class OrderItem extends AbstractEntity {
+export class OrderItemEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Order, (o) => o.items, {
+  @ManyToOne(() => OrderEntity, (o) => o.items, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_id' })
-  order: Order;
+  order: OrderEntity;
 
-  @ManyToOne(() => ProductVariant, {
+  @ManyToOne(() => ProductVariantEntity, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'variant_id' })
-  variant: ProductVariant;
+  variant: ProductVariantEntity;
 
   @Column({
     type: 'int',
@@ -75,6 +75,6 @@ export class OrderItem extends AbstractEntity {
   })
   isCustomSize: boolean;
 
-  @OneToOne(() => CustomSizeRequest, (r) => r.orderItem)
-  customSizeRequest: CustomSizeRequest;
+  @OneToOne(() => CustomSizeRequestEntity, (r) => r.orderItem)
+  customSizeRequest: CustomSizeRequestEntity;
 }

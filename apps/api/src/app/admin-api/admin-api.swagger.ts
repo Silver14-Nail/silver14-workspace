@@ -1,0 +1,20 @@
+import { INestApplication } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { version } from '../../../package.json';
+import { AuthModule } from '../../shared/auth/auth.module';
+import { ProductsModule } from './products/products.module';
+
+export const setupAdminApiSwagger = (app: INestApplication) => {
+  const options = new DocumentBuilder()
+    .setTitle('ADMIN API SWAGGER')
+    .setDescription('description')
+    .setVersion(version)
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, options, {
+    include: [AuthModule, ProductsModule],
+  });
+
+  SwaggerModule.setup('admin-api/doc', app, document);
+};

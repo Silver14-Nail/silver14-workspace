@@ -2,10 +2,10 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { NailSizeLabel } from '../../../common/enums/entity.enum';
 import { AbstractEntity } from '../../../common/entities';
 
-import { ProductVariant } from './product-variants.entity';
+import { ProductVariantEntity } from './product-variants.entity';
 
 @Entity('nail_sizes')
-export class NailSize extends AbstractEntity {
+export class NailSizeEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -30,6 +30,6 @@ export class NailSize extends AbstractEntity {
   })
   measurements: string | null;
 
-  @OneToMany(() => ProductVariant, (v) => v.size)
-  variants: ProductVariant[];
+  @OneToMany(() => ProductVariantEntity, (v) => v.size)
+  variants: ProductVariantEntity[];
 }

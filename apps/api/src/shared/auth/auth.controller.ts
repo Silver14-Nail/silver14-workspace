@@ -42,20 +42,13 @@ export class AuthController {
 
   @Post('2fa/enable')
   @UseGuards(JwtAuthGuard)
-  enableTwoFactor(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() body: EnableTwoFactorDto,
-  ) {
+  enableTwoFactor(@CurrentUser() user: AuthenticatedUser, @Body() body: EnableTwoFactorDto) {
     return this.authService.enableAdminTwoFactor(user.id, body.code);
   }
 
   @Post('customer/register')
   registerCustomer(@Body() body: RegisterCustomerDto) {
-    return this.authService.registerCustomer(
-      body.email,
-      body.password,
-      body.name,
-    );
+    return this.authService.registerCustomer(body.email, body.password, body.name);
   }
 
   @Post('customer/login')

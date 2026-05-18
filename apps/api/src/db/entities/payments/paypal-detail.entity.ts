@@ -2,18 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'ty
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { Payment } from './payment.entity';
+import { PaymentEntity } from './payment.entity';
 
 @Entity('paypal_details')
-export class PaypalDetail extends AbstractEntity {
+export class PaypalDetailEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Payment, (p) => p.paypalDetail, {
+  @OneToOne(() => PaymentEntity, (p) => p.paypalDetail, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'payment_id' })
-  payment: Payment;
+  payment: PaymentEntity;
 
   @Column({
     name: 'paypal_order_id',

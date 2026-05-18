@@ -2,18 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('addresses')
-export class Address extends AbstractEntity {
+export class AddressEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (u) => u.addresses, {
+  @ManyToOne(() => UserEntity, (u) => u.addresses, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 
   @Column({
     name: 'recipient_name',

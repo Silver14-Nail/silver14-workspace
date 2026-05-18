@@ -2,25 +2,25 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { WholesaleAccount } from './wholesale-account.entity';
-import { Product } from '../products/product.entity';
+import { WholesaleAccountEntity } from './wholesale-account.entity';
+import { ProductEntity } from '../products/product.entity';
 
 @Entity('wholesale_product_pricings')
-export class WholesaleProductPricing extends AbstractEntity {
+export class WholesaleProductPricingEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => WholesaleAccount, (a) => a.productPricings, {
+  @ManyToOne(() => WholesaleAccountEntity, (a) => a.productPricings, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'wholesale_account_id' })
-  account: WholesaleAccount;
+  account: WholesaleAccountEntity;
 
-  @ManyToOne(() => Product, {
+  @ManyToOne(() => ProductEntity, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: ProductEntity;
 
   @Column({
     name: 'override_price',
