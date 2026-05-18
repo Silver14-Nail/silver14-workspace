@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -27,7 +27,11 @@ import {
   ShoppingBag,
   ChevronRight,
   Store,
+  Loader2,
 } from 'lucide-react';
+
+import { logoutAction } from '@/lib/auth/actions';
+import type { SessionUser } from '@/lib/auth/session';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -35,38 +39,28 @@ const navItems = [
   { label: 'Products', icon: Package, path: '/admin/products' },
   { label: 'Inventory', icon: Boxes, path: '/admin/inventory' },
   { label: 'Orders', icon: ShoppingBag, path: '/admin/orders' },
-  { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkout' },
+  { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts' },
   { label: 'Payments', icon: CreditCard, path: '/admin/payments' },
   { label: 'Coupons', icon: Tag, path: '/admin/coupons' },
-  { label: 'Wholesale', icon: Building2, path: '/admin/wholesale' },
-  { label: 'Newsletter', icon: Mail, path: '/admin/newsletter' },
+  { label: 'Wholesale', icon: Building2, path: '/admin/wholesales' },
+  { label: 'Newsletter', icon: Mail, path: '/admin/newsletters' },
   { label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
   { label: 'Settings', icon: Settings, path: '/admin/settings' },
 ];
 
 const notifications = [
   { id: 1, text: '3 new wholesale enquiries', time: '2m ago', unread: true },
-  {
-    id: 2,
-    text: 'Low stock: Champagne Glow (5 left)',
-    time: '1h ago',
-    unread: true,
-  },
-  {
-    id: 3,
-    text: 'Payment failed for order #LUN-2026-0082',
-    time: '3h ago',
-    unread: true,
-  },
-  {
-    id: 4,
-    text: 'Order #LUN-2026-0089 delivered',
-    time: '5h ago',
-    unread: false,
-  },
+  { id: 2, text: 'Low stock: Champagne Glow (5 left)', time: '1h ago', unread: true },
+  { id: 3, text: 'Payment failed for order #LUN-2026-0082', time: '3h ago', unread: true },
+  { id: 4, text: 'Order #LUN-2026-0089 delivered', time: '5h ago', unread: false },
 ];
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+type Props = {
+  children: React.ReactNode;
+  user: SessionUser | null;
+};
+
+export default function AdminShell({ children, user }: Props) {
   const pathname = usePathname();
 
   const [collapsed, setCollapsed] = useState(false);
@@ -74,11 +68,22 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggingOut, startLogout] = useTransition();
+
+  const displayName = user?.fullName || 'Admin';
+  const displayEmail = user?.email || '';
+  const avatarLetter = displayName.charAt(0).toUpperCase();
 
   const isActive = (path: string) =>
-    pathname === path || (path !== '/admin/dashboard' && pathname.startsWith(path));
+    pathname === path || (path !== '/' && pathname.startsWith(path));
 
   const pathSegments = pathname.split('/').filter(Boolean);
+
+  function handleLogout() {
+    startLogout(async () => {
+      await logoutAction();
+    });
+  }
 
   return (
     <div className={`min-h-screen flex ${darkMode ? 'dark bg-gray-950' : 'bg-[#F8F8FA]'}`}>
@@ -190,7 +195,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             } ${collapsed ? 'justify-center' : ''}`}
           >
             <Store className="w-4 h-4 flex-shrink-0" />
-
             {!collapsed && <span className="text-sm font-medium">View Store</span>}
           </Link>
 
@@ -203,7 +207,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             } ${collapsed ? 'justify-center' : ''}`}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-
             {!collapsed && <span className="text-sm font-medium">Collapse</span>}
           </button>
         </div>
@@ -317,7 +320,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 }`}
               >
                 <Bell className="w-4 h-4" />
-
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
               </button>
 
@@ -391,7 +393,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 }`}
               >
                 <div className="w-7 h-7 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-                  <span className="text-white text-xs font-semibold">A</span>
+                  <span className="text-white text-xs font-semibold">{avatarLetter}</span>
                 </div>
 
                 <div className="hidden sm:block text-left">
@@ -400,11 +402,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                       darkMode ? 'text-white' : 'text-[#1A1A1A]'
                     }`}
                   >
-                    Admin
+                    {displayName}
                   </p>
 
                   <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
-                    admin@lunelle.com
+                    {displayEmail}
                   </p>
                 </div>
 
@@ -425,15 +427,19 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                     }`}
                   >
                     <p
-                      className={`text-sm font-medium ${
+                      className={`text-sm font-medium truncate ${
                         darkMode ? 'text-white' : 'text-[#1A1A1A]'
                       }`}
                     >
-                      Admin Lunelle
+                      {displayName}
                     </p>
 
-                    <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
-                      admin@lunelle.com
+                    <p
+                      className={`text-xs truncate ${
+                        darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'
+                      }`}
+                    >
+                      {displayEmail}
                     </p>
                   </div>
 
@@ -461,12 +467,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
                   <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-[#E5E7EB]'}`}>
                     <button
-                      className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
-                        darkMode ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:bg-red-50'
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors disabled:opacity-60 ${
+                        darkMode
+                          ? 'text-red-400 hover:bg-gray-800'
+                          : 'text-red-600 hover:bg-red-50'
                       }`}
                     >
-                      <LogOut className="w-4 h-4" />
-                      Sign out
+                      {isLoggingOut ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <LogOut className="w-4 h-4" />
+                      )}
+                      {isLoggingOut ? 'Signing out…' : 'Sign out'}
                     </button>
                   </div>
                 </div>

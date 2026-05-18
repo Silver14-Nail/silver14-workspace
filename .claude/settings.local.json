@@ -10,7 +10,14 @@
       "Bash(git checkout *)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\api\\\\src\\\\db\\\\entities\\\\checkouts\" -File)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\api\\\\src\\\\app\\\\client-api\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(pnpm add *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\" -Recurse -Directory)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\" -Recurse -Directory | Where-Object { $_.Name -eq \"users\" } | Select-Object -ExpandProperty FullName)",
+      "Bash(pnpm --filter @source/admin add axios)"
     ]
   }
 }
