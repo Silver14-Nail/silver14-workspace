@@ -1,4 +1,10 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+
+import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Request } from 'express';
+
 import type { AuthenticatedUser, AuthTokens } from './auth.types';
 import { accessTokenTtlSeconds, TokenService } from './token.service';
 import { TotpService } from './totp.service';
@@ -8,6 +14,18 @@ import {
   mockCustomerUsers,
   type MockAuthUser,
 } from './mock-users';
+
+import { EnvConfiguration } from '@/config/configuration';
+
+import { UserEntity } from '@/db/entities/auths/user.entity';
+
+import { UserDto } from '@/common/dtos/auths/user.dto';
+
+import { CookieUtils, TokenUtils } from '@/common/utils';
+
+import { InvalidTokenError, TokenExpiredError } from '@/common/errors/jwt-token.error';
+
+import { GenerateTokenReturn } from './auth.interface';
 
 const TWO_FACTOR_CHALLENGE_TTL_MS = 5 * 60 * 1000;
 
@@ -23,14 +41,15 @@ export class AuthService {
   constructor(
     private readonly tokenService: TokenService,
     private readonly totpService: TotpService,
+    private configService: ConfigService<EnvConfiguration>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
   login(email: string, password: string) {
     // TODO(database): replace this file lookup with a users/admin_accounts table query.
     // The password check should also move to a hashed-password comparison there.
-    const user = mockAuthUsers.find(
-      (item) => item.email.toLowerCase() === email.toLowerCase(),
-    );
+    const user = mockAuthUsers.find((item) => item.email.toLowerCase() === email.toLowerCase());
 
     if (!user || user.password !== password || user.status !== 'active') {
       throw new UnauthorizedException('Invalid email or password');
@@ -72,8 +91,7 @@ export class AuthService {
       };
     }
 
-    user.pendingTwoFactorSecret =
-      user.pendingTwoFactorSecret ?? this.totpService.createSecret();
+    user.pendingTwoFactorSecret = user.pendingTwoFactorSecret ?? this.totpService.createSecret();
 
     return {
       enabled: false,
@@ -128,9 +146,7 @@ export class AuthService {
   loginCustomer(email: string, password: string) {
     // TODO(database): replace this file lookup with a customers/users table query.
     // The password check should move to a hashed-password comparison there.
-    const user = mockCustomerUsers.find(
-      (item) => item.email.toLowerCase() === email.toLowerCase(),
-    );
+    const user = mockCustomerUsers.find((item) => item.email.toLowerCase() === email.toLowerCase());
 
     if (!user || user.password !== password || user.status !== 'active') {
       throw new UnauthorizedException('Invalid email or password');
@@ -166,9 +182,7 @@ export class AuthService {
 
   getUserByTokenSubject(userId: string): AuthenticatedUser {
     // TODO(database): replace this file lookup with a user lookup by access-token subject.
-    const user = [...mockAuthUsers, ...mockCustomerUsers].find(
-      (item) => item.id === userId,
-    );
+    const user = [...mockAuthUsers, ...mockCustomerUsers].find((item) => item.id === userId);
 
     if (!user || user.status !== 'active') {
       throw new UnauthorizedException('Invalid access token');
@@ -204,9 +218,7 @@ export class AuthService {
   }
 
   private createTwoFactorChallenge(user: MockAuthUser) {
-    const challengeId = `2fa-${Date.now().toString(36)}-${Math.random()
-      .toString(36)
-      .slice(2, 10)}`;
+    const challengeId = `2fa-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
     this.twoFactorChallenges.set(challengeId, {
       expiresAt: Date.now() + TWO_FACTOR_CHALLENGE_TTL_MS,
@@ -237,5 +249,67 @@ export class AuthService {
       name: user.name,
       role: user.role,
     };
+  }
+
+  async validateRequest(req: Request): Promise<UserDto> {
+    const accessToken = req.headers.get('authorization')
+      ? TokenUtils.bearerSchemaToToken(req.headers.get('authorization'))
+      : String(CookieUtils.getToken(req));
+
+    if (!accessToken) {
+      throw new InvalidTokenError();
+    }
+
+    return this.validateToken(accessToken);
+  }
+
+  async validateToken(token: string) {
+    const accessTokenDataObj = TokenUtils.verify<{ userId: string }>(
+      token,
+      `${this.configService.get('secret')}`,
+    );
+    const user = await this.userRepository.findOneBy({ id: accessTokenDataObj.userId });
+    if (!user) {
+      throw new InvalidTokenError();
+    }
+    return new UserDto(user);
+  }
+
+  async generateToken(user: UserDto): Promise<GenerateTokenReturn> {
+    const accessToken = TokenUtils.generate(
+      { userId: user.id },
+      this.configService.get('secret') as string,
+      this.configService.get('tokenExpires') as number,
+    );
+    const refreshToken = TokenUtils.generate(
+      { userId: user.id },
+      `refresh_${this.configService.get('secret')}`,
+      this.configService.get('refreshTokenExpires') as string,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async refreshToken(refreshToken: string): Promise<GenerateTokenReturn> {
+    try {
+      const accessTokenDataObj = await TokenUtils.verify<{ userId: string }>(
+        refreshToken,
+        `refresh_${this.configService.get('secret')}`,
+      );
+      const user = await this.userRepository.findOneBy({ id: accessTokenDataObj.userId });
+      if (!user) {
+        throw new InvalidTokenError();
+      }
+
+      return this.generateToken(new UserDto(user));
+    } catch (error: any) {
+      if (error.name === 'TokenExpiredError') {
+        throw new TokenExpiredError();
+      }
+      throw new InvalidTokenError();
+    }
   }
 }

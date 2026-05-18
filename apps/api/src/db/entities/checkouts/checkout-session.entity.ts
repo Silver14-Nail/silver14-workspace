@@ -2,34 +2,34 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn
 import { CheckoutSessionStatus, CheckoutStep } from '../../../common/enums/entity.enum';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { User } from '../auths/user.entity';
-import { GuestCheckout } from './guest-checkout.entity';
-import { Cart } from './cart.entity';
+import { UserEntity } from '../auths/user.entity';
+import { GuestCheckoutEntity } from './guest-checkout.entity';
+import { CartEntity } from './cart.entity';
 
 @Entity('checkout_sessions')
-export class CheckoutSession extends SoftDeleteAbstractEntity {
+export class CheckoutSessionEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Cart, (c) => c.checkoutSession, {
+  @OneToOne(() => CartEntity, (c) => c.checkoutSession, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'cart_id' })
-  cart: Cart;
+  cart: CartEntity;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User | null;
+  user: UserEntity | null;
 
-  @ManyToOne(() => GuestCheckout, {
+  @ManyToOne(() => GuestCheckoutEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'guest_id' })
-  guest: GuestCheckout | null;
+  guest: GuestCheckoutEntity | null;
 
   @Column({
     name: 'current_step',

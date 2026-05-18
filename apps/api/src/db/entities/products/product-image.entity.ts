@@ -1,18 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { AbstractEntity } from '../../../common/entities';
 
-import { Product } from './product.entity';
+import { ProductEntity } from './product.entity';
 
 @Entity('product_images')
-export class ProductImage extends AbstractEntity {
+export class ProductImageEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Product, (p) => p.images, {
+  @ManyToOne(() => ProductEntity, (p) => p.images, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: ProductEntity;
 
   @Column({
     type: 'varchar',

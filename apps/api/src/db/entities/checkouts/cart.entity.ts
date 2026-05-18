@@ -10,29 +10,29 @@ import {
 import { CartStatus } from '../../../common/enums/entity.enum';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { User } from '../auths/user.entity';
-import { GuestCheckout } from './guest-checkout.entity';
-import { CartItem } from './cart-item.entity';
-import { CheckoutSession } from '@/db/entities/checkouts/checkout-session.entity';
+import { UserEntity } from '../auths/user.entity';
+import { GuestCheckoutEntity } from './guest-checkout.entity';
+import { CartItemEntity } from './cart-item.entity';
+import { CheckoutSessionEntity } from '@/db/entities/checkouts/checkout-session.entity';
 
 @Entity('carts')
-export class Cart extends SoftDeleteAbstractEntity {
+export class CartEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User | null;
+  user: UserEntity | null;
 
-  @ManyToOne(() => GuestCheckout, {
+  @ManyToOne(() => GuestCheckoutEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'guest_id' })
-  guest: GuestCheckout | null;
+  guest: GuestCheckoutEntity | null;
 
   @Column({
     type: 'enum',
@@ -48,9 +48,9 @@ export class Cart extends SoftDeleteAbstractEntity {
   })
   expiresAt: Date | null;
 
-  @OneToMany(() => CartItem, (item) => item.cart)
-  items: CartItem[];
+  @OneToMany(() => CartItemEntity, (item) => item.cart)
+  items: CartItemEntity[];
 
-  @OneToOne(() => CheckoutSession, (cs) => cs.cart)
-  checkoutSession: CheckoutSession;
+  @OneToOne(() => CheckoutSessionEntity, (cs) => cs.cart)
+  checkoutSession: CheckoutSessionEntity;
 }

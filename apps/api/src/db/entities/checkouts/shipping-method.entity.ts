@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { AbstractEntity } from '../../../common/entities';
 
 @Entity('shipping_methods')
-export class ShippingMethod extends AbstractEntity {
+export class ShippingMethodEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

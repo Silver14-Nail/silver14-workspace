@@ -4,26 +4,26 @@ import { LoginMethod } from '../../../common/enums/entity.enum';
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from './user.entity';
-import { UserAuthIdentity } from './user-auth-identities.entity';
+import { UserEntity } from './user.entity';
+import { UserAuthIdentityEntity } from './user-auth-identities.entity';
 
 @Entity('user_sessions')
-export class UserSession extends AbstractEntity {
+export class UserSessionEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (u) => u.sessions, {
+  @ManyToOne(() => UserEntity, (u) => u.sessions, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 
-  @ManyToOne(() => UserAuthIdentity, (i) => i.sessions, {
+  @ManyToOne(() => UserAuthIdentityEntity, (i) => i.sessions, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'identity_id' })
-  identity: UserAuthIdentity | null;
+  identity: UserAuthIdentityEntity | null;
 
   @Column({
     name: 'token_hash',

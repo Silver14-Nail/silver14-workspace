@@ -1,18 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { AbstractEntity } from '../../../common/entities';
 
-import { OrderItem } from './order-item.entity';
+import { OrderItemEntity } from './order-item.entity';
 
 @Entity('custom_size_requests')
-export class CustomSizeRequest extends AbstractEntity {
+export class CustomSizeRequestEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => OrderItem, (item) => item.customSizeRequest, {
+  @OneToOne(() => OrderItemEntity, (item) => item.customSizeRequest, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_item_id' })
-  orderItem: OrderItem;
+  orderItem: OrderItemEntity;
 
   @Column({
     type: 'varchar',

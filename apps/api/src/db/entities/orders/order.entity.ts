@@ -1,52 +1,53 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { OrderStatus } from '../../../common/enums/entity.enum';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
-import { User } from '../auths/user.entity';
-import { GuestCheckout } from '../checkouts/guest-checkout.entity';
-import { CheckoutSession } from '../checkouts/checkout-session.entity';
-import { ShippingMethod } from '../checkouts/shipping-method.entity';
-import { Coupon } from '../coupons/coupon.entity';
-import { OrderItem } from './order-item.entity';
+
+import { UserEntity } from '../auths/user.entity';
+import { GuestCheckoutEntity } from '../checkouts/guest-checkout.entity';
+import { CheckoutSessionEntity } from '../checkouts/checkout-session.entity';
+import { ShippingMethodEntity } from '../checkouts/shipping-method.entity';
+import { CouponEntity } from '../coupons/coupon.entity';
+import { OrderItemEntity } from './order-item.entity';
 
 @Entity('orders')
-export class Order extends SoftDeleteAbstractEntity {
+export class OrderEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User | null;
+  user: UserEntity | null;
 
-  @ManyToOne(() => GuestCheckout, {
+  @ManyToOne(() => GuestCheckoutEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'guest_id' })
-  guest: GuestCheckout | null;
+  guest: GuestCheckoutEntity | null;
 
-  @ManyToOne(() => CheckoutSession, {
+  @ManyToOne(() => CheckoutSessionEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'checkout_session_id' })
-  checkoutSession: CheckoutSession | null;
+  checkoutSession: CheckoutSessionEntity | null;
 
-  @ManyToOne(() => ShippingMethod, {
+  @ManyToOne(() => ShippingMethodEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'shipping_method_id' })
-  shippingMethod: ShippingMethod | null;
+  shippingMethod: ShippingMethodEntity | null;
 
-  @ManyToOne(() => Coupon, {
+  @ManyToOne(() => CouponEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'coupon_id' })
-  coupon: Coupon | null;
+  coupon: CouponEntity | null;
 
   @Column({
     type: 'enum',
@@ -125,6 +126,6 @@ export class Order extends SoftDeleteAbstractEntity {
   })
   currency: string;
 
-  @OneToMany(() => OrderItem, (item) => item.order)
-  items: OrderItem[];
+  @OneToMany(() => OrderItemEntity, (item) => item.order)
+  items: OrderItemEntity[];
 }

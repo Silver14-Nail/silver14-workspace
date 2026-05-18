@@ -2,25 +2,25 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { PriceAdjustmentType } from '../../../common/enums/entity.enum';
 import { AbstractEntity } from '../../../common/entities';
 
-import { Product } from './product.entity';
-import { NailShape } from './nail-shape.entity';
+import { ProductEntity } from './product.entity';
+import { NailShapeEntity } from './nail-shape.entity';
 
 @Entity('product_shape_pricings')
-export class ProductShapePricing extends AbstractEntity {
+export class ProductShapePricingEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Product, (p) => p.shapePricings, {
+  @ManyToOne(() => ProductEntity, (p) => p.shapePricings, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
-  product: Product;
+  product: ProductEntity;
 
-  @ManyToOne(() => NailShape, (s) => s.productPricings, {
+  @ManyToOne(() => NailShapeEntity, (s) => s.productPricings, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'shape_id' })
-  shape: NailShape;
+  shape: NailShapeEntity;
 
   @Column({
     name: 'price_override',

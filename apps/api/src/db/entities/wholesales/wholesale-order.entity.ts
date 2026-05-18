@@ -3,25 +3,25 @@ import { WholesalePaymentStatus, WholesalePaymentTerms } from '../../../common/e
 
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { Order } from '../orders/order.entity';
-import { WholesaleAccount } from './wholesale-account.entity';
+import { OrderEntity } from '../orders/order.entity';
+import { WholesaleAccountEntity } from './wholesale-account.entity';
 
 @Entity('wholesale_orders')
-export class WholesaleOrder extends SoftDeleteAbstractEntity {
+export class WholesaleOrderEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => WholesaleAccount, (a) => a.orders, {
+  @ManyToOne(() => WholesaleAccountEntity, (a) => a.orders, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'wholesale_account_id' })
-  account: WholesaleAccount;
+  account: WholesaleAccountEntity;
 
-  @OneToOne(() => Order, {
+  @OneToOne(() => OrderEntity, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_id' })
-  order: Order;
+  order: OrderEntity;
 
   @Column({
     name: 'po_number',

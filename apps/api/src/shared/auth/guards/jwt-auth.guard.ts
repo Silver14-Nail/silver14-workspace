@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../auth.types';
 import { AuthService } from '../auth.service';
 import { TokenService } from '../token.service';
@@ -49,9 +44,7 @@ export class CustomerJwtAuthGuard implements CanActivate {
 }
 
 function extractBearerToken(authorizationHeader: string | string[] | undefined) {
-  const header = Array.isArray(authorizationHeader)
-    ? authorizationHeader[0]
-    : authorizationHeader;
+  const header = Array.isArray(authorizationHeader) ? authorizationHeader[0] : authorizationHeader;
   const [scheme, token] = header?.split(' ') ?? [];
 
   if (scheme !== 'Bearer' || !token) {

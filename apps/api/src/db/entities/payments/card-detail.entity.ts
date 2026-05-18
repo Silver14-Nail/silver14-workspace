@@ -2,18 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'ty
 import { CardBrand, CardProcessor } from '../../../common/enums/entity.enum';
 import { AbstractEntity } from '../../../common/entities';
 
-import { Payment } from './payment.entity';
+import { PaymentEntity } from './payment.entity';
 
 @Entity('card_details')
-export class CardDetail extends AbstractEntity {
+export class CardDetailEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Payment, (p) => p.cardDetail, {
+  @OneToOne(() => PaymentEntity, (p) => p.cardDetail, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'payment_id' })
-  payment: Payment;
+  payment: PaymentEntity;
 
   @Column({
     type: 'enum',

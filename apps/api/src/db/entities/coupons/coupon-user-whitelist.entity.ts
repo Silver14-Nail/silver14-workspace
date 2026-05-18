@@ -2,23 +2,23 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from '../auths/user.entity';
-import { Coupon } from './coupon.entity';
+import { UserEntity } from '../auths/user.entity';
+import { CouponEntity } from './coupon.entity';
 
 @Entity('coupon_user_whitelists')
-export class CouponUserWhitelist extends AbstractEntity {
+export class CouponUserWhitelistEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Coupon, (c) => c.whitelist, {
+  @ManyToOne(() => CouponEntity, (c) => c.whitelist, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'coupon_id' })
-  coupon: Coupon;
+  coupon: CouponEntity;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 }

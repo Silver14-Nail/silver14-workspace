@@ -10,26 +10,26 @@ import {
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from './user.entity';
-import { AuthProvider } from './auth-provider.entity';
-import { UserSession } from './user-session.entity';
+import { UserEntity } from './user.entity';
+import { AuthProviderEntity } from './auth-provider.entity';
+import { UserSessionEntity } from './user-session.entity';
 
 @Entity('user_auth_identities')
-export class UserAuthIdentity extends AbstractEntity {
+export class UserAuthIdentityEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (u) => u.authIdentities, {
+  @ManyToOne(() => UserEntity, (u) => u.authIdentities, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 
-  @ManyToOne(() => AuthProvider, (p) => p.identities, {
+  @ManyToOne(() => AuthProviderEntity, (p) => p.identities, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'provider_id' })
-  provider: AuthProvider;
+  provider: AuthProviderEntity;
 
   @Column({
     name: 'provider_user_id',
@@ -89,6 +89,6 @@ export class UserAuthIdentity extends AbstractEntity {
   })
   lastUsedAt: Date | null;
 
-  @OneToMany(() => UserSession, (s) => s.identity)
-  sessions: UserSession[];
+  @OneToMany(() => UserSessionEntity, (s) => s.identity)
+  sessions: UserSessionEntity[];
 }

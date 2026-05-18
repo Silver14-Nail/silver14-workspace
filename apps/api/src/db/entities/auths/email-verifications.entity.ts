@@ -2,18 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('email_verifications')
-export class EmailVerification extends AbstractEntity {
+export class EmailVerificationEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, (u) => u.emailVerifications, {
+  @ManyToOne(() => UserEntity, (u) => u.emailVerifications, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 
   @Column({
     name: 'token_hash',

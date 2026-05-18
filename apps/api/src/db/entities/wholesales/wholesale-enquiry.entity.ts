@@ -2,11 +2,11 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn
 import { WholesaleEnquiryStatus } from '../../../common/enums/entity.enum';
 
 import { AbstractEntity } from '../../../common/entities';
-import { WholesaleAccount } from './wholesale-account.entity';
-import { User } from '../auths/user.entity';
+import { WholesaleAccountEntity } from './wholesale-account.entity';
+import { UserEntity } from '../auths/user.entity';
 
 @Entity('wholesale_enquiries')
-export class WholesaleEnquiry extends AbstractEntity {
+export class WholesaleEnquiryEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -87,12 +87,12 @@ export class WholesaleEnquiry extends AbstractEntity {
   })
   status: WholesaleEnquiryStatus;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'handled_by' })
-  handledBy: User | null;
+  handledBy: UserEntity | null;
 
   @Column({
     name: 'admin_notes',
@@ -108,6 +108,6 @@ export class WholesaleEnquiry extends AbstractEntity {
   })
   respondedAt: Date | null;
 
-  @OneToOne(() => WholesaleAccount, (a) => a.enquiry)
-  account: WholesaleAccount;
+  @OneToOne(() => WholesaleAccountEntity, (a) => a.enquiry)
+  account: WholesaleAccountEntity;
 }

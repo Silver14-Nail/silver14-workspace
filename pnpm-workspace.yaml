@@ -6,6 +6,7 @@ allowBuilds:
   '@parcel/watcher': true
   '@scarf/scarf': true
   '@swc/core': true
+  bcrypt: true
   less: true
   nx: true
   sharp: true

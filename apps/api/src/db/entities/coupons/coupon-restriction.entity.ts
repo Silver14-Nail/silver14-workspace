@@ -3,18 +3,18 @@ import { CouponRestrictionType } from '../../../common/enums/entity.enum';
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { Coupon } from './coupon.entity';
+import { CouponEntity } from './coupon.entity';
 
 @Entity('coupon_restrictions')
-export class CouponRestriction extends AbstractEntity {
+export class CouponRestrictionEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Coupon, (c) => c.restrictions, {
+  @ManyToOne(() => CouponEntity, (c) => c.restrictions, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'coupon_id' })
-  coupon: Coupon;
+  coupon: CouponEntity;
 
   @Column({
     name: 'restriction_type',

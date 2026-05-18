@@ -2,11 +2,11 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { PriceAdjustmentType, ShapeSizeTier } from '../../../common/enums/entity.enum';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { ProductShapePricing } from './product-shape-pricing.entity';
-import { ProductVariant } from './product-variants.entity';
+import { ProductShapePricingEntity } from './product-shape-pricing.entity';
+import { ProductVariantEntity } from './product-variants.entity';
 
 @Entity('nail_shapes')
-export class NailShape extends SoftDeleteAbstractEntity {
+export class NailShapeEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -54,9 +54,9 @@ export class NailShape extends SoftDeleteAbstractEntity {
   })
   isActive: boolean;
 
-  @OneToMany(() => ProductShapePricing, (p) => p.shape)
-  productPricings: ProductShapePricing[];
+  @OneToMany(() => ProductShapePricingEntity, (p) => p.shape)
+  productPricings: ProductShapePricingEntity[];
 
-  @OneToMany(() => ProductVariant, (v) => v.shape)
-  variants: ProductVariant[];
+  @OneToMany(() => ProductVariantEntity, (v) => v.shape)
+  variants: ProductVariantEntity[];
 }

@@ -2,33 +2,33 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 import { AbstractEntity } from '../../../common/entities';
 
-import { User } from '../auths/user.entity';
-import { Order } from '../orders/order.entity';
-import { Coupon } from './coupon.entity';
+import { UserEntity } from '../auths/user.entity';
+import { OrderEntity } from '../orders/order.entity';
+import { CouponEntity } from './coupon.entity';
 
 @Entity('coupon_usages')
-export class CouponUsage extends AbstractEntity {
+export class CouponUsageEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Coupon, (c) => c.usages, {
+  @ManyToOne(() => CouponEntity, (c) => c.usages, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'coupon_id' })
-  coupon: Coupon;
+  coupon: CouponEntity;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User | null;
+  user: UserEntity | null;
 
-  @ManyToOne(() => Order, {
+  @ManyToOne(() => OrderEntity, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_id' })
-  order: Order;
+  order: OrderEntity;
 
   @Column({
     name: 'discount_applied',

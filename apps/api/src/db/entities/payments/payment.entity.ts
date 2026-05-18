@@ -1,21 +1,22 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { PaymentGateway, PaymentStatus } from '../../../common/enums/entity.enum';
-import { Order } from '../orders/order.entity';
+
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { PaypalDetail } from './paypal-detail.entity';
-import { CardDetail } from './card-detail.entity';
+import { OrderEntity } from '../orders/order.entity';
+import { PaypalDetailEntity } from './paypal-detail.entity';
+import { CardDetailEntity } from './card-detail.entity';
 
 @Entity('payments')
-export class Payment extends SoftDeleteAbstractEntity {
+export class PaymentEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Order, {
+  @OneToOne(() => OrderEntity, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_id' })
-  order: Order;
+  order: OrderEntity;
 
   @Column({
     type: 'enum',
@@ -66,9 +67,9 @@ export class Payment extends SoftDeleteAbstractEntity {
   })
   paidAt: Date | null;
 
-  @OneToOne(() => PaypalDetail, (d) => d.payment)
-  paypalDetail: PaypalDetail;
+  @OneToOne(() => PaypalDetailEntity, (d) => d.payment)
+  paypalDetail: PaypalDetailEntity;
 
-  @OneToOne(() => CardDetail, (d) => d.payment)
-  cardDetail: CardDetail;
+  @OneToOne(() => CardDetailEntity, (d) => d.payment)
+  cardDetail: CardDetailEntity;
 }

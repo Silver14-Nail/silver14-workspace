@@ -10,34 +10,34 @@ import {
 
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { User } from '../auths/user.entity';
-import { WholesaleEnquiry } from './wholesale-enquiry.entity';
-import { WholesaleTier } from './wholesale-tier.entity';
-import { WholesaleProductPricing } from './wholesale-product-pricing.entity';
-import { WholesaleOrder } from './wholesale-order.entity';
+import { UserEntity } from '../auths/user.entity';
+import { WholesaleEnquiryEntity } from './wholesale-enquiry.entity';
+import { WholesaleTierEntity } from './wholesale-tier.entity';
+import { WholesaleProductPricingEntity } from './wholesale-product-pricing.entity';
+import { WholesaleOrderEntity } from './wholesale-order.entity';
 
 @Entity('wholesale_accounts')
-export class WholesaleAccount extends SoftDeleteAbstractEntity {
+export class WholesaleAccountEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => User, {
+  @OneToOne(() => UserEntity, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  user: UserEntity;
 
-  @OneToOne(() => WholesaleEnquiry, (e) => e.account, {
+  @OneToOne(() => WholesaleEnquiryEntity, (e) => e.account, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'enquiry_id' })
-  enquiry: WholesaleEnquiry;
+  enquiry: WholesaleEnquiryEntity;
 
-  @ManyToOne(() => WholesaleTier, (t) => t.accounts, {
+  @ManyToOne(() => WholesaleTierEntity, (t) => t.accounts, {
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'tier_id' })
-  tier: WholesaleTier;
+  tier: WholesaleTierEntity;
 
   @Column({
     name: 'business_name',
@@ -85,16 +85,16 @@ export class WholesaleAccount extends SoftDeleteAbstractEntity {
   })
   approvedAt: Date | null;
 
-  @ManyToOne(() => User, {
+  @ManyToOne(() => UserEntity, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'approved_by' })
-  approvedBy: User | null;
+  approvedBy: UserEntity | null;
 
-  @OneToMany(() => WholesaleProductPricing, (p) => p.account)
-  productPricings: WholesaleProductPricing[];
+  @OneToMany(() => WholesaleProductPricingEntity, (p) => p.account)
+  productPricings: WholesaleProductPricingEntity[];
 
-  @OneToMany(() => WholesaleOrder, (o) => o.account)
-  orders: WholesaleOrder[];
+  @OneToMany(() => WholesaleOrderEntity, (o) => o.account)
+  orders: WholesaleOrderEntity[];
 }

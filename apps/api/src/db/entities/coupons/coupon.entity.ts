@@ -2,12 +2,12 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { DiscountType } from '../../../common/enums/entity.enum';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
-import { CouponRestriction } from './coupon-restriction.entity';
-import { CouponUserWhitelist } from './coupon-user-whitelist.entity';
-import { CouponUsage } from './coupon-usage.entity';
+import { CouponRestrictionEntity } from './coupon-restriction.entity';
+import { CouponUserWhitelistEntity } from './coupon-user-whitelist.entity';
+import { CouponUsageEntity } from './coupon-usage.entity';
 
 @Entity('coupons')
-export class Coupon extends SoftDeleteAbstractEntity {
+export class CouponEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -99,12 +99,12 @@ export class Coupon extends SoftDeleteAbstractEntity {
   })
   expiresAt: Date | null;
 
-  @OneToMany(() => CouponRestriction, (r) => r.coupon)
-  restrictions: CouponRestriction[];
+  @OneToMany(() => CouponRestrictionEntity, (r) => r.coupon)
+  restrictions: CouponRestrictionEntity[];
 
-  @OneToMany(() => CouponUserWhitelist, (w) => w.coupon)
-  whitelist: CouponUserWhitelist[];
+  @OneToMany(() => CouponUserWhitelistEntity, (w) => w.coupon)
+  whitelist: CouponUserWhitelistEntity[];
 
-  @OneToMany(() => CouponUsage, (u) => u.coupon)
-  usages: CouponUsage[];
+  @OneToMany(() => CouponUsageEntity, (u) => u.coupon)
+  usages: CouponUsageEntity[];
 }
