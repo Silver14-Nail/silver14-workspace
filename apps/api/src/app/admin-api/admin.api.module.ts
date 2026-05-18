@@ -5,11 +5,13 @@ import { AdminApiMiddleware } from './admin-api.middleware';
 import { AuthModule } from '../../shared/auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { AdminAuthModule } from './auth/auth.module';
+import { AdminUsersModule } from './users/users.module';
+import { WholesalesModule } from './wholesales/wholesales.module';
 
 @Module({
   imports: [
     RouterModule.forRoutes(
-      [ProductsModule, AdminAuthModule].map((module) => ({
+      [ProductsModule, AdminAuthModule, AdminUsersModule, WholesalesModule].map((module) => ({
         path: 'admin-api',
         module,
       })),
@@ -17,6 +19,8 @@ import { AdminAuthModule } from './auth/auth.module';
     AuthModule,
     ProductsModule,
     AdminAuthModule,
+    AdminUsersModule,
+    WholesalesModule,
   ],
 })
 export class AdminApiModule implements NestModule {

@@ -5,6 +5,8 @@ import { version } from '../../../package.json';
 import { AuthModule } from '../../shared/auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { AdminAuthModule } from './auth/auth.module';
+import { AdminUsersModule } from './users/users.module';
+import { WholesalesModule } from './wholesales/wholesales.module';
 
 export const setupAdminApiSwagger = (app: INestApplication) => {
   const options = new DocumentBuilder()
@@ -14,7 +16,7 @@ export const setupAdminApiSwagger = (app: INestApplication) => {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options, {
-    include: [AuthModule, ProductsModule, AdminAuthModule],
+    include: [AuthModule, ProductsModule, AdminAuthModule, AdminUsersModule, WholesalesModule],
   });
 
   SwaggerModule.setup('admin-api/doc', app, document);
