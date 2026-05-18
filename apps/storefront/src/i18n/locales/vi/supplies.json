@@ -1,0 +1,29 @@
+{
+  "subtitle": "Dụng cụ & vật liệu nail art",
+  "title": "Vật tư",
+  "results": "{{count}} sản phẩm",
+  "noSupplies": "Chưa có sản phẩm nào",
+  "outOfStock": "Hết hàng",
+  "detail": {
+    "backToSupplies": "Quay lại Vật tư",
+    "notFound": "Không tìm thấy sản phẩm",
+    "description": "Mô tả",
+    "usageGuide": "Hướng dẫn sử dụng",
+    "features": "Tính năng",
+    "quantity": "Số lượng",
+    "addToCart": "Thêm vào giỏ",
+    "outOfStock": "Hết hàng",
+    "shipping": {
+      "title": "Miễn phí vận chuyển toàn cầu",
+      "subtitle": "Giao hàng trong 5–7 ngày làm việc"
+    },
+    "packaging": {
+      "title": "Đóng gói an toàn",
+      "subtitle": "Đóng gói cẩn thận để đảm bảo chất lượng"
+    },
+    "returns": {
+      "title": "Đổi trả trong 14 ngày",
+      "subtitle": "Đổi trả dễ dàng trong vòng 14 ngày"
+    }
+  }
+}

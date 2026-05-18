@@ -1,0 +1,29 @@
+{
+  "subtitle": "Nail Art Tools & Materials",
+  "title": "Supplies",
+  "results": "{{count}} products",
+  "noSupplies": "No supplies available",
+  "outOfStock": "Out of Stock",
+  "detail": {
+    "backToSupplies": "Back to Supplies",
+    "notFound": "Supply not found",
+    "description": "Description",
+    "usageGuide": "Usage Guide",
+    "features": "Features",
+    "quantity": "Quantity",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "shipping": {
+      "title": "Free Worldwide Shipping",
+      "subtitle": "5–7 business days delivery"
+    },
+    "packaging": {
+      "title": "Secure Packaging",
+      "subtitle": "Carefully packaged to ensure quality"
+    },
+    "returns": {
+      "title": "14-Day Returns",
+      "subtitle": "Hassle-free returns within 14 days"
+    }
+  }
+}
