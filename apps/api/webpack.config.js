@@ -41,5 +41,7 @@ module.exports = {
     { module: /iterare/ },
     { module: /load-esm/ },
     { module: /app-root-path/ },
+    { module: /nest-router/ },
+    { module: /stripe/ },
   ],
 };
