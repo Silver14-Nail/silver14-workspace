@@ -38,6 +38,6 @@ export class AdminApiModule implements NestModule {
         { path: 'admin-api/auth/login', method: RequestMethod.POST },
         { path: 'admin-api/auth/refresh', method: RequestMethod.POST },
       )
-      .forRoutes({ path: 'admin-api', method: RequestMethod.ALL });
+      .forRoutes({ path: 'admin-api/*path', method: RequestMethod.ALL });
   }
 }

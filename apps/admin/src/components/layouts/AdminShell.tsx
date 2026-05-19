@@ -30,8 +30,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
-import { logoutAction } from '@/services/auth.actions';
-import type { AuthUser } from '@/services/auth.service';
+import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -55,13 +54,9 @@ const notifications = [
   { id: 4, text: 'Order #LUN-2026-0089 delivered', time: '5h ago', unread: false },
 ];
 
-type Props = {
-  children: React.ReactNode;
-  user: AuthUser | null;
-};
-
-export default function AdminShell({ children, user }: Props) {
+export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -81,7 +76,7 @@ export default function AdminShell({ children, user }: Props) {
 
   function handleLogout() {
     startLogout(async () => {
-      await logoutAction();
+      await logout();
     });
   }
 
@@ -470,9 +465,7 @@ export default function AdminShell({ children, user }: Props) {
                       onClick={handleLogout}
                       disabled={isLoggingOut}
                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors disabled:opacity-60 ${
-                        darkMode
-                          ? 'text-red-400 hover:bg-gray-800'
-                          : 'text-red-600 hover:bg-red-50'
+                        darkMode ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:bg-red-50'
                       }`}
                     >
                       {isLoggingOut ? (

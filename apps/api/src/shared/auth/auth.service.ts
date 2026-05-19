@@ -252,9 +252,10 @@ export class AuthService {
   }
 
   async validateRequest(req: Request): Promise<UserDto> {
-    const accessToken = req.headers.get('authorization')
-      ? TokenUtils.bearerSchemaToToken(req.headers.get('authorization'))
-      : String(CookieUtils.getToken(req));
+    const authHeader = req.headers['authorization'] as string | undefined;
+    const accessToken = authHeader
+      ? TokenUtils.bearerSchemaToToken(authHeader)
+      : CookieUtils.getToken(req);
 
     if (!accessToken) {
       throw new InvalidTokenError();

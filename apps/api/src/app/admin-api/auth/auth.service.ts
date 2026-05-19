@@ -63,16 +63,19 @@ export class AdminAuthService {
   }
 
   async getMe(userId: string) {
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: ['addresses'],
-    });
+    const user = await this.userRepo.findOneBy({ id: userId });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+    };
   }
 
   private buildAuthResponse(user: UserEntity) {
