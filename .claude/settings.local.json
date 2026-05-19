@@ -17,7 +17,24 @@
       "Bash(pnpm add *)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\" -Recurse -Directory)",
       "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\" -Recurse -Directory | Where-Object { $_.Name -eq \"users\" } | Select-Object -ExpandProperty FullName)",
-      "Bash(pnpm --filter @source/admin add axios)"
+      "Bash(pnpm --filter @source/admin add axios)",
+      "Bash(Get-ChildItem -Force)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\app\" -Recurse -File)",
+      "Bash(xargs grep -l \"zustand\\\\|redux\\\\|jotai\\\\|recoil\\\\|createContext\")",
+      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 pnpm add zustand)",
+      "PowerShell($env:NODE_TLS_REJECT_UNAUTHORIZED = \"0\"; pnpm add zustand --filter @source/admin 2>&1 | Select-Object -Last 10)",
+      "Bash(xargs grep -l \"zustand\")",
+      "PowerShell($env:NODE_TLS_REJECT_UNAUTHORIZED = \"0\"; npm config set strict-ssl false; pnpm add zustand --filter @source/admin --registry https://registry.npmmirror.com 2>&1 | Select-Object -Last 8)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\apps\\\\admin\\\\src\" -Recurse -File)",
+      "Bash(Sort-Object FullName)",
+      "Bash(Get-ChildItem \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\app\\\\admin\\\\users\\\\actions.ts\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -Property FullName)",
+      "PowerShell($env:NODE_TLS_REJECT_UNAUTHORIZED = \"0\"; pnpm add @reduxjs/toolkit react-redux --filter @source/admin --registry https://registry.npmmirror.com 2>&1 | Select-Object -Last 6)",
+      "PowerShell($env:NODE_TLS_REJECT_UNAUTHORIZED = \"0\"; pnpm remove zustand --filter @source/admin --registry https://registry.npmmirror.com 2>&1 | Select-Object -Last 4)",
+      "PowerShell(pnpm remove zustand --filter @source/admin 2>&1)",
+      "Bash(New-Item -ItemType Directory -Force \"apps\\\\admin\\\\src\\\\app\\\\\\(admin\\)\")",
+      "Bash(New-Item -ItemType Directory -Force \"apps\\\\admin\\\\src\\\\app\\\\\\(auth\\)\")",
+      "Bash(Write-Output \"Directories created\")"
     ]
   }
 }
