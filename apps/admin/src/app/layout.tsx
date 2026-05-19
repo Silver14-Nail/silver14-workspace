@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 
 import AdminShell from '@/components/layouts/AdminShell';
-import { getSession } from '@/lib/auth/session';
+import { getSession } from '@/services/auth.service';
 
 import '../styles/index.css';
 

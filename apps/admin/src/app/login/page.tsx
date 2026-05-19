@@ -3,7 +3,7 @@
 import { useActionState, useState } from 'react';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
-import { loginAction } from '@/lib/auth/actions';
+import { loginAction } from '@/services/auth.actions';
 
 export default function LoginPage() {
   const [state, action, isPending] = useActionState(loginAction, null);

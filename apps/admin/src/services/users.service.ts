@@ -1,4 +1,4 @@
-import { createApiClient } from '@/lib/api-client';
+import { createApiClient } from './api-client';
 
 export type UserRole = 'admin' | 'customer' | 'wholesale';
 
