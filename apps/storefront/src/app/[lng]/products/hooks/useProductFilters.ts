@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SortOption, getSortFromParams } from '../constants';
-import { products } from '@/MOCK_DATAS/products';
+import { useProducts } from '@/hooks/useProducts';
+import { fetchShapes, type ApiShape } from '@/lib/products.api';
 
 type Props = {
   searchParams: ReturnType<typeof useSearchParams>;
@@ -9,56 +10,56 @@ type Props = {
   lng: string;
 };
 
+export interface ShapeFilter {
+  id: string;
+  label: string;
+}
+
+const ALL_SHAPE: ShapeFilter = { id: 'all', label: 'All' };
+
 export function useProductFilters({ searchParams, router, lng }: Props) {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [activeCollection, setActiveCollection] = useState(searchParams.get('collection') || 'all');
+  const [activeShapeId, setActiveShapeId] = useState(searchParams.get('shapeId') || 'all');
   const [sortBy, setSortBy] = useState<SortOption>(() => getSortFromParams(searchParams));
   const [sortOpen, setSortOpen] = useState(false);
+  const [shapes, setShapes] = useState<ShapeFilter[]>([ALL_SHAPE]);
 
-  // Sync with URL
+  // Fetch shapes for filter pills (non-critical — silently ignore errors)
   useEffect(() => {
-    setActiveCollection(searchParams.get('collection') || 'all');
+    fetchShapes()
+      .then((data: ApiShape[]) =>
+        setShapes([
+          ALL_SHAPE,
+          ...data.map((s) => ({ id: s.id, label: s.name })),
+        ]),
+      )
+      .catch(() => {});
+  }, []);
+
+  // Sync with URL params
+  useEffect(() => {
+    setActiveShapeId(searchParams.get('shapeId') || 'all');
     setSearchQuery(searchParams.get('search') || '');
     setSortBy(getSortFromParams(searchParams));
   }, [searchParams]);
 
+  const { products, loading, error } = useProducts({
+    search: searchQuery.trim() || undefined,
+    shapeId: activeShapeId !== 'all' ? activeShapeId : undefined,
+    limit: 100,
+  });
+
   const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    if (activeCollection !== 'all') {
-      result = result.filter((p) => p.category === activeCollection);
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.toLowerCase().includes(q)) ||
-          p.collection?.toLowerCase().includes(q),
-      );
-    }
-
+    if (!products.length) return products;
     switch (sortBy) {
       case 'price-asc':
-        result.sort((a, b) => (a.salePrice ?? a.price) - (b.salePrice ?? b.price));
-        break;
+        return [...products].sort((a, b) => (a.salePrice ?? a.price) - (b.salePrice ?? b.price));
       case 'price-desc':
-        result.sort((a, b) => (b.salePrice ?? b.price) - (a.salePrice ?? b.price));
-        break;
-      case 'newest':
-        result = [...result.filter((p) => p.isNew), ...result.filter((p) => !p.isNew)];
-        break;
-      case 'bestseller':
-        result = [
-          ...result.filter((p) => p.isBestSeller),
-          ...result.filter((p) => !p.isBestSeller),
-        ];
-        break;
+        return [...products].sort((a, b) => (b.salePrice ?? b.price) - (a.salePrice ?? a.price));
+      default:
+        return products;
     }
-
-    return result;
-  }, [activeCollection, searchQuery, sortBy]);
+  }, [products, sortBy]);
 
   const pushQuery = useCallback(
     (params: URLSearchParams) => {
@@ -69,10 +70,11 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
   );
 
   const handleCollectionChange = useCallback(
-    (colId: string) => {
-      setActiveCollection(colId);
+    (shapeId: string) => {
+      setActiveShapeId(shapeId);
       const params = new URLSearchParams(searchParams.toString());
-      colId === 'all' ? params.delete('collection') : params.set('collection', colId);
+      params.delete('collection');
+      shapeId === 'all' ? params.delete('shapeId') : params.set('shapeId', shapeId);
       pushQuery(params);
     },
     [searchParams, pushQuery],
@@ -93,8 +95,6 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
       setSortBy(option);
       setSortOpen(false);
       const params = new URLSearchParams(searchParams.toString());
-      params.delete('filter');
-
       option === 'featured' ? params.delete('sort') : params.set('sort', option);
       pushQuery(params);
     },
@@ -106,10 +106,13 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
 
   return {
     searchQuery,
-    activeCollection,
+    activeCollection: activeShapeId,
     sortBy,
     sortOpen,
     filteredProducts,
+    loading,
+    error,
+    collections: shapes,
     handleCollectionChange,
     handleSearchChange,
     handleSortChange,

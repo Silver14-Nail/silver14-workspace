@@ -6,9 +6,12 @@ import { Module } from '@nestjs/common';
 import { DatabaseController } from './database.controller';
 import { DatabaseService } from './database.service';
 
+import { ENTITIES } from '@/db/entities';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       envFilePath: [`.env.${process.env.NODE_ENV}.local`, `.env.${process.env.NODE_ENV}`],
       load: [configuration],
     }),
@@ -24,6 +27,7 @@ import { DatabaseService } from './database.service';
           password: configService.get('mysqlPassword'),
           database: configService.get<string>('mysqlDatabase'),
           autoLoadEntities: true,
+          entities: ENTITIES,
           synchronize: false,
           ssl: {
             rejectUnauthorized: false,
