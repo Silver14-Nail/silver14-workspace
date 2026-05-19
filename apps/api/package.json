@@ -7,7 +7,8 @@
     "db:generate": "pnpm run typeorm migration:generate ./src/db/migrations/create-tables -d ./src/db/ormconfig.ts",
     "db:migrate": "pnpm run typeorm migration:run -d ./src/db/ormconfig.ts",
     "db:revert": "pnpm run typeorm migration:revert -d ./src/db/ormconfig.ts",
-    "db:drop": "pnpm run typeorm schema:drop -d ./src/db/ormconfig.ts"
+    "db:drop": "pnpm run typeorm schema:drop -d ./src/db/ormconfig.ts",
+    "db:seed": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/seed.ts"
   },
   "nx": {
     "targets": {
