@@ -2,7 +2,7 @@
 
 import { useT } from 'next-i18next/client';
 import { TRACKING_STEPS } from '../constants';
-import { MockOrder } from '@/context/CartContext';
+import { MockOrder } from '@/hooks/useCart';
 
 export default function StatusTimeline({ status }: { status: MockOrder['status'] }) {
   const { t } = useT('tracking');

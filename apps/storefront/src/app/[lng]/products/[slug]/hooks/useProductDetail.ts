@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getProductById, getRelatedProducts } from '@/MOCK_DATAS/products';
-import { useCart } from '@/context/CartContext';
-import { useWishlist } from '@/context/WishlistContext';
-import type { CartItem } from '@/context/CartContext';
+import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
+import type { CartItem } from '@/hooks/useCart';
 import type { AccordionKey, ProductSelections } from '../types';
 
 export function useProductDetail() {

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Tag, X } from 'lucide-react';
 import { useT } from 'next-i18next/client';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/hooks/useCart';
 
 export function DiscountInput() {
   const { t } = useT('cart');

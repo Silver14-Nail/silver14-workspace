@@ -5,7 +5,8 @@ import { Heart } from 'lucide-react';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { Product } from '@/MOCK_DATAS/products';
-import { useWishlist } from '../../context/WishlistContext';
+import { useWishlist } from '../../hooks/useWishlist';
+import { useCurrency } from '../../hooks/useCurrency';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +16,7 @@ interface ProductCardProps {
 export function ProductCard({ product, className = '' }: ProductCardProps) {
   const displayPrice = product.salePrice ?? product.price;
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { format } = useCurrency();
   const inWishlist = isInWishlist(product.id);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
@@ -39,7 +41,6 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
 
-          {/* Wishlist Button */}
           <button
             onClick={handleWishlistClick}
             className={`absolute top-3 right-3 p-2 rounded-full transition-all ${
@@ -49,7 +50,6 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
             <Heart className={`size-4 ${inWishlist ? 'fill-white' : ''}`} />
           </button>
 
-          {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
             {product.isNew && (
               <span
@@ -85,7 +85,6 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
             )}
           </div>
 
-          {/* Quick Shop overlay */}
           <div
             className="absolute inset-x-0 bottom-0 bg-white/95 py-3 text-center text-[#1A1A1A] text-xs uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300"
             style={{ letterSpacing: '0.15em' }}
@@ -94,7 +93,6 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Info */}
         <div className="pt-4 pb-2">
           <p
             className="text-[#9A9A9A] text-xs uppercase tracking-widest mb-1"
@@ -113,15 +111,12 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
               className="text-[#1A1A1A] text-sm"
               style={{ fontWeight: product.salePrice ? 400 : 500 }}
             >
-              ${displayPrice.toFixed(2)}
+              {format(displayPrice)}
             </span>
             {product.salePrice && (
-              <span className="text-[#9A9A9A] text-sm line-through">
-                ${product.price.toFixed(2)}
-              </span>
+              <span className="text-[#9A9A9A] text-sm line-through">{format(product.price)}</span>
             )}
           </div>
-          {/* Rating */}
           <div className="flex items-center gap-1 mt-1.5">
             <div className="flex">
               {[1, 2, 3, 4, 5].map((star) => (

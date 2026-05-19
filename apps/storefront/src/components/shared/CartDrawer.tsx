@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-
 import { X, ShoppingBag, Minus, Plus, ArrowRight } from 'lucide-react';
 import { Link } from './LinkBase';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
+import { useCurrency } from '../../hooks/useCurrency';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { FREE_SHIPPING_THRESHOLD } from '../../config/commerce.config';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -13,37 +14,28 @@ interface CartDrawerProps {
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [hydrated, setHydrated] = useState(false);
   const { state, dispatch, cartCount, subtotal, discountAmount, total } = useCart();
+  const { format } = useCurrency();
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
   const updateQuantity = (productId: string, size: string, shape: string, newQuantity: number) => {
-    dispatch({
-      type: 'UPDATE_QUANTITY',
-      payload: { productId, size, shape, quantity: newQuantity },
-    });
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, size, shape, quantity: newQuantity } });
   };
 
   const removeItem = (productId: string, size: string, shape: string) => {
-    dispatch({
-      type: 'REMOVE_ITEM',
-      payload: { productId, size, shape },
-    });
+    dispatch({ type: 'REMOVE_ITEM', payload: { productId, size, shape } });
   };
 
-  if (!hydrated) {
-    return null;
-  }
+  if (!hydrated) return null;
 
   return (
     <>
-      {/* Backdrop */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/30 z-40 transition-opacity" onClick={onClose} />
       )}
 
-      {/* Drawer */}
       <div
         className={`fixed top-0 right-0 h-full w-full sm:w-[420px] bg-white shadow-2xl z-50 transform transition-transform duration-300 flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
@@ -65,7 +57,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </button>
         </div>
 
-        {/* Content */}
         {state.items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center px-6">
             <div className="size-16 bg-[#F5F5F5] rounded-full flex items-center justify-center mb-4">
@@ -83,19 +74,17 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </div>
         ) : (
           <>
-            {/* Items List */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="space-y-4">
                 {state.items.map((item) => {
-                  const displayPrice = item.product.salePrice ?? item.product.price;
-                  const itemTotal = displayPrice * item.quantity;
+                  const unitPrice = item.product.salePrice ?? item.product.price;
+                  const itemTotal = unitPrice * item.quantity;
 
                   return (
                     <div
                       key={`${item.product.id}-${item.size}-${item.shape}`}
                       className="flex gap-4 pb-4 border-b border-[#F0F0F0]"
                     >
-                      {/* Image */}
                       <div className="size-20 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
                         <ImageWithFallback
                           src={item.product.images[0]}
@@ -104,7 +93,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         />
                       </div>
 
-                      {/* Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex-1 min-w-0">
@@ -121,24 +109,19 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           </button>
                         </div>
 
-                        {/* Variant Info */}
-                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#5A5A5A] mb-3">
-                          <span>Size: {item.size}</span>
-                          <span>·</span>
-                          <span>Shape: {item.shape}</span>
-                        </div>
+                        {(item.size || item.shape) && (
+                          <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#5A5A5A] mb-3">
+                            {item.size && <span>Size: {item.size}</span>}
+                            {item.size && item.shape && <span>·</span>}
+                            {item.shape && <span>Shape: {item.shape}</span>}
+                          </div>
+                        )}
 
-                        {/* Quantity + Price */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center border border-[#E0E0E0]">
                             <button
                               onClick={() =>
-                                updateQuantity(
-                                  item.product.id,
-                                  item.size,
-                                  item.shape,
-                                  item.quantity - 1,
-                                )
+                                updateQuantity(item.product.id, item.size, item.shape, item.quantity - 1)
                               }
                               className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
                             >
@@ -149,12 +132,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             </span>
                             <button
                               onClick={() =>
-                                updateQuantity(
-                                  item.product.id,
-                                  item.size,
-                                  item.shape,
-                                  item.quantity + 1,
-                                )
+                                updateQuantity(item.product.id, item.size, item.shape, item.quantity + 1)
                               }
                               className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
                             >
@@ -165,7 +143,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             className="text-[#1A1A1A] text-sm"
                             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
                           >
-                            ${itemTotal.toFixed(2)}
+                            {format(itemTotal)}
                           </span>
                         </div>
                       </div>
@@ -175,18 +153,16 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
             </div>
 
-            {/* Footer */}
             <div className="border-t border-[#E8E8E8] px-6 py-5">
-              {/* Totals */}
               <div className="space-y-2 mb-5">
                 <div className="flex justify-between text-sm text-[#5A5A5A]">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{format(subtotal)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-[#5A5A5A]">Discount</span>
-                    <span className="text-[#4A7A5A]">−${discountAmount.toFixed(2)}</span>
+                    <span className="text-[#4A7A5A]">−{format(discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between pt-2 border-t border-[#F0F0F0]">
@@ -204,12 +180,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       fontSize: '1.1rem',
                     }}
                   >
-                    ${total.toFixed(2)}
+                    {format(total)}
                   </span>
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="space-y-3">
                 <Link
                   href="/checkout"
@@ -230,7 +205,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
 
               <p className="text-[#9A9A9A] text-xs text-center mt-4">
-                Free shipping on orders over $100
+                Free shipping on orders over {format(FREE_SHIPPING_THRESHOLD)}
               </p>
             </div>
           </>

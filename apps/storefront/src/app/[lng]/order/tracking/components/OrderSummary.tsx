@@ -1,7 +1,7 @@
 'use client';
 
 import { useT } from 'next-i18next/client';
-import { MockOrder } from '@/context/CartContext';
+import { MockOrder } from '@/hooks/useCart';
 
 export default function OrderSummary({
   items,

@@ -8,7 +8,7 @@ import ShippingInfo from './ShippingInfo';
 import OrderSummary from './OrderSummary';
 
 import StatusBadge from './ui/StatusBadge';
-import { MockOrder } from '@/context/CartContext';
+import { MockOrder } from '@/hooks/useCart';
 
 export default function OrderResult({ order }: { order: MockOrder }) {
   const { t } = useT('tracking');

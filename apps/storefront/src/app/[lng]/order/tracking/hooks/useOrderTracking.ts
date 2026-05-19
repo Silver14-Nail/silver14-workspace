@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useCart, MockOrder } from '@/context/CartContext';
+import { useCart, MockOrder } from '@/hooks/useCart';
 import { TrackingFormData } from '../types';
 
 export function useOrderTracking() {

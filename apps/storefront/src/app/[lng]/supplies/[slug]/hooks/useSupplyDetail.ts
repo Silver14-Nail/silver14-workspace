@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getSupplyBySlug } from '@/MOCK_DATAS/supplies';
-import { useCart } from '@/context/CartContext';
-import type { CartItem } from '@/context/CartContext';
+import { useCart } from '@/hooks/useCart';
+import type { CartItem } from '@/hooks/useCart';
 import type { Product } from '@/MOCK_DATAS/products';
 
 export function useSupplyDetail() {

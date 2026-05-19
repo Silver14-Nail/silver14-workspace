@@ -1,4 +1,9 @@
-import type { CartItem, MockOrder } from '@/context/CartContext';
+import {
+  FREE_SHIPPING_THRESHOLD,
+  STANDARD_SHIPPING_COST,
+  ORDER_ID_PREFIX,
+} from '@/config/commerce.config';
+import type { CartItem, MockOrder } from '@/hooks/useCart';
 
 export type ContactDetails = {
   email: string;
@@ -20,14 +25,13 @@ export type ShippingDetails = {
 
 export type PaymentMethod = 'paypal' | 'card';
 
-export const FREE_SHIPPING_THRESHOLD = 50;
-export const STANDARD_SHIPPING_COST = 9.99;
+export { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_COST };
 
 export const getShippingCost = (subtotal: number) =>
   subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_COST;
 
 export const generateOrderId = () =>
-  `LNL-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  `${ORDER_ID_PREFIX}${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
 export const createMockOrder = ({
   id,

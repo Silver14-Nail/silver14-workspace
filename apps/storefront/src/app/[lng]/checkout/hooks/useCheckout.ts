@@ -4,7 +4,7 @@ import {
   generateOrderId,
   getShippingCost,
 } from '@/features/checkout/checkout.utils';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/hooks/useCart';
 import type { Step, CardDetails, CheckoutState } from '../types';
 import type {
   ContactDetails,
