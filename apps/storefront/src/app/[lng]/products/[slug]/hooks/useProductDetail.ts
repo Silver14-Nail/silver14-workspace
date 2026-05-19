@@ -1,19 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getProductById, getRelatedProducts } from '@/MOCK_DATAS/products';
+import { useProduct } from '@/hooks/useProduct';
+import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
 import type { CartItem } from '@/hooks/useCart';
 import type { AccordionKey, ProductSelections } from '../types';
 
 export function useProductDetail() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug: id } = useParams<{ slug: string }>();
   const router = useRouter();
   const { dispatch, cartCount, subtotal } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const product = getProductById(slug ?? '');
-  const related = product ? getRelatedProducts(product) : [];
+  const { product, loading, error } = useProduct(id ?? '');
+
+  // Fetch a few products for "related" (exclude current)
+  const { products: allProducts } = useProducts({ limit: 8 });
+  const related = allProducts.filter((p) => p.id !== id).slice(0, 4);
 
   // Gallery
   const [selectedImage, setSelectedImage] = useState(0);
@@ -31,7 +35,13 @@ export function useProductDetail() {
   const [showCartPreview, setShowCartPreview] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
 
-  // Auto-select single shape
+  // Reset selections when product changes
+  useEffect(() => {
+    setSelectedImage(0);
+    setSelections({ shape: '', size: '', customization: '', quantity: 1 });
+  }, [id]);
+
+  // Auto-select if only one shape available
   useEffect(() => {
     if (product?.availableShapes.length === 1) {
       setSelections((prev) => ({ ...prev, shape: product.availableShapes[0] }));
@@ -71,6 +81,8 @@ export function useProductDetail() {
   return {
     // Data
     product,
+    loading,
+    error,
     related,
     inWishlist: product ? isInWishlist(product.id) : false,
     // Gallery

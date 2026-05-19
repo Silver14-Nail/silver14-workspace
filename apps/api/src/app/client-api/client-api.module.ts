@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { RouterModule } from 'nest-router';
+import { RouterModule } from '@nestjs/core';
 
 import { UserApiMiddleware } from './client-api.middleware';
 import { AuthModule } from '../../shared/auth/auth.module';
@@ -23,7 +23,7 @@ const clientModules = [
 
 @Module({
   imports: [
-    RouterModule.forRoutes(clientModules.map((module) => ({ path: 'user-api', module }))),
+    RouterModule.register(clientModules.map((module) => ({ path: 'client-api', module }))),
     AuthModule,
     ...clientModules,
   ],
@@ -34,9 +34,9 @@ export class ClientApiModule implements NestModule {
       .apply(UserApiMiddleware)
       .exclude(
         // Webhooks are called by Stripe/PayPal — no user token
-        { path: 'user-api/webhooks/stripe', method: RequestMethod.POST },
-        { path: 'user-api/webhooks/paypal', method: RequestMethod.POST },
+        { path: 'client-api/webhooks/stripe', method: RequestMethod.POST },
+        { path: 'client-api/webhooks/paypal', method: RequestMethod.POST },
       )
-      .forRoutes({ path: 'user-api', method: RequestMethod.ALL });
+      .forRoutes({ path: 'client-api', method: RequestMethod.ALL });
   }
 }

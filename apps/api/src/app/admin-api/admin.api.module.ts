@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { RouterModule } from 'nest-router';
+import { RouterModule } from '@nestjs/core';
 
 import { AdminApiMiddleware } from './admin-api.middleware';
 import { AuthModule } from '../../shared/auth/auth.module';
@@ -25,7 +25,7 @@ const adminModules = [
 
 @Module({
   imports: [
-    RouterModule.forRoutes(adminModules.map((module) => ({ path: 'admin-api', module }))),
+    RouterModule.register(adminModules.map((module) => ({ path: 'admin-api', module }))),
     AuthModule,
     ...adminModules,
   ],
