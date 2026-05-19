@@ -30,8 +30,8 @@ import {
   Loader2,
 } from 'lucide-react';
 
-import { logoutAction } from '@/lib/auth/actions';
-import type { SessionUser } from '@/lib/auth/session';
+import { logoutAction } from '@/services/auth.actions';
+import type { AuthUser } from '@/services/auth.service';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -57,7 +57,7 @@ const notifications = [
 
 type Props = {
   children: React.ReactNode;
-  user: SessionUser | null;
+  user: AuthUser | null;
 };
 
 export default function AdminShell({ children, user }: Props) {
