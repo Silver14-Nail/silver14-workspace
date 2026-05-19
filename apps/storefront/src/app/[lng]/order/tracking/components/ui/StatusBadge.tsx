@@ -1,4 +1,4 @@
-import { MockOrder } from '@/context/CartContext';
+import { MockOrder } from '@/hooks/useCart';
 
 const statusConfig: Record<MockOrder['status'], { bg: string; text: string }> = {
   Delivered: { bg: 'bg-[#F0FFF4]', text: 'text-[#4A7A5A]' },

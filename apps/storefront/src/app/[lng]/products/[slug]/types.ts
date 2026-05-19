@@ -1,4 +1,4 @@
-import type { CartItem } from '@/context/CartContext';
+import type { CartItem } from '@/hooks/useCart';
 
 export interface ProductSelections {
   shape: string;

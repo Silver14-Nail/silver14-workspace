@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { User } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 
-import { useCustomerAuth } from '@/features/auth/customer-auth-provider';
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { LinkBase } from '@/components/shared/LinkBase';
 
 type AuthMode = 'login' | 'register';

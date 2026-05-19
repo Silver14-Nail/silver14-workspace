@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { useT } from 'next-i18next/client';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/hooks/useCart';
+import { useCurrency } from '@/hooks/useCurrency';
 import { DiscountInput } from './DiscountInput';
 import { FREE_SHIPPING_THRESHOLD, PAYMENT_METHODS } from '../types';
 
@@ -11,6 +12,7 @@ export function OrderSummary() {
   const { t } = useT('cart');
   const router = useRouter();
   const { subtotal, discountAmount, total, state } = useCart();
+  const { format } = useCurrency();
 
   return (
     <div className="bg-[#F8F8F8] p-6 sticky top-24">
@@ -23,12 +25,12 @@ export function OrderSummary() {
 
       {/* Line items */}
       <div className="space-y-3 mb-6">
-        <SummaryRow label={t('summary.subtotal')} value={`$${subtotal.toFixed(2)}`} />
+        <SummaryRow label={t('summary.subtotal')} value={format(subtotal)} />
 
         {discountAmount > 0 && (
           <SummaryRow
             label={t('summary.discount', { code: state.discountCode })}
-            value={`-$${discountAmount.toFixed(2)}`}
+            value={`-${format(discountAmount)}`}
             valueClass="text-[#4A7A5A]"
           />
         )}
@@ -55,7 +57,7 @@ export function OrderSummary() {
               fontSize: '1.2rem',
             }}
           >
-            ${total.toFixed(2)}
+            {format(total)}
           </span>
         </div>
       </div>

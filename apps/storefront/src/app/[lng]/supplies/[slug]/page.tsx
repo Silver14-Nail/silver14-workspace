@@ -12,6 +12,7 @@ import {
   Package,
   RotateCcw,
 } from 'lucide-react';
+import { useCurrency } from '@/hooks/useCurrency';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { CartPreviewDialog } from '@/components/shared/CartPreviewDialog';
 import { useSupplyDetail } from './hooks/useSupplyDetail';
@@ -19,6 +20,7 @@ import { SupplyNotFound, ImageGallery } from './components';
 
 export default function SupplyDetailPage() {
   const { t } = useT('supplies');
+  const { format } = useCurrency();
   const sd = useSupplyDetail();
 
   const decrement = useCallback(() => sd.setQuantity(Math.max(1, sd.quantity - 1)), [sd]);
@@ -77,7 +79,7 @@ export default function SupplyDetailPage() {
                   fontWeight: 400,
                 }}
               >
-                ${supply.price.toFixed(2)}
+                {format(supply.price)}
               </p>
             </div>
 

@@ -14,8 +14,8 @@ import {
   User,
   X,
 } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
-import { useCustomerAuth } from '../../features/auth/customer-auth-provider';
+import { useCart } from '../../hooks/useCart';
+import { useCustomerAuth } from '../../hooks/useCustomerAuth';
 import { COLLECTIONS } from '../../MOCK_DATAS/products';
 import { HeaderPreferencesDropdown } from '../shared/HeaderPreferencesDropdown';
 import { CartDrawer } from '../shared/CartDrawer';

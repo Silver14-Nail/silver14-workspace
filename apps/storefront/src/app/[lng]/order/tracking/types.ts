@@ -1,4 +1,4 @@
-import { MockOrder } from '@/context/CartContext';
+import { MockOrder } from '@/hooks/useCart';
 
 export interface TrackingFormData {
   orderId: string;
