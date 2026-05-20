@@ -20,6 +20,11 @@ import { CreateNailShapeDto } from './dto/create-nail-shape.dto';
 import { UpdateNailShapeDto } from './dto/update-nail-shape.dto';
 import { CreateNailSizeDto } from './dto/create-nail-size.dto';
 import { UpdateNailSizeDto } from './dto/update-nail-size.dto';
+import { CreateVariantDto } from './dto/create-variant.dto';
+import { UpdateVariantDto } from './dto/update-variant.dto';
+import { AddImageDto } from './dto/add-image.dto';
+import { ReorderImagesDto } from './dto/reorder-images.dto';
+import { GetPresignedUrlDto } from './dto/get-presigned-url.dto';
 
 @ApiTags('Admin - Products')
 @ApiBearerAuth()
@@ -62,8 +67,9 @@ export class NailShapesController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  listNailShapes() {
-    return this.productsService.listNailShapes();
+  listNailShapes(@Query('isActive') isActive?: string) {
+    const filter = isActive !== undefined ? isActive === 'true' : undefined;
+    return this.productsService.listNailShapes(filter);
   }
 
   @Get(':id')
@@ -100,6 +106,11 @@ export class NailSizesController {
     return this.productsService.listNailSizes();
   }
 
+  @Get(':id')
+  getNailSize(@Param('id') id: string) {
+    return this.productsService.getNailSize(id);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createNailSize(@Body() dto: CreateNailSizeDto) {
@@ -115,5 +126,73 @@ export class NailSizesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   removeNailSize(@Param('id') id: string) {
     return this.productsService.removeNailSize(id);
+  }
+}
+
+@ApiTags('Admin - Product Images')
+@ApiBearerAuth()
+@Controller('products/:productId/images')
+export class ProductImagesController {
+  constructor(private readonly productsService: ProductsService) {}
+
+  @Post('presign')
+  @HttpCode(HttpStatus.OK)
+  getPresignedUrl(@Param('productId') productId: string, @Body() dto: GetPresignedUrlDto) {
+    return this.productsService.getPresignedUploadUrl(productId, dto);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  addImage(@Param('productId') productId: string, @Body() dto: AddImageDto) {
+    return this.productsService.addProductImage(productId, dto);
+  }
+
+  @Delete(':imageId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeImage(@Param('productId') productId: string, @Param('imageId') imageId: string) {
+    return this.productsService.removeProductImage(productId, imageId);
+  }
+
+  @Patch('reorder')
+  reorderImages(@Param('productId') productId: string, @Body() dto: ReorderImagesDto) {
+    return this.productsService.reorderProductImages(productId, dto);
+  }
+
+  @Patch(':imageId/main')
+  setMain(@Param('productId') productId: string, @Param('imageId') imageId: string) {
+    return this.productsService.setMainProductImage(productId, imageId);
+  }
+}
+
+@ApiTags('Admin - Product Variants')
+@ApiBearerAuth()
+@Controller('products/:productId/variants')
+export class ProductVariantsController {
+  constructor(private readonly productsService: ProductsService) {}
+
+  @Get()
+  listVariants(@Param('productId') productId: string) {
+    return this.productsService.listProductVariants(productId);
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  createVariant(@Param('productId') productId: string, @Body() dto: CreateVariantDto) {
+    return this.productsService.createProductVariant(productId, dto);
+  }
+
+  @Patch(':variantId')
+  updateVariant(
+    @Param('productId') productId: string,
+    @Param('variantId') variantId: string,
+    @Body() dto: UpdateVariantDto,
+  ) {
+    return this.productsService.updateProductVariant(productId, variantId, dto);
+  }
+
+  @Delete(':variantId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeVariant(@Param('productId') productId: string, @Param('variantId') variantId: string) {
+    return this.productsService.removeProductVariant(productId, variantId);
   }
 }

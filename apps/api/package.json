@@ -8,7 +8,8 @@
     "db:migrate": "pnpm run typeorm migration:run -d ./src/db/ormconfig.ts",
     "db:revert": "pnpm run typeorm migration:revert -d ./src/db/ormconfig.ts",
     "db:drop": "pnpm run typeorm schema:drop -d ./src/db/ormconfig.ts",
-    "db:seed": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/seed.ts"
+    "db:seed": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/seed.ts",
+    "db:truncate": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/truncate.ts"
   },
   "nx": {
     "targets": {
@@ -91,6 +92,8 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1049.0",
+    "@aws-sdk/s3-request-presigner": "^3.1049.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.0",

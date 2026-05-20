@@ -1,37 +1,47 @@
-import { listProducts } from '../../../../services/products.service';
-import { ProductsClient } from './ProductsClient';
-import type { ProductListResponse } from './types';
+import { ProductsClient } from './_components/ProductsClient';
+import { listProducts, listNailShapes, listNailSizes } from '../../../../services/products.service';
+import type { ProductListResponse, ApiNailShape, ApiNailSize, Pagination } from './types';
 
-interface PageProps {
-  searchParams: Promise<{ page?: string; search?: string; status?: string }>;
-}
-
-const EMPTY_DATA: ProductListResponse = {
-  items: [],
-  pagination: { totalItems: 0, itemCount: 0, itemsPerPage: 20, totalPages: 0, currentPage: 1 },
+const EMPTY_PAGINATION: Pagination = {
+  totalItems: 0,
+  itemCount: 0,
+  itemsPerPage: 20,
+  totalPages: 0,
+  currentPage: 1,
 };
 
-export default async function AdminProductsPage({ searchParams }: PageProps) {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; search?: string; limit?: string }>;
+}) {
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
-  const search = params.search || undefined;
-  const isActive =
-    params.status === 'active' ? true : params.status === 'inactive' ? false : undefined;
+  const page = Math.max(1, Number(params.page ?? 1));
+  const limit = Math.min(100, Math.max(5, Number(params.limit ?? 20)));
+  const search = params.search ?? '';
 
-  let data: ProductListResponse = EMPTY_DATA;
+  const [productsResult, shapesResult, sizesResult] = await Promise.allSettled([
+    listProducts({ page, limit, search: search || undefined }),
+    listNailShapes(),
+    listNailSizes(),
+  ]);
 
-  try {
-    data = await listProducts({ page, limit: 20, search, isActive });
-  } catch {
-    // show empty state on error
-  }
+  const products: ProductListResponse =
+    productsResult.status === 'fulfilled'
+      ? productsResult.value
+      : { items: [], pagination: { ...EMPTY_PAGINATION, itemsPerPage: limit, currentPage: page } };
+
+  const shapes: ApiNailShape[] = shapesResult.status === 'fulfilled' ? shapesResult.value : [];
+  const sizes: ApiNailSize[] = sizesResult.status === 'fulfilled' ? sizesResult.value : [];
 
   return (
     <ProductsClient
-      data={data}
-      currentSearch={params.search}
-      currentStatus={params.status}
+      initialProducts={products}
+      initialShapes={shapes}
+      initialSizes={sizes}
       currentPage={page}
+      currentSearch={search}
+      currentLimit={limit}
     />
   );
 }
