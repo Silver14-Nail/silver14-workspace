@@ -1,5 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { createHmac, timingSafeEqual } from 'crypto';
+import type { EnvConfiguration } from '@/config/configuration';
 import type { AuthTokenPayload, TokenType } from './auth.types';
 import type { MockAuthUser } from './mock-users';
 
@@ -8,6 +10,8 @@ const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 @Injectable()
 export class TokenService {
+  constructor(private readonly configService: ConfigService<EnvConfiguration>) {}
+
   createAccessToken(user: MockAuthUser) {
     return this.sign(user, 'access', ACCESS_TOKEN_TTL_SECONDS);
   }
@@ -99,8 +103,8 @@ export class TokenService {
     }
   }
 
-  private getSecret() {
-    return process.env.JWT_SECRET || 'local-development-jwt-secret';
+  private getSecret(): string {
+    return this.configService.getOrThrow<string>('jwtSecret');
   }
 }
 

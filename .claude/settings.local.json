@@ -34,7 +34,15 @@
       "PowerShell(pnpm remove zustand --filter @source/admin 2>&1)",
       "Bash(New-Item -ItemType Directory -Force \"apps\\\\admin\\\\src\\\\app\\\\\\(admin\\)\")",
       "Bash(New-Item -ItemType Directory -Force \"apps\\\\admin\\\\src\\\\app\\\\\\(auth\\)\")",
-      "Bash(Write-Output \"Directories created\")"
+      "Bash(Write-Output \"Directories created\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\" -Force)",
+      "Bash(Select-Object Name, Mode)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\api\\\\src\" -Recurse -Filter \"*.ts\")",
+      "Bash(Sort-Object)",
+      "Bash(Get-Content \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\node_modules\\\\stripe\\\\types\\\\index.d.ts\" -TotalCount 60)",
+      "Bash(node -e \"const {registerAs} = require\\('@nestjs/config'\\); const f = registerAs\\('stripe', \\(\\) => \\({}\\)\\); console.log\\('KEY:', String\\(f.KEY\\)\\); console.log\\('typeof KEY:', typeof f.KEY\\);\")",
+      "Bash(find /c/Users/Administrator -name \"register-as.js\" -path \"*nestjs*config*\" 2>/dev/null | head -3)",
+      "Read(//c/Users/Administrator/**)"
     ]
   }
 }

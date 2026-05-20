@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
     const { tokens, user } = data;
     const res = NextResponse.json({ user });
 
+    console.log('tokens', tokens);
+
     res.cookies.set('admin_access_token', tokens.accessToken, {
       ...COOKIE_DEFAULTS,
       maxAge: tokens.expiresIn,

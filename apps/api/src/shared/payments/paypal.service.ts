@@ -1,5 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { IncomingHttpHeaders } from 'http';
+import type { PaypalConfig } from '@/config/paypal.config';
 
 interface PaypalAccessTokenResponse {
   access_token: string;
@@ -32,16 +34,22 @@ interface PaypalWebhookVerifyResult {
 
 @Injectable()
 export class PaypalService {
+  private readonly config: PaypalConfig;
+
+  constructor(configService: ConfigService) {
+    this.config = configService.getOrThrow<PaypalConfig>('paypal');
+  }
+
   private get baseUrl(): string {
-    return process.env.PAYPAL_MODE === 'production'
+    return this.config.mode === 'production'
       ? 'https://api-m.paypal.com'
       : 'https://api-m.sandbox.paypal.com';
   }
 
   private async getAccessToken(): Promise<string> {
-    const credentials = Buffer.from(
-      `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`,
-    ).toString('base64');
+    const credentials = Buffer.from(`${this.config.clientId}:${this.config.clientSecret}`).toString(
+      'base64',
+    );
 
     const res = await fetch(`${this.baseUrl}/v1/oauth2/token`, {
       method: 'POST',
@@ -118,7 +126,7 @@ export class PaypalService {
       cert_url: h('paypal-cert-url'),
       auth_algo: h('paypal-auth-algo'),
       transmission_sig: h('paypal-transmission-sig'),
-      webhook_id: process.env.PAYPAL_WEBHOOK_ID || '',
+      webhook_id: this.config.webhookId,
       webhook_event: JSON.parse(rawBody),
     };
 
