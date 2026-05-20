@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { authService } from '@/services/auth.service';
+import { TokenStorage } from '@/lib/token.storage';
 import type { AuthStatus, AuthUser } from '@/types/auth.types';
 import type { RootState } from '../index';
 
@@ -33,6 +34,10 @@ export const initializeAppThunk = createAsyncThunk<
 
     if (auth.user) return auth.user;
 
+    if (!TokenStorage.getAccessToken()) {
+      return rejectWithValue('No token');
+    }
+
     try {
       return await authService.getMe();
     } catch {
@@ -40,7 +45,6 @@ export const initializeAppThunk = createAsyncThunk<
     }
   },
   {
-    // Skip if already initialized or a request is in-flight
     condition: (_, { getState }) => {
       const { auth } = getState();
       return !auth.isInitialized && auth.status !== 'loading';
@@ -63,17 +67,6 @@ export const loginThunk = createAsyncThunk<
 export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   await authService.logout();
 });
-
-export const refreshTokenThunk = createAsyncThunk<AuthUser, void, { rejectValue: string }>(
-  'auth/refresh',
-  async (_, { rejectWithValue }) => {
-    try {
-      return await authService.refresh();
-    } catch {
-      return rejectWithValue('Session expired');
-    }
-  },
-);
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
 
@@ -134,18 +127,6 @@ const authSlice = createSlice({
       state.error = null;
       state.isInitialized = false;
     });
-
-    // ── refreshToken ───────────────────────────────────────────────────────
-    builder
-      .addCase(refreshTokenThunk.fulfilled, (state, { payload }) => {
-        state.user = payload;
-        state.status = 'succeeded';
-      })
-      .addCase(refreshTokenThunk.rejected, (state) => {
-        state.user = null;
-        state.status = 'failed';
-        state.isInitialized = false;
-      });
   },
 });
 

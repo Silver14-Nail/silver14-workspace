@@ -1,16 +1,22 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, Plus, Package, Edit, Trash2, X, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Product, ProductListResponse } from './types';
-import { createProductAction, updateProductAction, deleteProductAction } from './actions';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, Plus, Package, Edit, Trash2, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+
+import { httpClient } from '@/lib/http.client';
+import type { Product, ProductListResponse, CreateProductPayload, UpdateProductPayload } from './types';
 
 const CURRENCY_SYMBOLS: Record<string, string> = { EUR: '€', USD: '$', GBP: '£' };
 
 function currencySymbol(c: string) {
   return CURRENCY_SYMBOLS[c] ?? c;
 }
+
+const EMPTY_DATA: ProductListResponse = {
+  items: [],
+  pagination: { totalItems: 0, itemCount: 0, itemsPerPage: 20, totalPages: 0, currentPage: 1 },
+};
 
 // ─── Modal ───────────────────────────────────────────────────────────────────
 
@@ -44,7 +50,7 @@ function ProductModal({ product, onClose, onSaved }: ProductModalProps) {
     setLoading(true);
     setError(null);
 
-    const payload = {
+    const payload: CreateProductPayload | UpdateProductPayload = {
       name: name.trim(),
       description: description.trim() || undefined,
       basePrice,
@@ -52,18 +58,18 @@ function ProductModal({ product, onClose, onSaved }: ProductModalProps) {
       isActive: active,
     };
 
-    const result = isEdit
-      ? await updateProductAction(product.id, payload)
-      : await createProductAction(payload);
-
-    setLoading(false);
-
-    if (result.success === false) {
-      setError(result.error);
-      return;
+    try {
+      if (isEdit) {
+        await httpClient.patch<Product>(`/admin-api/products/${product.id}`, payload);
+      } else {
+        await httpClient.post<Product>('/admin-api/products', payload);
+      }
+      onSaved();
+    } catch {
+      setError(isEdit ? 'Failed to update product' : 'Failed to create product');
+    } finally {
+      setLoading(false);
     }
-
-    onSaved();
   };
 
   return (
@@ -177,31 +183,52 @@ function ProductModal({ product, onClose, onSaved }: ProductModalProps) {
 
 // ─── Main client component ────────────────────────────────────────────────────
 
-interface ProductsClientProps {
-  data: ProductListResponse;
-  currentSearch?: string;
-  currentStatus?: string;
-  currentPage: number;
-}
-
-export function ProductsClient({
-  data,
-  currentSearch,
-  currentStatus,
-  currentPage,
-}: ProductsClientProps) {
+export function ProductsClient() {
   const router = useRouter();
-  const [search, setSearch] = useState(currentSearch ?? '');
+  const searchParams = useSearchParams();
+
+  const currentSearch = searchParams.get('search') ?? '';
+  const currentStatus = searchParams.get('status') ?? 'all';
+  const currentPage = Math.max(1, Number(searchParams.get('page')) || 1);
+
+  const [search, setSearch] = useState(currentSearch);
+  const [data, setData] = useState<ProductListResponse>(EMPTY_DATA);
+  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
-  const { items, pagination } = data;
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params: Record<string, string | number | boolean> = { page: currentPage, limit: 20 };
+      if (currentSearch) params.search = currentSearch;
+      if (currentStatus === 'active') params.isActive = true;
+      if (currentStatus === 'inactive') params.isActive = false;
+
+      const { data: result } = await httpClient.get<ProductListResponse>('/admin-api/products', {
+        params,
+      });
+      setData(result);
+    } catch {
+      setData(EMPTY_DATA);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, currentSearch, currentStatus]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Sync local search input when URL params change (browser back/forward)
+  useEffect(() => {
+    setSearch(currentSearch);
+  }, [currentSearch]);
 
   const pushParams = (updates: { search?: string; status?: string; page?: string }) => {
     const params = new URLSearchParams();
-
     const finalSearch = 'search' in updates ? updates.search : currentSearch;
     const finalStatus = 'status' in updates ? updates.status : currentStatus;
     const finalPage = 'page' in updates ? updates.page : String(currentPage);
@@ -211,7 +238,9 @@ export function ProductsClient({
     if (finalPage && finalPage !== '1') params.set('page', finalPage);
 
     const qs = params.toString();
-    router.push(`/admin/products${qs ? `?${qs}` : ''}`);
+    startTransition(() => {
+      router.push(`/admin/products${qs ? `?${qs}` : ''}`);
+    });
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -222,20 +251,23 @@ export function ProductsClient({
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product? This cannot be undone.')) return;
     setDeletingId(id);
-    const result = await deleteProductAction(id);
-    setDeletingId(null);
-    if (result.success === true) {
-      startTransition(() => router.refresh());
-    } else {
-      alert(result.error);
+    try {
+      await httpClient.delete(`/admin-api/products/${id}`);
+      await fetchProducts();
+    } catch {
+      alert('Failed to delete product');
+    } finally {
+      setDeletingId(null);
     }
   };
 
   const handleModalSaved = () => {
     setShowModal(false);
     setEditProduct(null);
-    startTransition(() => router.refresh());
+    fetchProducts();
   };
+
+  const { items, pagination } = data;
 
   return (
     <div className="p-6">
@@ -288,7 +320,7 @@ export function ProductsClient({
           />
         </form>
         <select
-          value={currentStatus ?? 'all'}
+          value={currentStatus}
           onChange={(e) => pushParams({ status: e.target.value, page: '1' })}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none cursor-pointer"
         >
@@ -300,101 +332,104 @@ export function ProductsClient({
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Product
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden lg:table-cell">
-                  Description
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden md:table-cell">
-                  Created
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F3F4F6]">
-              {items.map((product) => (
-                <tr
-                  key={product.id}
-                  className={`hover:bg-[#F9FAFB] transition-colors ${isPending ? 'opacity-60' : ''}`}
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#F3F4F6] to-[#E5E7EB] flex items-center justify-center shrink-0 overflow-hidden">
-                        {product.images?.[0] ? (
-                          <img
-                            src={product.images[0].url}
-                            alt={product.name}
-                            className="w-10 h-10 object-cover"
-                          />
-                        ) : (
-                          <Package className="w-5 h-5 text-[#9CA3AF]" />
-                        )}
-                      </div>
-                      <p className="text-sm font-medium text-[#111827]">{product.name}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 hidden lg:table-cell">
-                    <p className="text-xs text-[#6B7280] line-clamp-2 max-w-[240px]">
-                      {product.description ?? '—'}
-                    </p>
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-[#111827] whitespace-nowrap">
-                    {currencySymbol(product.currency)}
-                    {Number(product.basePrice).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center gap-1 text-xs font-medium ${product.isActive ? 'text-emerald-600' : 'text-[#9CA3AF]'}`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${product.isActive ? 'bg-emerald-400' : 'bg-[#D1D5DB]'}`}
-                      />
-                      {product.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-xs text-[#6B7280]">
-                    {new Date(product.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => {
-                          setEditProduct(product);
-                          setShowModal(true);
-                        }}
-                        className="p-1.5 rounded-lg hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827] transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        disabled={deletingId === product.id}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-[#6B7280] hover:text-red-600 transition-colors disabled:opacity-40"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="w-6 h-6 text-[#9CA3AF] animate-spin" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden lg:table-cell">
+                    Description
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden md:table-cell">
+                    Created
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[#F3F4F6]">
+                {items.map((product) => (
+                  <tr key={product.id} className="hover:bg-[#F9FAFB] transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#F3F4F6] to-[#E5E7EB] flex items-center justify-center shrink-0 overflow-hidden">
+                          {product.images?.[0] ? (
+                            <img
+                              src={product.images[0].url}
+                              alt={product.name}
+                              className="w-10 h-10 object-cover"
+                            />
+                          ) : (
+                            <Package className="w-5 h-5 text-[#9CA3AF]" />
+                          )}
+                        </div>
+                        <p className="text-sm font-medium text-[#111827]">{product.name}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <p className="text-xs text-[#6B7280] line-clamp-2 max-w-[240px]">
+                        {product.description ?? '—'}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-[#111827] whitespace-nowrap">
+                      {currencySymbol(product.currency)}
+                      {Number(product.basePrice).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-medium ${product.isActive ? 'text-emerald-600' : 'text-[#9CA3AF]'}`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${product.isActive ? 'bg-emerald-400' : 'bg-[#D1D5DB]'}`}
+                        />
+                        {product.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell text-xs text-[#6B7280]">
+                      {new Date(product.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => {
+                            setEditProduct(product);
+                            setShowModal(true);
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827] transition-colors"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          disabled={deletingId === product.id}
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-[#6B7280] hover:text-red-600 transition-colors disabled:opacity-40"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        {items.length === 0 && (
+        {!isLoading && items.length === 0 && (
           <div className="py-16 text-center">
             <Package className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
             <p className="text-sm text-[#9CA3AF]">No products found</p>
@@ -409,7 +444,7 @@ export function ProductsClient({
           {pagination.totalPages > 1 && (
             <div className="flex items-center gap-1">
               <button
-                disabled={currentPage <= 1 || isPending}
+                disabled={currentPage <= 1}
                 onClick={() => pushParams({ page: String(currentPage - 1) })}
                 className="p-1.5 rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] disabled:opacity-40"
               >
@@ -419,7 +454,7 @@ export function ProductsClient({
                 {currentPage} / {pagination.totalPages}
               </span>
               <button
-                disabled={currentPage >= pagination.totalPages || isPending}
+                disabled={currentPage >= pagination.totalPages}
                 onClick={() => pushParams({ page: String(currentPage + 1) })}
                 className="p-1.5 rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] disabled:opacity-40"
               >

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { TokenStorage } from '@/lib/token.storage';
 
 export default function LoginPage() {
   return (
@@ -28,7 +29,8 @@ function LoginContent() {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (TokenStorage.getAccessToken()) router.replace('/');
+  }, [router]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

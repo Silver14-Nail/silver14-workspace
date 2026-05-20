@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { KeyRound, Loader2, Mail, Phone, ShieldCheck, ShieldOff, Trash2, X } from 'lucide-react';
 
-import { deleteUserAction, getUserAction, toggleUserActiveAction } from '../actions';
+import { httpClient } from '@/lib/http.client';
 import type { User } from '@/services/users.service';
 
 const AVATAR_COLORS = [
@@ -31,9 +31,10 @@ function getAvatarLetters(fullName: string): string {
 type Props = {
   userId: string;
   onClose: () => void;
+  onUserUpdated?: () => void;
 };
 
-export function UserDrawer({ userId, onClose }: Props) {
+export function UserDrawer({ userId, onClose, onUserUpdated }: Props) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,25 +44,38 @@ export function UserDrawer({ userId, onClose }: Props) {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getUserAction(userId)
-      .then((u) => { if (!cancelled) setUser(u); })
-      .catch(() => { if (!cancelled) setError('Failed to load user details.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+    httpClient
+      .get<User>(`/admin-api/users/${userId}`)
+      .then(({ data }) => {
+        if (!cancelled) setUser(data);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Failed to load user details.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   const handleToggleActive = () => {
     if (!user) return;
     startTransition(async () => {
-      const updated = await toggleUserActiveAction(user.id, !user.isActive);
+      const { data: updated } = await httpClient.patch<User>(`/admin-api/users/${user.id}`, {
+        isActive: !user.isActive,
+      });
       setUser(updated);
+      onUserUpdated?.();
     });
   };
 
   const handleDelete = () => {
     if (!user) return;
     startTransition(async () => {
-      await deleteUserAction(user.id);
+      await httpClient.delete(`/admin-api/users/${user.id}`);
+      onUserUpdated?.();
       onClose();
     });
   };

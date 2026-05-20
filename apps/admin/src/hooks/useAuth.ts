@@ -7,7 +7,6 @@ import {
   initializeAppThunk,
   loginThunk,
   logoutThunk,
-  refreshTokenThunk,
   selectAuthError,
   selectAuthStatus,
   selectIsAuthenticated,
@@ -45,8 +44,6 @@ export function useAuth() {
 
   const initialize = useCallback(() => dispatch(initializeAppThunk()), [dispatch]);
 
-  const refresh = useCallback(() => dispatch(refreshTokenThunk()), [dispatch]);
-
   const dismissError = useCallback(() => dispatch(clearError()), [dispatch]);
 
   return {
@@ -59,7 +56,6 @@ export function useAuth() {
     login,
     logout,
     initialize,
-    refresh,
     dismissError,
   };
 }

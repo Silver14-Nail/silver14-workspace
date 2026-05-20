@@ -1,4 +1,4 @@
-import { createApiClient } from './api-client';
+import { httpClient } from '@/lib/http.client';
 
 export type UserRole = 'admin' | 'customer' | 'wholesale';
 
@@ -47,24 +47,20 @@ export type UpdateUserPayload = {
 };
 
 export async function listUsers(query: UsersQuery = {}): Promise<UsersListResponse> {
-  const client = await createApiClient();
-  const { data } = await client.get<UsersListResponse>('/admin-api/users', { params: query });
+  const { data } = await httpClient.get<UsersListResponse>('/admin-api/users', { params: query });
   return data;
 }
 
 export async function getUser(id: string): Promise<User> {
-  const client = await createApiClient();
-  const { data } = await client.get<User>(`/admin-api/users/${id}`);
+  const { data } = await httpClient.get<User>(`/admin-api/users/${id}`);
   return data;
 }
 
 export async function updateUser(id: string, payload: UpdateUserPayload): Promise<User> {
-  const client = await createApiClient();
-  const { data } = await client.patch<User>(`/admin-api/users/${id}`, payload);
+  const { data } = await httpClient.patch<User>(`/admin-api/users/${id}`, payload);
   return data;
 }
 
 export async function deleteUser(id: string): Promise<void> {
-  const client = await createApiClient();
-  await client.delete(`/admin-api/users/${id}`);
+  await httpClient.delete(`/admin-api/users/${id}`);
 }
