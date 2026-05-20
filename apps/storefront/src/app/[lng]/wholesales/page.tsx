@@ -143,7 +143,7 @@ export default function WholesalePage() {
         <h1
           className="text-white mb-5"
           style={{
-            fontWeight: 300,
+            fontWeight: 400,
             fontSize: 'clamp(2rem, 6vw, 3.5rem)',
             letterSpacing: '0.05em',
           }}
@@ -180,7 +180,6 @@ export default function WholesalePage() {
                 <h3
                   className="text-[#1A1A1A]"
                   style={{
-                    fontWeight: 500,
                     fontSize: '1.1rem',
                   }}
                 >
@@ -236,7 +235,6 @@ export default function WholesalePage() {
                   <p
                     className="text-[#1A1A1A]"
                     style={{
-                      fontWeight: 500,
                       fontSize: '2rem',
                     }}
                   >

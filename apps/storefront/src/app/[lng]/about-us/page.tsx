@@ -85,9 +85,6 @@ export default function AboutPage() {
               <div className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm border border-[#E8E8E8] px-4 py-3">
                 <p
                   className="text-[#1A1A1A] text-lg"
-                  style={{
-                    fontWeight: 500,
-                  }}
                 >
                   Silver14 Nail
                 </p>
@@ -137,9 +134,6 @@ export default function AboutPage() {
 
                   <h3
                     className="text-[#1A1A1A] text-lg mb-3"
-                    style={{
-                      fontWeight: 500,
-                    }}
                   >
                     {value.title}
                   </h3>

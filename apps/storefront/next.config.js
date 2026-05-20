@@ -7,6 +7,9 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
   nx: {},
+  experimental: {
+    turbopackUseSystemTlsCerts: true,
+  },
   async redirects() {
     return [
       {

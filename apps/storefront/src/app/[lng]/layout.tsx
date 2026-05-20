@@ -11,6 +11,7 @@ import { I18nProvider } from 'next-i18next/client';
 import { StoreProvider } from '../../store/StoreProvider';
 import { Footer } from '../../components/layout/Footer';
 import { Navbar } from '../../components/layout/Navbar';
+import { AIChat } from '../../components/shared/AIChat';
 import i18nConfig from '../../i18n.config';
 import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo';
 import '../../styles/index.css';
@@ -77,6 +78,7 @@ export default async function RootLayout({
             <Navbar />
             {children}
             <Footer />
+            <AIChat />
           </I18nProvider>
         </StoreProvider>
       </body>

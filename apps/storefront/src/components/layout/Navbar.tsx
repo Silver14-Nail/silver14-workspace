@@ -101,7 +101,7 @@ export function Navbar() {
             <ChevronLeft className="size-4" />
           </button>
 
-          <p className="max-w-[70vw] truncate text-center text-[11px] uppercase tracking-[0.16em]">
+          <p className="max-w-[70vw] truncate text-center text-[11px] font-semibold uppercase tracking-[0.16em]">
             {announcements[announcementIndex]}
           </p>
 
@@ -129,7 +129,7 @@ export function Navbar() {
             </button>
 
             <button
-              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-[#5A5A5A] transition hover:text-[#1A1A1A]"
+              className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#5A5A5A] transition hover:text-[#1A1A1A]"
               type="button"
               onClick={() => setSearchOpen((open) => !open)}
             >
@@ -167,7 +167,7 @@ export function Navbar() {
               <User className="size-4" />
 
               {status === 'authenticated' && user ? (
-                <span className="text-[10px] uppercase tracking-[0.12em]">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em]">
                   {user.name.split(' ')[0]}
                 </span>
               ) : null}
@@ -200,7 +200,7 @@ export function Navbar() {
               >
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 text-[12px] uppercase tracking-[0.16em] text-[#303030] transition hover:text-[#8A8A8A]"
+                  className="inline-flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#303030] transition hover:text-[#8A8A8A]"
                 >
                   {t(link.labelKey)}
 
@@ -223,7 +223,7 @@ export function Navbar() {
                             ? '/products'
                             : `/products?collection=${collection.id}`
                         }
-                        className="block px-5 py-2.5 text-[12px] uppercase tracking-[0.12em] text-[#1A1A1A] transition hover:bg-[#F8F8F8]"
+                        className="block px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#1A1A1A] transition hover:bg-[#F8F8F8]"
                       >
                         {collection.label}
                       </LinkBase>
@@ -235,7 +235,7 @@ export function Navbar() {
               <LinkBase
                 key={link.labelKey}
                 href={link.href}
-                className="text-[12px] uppercase tracking-[0.16em] text-[#303030] transition hover:text-[#8A8A8A]"
+                className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#303030] transition hover:text-[#8A8A8A]"
               >
                 {t(link.labelKey)}
               </LinkBase>
@@ -311,7 +311,7 @@ export function Navbar() {
                         <button
                           type="button"
                           onClick={() => setMobileCollectionsOpen((prev) => !prev)}
-                          className="flex w-full items-center justify-between text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                          className="flex w-full items-center justify-between text-sm font-semibold uppercase tracking-[0.15em] text-[#1A1A1A]"
                         >
                           <span>{t(link.labelKey)}</span>
 
@@ -351,7 +351,7 @@ export function Navbar() {
                     <LinkBase
                       key={link.labelKey}
                       href={link.href}
-                      className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                      className="block text-xs font-semibold uppercase tracking-[0.15em] text-[#1A1A1A]"
                     >
                       {t(link.labelKey)}
                     </LinkBase>
@@ -361,7 +361,7 @@ export function Navbar() {
                 {/* Cart */}
                 <button
                   onClick={() => setCartOpen(true)}
-                  className="relative flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                  className="relative flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#1A1A1A]"
                 >
                   <ShoppingBag className="size-[18px]" />
 
@@ -377,7 +377,7 @@ export function Navbar() {
                 {/* Account */}
                 <LinkBase
                   href="/account"
-                  className="block text-xs uppercase tracking-[0.15em] text-[#1A1A1A]"
+                  className="block text-xs font-semibold uppercase tracking-[0.15em] text-[#1A1A1A]"
                 >
                   {status === 'authenticated' && user
                     ? `${t('account')} (${user.name})`
