@@ -36,7 +36,12 @@ export const initializeAppThunk = createAsyncThunk<
     try {
       return await authService.getMe();
     } catch {
-      return rejectWithValue('Unauthorized');
+      // Access token missing or expired — attempt silent refresh before giving up
+      try {
+        return await authService.refresh();
+      } catch {
+        return rejectWithValue('Unauthorized');
+      }
     }
   },
   {
@@ -45,6 +50,8 @@ export const initializeAppThunk = createAsyncThunk<
       const { auth } = getState();
       return !auth.isInitialized && auth.status !== 'loading';
     },
+    // Prevent a condition-skipped thunk from dispatching a spurious rejected action
+    dispatchConditionRejection: false,
   },
 );
 
@@ -144,7 +151,7 @@ const authSlice = createSlice({
       .addCase(refreshTokenThunk.rejected, (state) => {
         state.user = null;
         state.status = 'failed';
-        state.isInitialized = false;
+        state.isInitialized = true;
       });
   },
 });

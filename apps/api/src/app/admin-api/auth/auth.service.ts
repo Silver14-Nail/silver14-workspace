@@ -1,27 +1,19 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 
 import { UserEntity } from '@/db/entities/auths/user.entity';
 import { UserRole } from '@/common/enums/entity.enum';
 import { EncryptUtils, TokenUtils } from '@/common/utils';
-
-const ACCESS_TOKEN_EXPIRES_IN = parseInt(process.env.TOKEN_EXPIRES || '3600');
-const REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES || '7d';
+import type { EnvConfiguration } from '@/config/configuration';
 
 @Injectable()
 export class AdminAuthService {
-  private get secret() {
-    return process.env.SECRET_KEY || 'local-development-secret';
-  }
-
-  private get refreshSecret() {
-    return `refresh_${this.secret}`;
-  }
-
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
+    private readonly configService: ConfigService<EnvConfiguration>,
   ) {}
 
   async login(email: string, password: string) {
@@ -78,23 +70,39 @@ export class AdminAuthService {
     };
   }
 
+  private get secret(): string {
+    return this.configService.getOrThrow<string>('secret');
+  }
+
+  private get refreshSecret(): string {
+    return `refresh_${this.secret}`;
+  }
+
+  private get accessTokenExpiresIn(): number {
+    return this.configService.getOrThrow<number>('tokenExpires');
+  }
+
+  private get refreshTokenExpiresIn(): number {
+    return this.configService.getOrThrow<number>('refreshTokenExpires');
+  }
+
   private buildAuthResponse(user: UserEntity) {
     const accessToken = TokenUtils.generate(
       { userId: user.id },
       this.secret,
-      ACCESS_TOKEN_EXPIRES_IN,
+      this.accessTokenExpiresIn,
     );
     const refreshToken = TokenUtils.generate(
       { userId: user.id },
       this.refreshSecret,
-      REFRESH_TOKEN_EXPIRES_IN,
+      this.refreshTokenExpiresIn,
     );
 
     return {
       tokens: {
         accessToken,
         refreshToken,
-        expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+        expiresIn: this.accessTokenExpiresIn,
         tokenType: 'Bearer' as const,
       },
       user: {
