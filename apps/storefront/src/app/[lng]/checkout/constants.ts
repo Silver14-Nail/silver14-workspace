@@ -47,7 +47,7 @@ export const CHECKOUT_STEPS: { key: Step; labelKey: string }[] = [
 
 export const PAYMENT_METHODS = ['card', 'paypal'] as const;
 
-export const DEFAULT_CONTACT = { email: '', phone: '', createAccount: false, password: '' };
+export const DEFAULT_CONTACT = { email: '', phone: '', fullName: '' };
 export const DEFAULT_SHIPPING = {
   firstName: '',
   lastName: '',
@@ -56,6 +56,4 @@ export const DEFAULT_SHIPPING = {
   city: '',
   postalCode: '',
   country: 'Germany',
-  notes: '',
 };
-export const DEFAULT_CARD = { number: '', name: '', expiry: '', cvc: '' };

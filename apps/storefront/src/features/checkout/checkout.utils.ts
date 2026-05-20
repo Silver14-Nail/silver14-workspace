@@ -1,15 +1,9 @@
-import {
-  FREE_SHIPPING_THRESHOLD,
-  STANDARD_SHIPPING_COST,
-  ORDER_ID_PREFIX,
-} from '@/config/commerce.config';
-import type { CartItem, MockOrder } from '@/hooks/useCart';
+// Form-level types for the checkout UI (not persisted until submitted to API)
 
 export type ContactDetails = {
   email: string;
   phone: string;
-  createAccount: boolean;
-  password: string;
+  fullName: string;
 };
 
 export type ShippingDetails = {
@@ -20,54 +14,6 @@ export type ShippingDetails = {
   city: string;
   postalCode: string;
   country: string;
-  notes: string;
 };
 
 export type PaymentMethod = 'paypal' | 'card';
-
-export { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_COST };
-
-export const getShippingCost = (subtotal: number) =>
-  subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_COST;
-
-export const generateOrderId = () =>
-  `${ORDER_ID_PREFIX}${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-export const createMockOrder = ({
-  id,
-  contact,
-  shipping,
-  payment,
-  items,
-  subtotal,
-  discount,
-  total,
-}: {
-  id: string;
-  contact: ContactDetails;
-  shipping: ShippingDetails;
-  payment: PaymentMethod;
-  items: CartItem[];
-  subtotal: number;
-  discount: number;
-  total: number;
-}): MockOrder => ({
-  id,
-  phone: contact.phone,
-  email: contact.email,
-  items,
-  subtotal,
-  discount,
-  total,
-  status: 'Processing',
-  createdAt: new Date().toISOString(),
-  shippingAddress: {
-    firstName: shipping.firstName,
-    lastName: shipping.lastName,
-    address: shipping.address,
-    city: shipping.city,
-    postalCode: shipping.postalCode,
-    country: shipping.country,
-  },
-  paymentMethod: payment === 'card' ? 'Visa/Mastercard' : 'PayPal',
-});

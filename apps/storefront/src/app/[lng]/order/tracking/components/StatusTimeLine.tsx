@@ -2,9 +2,9 @@
 
 import { useT } from 'next-i18next/client';
 import { TRACKING_STEPS } from '../constants';
-import { MockOrder } from '@/hooks/useCart';
+import type { OrderTrackingStatus } from '../types';
 
-export default function StatusTimeline({ status }: { status: MockOrder['status'] }) {
+export default function StatusTimeline({ status }: { status: OrderTrackingStatus }) {
   const { t } = useT('tracking');
 
   const currentIdx = status === 'Delivered' ? 3 : status === 'Shipped' ? 2 : 0;

@@ -50,10 +50,7 @@ export class WholesaleAccountController {
 
   @Get('orders')
   @ApiOkResponse({ description: 'Paginated list of own wholesale orders' })
-  getMyOrders(
-    @CurrentUser() user: AuthenticatedUser,
-    @Query() query: WholesaleOrdersQueryDto,
-  ) {
+  getMyOrders(@CurrentUser() user: AuthenticatedUser, @Query() query: WholesaleOrdersQueryDto) {
     return this.wholesalesService.getMyOrders(user, query);
   }
 }

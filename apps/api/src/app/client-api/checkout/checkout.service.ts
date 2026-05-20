@@ -12,6 +12,7 @@ import { CartEntity } from '@/db/entities/checkouts/cart.entity';
 import { CheckoutSessionEntity } from '@/db/entities/checkouts/checkout-session.entity';
 import { ShippingMethodEntity } from '@/db/entities/checkouts/shipping-method.entity';
 import { CouponEntity } from '@/db/entities/coupons/coupon.entity';
+import { OrderEntity } from '@/db/entities/orders/order.entity';
 import {
   CartStatus,
   CheckoutSessionStatus,
@@ -37,6 +38,8 @@ export class ClientCheckoutService {
     private readonly shippingRepo: Repository<ShippingMethodEntity>,
     @InjectRepository(CouponEntity)
     private readonly couponRepo: Repository<CouponEntity>,
+    @InjectRepository(OrderEntity)
+    private readonly orderRepo: Repository<OrderEntity>,
   ) {}
 
   // ─── Shipping Methods ─────────────────────────────────────────────────────────
@@ -181,6 +184,18 @@ export class ClientCheckoutService {
 
     const saved = await this.sessionRepo.save(session);
     return this.withTotals(saved);
+  }
+
+  // Returns the order created by the payment webhook for a given checkout session.
+  // Returns null (not 404) when not yet created — callers poll this.
+  async getSessionOrder(sessionId: string): Promise<{ id: string; status: string; total: number; currency: string } | null> {
+    const order = await this.orderRepo.findOne({
+      where: { checkoutSession: { id: sessionId } },
+      select: ['id', 'status', 'total', 'currency'],
+    });
+    return order
+      ? { id: order.id, status: order.status, total: Number(order.total), currency: order.currency }
+      : null;
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────────

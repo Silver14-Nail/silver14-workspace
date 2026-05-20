@@ -44,10 +44,18 @@ export function UserDrawer({ userId, onClose }: Props) {
     setLoading(true);
     setError(null);
     getUserAction(userId)
-      .then((u) => { if (!cancelled) setUser(u); })
-      .catch(() => { if (!cancelled) setError('Failed to load user details.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .then((u) => {
+        if (!cancelled) setUser(u);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Failed to load user details.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   const handleToggleActive = () => {

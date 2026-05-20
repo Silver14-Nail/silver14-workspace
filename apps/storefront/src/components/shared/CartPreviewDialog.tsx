@@ -3,28 +3,20 @@ import { ShoppingBag, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@source/ui';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useCurrency } from '../../hooks/useCurrency';
-import type { CartItem } from '../../hooks/useCart';
+import { useCart } from '../../hooks/useCart';
+import type { CartPreviewItem } from '../../hooks/useCart';
 
 interface CartPreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  addedItem: CartItem | null;
-  cartCount: number;
-  subtotal: number;
+  addedItem: CartPreviewItem | null;
 }
 
-export function CartPreviewDialog({
-  open,
-  onOpenChange,
-  addedItem,
-  cartCount,
-  subtotal,
-}: CartPreviewDialogProps) {
+export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreviewDialogProps) {
   const { format } = useCurrency();
+  const { cartCount, subtotal } = useCart();
 
   if (!addedItem) return null;
-
-  const displayPrice = addedItem.product.salePrice ?? addedItem.product.price;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,18 +42,18 @@ export function CartPreviewDialog({
         <div className="flex gap-4 py-4">
           <div className="size-20 bg-[#F5F5F5] overflow-hidden flex-shrink-0">
             <ImageWithFallback
-              src={addedItem.product.thumbnail ?? ''}
-              alt={addedItem.product.name}
+              src={addedItem.thumbnail ?? ''}
+              alt={addedItem.productName}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">{addedItem.product.name}</h3>
-            {(addedItem.size || addedItem.shape) && (
+            <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">{addedItem.productName}</h3>
+            {(addedItem.sizeName || addedItem.shapeName) && (
               <div className="flex flex-wrap gap-2 text-xs text-[#5A5A5A]">
-                {addedItem.size && <span>Size: {addedItem.size}</span>}
-                {addedItem.size && addedItem.shape && <span>/</span>}
-                {addedItem.shape && <span>Shape: {addedItem.shape}</span>}
+                {addedItem.sizeName && <span>Size: {addedItem.sizeName}</span>}
+                {addedItem.sizeName && addedItem.shapeName && <span>/</span>}
+                {addedItem.shapeName && <span>Shape: {addedItem.shapeName}</span>}
               </div>
             )}
             <div className="flex items-center gap-3 mt-2">
@@ -69,7 +61,7 @@ export function CartPreviewDialog({
                 className="text-[#1A1A1A] text-sm"
                 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
               >
-                {format(displayPrice)}
+                {format(addedItem.price)}
               </span>
               <span className="text-[#9A9A9A] text-xs">Qty: {addedItem.quantity}</span>
             </div>

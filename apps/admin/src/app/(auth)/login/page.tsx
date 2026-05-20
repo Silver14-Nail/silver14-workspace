@@ -191,10 +191,7 @@ function LoginContent() {
             >
               Welcome back
             </h2>
-            <p
-              className="text-[#9A9A9A] text-sm"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
+            <p className="text-[#9A9A9A] text-sm" style={{ fontFamily: "'Inter', sans-serif" }}>
               Sign in to your admin dashboard
             </p>
           </div>
@@ -216,9 +213,7 @@ function LoginContent() {
                 <span className="font-medium text-[#4A4A4A]">Demo credentials</span>
                 <br />
                 Email:{' '}
-                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">
-                  admin@lunelle.com
-                </code>
+                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">admin@lunelle.com</code>
                 <br />
                 Password:{' '}
                 <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">admin2026</code>
@@ -317,10 +312,7 @@ function LoginContent() {
                 }}
               >
                 <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-                <p
-                  className="text-red-600 text-xs"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
+                <p className="text-red-600 text-xs" style={{ fontFamily: "'Inter', sans-serif" }}>
                   {error}
                 </p>
               </div>
@@ -369,10 +361,7 @@ function LoginContent() {
               >
                 &larr; Return to Store
               </Link>
-              <p
-                className="text-xs text-[#C0C0C0]"
-                style={{ fontFamily: "'Inter', sans-serif" }}
-              >
+              <p className="text-xs text-[#C0C0C0]" style={{ fontFamily: "'Inter', sans-serif" }}>
                 LUNELLE &copy; 2026
               </p>
             </div>

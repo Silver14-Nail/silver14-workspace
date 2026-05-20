@@ -1,17 +1,6 @@
-export const FREE_SHIPPING_THRESHOLD = 50;
-export const PAYMENT_METHODS = ['Visa', 'Mastercard', 'PayPal'] as const;
+// CartItemType is the real API-backed CartDisplayItem
+export type { CartDisplayItem as CartItemType } from '@/features/cart/cart.types';
 
-export interface CartItemType {
-  product: {
-    id: string;
-    name: string;
-    slug: string;
-    price: number;
-    salePrice?: number | null;
-    thumbnail: string | null;
-  };
-  size: string;
-  shape: string;
-  length?: string;
-  quantity: number;
-}
+export const FREE_SHIPPING_THRESHOLD = 100;
+
+export const PAYMENT_METHODS = ['Visa', 'Mastercard', 'PayPal'] as const;

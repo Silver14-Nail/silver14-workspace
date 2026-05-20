@@ -201,7 +201,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </nav>
 
         {/* Bottom */}
-        <div className={`p-2 border-t ${theme === 'dark' ? 'border-gray-800' : 'border-[#E5E7EB]'}`}>
+        <div
+          className={`p-2 border-t ${theme === 'dark' ? 'border-gray-800' : 'border-[#E5E7EB]'}`}
+        >
           <Link
             href="/"
             className={`flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all mb-1 ${
@@ -244,7 +246,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`lg:hidden p-1.5 rounded ${
-              theme === 'dark' ? 'text-gray-400 hover:bg-gray-800' : 'text-[#6B7280] hover:bg-[#F3F4F6]'
+              theme === 'dark'
+                ? 'text-gray-400 hover:bg-gray-800'
+                : 'text-[#6B7280] hover:bg-[#F3F4F6]'
             }`}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -283,7 +287,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-[#E5E7EB] bg-[#F9FAFB]'
             }`}
           >
-            <Search className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'}`} />
+            <Search
+              className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'}`}
+            />
 
             <input
               type="text"
@@ -379,7 +385,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                       )}
 
                       <div>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-200' : 'text-[#374151]'}`}>
+                        <p
+                          className={`text-sm ${theme === 'dark' ? 'text-gray-200' : 'text-[#374151]'}`}
+                        >
                           {n.text}
                         </p>
 
@@ -481,12 +489,16 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                     View Store
                   </Link>
 
-                  <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-[#E5E7EB]'}`}>
+                  <div
+                    className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-[#E5E7EB]'}`}
+                  >
                     <button
                       onClick={handleLogout}
                       disabled={isLoggingOut}
                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors disabled:opacity-60 ${
-                        theme === 'dark' ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:bg-red-50'
+                        theme === 'dark'
+                          ? 'text-red-400 hover:bg-gray-800'
+                          : 'text-red-600 hover:bg-red-50'
                       }`}
                     >
                       {isLoggingOut ? (

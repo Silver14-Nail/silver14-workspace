@@ -21,32 +21,41 @@ const SLIDE = {
 
 export default function CheckoutPage() {
   const { t } = useT('checkout');
-  const checkout = useCheckout();
-
   const {
     step,
-    checkoutType,
-    isProcessing,
-    orderId,
+    session,
+    isSubmitting,
+    error,
+    completedOrderId,
+    confirmEmail,
+    confirmFirstName,
+    confirmPhone,
     contact,
     shipping,
-    payment,
-    card,
+    selectedMethodId,
+    paymentMethod,
+    shippingMethods,
     cartItems,
     subtotal,
     discountAmount,
     shippingCost,
     finalTotal,
+    currency,
     isContactValid,
     isShippingValid,
     setStep,
-    setCheckoutType,
-    setPayment,
+    setPaymentMethod,
+    setSelectedMethodId,
     updateContact,
     updateShipping,
-    updateCard,
-    handlePayment,
-  } = checkout;
+    handleContactNext,
+    handleShippingNext,
+    handleStripeConfirm,
+    handlePaypalCreate,
+    handlePaypalCapture,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+  } = useCheckout();
 
   return (
     <div className="min-h-screen pt-16 md:pt-20 bg-[#FAFAFA]">
@@ -78,11 +87,11 @@ export default function CheckoutPage() {
                 <motion.div key="contact" {...SLIDE} transition={{ duration: 0.3 }}>
                   <ContactStep
                     contact={contact}
-                    checkoutType={checkoutType}
                     isValid={isContactValid}
+                    isSubmitting={isSubmitting}
+                    error={error}
                     onUpdate={updateContact}
-                    onCheckoutTypeChange={setCheckoutType}
-                    onNext={() => setStep('shipping')}
+                    onNext={handleContactNext}
                   />
                 </motion.div>
               )}
@@ -91,10 +100,15 @@ export default function CheckoutPage() {
                 <motion.div key="shipping" {...SLIDE} transition={{ duration: 0.3 }}>
                   <ShippingStep
                     shipping={shipping}
+                    shippingMethods={shippingMethods}
+                    selectedMethodId={selectedMethodId}
                     isValid={isShippingValid}
+                    isSubmitting={isSubmitting}
+                    error={error}
                     onUpdate={updateShipping}
+                    onMethodChange={setSelectedMethodId}
                     onBack={() => setStep('contact')}
-                    onNext={() => setStep('payment')}
+                    onNext={handleShippingNext}
                   />
                 </motion.div>
               )}
@@ -102,24 +116,26 @@ export default function CheckoutPage() {
               {step === 'payment' && (
                 <motion.div key="payment" {...SLIDE} transition={{ duration: 0.3 }}>
                   <PaymentStep
-                    payment={payment}
-                    card={card}
-                    isProcessing={isProcessing}
+                    payment={paymentMethod}
+                    isSubmitting={isSubmitting}
+                    error={error}
                     finalTotal={finalTotal}
-                    onPaymentChange={setPayment}
-                    onCardUpdate={updateCard}
+                    currency={currency}
+                    onPaymentChange={setPaymentMethod}
+                    onStripeConfirm={handleStripeConfirm}
+                    onPaypalCreate={handlePaypalCreate}
+                    onPaypalCapture={handlePaypalCapture}
                     onBack={() => setStep('shipping')}
-                    onSubmit={handlePayment}
                   />
                 </motion.div>
               )}
 
               {step === 'confirmation' && (
                 <ConfirmationStep
-                  orderId={orderId}
-                  firstName={shipping.firstName}
-                  email={contact.email}
-                  phone={contact.phone}
+                  orderId={completedOrderId ?? ''}
+                  firstName={confirmFirstName}
+                  email={confirmEmail}
+                  phone={confirmPhone}
                 />
               )}
             </AnimatePresence>
@@ -134,6 +150,10 @@ export default function CheckoutPage() {
                 discountAmount={discountAmount}
                 shippingCost={shippingCost}
                 finalTotal={finalTotal}
+                currency={currency}
+                couponCode={session?.couponCode}
+                onApplyCoupon={handleApplyCoupon}
+                onRemoveCoupon={handleRemoveCoupon}
               />
             </aside>
           )}

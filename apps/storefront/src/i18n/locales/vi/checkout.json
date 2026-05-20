@@ -10,16 +10,10 @@
   },
   "contact": {
     "title": "Thông tin liên hệ",
-    "checkoutTypeAriaLabel": "Loại thanh toán",
-    "type": {
-      "guest": "Thanh toán không cần tài khoản",
-      "registered": "Đăng nhập / Đăng ký"
-    },
+    "fullName": "Họ và tên",
     "email": "Địa chỉ email",
     "phone": "Số điện thoại",
-    "createAccountLabel": "Tạo tài khoản để theo dõi đơn hàng và lưu thông tin cho lần mua sau",
-    "password": "Mật khẩu",
-    "guestHint": "Sau khi đặt hàng không cần tài khoản, bạn có thể dùng số điện thoại và mã đơn hàng để theo dõi trạng thái.",
+    "guestHint": "Sau khi đặt hàng, bạn có thể dùng số điện thoại và mã đơn hàng để theo dõi trạng thái.",
     "cta": "Tiếp tục đến Vận chuyển"
   },
   "shipping": {
@@ -32,8 +26,10 @@
     "city": "Thành phố",
     "postalCode": "Mã bưu chính",
     "country": "Quốc gia",
-    "notes": "Ghi chú đơn hàng (tùy chọn)",
-    "notesPlaceholder": "Hướng dẫn đặc biệt, số đo tùy chỉnh...",
+    "method": "Phương thức vận chuyển",
+    "methodAriaLabel": "Chọn phương thức vận chuyển",
+    "delivery": "{{min}}–{{max}} ngày làm việc",
+    "methodsFree": "Miễn phí",
     "cta": "Tiếp tục đến Thanh toán"
   },
   "payment": {
@@ -50,14 +46,7 @@
         "description": "Thanh toán bảo mật qua tài khoản PayPal"
       }
     },
-    "card": {
-      "number": "Số thẻ",
-      "name": "Tên chủ thẻ",
-      "namePlaceholder": "Như in trên thẻ",
-      "expiry": "Ngày hết hạn",
-      "cvc": "CVC"
-    },
-    "paypalHint": "Bạn sẽ được chuyển đến PayPal để hoàn tất thanh toán bảo mật.",
+    "cardHint": "Thông tin thẻ được xử lý bảo mật bởi Stripe.",
     "securityNote": "Thông tin thanh toán được mã hóa và bảo mật. Chúng tôi không lưu trữ thông tin thẻ.",
     "cta": "Thanh toán",
     "processing": "Đang xử lý..."
@@ -80,6 +69,12 @@
     "discount": "Giảm giá",
     "shipping": "Vận chuyển",
     "shippingFree": "Miễn phí",
-    "total": "Tổng cộng"
+    "shippingPending": "Tính ở bước tiếp theo",
+    "total": "Tổng cộng",
+    "couponLabel": "Mã giảm giá",
+    "couponPlaceholder": "Nhập mã",
+    "couponApply": "Áp dụng",
+    "couponRemove": "Xóa",
+    "couponApplied": "Đã áp dụng {{code}}"
   }
 }

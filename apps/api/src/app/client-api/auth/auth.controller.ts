@@ -29,19 +29,13 @@ export class ClientAuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  register(
-    @Body() dto: RegisterCustomerDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  register(@Body() dto: RegisterCustomerDto, @Res({ passthrough: true }) res: Response) {
     return this.authService.register(dto.email, dto.password, dto.name, res);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(
-    @Body() dto: LoginCustomerDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  login(@Body() dto: LoginCustomerDto, @Res({ passthrough: true }) res: Response) {
     return this.authService.login(dto.email, dto.password, res);
   }
 

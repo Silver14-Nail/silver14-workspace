@@ -1,13 +1,25 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useCart, MockOrder } from '@/hooks/useCart';
-import { TrackingFormData } from '../types';
+import type { TrackingFormData, TrackedOrder } from '../types';
+
+const getBase = () => process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+
+async function fetchTrackedOrder(orderId: string, phone: string): Promise<TrackedOrder | null> {
+  try {
+    const res = await fetch(
+      `${getBase()}/client-api/orders/track?orderId=${encodeURIComponent(orderId)}&phone=${encodeURIComponent(phone)}`,
+    );
+    if (res.status === 404) return null;
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
 
 export function useOrderTracking() {
-  const { getOrder } = useCart();
-
-  const [result, setResult] = useState<MockOrder | null | undefined>(undefined);
+  const [result, setResult] = useState<TrackedOrder | null | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<TrackingFormData>({ orderId: '', phone: '' });
 
@@ -17,13 +29,11 @@ export function useOrderTracking() {
 
   const trackOrder = useCallback(async () => {
     if (!formData.orderId.trim() || !formData.phone.trim()) return;
-
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 700)); // Simulate API
-    const order = getOrder(formData.orderId.trim(), formData.phone.trim());
+    const order = await fetchTrackedOrder(formData.orderId.trim(), formData.phone.trim());
     setResult(order);
     setLoading(false);
-  }, [formData, getOrder]);
+  }, [formData]);
 
   const resetTracking = useCallback(() => {
     setResult(undefined);

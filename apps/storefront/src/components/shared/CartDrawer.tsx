@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { X, ShoppingBag, Minus, Plus, ArrowRight } from 'lucide-react';
 import { Link } from './LinkBase';
@@ -13,23 +15,12 @@ interface CartDrawerProps {
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const [hydrated, setHydrated] = useState(false);
-  const { state, dispatch, cartCount, subtotal, discountAmount, total } = useCart();
+  const { items, cartCount, subtotal, total, updateItem, removeItem, isLoading } = useCart();
   const { format } = useCurrency();
 
   useEffect(() => {
     setHydrated(true);
   }, []);
-
-  const updateQuantity = (productId: string, size: string, shape: string, newQuantity: number) => {
-    dispatch({
-      type: 'UPDATE_QUANTITY',
-      payload: { productId, size, shape, quantity: newQuantity },
-    });
-  };
-
-  const removeItem = (productId: string, size: string, shape: string) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: { productId, size, shape } });
-  };
 
   if (!hydrated) return null;
 
@@ -60,7 +51,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </button>
         </div>
 
-        {state.items.length === 0 ? (
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-7 h-7 border-2 border-[#1A1A1A] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center px-6">
             <div className="size-16 bg-[#F5F5F5] rounded-full flex items-center justify-center mb-4">
               <ShoppingBag className="size-7 text-[#9A9A9A]" />
@@ -79,89 +74,71 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <>
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="space-y-4">
-                {state.items.map((item) => {
-                  const unitPrice = item.product.salePrice ?? item.product.price;
-                  const itemTotal = unitPrice * item.quantity;
+                {items.map((item) => (
+                  <div key={item.id} className="flex gap-4 pb-4 border-b border-[#F0F0F0]">
+                    <div className="size-20 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
+                      <ImageWithFallback
+                        src={item.thumbnail ?? ''}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
 
-                  return (
-                    <div
-                      key={`${item.product.id}-${item.size}-${item.shape}`}
-                      className="flex gap-4 pb-4 border-b border-[#F0F0F0]"
-                    >
-                      <div className="size-20 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
-                        <ImageWithFallback
-                          src={item.product.thumbnail ?? ''}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">
+                            {item.productName}
+                          </h3>
+                        </div>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="text-[#9A9A9A] hover:text-[#1A1A1A] transition-colors p-1"
+                          aria-label="Remove item"
+                        >
+                          <X className="size-4" />
+                        </button>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">
-                              {item.product.name}
-                            </h3>
-                          </div>
+                      {(item.sizeName || item.shapeName) && (
+                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#5A5A5A] mb-3">
+                          {item.sizeName && <span>Size: {item.sizeName}</span>}
+                          {item.sizeName && item.shapeName && <span>·</span>}
+                          {item.shapeName && <span>Shape: {item.shapeName}</span>}
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center border border-[#E0E0E0]">
                           <button
-                            onClick={() => removeItem(item.product.id, item.size, item.shape)}
-                            className="text-[#9A9A9A] hover:text-[#1A1A1A] transition-colors p-1"
+                            onClick={() => updateItem(item.id, item.quantity - 1)}
+                            className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
+                            aria-label="Decrease quantity"
                           >
-                            <X className="size-4" />
+                            <Minus className="size-3" />
+                          </button>
+                          <span className="px-3 text-xs text-[#1A1A1A] min-w-[2rem] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateItem(item.id, item.quantity + 1)}
+                            disabled={item.quantity >= item.stockQty}
+                            className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="size-3" />
                           </button>
                         </div>
-
-                        {(item.size || item.shape) && (
-                          <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#5A5A5A] mb-3">
-                            {item.size && <span>Size: {item.size}</span>}
-                            {item.size && item.shape && <span>·</span>}
-                            {item.shape && <span>Shape: {item.shape}</span>}
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center border border-[#E0E0E0]">
-                            <button
-                              onClick={() =>
-                                updateQuantity(
-                                  item.product.id,
-                                  item.size,
-                                  item.shape,
-                                  item.quantity - 1,
-                                )
-                              }
-                              className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
-                            >
-                              <Minus className="size-3" />
-                            </button>
-                            <span className="px-3 text-xs text-[#1A1A1A] min-w-[2rem] text-center">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() =>
-                                updateQuantity(
-                                  item.product.id,
-                                  item.size,
-                                  item.shape,
-                                  item.quantity + 1,
-                                )
-                              }
-                              className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
-                            >
-                              <Plus className="size-3" />
-                            </button>
-                          </div>
-                          <span
-                            className="text-[#1A1A1A] text-sm"
-                            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
-                          >
-                            {format(itemTotal)}
-                          </span>
-                        </div>
+                        <span
+                          className="text-[#1A1A1A] text-sm"
+                          style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
+                        >
+                          {format(item.lineTotal)}
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -171,12 +148,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <span>Subtotal</span>
                   <span>{format(subtotal)}</span>
                 </div>
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#5A5A5A]">Discount</span>
-                    <span className="text-[#4A7A5A]">−{format(discountAmount)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between pt-2 border-t border-[#F0F0F0]">
                   <span
                     className="text-[#1A1A1A] text-xs uppercase tracking-widest"

@@ -112,9 +112,7 @@ export default function VariantFormDrawer({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-              Nail Size *
-            </label>
+            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">Nail Size *</label>
             <select
               value={sizeId}
               onChange={(e) => setSizeId(e.target.value)}
@@ -158,9 +156,7 @@ export default function VariantFormDrawer({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Stock Qty
-              </label>
+              <label className="block text-xs font-semibold mb-1.5 text-[#374151]">Stock Qty</label>
               <input
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}

@@ -1,40 +1,120 @@
 'use client';
 
-import { useCallback } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { Shield } from 'lucide-react';
 import { useT } from 'next-i18next/client';
-import { InputField } from '../ui/InputField';
 import { BackButton, PayButton } from '../ui/Buttons';
 import { PAYMENT_METHODS } from '../../constants';
-import type { CardDetails, PaymentMethod } from '../../types';
+import type { PaymentMethod } from '../../types';
+import type { Stripe, StripeCardElement } from '@stripe/stripe-js';
+
+// Initialised once at module level — never recreated on re-render
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '');
+
+const CARD_ELEMENT_OPTIONS = {
+  style: {
+    base: {
+      fontFamily: "'Inter', sans-serif",
+      fontSize: '14px',
+      color: '#1A1A1A',
+      '::placeholder': { color: '#B0B0B0' },
+    },
+    invalid: { color: '#E53E3E' },
+  },
+};
+
+// ── Stripe card sub-form (must live inside <Elements>) ────────────────────────
+
+interface StripeCardFormProps {
+  isSubmitting: boolean;
+  error: string | null;
+  finalTotal: number;
+  currency: string;
+  onConfirm: (stripe: Stripe, cardElement: StripeCardElement) => Promise<void>;
+}
+
+function StripeCardForm({ isSubmitting, error, finalTotal, currency, onConfirm }: StripeCardFormProps) {
+  const { t } = useT('checkout');
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const handlePay = async () => {
+    if (!stripe || !elements) return;
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) return;
+    await onConfirm(stripe, cardElement);
+  };
+
+  const formattedAmount = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency || 'EUR',
+  }).format(finalTotal);
+
+  return (
+    <>
+      <p className="text-[#9A9A9A] text-xs mb-3">{t('payment.cardHint')}</p>
+      <div className="p-4 border border-[#E0E0E0] bg-[#FAFAFA] mb-4">
+        <CardElement options={CARD_ELEMENT_OPTIONS} />
+      </div>
+
+      {error && <p className="text-red-600 text-xs mb-4 px-1">{error}</p>}
+
+      <SecurityNote />
+
+      <PayButton
+        label={t('payment.cta')}
+        processingLabel={t('payment.processing')}
+        amount={formattedAmount}
+        isProcessing={isSubmitting}
+        onClick={handlePay}
+      />
+    </>
+  );
+}
+
+// ── Shared security note ──────────────────────────────────────────────────────
+
+function SecurityNote() {
+  const { t } = useT('checkout');
+  return (
+    <div className="flex items-center gap-2 text-[#9A9A9A] text-xs mb-6">
+      <Shield className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
+      <span>{t('payment.securityNote')}</span>
+    </div>
+  );
+}
+
+// ── PaymentStep ───────────────────────────────────────────────────────────────
 
 interface PaymentStepProps {
   payment: PaymentMethod;
-  card: CardDetails;
-  isProcessing: boolean;
+  isSubmitting: boolean;
+  error: string | null;
   finalTotal: number;
+  currency: string;
   onPaymentChange: (method: PaymentMethod) => void;
-  onCardUpdate: <K extends keyof CardDetails>(key: K, value: CardDetails[K]) => void;
+  onStripeConfirm: (stripe: Stripe, cardElement: StripeCardElement) => Promise<void>;
+  onPaypalCreate: () => Promise<string>;
+  onPaypalCapture: (paypalOrderId: string) => Promise<void>;
   onBack: () => void;
-  onSubmit: () => void;
 }
 
 export function PaymentStep({
   payment,
-  card,
-  isProcessing,
+  isSubmitting,
+  error,
   finalTotal,
+  currency,
   onPaymentChange,
-  onCardUpdate,
+  onStripeConfirm,
+  onPaypalCreate,
+  onPaypalCapture,
   onBack,
-  onSubmit,
 }: PaymentStepProps) {
   const { t } = useT('checkout');
-
-  const handleNumber = useCallback((v: string) => onCardUpdate('number', v), [onCardUpdate]);
-  const handleName = useCallback((v: string) => onCardUpdate('name', v), [onCardUpdate]);
-  const handleExpiry = useCallback((v: string) => onCardUpdate('expiry', v), [onCardUpdate]);
-  const handleCvc = useCallback((v: string) => onCardUpdate('cvc', v), [onCardUpdate]);
+  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '';
 
   return (
     <div className="bg-white p-6 sm:p-8">
@@ -52,6 +132,7 @@ export function PaymentStep({
         {PAYMENT_METHODS.map((method) => (
           <button
             key={method}
+            type="button"
             role="radio"
             aria-checked={payment === method}
             onClick={() => onPaymentChange(method)}
@@ -62,7 +143,9 @@ export function PaymentStep({
             }`}
           >
             <span
-              className={`size-4 rounded-full border-2 flex items-center justify-center ${payment === method ? 'border-[#1A1A1A]' : 'border-[#D0D0D0]'}`}
+              className={`size-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                payment === method ? 'border-[#1A1A1A]' : 'border-[#D0D0D0]'
+              }`}
               aria-hidden
             >
               {payment === method && <span className="size-2 rounded-full bg-[#1A1A1A]" />}
@@ -95,61 +178,52 @@ export function PaymentStep({
         ))}
       </div>
 
-      {/* Card details */}
+      {/* Stripe card form */}
       {payment === 'card' && (
-        <div className="space-y-4 p-4 bg-[#F8F8F8] mb-6">
-          <InputField
-            label={t('payment.card.number')}
-            value={card.number}
-            onChange={handleNumber}
-            placeholder="1234 5678 9012 3456"
-            autoComplete="cc-number"
+        <Elements stripe={stripePromise}>
+          <StripeCardForm
+            isSubmitting={isSubmitting}
+            error={error}
+            finalTotal={finalTotal}
+            currency={currency}
+            onConfirm={onStripeConfirm}
           />
-          <InputField
-            label={t('payment.card.name')}
-            value={card.name}
-            onChange={handleName}
-            placeholder={t('payment.card.namePlaceholder')}
-            autoComplete="cc-name"
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <InputField
-              label={t('payment.card.expiry')}
-              value={card.expiry}
-              onChange={handleExpiry}
-              placeholder="MM / YY"
-              autoComplete="cc-exp"
-            />
-            <InputField
-              label={t('payment.card.cvc')}
-              value={card.cvc}
-              onChange={handleCvc}
-              placeholder="3 digits"
-              autoComplete="cc-csc"
-            />
-          </div>
-        </div>
+        </Elements>
       )}
 
+      {/* PayPal */}
       {payment === 'paypal' && (
-        <div className="p-4 bg-[#F8F8F8] mb-6 text-center">
-          <p className="text-[#9A9A9A] text-sm">{t('payment.paypalHint')}</p>
-        </div>
+        <PayPalScriptProvider
+          options={{
+            clientId: paypalClientId,
+            currency: currency || 'EUR',
+            intent: 'capture',
+          }}
+        >
+          <div className="mb-4">
+            {isSubmitting && (
+              <div className="flex items-center justify-center gap-2 py-4 text-[#6A6A6A] text-sm">
+                <span
+                  className="size-4 border-2 border-[#D0D0D0] border-t-[#1A1A1A] rounded-full animate-spin"
+                  aria-hidden
+                />
+                {t('payment.processing')}
+              </div>
+            )}
+            {!isSubmitting && (
+              <PayPalButtons
+                style={{ layout: 'vertical', shape: 'rect', color: 'black', label: 'pay' }}
+                createOrder={onPaypalCreate}
+                onApprove={async (data) => {
+                  await onPaypalCapture(data.orderID);
+                }}
+              />
+            )}
+            {error && <p className="text-red-600 text-xs mt-3 px-1">{error}</p>}
+          </div>
+          <SecurityNote />
+        </PayPalScriptProvider>
       )}
-
-      {/* Security note */}
-      <div className="flex items-center gap-2 text-[#9A9A9A] text-xs mb-6">
-        <Shield className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
-        <span>{t('payment.securityNote')}</span>
-      </div>
-
-      <PayButton
-        label={t('payment.cta')}
-        processingLabel={t('payment.processing')}
-        amount={`$${finalTotal.toFixed(2)}`}
-        isProcessing={isProcessing}
-        onClick={onSubmit}
-      />
     </div>
   );
 }

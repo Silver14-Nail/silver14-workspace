@@ -11,6 +11,7 @@ import { ClientWholesalesModule } from './wholesales/wholesales.module';
 import { ClientCartModule } from './cart/cart.module';
 import { ClientCheckoutModule } from './checkout/checkout.module';
 import { ClientUserModule } from './user/user.module';
+import { ClientOrdersModule } from './orders/orders.module';
 
 const clientModules = [
   ClientAuthModule,
@@ -21,6 +22,7 @@ const clientModules = [
   ClientCartModule,
   ClientCheckoutModule,
   ClientUserModule,
+  ClientOrdersModule,
 ];
 
 @Module({

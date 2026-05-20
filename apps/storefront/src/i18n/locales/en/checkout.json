@@ -13,16 +13,10 @@
 
   "contact": {
     "title": "Contact Information",
-    "checkoutTypeAriaLabel": "Checkout type",
-    "type": {
-      "guest": "Guest Checkout",
-      "registered": "Sign In / Register"
-    },
+    "fullName": "Full Name",
     "email": "Email Address",
     "phone": "Phone Number",
-    "createAccountLabel": "Create an account to track orders and save your details for faster checkout",
-    "password": "Password",
-    "guestHint": "💡 After ordering as a guest, use your phone number and order ID to track your order status.",
+    "guestHint": "💡 After ordering, use your phone number and order ID to track your order status.",
     "cta": "Continue to Shipping"
   },
 
@@ -36,8 +30,10 @@
     "city": "City",
     "postalCode": "Postal Code",
     "country": "Country",
-    "notes": "Order Notes (optional)",
-    "notesPlaceholder": "Special instructions, custom size measurements...",
+    "method": "Shipping Method",
+    "methodAriaLabel": "Select a shipping method",
+    "delivery": "{{min}}–{{max}} business days",
+    "methodsFree": "Free",
     "cta": "Continue to Payment"
   },
 
@@ -55,14 +51,7 @@
         "description": "Pay securely with your PayPal account"
       }
     },
-    "card": {
-      "number": "Card Number",
-      "name": "Cardholder Name",
-      "namePlaceholder": "As shown on card",
-      "expiry": "Expiry Date",
-      "cvc": "CVC"
-    },
-    "paypalHint": "You will be redirected to PayPal to complete your payment securely.",
+    "cardHint": "Your card details are securely handled by Stripe.",
     "securityNote": "Your payment information is encrypted and secure. We never store card details.",
     "cta": "Pay",
     "processing": "Processing..."
@@ -87,6 +76,12 @@
     "discount": "Discount",
     "shipping": "Shipping",
     "shippingFree": "Free",
-    "total": "Total"
+    "shippingPending": "Calculated at next step",
+    "total": "Total",
+    "couponLabel": "Coupon Code",
+    "couponPlaceholder": "Enter code",
+    "couponApply": "Apply",
+    "couponRemove": "Remove",
+    "couponApplied": "{{code}} applied"
   }
 }

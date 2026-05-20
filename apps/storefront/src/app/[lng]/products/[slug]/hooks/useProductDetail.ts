@@ -4,18 +4,16 @@ import { useProduct } from '@/hooks/useProduct';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
-import type { CartItem } from '@/hooks/useCart';
-import type { AccordionKey, ProductSelections } from '../types';
+import type { AccordionKey, ProductSelections, CartPreviewItem } from '../types';
 
 export function useProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
-  const { dispatch, cartCount, subtotal } = useCart();
+  const { cartCount, subtotal, addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const { product, loading, error } = useProduct(slug ?? '');
 
-  // Fetch a few products for "related" (exclude current)
   const { products: allProducts } = useProducts({ limit: 8 });
   const related = allProducts.filter((p) => p.id !== product?.id).slice(0, 4);
 
@@ -33,7 +31,8 @@ export function useProductDetail() {
   // UI state
   const [openSection, setOpenSection] = useState<AccordionKey | null>('description');
   const [showCartPreview, setShowCartPreview] = useState(false);
-  const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
+  const [lastAddedItem, setLastAddedItem] = useState<CartPreviewItem | null>(null);
+  const [addToCartError, setAddToCartError] = useState<string | null>(null);
 
   // Reset selections when product changes
   useEffect(() => {
@@ -59,20 +58,40 @@ export function useProductDetail() {
     setOpenSection((prev) => (prev === key ? null : key));
   }, []);
 
-  const canAddToCart = Boolean(product?.inStock && selections.size && selections.shape);
+  // Resolve the matching variant from the current shape+size selection
+  const selectedVariant =
+    product?.variants.find(
+      (v) => v.shapeLabel === selections.shape && v.sizeLabel === selections.size,
+    ) ?? null;
 
-  const handleAddToCart = useCallback(() => {
-    if (!product || !canAddToCart) return;
-    const item: CartItem = {
-      product,
-      size: selections.size,
-      shape: selections.shape,
+  const canAddToCart = Boolean(
+    selectedVariant && selectedVariant.isAvailable && selectedVariant.stockQty > 0,
+  );
+
+  const handleAddToCart = useCallback(async () => {
+    if (!product || !selectedVariant || !canAddToCart) return;
+
+    setAddToCartError(null);
+
+    // Build preview snapshot immediately for instant feedback
+    const preview: CartPreviewItem = {
+      productName: product.name,
+      thumbnail: product.thumbnail,
+      shapeName: selections.shape,
+      sizeName: selections.size,
+      price: selectedVariant.computedPrice,
       quantity: selections.quantity,
     };
-    dispatch({ type: 'ADD_ITEM', payload: item });
-    setLastAddedItem(item);
+    setLastAddedItem(preview);
     setShowCartPreview(true);
-  }, [product, canAddToCart, selections, dispatch]);
+
+    try {
+      await addItem({ variantId: selectedVariant.id, quantity: selections.quantity });
+    } catch (err) {
+      setShowCartPreview(false);
+      setAddToCartError(err instanceof Error ? err.message : 'Failed to add item to cart');
+    }
+  }, [product, selectedVariant, canAddToCart, selections, addItem]);
 
   const handleWishlist = useCallback(() => {
     if (product) toggleWishlist(product);
@@ -98,6 +117,7 @@ export function useProductDetail() {
     showCartPreview,
     setShowCartPreview,
     lastAddedItem,
+    addToCartError,
     // Cart
     cartCount,
     subtotal,

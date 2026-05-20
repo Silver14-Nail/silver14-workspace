@@ -212,9 +212,7 @@ export default function ProductEditImagesTab({
               <div
                 key={img.id}
                 className={`flex items-center gap-3 p-3 border rounded-xl transition-colors ${
-                  img.isMain
-                    ? 'border-[#111827] bg-[#F9FAFB]'
-                    : 'border-[#E5E7EB] bg-white'
+                  img.isMain ? 'border-[#111827] bg-[#F9FAFB]' : 'border-[#E5E7EB] bg-white'
                 } ${busy ? 'opacity-60' : ''}`}
               >
                 {/* Thumbnail */}

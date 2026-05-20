@@ -13,7 +13,11 @@ import { WholesaleOrderEntity } from '@/db/entities/wholesales/wholesale-order.e
 import { NewsletterSubscriberEntity } from '@/db/entities/wholesales/newsletter-subscribers.entity';
 import { UserEntity } from '@/db/entities/auths/user.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
-import { NewsletterSource, NewsletterStatus, WholesaleEnquiryStatus } from '@/common/enums/entity.enum';
+import {
+  NewsletterSource,
+  NewsletterStatus,
+  WholesaleEnquiryStatus,
+} from '@/common/enums/entity.enum';
 import type { AuthenticatedUser } from '@/shared/auth/auth.types';
 
 import { SubmitEnquiryDto } from './dto/submit-enquiry.dto';

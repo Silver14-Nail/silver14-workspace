@@ -1,49 +1,34 @@
 import { useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getSupplyBySlug } from '@/MOCK_DATAS/supplies';
-import { useCart } from '@/hooks/useCart';
-import type { CartItem } from '@/hooks/useCart';
-import type { StorefrontProduct } from '@/types/product';
+import type { CartPreviewItem } from '@/hooks/useCart';
 
 export function useSupplyDetail() {
   const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
-  const { dispatch, cartCount, subtotal } = useCart();
 
   const supply = getSupplyBySlug(slug ?? '');
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showCartPreview, setShowCartPreview] = useState(false);
-  const [lastAddedItem, setLastAddedItem] = useState<CartItem | null>(null);
+  const [lastAddedItem, setLastAddedItem] = useState<CartPreviewItem | null>(null);
 
+  // Supplies are mock products without real DB variants.
+  // Preview shows UI feedback; real cart integration pending supply product setup in DB.
   const handleAddToCart = useCallback(() => {
     if (!supply || !supply.inStock) return;
-
-    const cartProduct: StorefrontProduct = {
-      id: supply.id,
-      name: supply.name,
-      slug: supply.slug,
-      price: supply.price,
-      salePrice: null,
-      currency: 'USD',
+    const preview: CartPreviewItem = {
+      productName: supply.name,
       thumbnail: supply.images[0] ?? null,
-      isNew: false,
-      isBestSeller: false,
-      inStock: supply.inStock,
-    };
-
-    const item: CartItem = {
-      product: cartProduct,
-      size: '',
-      shape: '',
+      shapeName: '',
+      sizeName: '',
+      price: supply.price,
       quantity,
     };
-
-    dispatch({ type: 'ADD_ITEM', payload: item });
-    setLastAddedItem(item);
+    setLastAddedItem(preview);
     setShowCartPreview(true);
-  }, [supply, quantity, dispatch]);
+  }, [supply, quantity]);
 
   return {
     supply,
@@ -54,8 +39,6 @@ export function useSupplyDetail() {
     showCartPreview,
     setShowCartPreview,
     lastAddedItem,
-    cartCount,
-    subtotal,
     handleAddToCart,
     router,
   };

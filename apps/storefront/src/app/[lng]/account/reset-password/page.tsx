@@ -36,11 +36,7 @@ export default function ResetPasswordPage() {
       await resetPassword(token, newPassword);
       setDone(true);
     } catch (err) {
-      setError(
-        err instanceof Error && err.message
-          ? err.message
-          : t('errors.resetPasswordFailed'),
-      );
+      setError(err instanceof Error && err.message ? err.message : t('errors.resetPasswordFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -77,9 +73,7 @@ export default function ResetPasswordPage() {
           </div>
         ) : (
           <>
-            <p className="mt-3 text-sm leading-6 text-[#6A6A6A]">
-              {t('resetPasswordDescription')}
-            </p>
+            <p className="mt-3 text-sm leading-6 text-[#6A6A6A]">{t('resetPasswordDescription')}</p>
 
             <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
               {!tokenFromUrl && (

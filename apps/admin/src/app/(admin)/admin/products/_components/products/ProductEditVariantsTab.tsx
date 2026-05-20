@@ -20,9 +20,7 @@ const VariantRow = memo(function VariantRow({
   isDeleting,
 }: VariantRowProps) {
   return (
-    <tr
-      className={`transition-colors hover:bg-[#F9FAFB] ${isDeleting ? 'opacity-40' : ''}`}
-    >
+    <tr className={`transition-colors hover:bg-[#F9FAFB] ${isDeleting ? 'opacity-40' : ''}`}>
       <td className="px-3 py-2.5">
         <span className="text-xs font-medium text-[#111827]">{variant.shape.name}</span>
         <span className="text-xs text-[#9CA3AF] ml-1">({variant.shape.sizeTier})</span>
