@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npx nx build api --skip-nx-cache",
-  "outputDirectory": "apps/api/dist",
+  "buildCommand": "cd ../.. && npx nx build api --skip-nx-cache",
+  "outputDirectory": "dist",
   "functions": {
     "main.js": {
       "memory": 1024,
