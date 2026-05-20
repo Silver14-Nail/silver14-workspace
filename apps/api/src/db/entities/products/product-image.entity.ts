@@ -21,6 +21,13 @@ export class ProductImageEntity extends AbstractEntity {
   url: string;
 
   @Column({
+    name: 'is_main',
+    type: 'tinyint',
+    default: 0,
+  })
+  isMain: boolean;
+
+  @Column({
     name: 'sort_order',
     type: 'int',
     default: 0,

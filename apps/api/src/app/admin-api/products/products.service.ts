@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as crypto from 'crypto';
 
 import { ProductEntity } from '@/db/entities/products/product.entity';
 import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
+import { ProductImageEntity } from '@/db/entities/products/product-image.entity';
+import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
 
 import { PaginationDTO } from '@/common/dtos/pagination';
 
@@ -15,6 +18,13 @@ import { CreateNailShapeDto } from './dto/create-nail-shape.dto';
 import { UpdateNailShapeDto } from './dto/update-nail-shape.dto';
 import { CreateNailSizeDto } from './dto/create-nail-size.dto';
 import { UpdateNailSizeDto } from './dto/update-nail-size.dto';
+import { CreateVariantDto } from './dto/create-variant.dto';
+import { UpdateVariantDto } from './dto/update-variant.dto';
+import { AddImageDto } from './dto/add-image.dto';
+import { ReorderImagesDto } from './dto/reorder-images.dto';
+import { GetPresignedUrlDto } from './dto/get-presigned-url.dto';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 @Injectable()
 export class ProductsService {
@@ -25,6 +35,10 @@ export class ProductsService {
     private readonly nailShapeRepo: Repository<NailShapeEntity>,
     @InjectRepository(NailSizeEntity)
     private readonly nailSizeRepo: Repository<NailSizeEntity>,
+    @InjectRepository(ProductImageEntity)
+    private readonly productImageRepo: Repository<ProductImageEntity>,
+    @InjectRepository(ProductVariantEntity)
+    private readonly productVariantRepo: Repository<ProductVariantEntity>,
   ) {}
 
   // ─── Products ───────────────────────────────────────────────────────────────
@@ -126,8 +140,11 @@ export class ProductsService {
 
   // ─── Nail Shapes ────────────────────────────────────────────────────────────
 
-  async listNailShapes() {
-    return this.nailShapeRepo.find({ order: { name: 'ASC' } });
+  async listNailShapes(isActive?: boolean) {
+    return this.nailShapeRepo.find({
+      where: isActive !== undefined ? { isActive } : {},
+      order: { name: 'ASC' },
+    });
   }
 
   async getNailShape(id: string) {
@@ -188,6 +205,16 @@ export class ProductsService {
     return this.nailSizeRepo.find({ order: { label: 'ASC' } });
   }
 
+  async getNailSize(id: string) {
+    const size = await this.nailSizeRepo.findOneBy({ id });
+
+    if (!size) {
+      throw new NotFoundException(`Nail size #${id} not found`);
+    }
+
+    return size;
+  }
+
   async createNailSize(dto: CreateNailSizeDto) {
     const size = this.nailSizeRepo.create({
       label: dto.label,
@@ -221,6 +248,209 @@ export class ProductsService {
 
     await this.nailSizeRepo.remove(size);
 
+    return { success: true };
+  }
+
+  // ─── Product Images ─────────────────────────────────────────────────────────
+
+  async getPresignedUploadUrl(productId: string, dto: GetPresignedUrlDto) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    const accountId = process.env.R2_ACCOUNT_ID;
+    const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+    const bucket = process.env.R2_BUCKET_NAME;
+    const publicUrl = process.env.R2_PUBLIC_URL;
+
+    if (!accountId || !accessKeyId || !secretAccessKey || !bucket || !publicUrl) {
+      throw new Error(
+        'R2 storage is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL in .env',
+      );
+    }
+
+    const ext = dto.filename.split('.').pop() ?? 'jpg';
+    const key = `products/${productId}/${crypto.randomUUID()}.${ext}`;
+
+    const client = new S3Client({
+      region: 'auto',
+      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+      credentials: { accessKeyId, secretAccessKey },
+    });
+
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: dto.contentType,
+    });
+
+    const presignedUrl = await getSignedUrl(client, command, { expiresIn: 300 });
+
+    return {
+      presignedUrl,
+      key,
+      publicUrl: `${publicUrl}/${key}`,
+    };
+  }
+
+  async addProductImage(productId: string, dto: AddImageDto) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    const maxSortOrder = await this.productImageRepo
+      .createQueryBuilder('img')
+      .select('MAX(img.sortOrder)', 'max')
+      .where('img.product_id = :productId', { productId })
+      .getRawOne<{ max: number | null }>();
+
+    const sortOrder = (maxSortOrder?.max ?? -1) + 1;
+
+    if (dto.isMain) {
+      await this.productImageRepo.update({ product: { id: productId } }, { isMain: false });
+    }
+
+    const hasImages = await this.productImageRepo.count({ where: { product: { id: productId } } });
+    const image = this.productImageRepo.create({
+      product,
+      url: dto.url,
+      isMain: dto.isMain ?? hasImages === 0,
+      sortOrder,
+    });
+
+    return this.productImageRepo.save(image);
+  }
+
+  async removeProductImage(productId: string, imageId: string) {
+    const image = await this.productImageRepo.findOne({
+      where: { id: imageId, product: { id: productId } },
+    });
+    if (!image)
+      throw new NotFoundException(`Image #${imageId} not found for product #${productId}`);
+
+    await this.productImageRepo.remove(image);
+
+    if (image.isMain) {
+      const next = await this.productImageRepo.findOne({
+        where: { product: { id: productId } },
+        order: { sortOrder: 'ASC' },
+      });
+      if (next) {
+        next.isMain = true;
+        await this.productImageRepo.save(next);
+      }
+    }
+
+    return { success: true };
+  }
+
+  async reorderProductImages(productId: string, dto: ReorderImagesDto) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    await Promise.all(
+      dto.orderedIds.map((id, index) =>
+        this.productImageRepo.update({ id, product: { id: productId } }, { sortOrder: index }),
+      ),
+    );
+
+    return { success: true };
+  }
+
+  async setMainProductImage(productId: string, imageId: string) {
+    const image = await this.productImageRepo.findOne({
+      where: { id: imageId, product: { id: productId } },
+    });
+    if (!image)
+      throw new NotFoundException(`Image #${imageId} not found for product #${productId}`);
+
+    await this.productImageRepo.update({ product: { id: productId } }, { isMain: false });
+    image.isMain = true;
+    return this.productImageRepo.save(image);
+  }
+
+  // ─── Product Variants ───────────────────────────────────────────────────────
+
+  async listProductVariants(productId: string) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    return this.productVariantRepo.find({
+      where: { product: { id: productId } },
+      relations: ['shape', 'size'],
+      order: { createdAt: 'ASC' },
+    });
+  }
+
+  async createProductVariant(productId: string, dto: CreateVariantDto) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    const shape = await this.nailShapeRepo.findOneBy({ id: dto.shapeId });
+    if (!shape) throw new NotFoundException(`Nail shape #${dto.shapeId} not found`);
+
+    const size = await this.nailSizeRepo.findOneBy({ id: dto.sizeId });
+    if (!size) throw new NotFoundException(`Nail size #${dto.sizeId} not found`);
+
+    if (dto.sku) {
+      const existing = await this.productVariantRepo.findOne({ where: { sku: dto.sku } });
+      if (existing) throw new ConflictException(`SKU "${dto.sku}" is already in use`);
+    }
+
+    const variant = this.productVariantRepo.create({
+      product,
+      shape,
+      size,
+      sku: dto.sku ?? null,
+      stockQty: dto.stockQty,
+      computedPrice: dto.computedPrice,
+      isAvailable: dto.isAvailable ?? true,
+    });
+
+    return this.productVariantRepo.save(variant);
+  }
+
+  async updateProductVariant(productId: string, variantId: string, dto: UpdateVariantDto) {
+    const variant = await this.productVariantRepo.findOne({
+      where: { id: variantId, product: { id: productId } },
+      relations: ['shape', 'size'],
+    });
+    if (!variant) throw new NotFoundException(`Variant #${variantId} not found`);
+
+    if (dto.shapeId !== undefined) {
+      const shape = await this.nailShapeRepo.findOneBy({ id: dto.shapeId });
+      if (!shape) throw new NotFoundException(`Nail shape #${dto.shapeId} not found`);
+      variant.shape = shape;
+    }
+
+    if (dto.sizeId !== undefined) {
+      const size = await this.nailSizeRepo.findOneBy({ id: dto.sizeId });
+      if (!size) throw new NotFoundException(`Nail size #${dto.sizeId} not found`);
+      variant.size = size;
+    }
+
+    if (dto.sku !== undefined) {
+      if (dto.sku) {
+        const existing = await this.productVariantRepo.findOne({ where: { sku: dto.sku } });
+        if (existing && existing.id !== variantId)
+          throw new ConflictException(`SKU "${dto.sku}" is already in use`);
+      }
+      variant.sku = dto.sku ?? null;
+    }
+
+    if (dto.stockQty !== undefined) variant.stockQty = dto.stockQty;
+    if (dto.computedPrice !== undefined) variant.computedPrice = dto.computedPrice;
+    if (dto.isAvailable !== undefined) variant.isAvailable = dto.isAvailable;
+
+    return this.productVariantRepo.save(variant);
+  }
+
+  async removeProductVariant(productId: string, variantId: string) {
+    const variant = await this.productVariantRepo.findOne({
+      where: { id: variantId, product: { id: productId } },
+    });
+    if (!variant) throw new NotFoundException(`Variant #${variantId} not found`);
+
+    await this.productVariantRepo.softDelete(variantId);
     return { success: true };
   }
 }

@@ -44,3 +44,135 @@ export interface UpdateProductPayload {
   currency?: string;
   isActive?: boolean;
 }
+
+// ─── Nail Shapes ─────────────────────────────────────────────────────────────
+
+export interface ApiNailShape {
+  id: string;
+  name: string;
+  sizeTier: 'standard' | 'medium' | 'large' | 'xl';
+  lengthMm: number;
+  priceAdjustment: number | string;
+  adjustmentType: 'fixed' | 'percent';
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNailShapePayload {
+  name: string;
+  lengthMm: number;
+  sizeTier: 'standard' | 'medium' | 'large' | 'xl';
+  priceAdjustment?: number;
+  adjustmentType: 'fixed' | 'percent';
+  isActive?: boolean;
+}
+
+export interface UpdateNailShapePayload {
+  name?: string;
+  lengthMm?: number;
+  sizeTier?: 'standard' | 'medium' | 'large' | 'xl';
+  priceAdjustment?: number;
+  adjustmentType?: 'fixed' | 'percent';
+  isActive?: boolean;
+}
+
+// ─── Nail Sizes ──────────────────────────────────────────────────────────────
+
+export interface ApiNailSize {
+  id: string;
+  label: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'Custom';
+  sizeCode: string;
+  measurements: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNailSizePayload {
+  label: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'Custom';
+  sizeCode: string;
+  measurements?: string;
+}
+
+export interface UpdateNailSizePayload {
+  label?: 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'Custom';
+  sizeCode?: string;
+  measurements?: string | null;
+}
+
+// ─── Product Images (API) ─────────────────────────────────────────────────────
+
+export interface ApiProductImage {
+  id: string;
+  url: string;
+  isMain: boolean;
+  sortOrder: number;
+}
+
+// ─── Product Variants (API) ───────────────────────────────────────────────────
+
+export interface ApiProductVariant {
+  id: string;
+  sku: string | null;
+  stockQty: number;
+  computedPrice: number | string;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+  shape: { id: string; name: string; sizeTier: string };
+  size: { id: string; label: string; sizeCode: string };
+}
+
+// ─── Product Detail (full, with variants + images) ───────────────────────────
+
+export interface ApiProductDetail {
+  id: string;
+  name: string;
+  description: string | null;
+  basePrice: number | string;
+  currency: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  images: ApiProductImage[];
+  variants: ApiProductVariant[];
+}
+
+// ─── Presigned URL ────────────────────────────────────────────────────────────
+
+export interface PresignedUrlResponse {
+  presignedUrl: string;
+  key: string;
+  publicUrl: string;
+}
+
+// ─── Image Payloads ───────────────────────────────────────────────────────────
+
+export interface AddImagePayload {
+  url: string;
+  isMain?: boolean;
+}
+
+export interface ReorderImagesPayload {
+  orderedIds: string[];
+}
+
+// ─── Variant Payloads ─────────────────────────────────────────────────────────
+
+export interface CreateVariantPayload {
+  shapeId: string;
+  sizeId: string;
+  sku?: string;
+  stockQty: number;
+  computedPrice: number;
+  isAvailable?: boolean;
+}
+
+export interface UpdateVariantPayload {
+  shapeId?: string;
+  sizeId?: string;
+  sku?: string | null;
+  stockQty?: number;
+  computedPrice?: number;
+  isAvailable?: boolean;
+}

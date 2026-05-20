@@ -42,4 +42,20 @@ export class ProductVariantEntity extends SoftDeleteAbstractEntity {
     scale: 2,
   })
   computedPrice: number;
+
+  @Column({
+    name: 'sku',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    unique: true,
+  })
+  sku: string | null;
+
+  @Column({
+    name: 'is_available',
+    type: 'tinyint',
+    default: 1,
+  })
+  isAvailable: boolean;
 }

@@ -26,8 +26,9 @@ export enum LoginMethod {
 
 export enum ShapeSizeTier {
   STANDARD = 'standard',
-  LONG = 'long',
-  EXTRA_LONG = 'extra_long',
+  MEDIUM = 'medium',
+  LARGE = 'large',
+  XL = 'xl',
 }
 
 export enum PriceAdjustmentType {
@@ -40,6 +41,8 @@ export enum NailSizeLabel {
   S = 'S',
   M = 'M',
   L = 'L',
+  XL = 'XL',
+  XXL = 'XXL',
   CUSTOM = 'Custom',
 }
 

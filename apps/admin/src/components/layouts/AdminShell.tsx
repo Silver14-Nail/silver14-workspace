@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminTheme } from '@/app/context/AdminThemeContext';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
@@ -58,8 +59,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
+  const { theme, toggleTheme } = useAdminTheme();
   const [collapsed, setCollapsed] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -81,7 +82,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className={`min-h-screen flex ${darkMode ? 'dark bg-gray-950' : 'bg-[#F8F8FA]'}`}>
+    <div className={`min-h-screen flex ${theme === 'dark' ? 'dark bg-gray-950' : 'bg-[#F8F8FA]'}`}>
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -94,7 +95,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <aside
         className={`
           fixed top-0 left-0 h-full z-50 flex flex-col transition-all duration-300 ease-in-out
-          ${darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-[#E5E7EB]'}
+          ${theme === 'dark' ? 'bg-gray-900 border-gray-800' : 'bg-white border-[#E5E7EB]'}
           border-r
           ${collapsed ? 'w-16' : 'w-60'}
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -103,7 +104,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         {/* Logo */}
         <div
           className={`flex items-center h-14 px-4 border-b ${
-            darkMode ? 'border-gray-800' : 'border-[#E5E7EB]'
+            theme === 'dark' ? 'border-gray-800' : 'border-[#E5E7EB]'
           } flex-shrink-0`}
         >
           {!collapsed ? (
@@ -114,7 +115,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
               <span
                 className={`text-sm font-semibold tracking-widest uppercase ${
-                  darkMode ? 'text-white' : 'text-[#1A1A1A]'
+                  theme === 'dark' ? 'text-white' : 'text-[#1A1A1A]'
                 }`}
                 style={{ letterSpacing: '0.18em' }}
               >
@@ -123,7 +124,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
               <span
                 className={`text-xs px-1.5 py-0.5 rounded ml-1 ${
-                  darkMode ? 'bg-gray-800 text-gray-400' : 'bg-[#F3F4F6] text-[#6B7280]'
+                  theme === 'dark' ? 'bg-gray-800 text-gray-400' : 'bg-[#F3F4F6] text-[#6B7280]'
                 }`}
               >
                 Admin
@@ -151,10 +152,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   flex items-center gap-3 px-2.5 py-2 rounded-lg mb-0.5 transition-all duration-150 group relative
                   ${
                     active
-                      ? darkMode
+                      ? theme === 'dark'
                         ? 'bg-gray-800 text-white'
                         : 'bg-[#1A1A1A] text-white'
-                      : darkMode
+                      : theme === 'dark'
                         ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
                         : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
                   }
@@ -168,7 +169,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 {collapsed && (
                   <div
                     className={`absolute left-full ml-2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 ${
-                      darkMode ? 'bg-gray-800 text-white' : 'bg-[#1A1A1A] text-white'
+                      theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-[#1A1A1A] text-white'
                     }`}
                   >
                     {item.label}
@@ -180,11 +181,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </nav>
 
         {/* Bottom */}
-        <div className={`p-2 border-t ${darkMode ? 'border-gray-800' : 'border-[#E5E7EB]'}`}>
+        <div className={`p-2 border-t ${theme === 'dark' ? 'border-gray-800' : 'border-[#E5E7EB]'}`}>
           <Link
             href="/"
             className={`flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all mb-1 ${
-              darkMode
+              theme === 'dark'
                 ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
             } ${collapsed ? 'justify-center' : ''}`}
@@ -196,7 +197,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-lg transition-all ${
-              darkMode
+              theme === 'dark'
                 ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
             } ${collapsed ? 'justify-center' : ''}`}
@@ -216,14 +217,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         {/* Topbar */}
         <header
           className={`h-14 flex items-center px-4 gap-3 sticky top-0 z-30 ${
-            darkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-[#E5E7EB]'
+            theme === 'dark' ? 'bg-gray-900 border-gray-800' : 'bg-white border-[#E5E7EB]'
           } border-b`}
         >
           {/* Mobile menu */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`lg:hidden p-1.5 rounded ${
-              darkMode ? 'text-gray-400 hover:bg-gray-800' : 'text-[#6B7280] hover:bg-[#F3F4F6]'
+              theme === 'dark' ? 'text-gray-400 hover:bg-gray-800' : 'text-[#6B7280] hover:bg-[#F3F4F6]'
             }`}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -231,21 +232,21 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
           {/* Breadcrumb */}
           <div className="hidden sm:flex items-center gap-1.5 text-sm">
-            <span className={darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'}>Admin</span>
+            <span className={theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'}>Admin</span>
 
             {pathSegments.slice(1).map((seg, i) => (
               <span key={i} className="flex items-center gap-1.5">
                 <ChevronRight
-                  className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-600' : 'text-[#D1D5DB]'}`}
+                  className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-gray-600' : 'text-[#D1D5DB]'}`}
                 />
 
                 <span
                   className={`capitalize ${
                     i === pathSegments.length - 2
-                      ? darkMode
+                      ? theme === 'dark'
                         ? 'text-white font-medium'
                         : 'text-[#1A1A1A] font-medium'
-                      : darkMode
+                      : theme === 'dark'
                         ? 'text-gray-400'
                         : 'text-[#6B7280]'
                   }`}
@@ -259,16 +260,16 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           {/* Search */}
           <div
             className={`flex-1 max-w-xs hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
-              darkMode ? 'border-gray-700 bg-gray-800' : 'border-[#E5E7EB] bg-[#F9FAFB]'
+              theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-[#E5E7EB] bg-[#F9FAFB]'
             }`}
           >
-            <Search className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'}`} />
+            <Search className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'}`} />
 
             <input
               type="text"
               placeholder="Search..."
               className={`flex-1 bg-transparent text-sm outline-none ${
-                darkMode
+                theme === 'dark'
                   ? 'text-white placeholder:text-gray-600'
                   : 'text-[#1A1A1A] placeholder:text-[#9CA3AF]'
               }`}
@@ -276,7 +277,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
             <kbd
               className={`text-xs px-1.5 py-0.5 rounded ${
-                darkMode
+                theme === 'dark'
                   ? 'bg-gray-700 text-gray-500'
                   : 'bg-white border border-[#E5E7EB] text-[#9CA3AF]'
               }`}
@@ -291,14 +292,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <div className="flex items-center gap-1">
             {/* Theme */}
             <button
-              onClick={() => setDarkMode(!darkMode)}
+              onClick={() => toggleTheme()}
               className={`p-2 rounded-lg transition-colors ${
-                darkMode
+                theme === 'dark'
                   ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
                   : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
               }`}
             >
-              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
             {/* Notifications */}
@@ -309,7 +310,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   setShowProfile(false);
                 }}
                 className={`relative p-2 rounded-lg transition-colors ${
-                  darkMode
+                  theme === 'dark'
                     ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
                     : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
                 }`}
@@ -321,17 +322,17 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               {showNotifications && (
                 <div
                   className={`absolute right-0 top-full mt-1 w-80 rounded-xl border shadow-xl z-50 overflow-hidden ${
-                    darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-[#E5E7EB]'
+                    theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-[#E5E7EB]'
                   }`}
                 >
                   <div
                     className={`px-4 py-3 border-b flex items-center justify-between ${
-                      darkMode ? 'border-gray-700' : 'border-[#E5E7EB]'
+                      theme === 'dark' ? 'border-gray-700' : 'border-[#E5E7EB]'
                     }`}
                   >
                     <span
                       className={`text-sm font-semibold ${
-                        darkMode ? 'text-white' : 'text-[#1A1A1A]'
+                        theme === 'dark' ? 'text-white' : 'text-[#1A1A1A]'
                       }`}
                     >
                       Notifications
@@ -346,7 +347,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                     <div
                       key={n.id}
                       className={`px-4 py-3 flex gap-3 items-start border-b last:border-0 ${
-                        darkMode
+                        theme === 'dark'
                           ? 'border-gray-800 hover:bg-gray-800'
                           : 'border-[#F3F4F6] hover:bg-[#F9FAFB]'
                       } cursor-pointer transition-colors`}
@@ -358,13 +359,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                       )}
 
                       <div>
-                        <p className={`text-sm ${darkMode ? 'text-gray-200' : 'text-[#374151]'}`}>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-200' : 'text-[#374151]'}`}>
                           {n.text}
                         </p>
 
                         <p
                           className={`text-xs mt-0.5 ${
-                            darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'
+                            theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'
                           }`}
                         >
                           {n.time}
@@ -384,7 +385,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   setShowNotifications(false);
                 }}
                 className={`flex items-center gap-2 px-2 py-1.5 rounded-lg transition-colors ${
-                  darkMode ? 'hover:bg-gray-800' : 'hover:bg-[#F3F4F6]'
+                  theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-[#F3F4F6]'
                 }`}
               >
                 <div className="w-7 h-7 rounded-full bg-[#1A1A1A] flex items-center justify-center">
@@ -394,36 +395,36 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 <div className="hidden sm:block text-left">
                   <p
                     className={`text-xs font-medium leading-none mb-0.5 ${
-                      darkMode ? 'text-white' : 'text-[#1A1A1A]'
+                      theme === 'dark' ? 'text-white' : 'text-[#1A1A1A]'
                     }`}
                   >
                     {displayName}
                   </p>
 
-                  <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
+                  <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
                     {displayEmail}
                   </p>
                 </div>
 
                 <ChevronDown
-                  className={`w-3.5 h-3.5 ${darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'}`}
+                  className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'}`}
                 />
               </button>
 
               {showProfile && (
                 <div
                   className={`absolute right-0 top-full mt-1 w-52 rounded-xl border shadow-xl z-50 overflow-hidden ${
-                    darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-[#E5E7EB]'
+                    theme === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-[#E5E7EB]'
                   }`}
                 >
                   <div
                     className={`px-4 py-3 border-b ${
-                      darkMode ? 'border-gray-700' : 'border-[#E5E7EB]'
+                      theme === 'dark' ? 'border-gray-700' : 'border-[#E5E7EB]'
                     }`}
                   >
                     <p
                       className={`text-sm font-medium truncate ${
-                        darkMode ? 'text-white' : 'text-[#1A1A1A]'
+                        theme === 'dark' ? 'text-white' : 'text-[#1A1A1A]'
                       }`}
                     >
                       {displayName}
@@ -431,7 +432,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
                     <p
                       className={`text-xs truncate ${
-                        darkMode ? 'text-gray-500' : 'text-[#9CA3AF]'
+                        theme === 'dark' ? 'text-gray-500' : 'text-[#9CA3AF]'
                       }`}
                     >
                       {displayEmail}
@@ -441,7 +442,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   <Link
                     href="/admin/settings"
                     className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
-                      darkMode
+                      theme === 'dark'
                         ? 'text-gray-300 hover:bg-gray-800'
                         : 'text-[#374151] hover:bg-[#F9FAFB]'
                     }`}
@@ -452,7 +453,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   <Link
                     href="/"
                     className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
-                      darkMode
+                      theme === 'dark'
                         ? 'text-gray-300 hover:bg-gray-800'
                         : 'text-[#374151] hover:bg-[#F9FAFB]'
                     }`}
@@ -460,12 +461,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                     View Store
                   </Link>
 
-                  <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-[#E5E7EB]'}`}>
+                  <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-[#E5E7EB]'}`}>
                     <button
                       onClick={handleLogout}
                       disabled={isLoggingOut}
                       className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors disabled:opacity-60 ${
-                        darkMode ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:bg-red-50'
+                        theme === 'dark' ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:bg-red-50'
                       }`}
                     >
                       {isLoggingOut ? (

@@ -42,7 +42,24 @@
       "Bash(Get-Content \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\node_modules\\\\stripe\\\\types\\\\index.d.ts\" -TotalCount 60)",
       "Bash(node -e \"const {registerAs} = require\\('@nestjs/config'\\); const f = registerAs\\('stripe', \\(\\) => \\({}\\)\\); console.log\\('KEY:', String\\(f.KEY\\)\\); console.log\\('typeof KEY:', typeof f.KEY\\);\")",
       "Bash(find /c/Users/Administrator -name \"register-as.js\" -path \"*nestjs*config*\" 2>/dev/null | head -3)",
-      "Read(//c/Users/Administrator/**)"
+      "Read(//c/Users/Administrator/**)",
+      "Bash(where pnpm *)",
+      "Bash(pnpm exec *)",
+      "PowerShell($env:PATH = \"C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm;C:\\\\Program Files\\\\nodejs;\" + $env:PATH; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; npx prettier --write apps/api/src/db/seed.ts 2>&1)",
+      "Bash(Find \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\admin\\\\src\" -type f -name \"*.ts\" -o -name \"*.tsx\")",
+      "Bash(Select-String -Pattern \"\\(Theme|Context|Provider\\)\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\components\" -Recurse -Filter \"*.tsx\" -o -Filter \"*.ts\")",
+      "Bash(npx tsc *)",
+      "Bash(xargs grep -l \"AdminThemeContext\\\\|useAdminTheme\")",
+      "Bash(Remove-Item \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\app\\\\\\(admin\\)\\\\admin\\\\products\\\\ProductsClient.tsx\")",
+      "PowerShell(Get-ChildItem -Recurse \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\app\\\\\\(admin\\)\\\\admin\\\\products\" | Where-Object { !$_.PSIsContainer } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\app\\\\\\(admin\\)\\\\admin\\\\products\\\\\", \"\"\\) })",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(node 'C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\node_modules\\\\prettier\\\\bin\\\\prettier.cjs' --write apps/api/src/app/admin-api/products/products.service.ts apps/api/src/app/admin-api/products/products.controller.ts 'apps/admin/src/app/\\(admin\\)/admin/products/_types/index.ts' 'apps/admin/src/app/\\(admin\\)/admin/products/_constants/index.ts' 'apps/admin/src/app/\\(admin\\)/admin/products/types.ts' 'apps/admin/src/app/\\(admin\\)/admin/products/actions.ts' 'apps/admin/src/app/\\(admin\\)/admin/products/page.tsx' apps/admin/src/services/products.service.ts 'apps/admin/src/app/\\(admin\\)/admin/products/_components/ProductsClient.tsx' 'apps/admin/src/app/\\(admin\\)/admin/products/_components/products/ProductsTab.tsx' 'apps/admin/src/app/\\(admin\\)/admin/products/_components/products/ProductFormDrawer.tsx' 'apps/admin/src/app/\\(admin\\)/admin/products/_hooks/useNailShapeFilters.ts' 'apps/admin/src/app/\\(admin\\)/admin/products/_hooks/useNailSizeFilters.ts' 'apps/admin/src/app/\\(admin\\)/admin/products/_components/nail-shapes/NailShapesTab.tsx' 'apps/admin/src/app/\\(admin\\)/admin/products/_components/nail-shapes/ShapeDrawer.tsx' 'apps/admin/src/app/\\(admin\\)/admin/products/_components/nail-sizes/NailSizesTab.tsx' 'apps/admin/src/app/\\(admin\\)/admin/products/_components/nail-sizes/SizeDrawer.tsx')",
+      "Bash(pnpm --filter api add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner)",
+      "PowerShell($env:PATH; Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue | Select-Object -First 5; Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue | Select-Object -First 5)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm;\" + $env:PATH; Set-Location \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; pnpm --filter api add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner 2>&1 | Select-Object -Last 10)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\admin\\\\src\\\\app\\\\\\(admin\\)\\\\admin\\\\products\\\\data\" -ErrorAction SilentlyContinue)"
     ]
   }
 }
