@@ -1,10 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ProductsTab from './products/ProductsTab';
 import NailSizesTab from './nail-sizes/NailSizesTab';
 import NailShapesTab from './nail-shapes/NailShapesTab';
 import type { ProductListResponse, ApiNailShape, ApiNailSize } from '../types';
+
+export type PageTab = 'products' | 'nail-sizes' | 'nail-shapes';
+
+const TABS: { key: PageTab; label: string }[] = [
+  { key: 'products', label: 'Products' },
+  { key: 'nail-sizes', label: 'Nail Sizes' },
+  { key: 'nail-shapes', label: 'Nail Shapes' },
+];
 
 interface ProductsClientProps {
   initialProducts: ProductListResponse;
@@ -13,15 +22,8 @@ interface ProductsClientProps {
   currentPage: number;
   currentSearch: string;
   currentLimit: number;
+  initialTab: PageTab;
 }
-
-type PageTab = 'products' | 'sizes' | 'shapes';
-
-const TABS: { key: PageTab; label: string }[] = [
-  { key: 'products', label: 'Products' },
-  { key: 'sizes', label: 'Nail Sizes' },
-  { key: 'shapes', label: 'Nail Shapes' },
-];
 
 export function ProductsClient({
   initialProducts,
@@ -30,8 +32,20 @@ export function ProductsClient({
   currentPage,
   currentSearch,
   currentLimit,
+  initialTab,
 }: ProductsClientProps) {
-  const [pageTab, setPageTab] = useState<PageTab>('products');
+  const router = useRouter();
+  const [tab, setTab] = useState<PageTab>(initialTab);
+
+  // Sync tab when server re-renders with new initialTab (browser back/forward)
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
+
+  const handleTabChange = (newTab: PageTab) => {
+    setTab(newTab);
+    router.push(`/admin/products?tab=${newTab}`);
+  };
 
   return (
     <div className="p-6">
@@ -39,9 +53,9 @@ export function ProductsClient({
         {TABS.map((t) => (
           <button
             key={t.key}
-            onClick={() => setPageTab(t.key)}
+            onClick={() => handleTabChange(t.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              pageTab === t.key
+              tab === t.key
                 ? 'border-[#111827] text-[#111827]'
                 : 'border-transparent text-[#9CA3AF] hover:text-[#6B7280]'
             }`}
@@ -51,7 +65,7 @@ export function ProductsClient({
         ))}
       </div>
 
-      {pageTab === 'products' && (
+      {tab === 'products' && (
         <ProductsTab
           initialProducts={initialProducts}
           currentPage={currentPage}
@@ -61,8 +75,8 @@ export function ProductsClient({
           sizes={initialSizes}
         />
       )}
-      {pageTab === 'sizes' && <NailSizesTab initialSizes={initialSizes} />}
-      {pageTab === 'shapes' && <NailShapesTab initialShapes={initialShapes} />}
+      {tab === 'nail-sizes' && <NailSizesTab initialSizes={initialSizes} />}
+      {tab === 'nail-shapes' && <NailShapesTab initialShapes={initialShapes} />}
     </div>
   );
 }

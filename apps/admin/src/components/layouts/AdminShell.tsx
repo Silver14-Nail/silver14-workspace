@@ -33,19 +33,26 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 
-const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { label: 'Users', icon: Users, path: '/admin/users' },
-  { label: 'Products', icon: Package, path: '/admin/products' },
-  { label: 'Inventory', icon: Boxes, path: '/admin/inventory' },
-  { label: 'Orders', icon: ShoppingBag, path: '/admin/orders' },
-  { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts' },
-  { label: 'Payments', icon: CreditCard, path: '/admin/payments' },
-  { label: 'Coupons', icon: Tag, path: '/admin/coupons' },
-  { label: 'Wholesale', icon: Building2, path: '/admin/wholesales' },
-  { label: 'Newsletter', icon: Mail, path: '/admin/newsletters' },
-  { label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
-  { label: 'Settings', icon: Settings, path: '/admin/settings' },
+interface NavItem {
+  label: string;
+  icon: React.ElementType;
+  path: string;
+  enabled: boolean;
+}
+
+const navItems: NavItem[] = [
+  { label: 'Dashboard', icon: LayoutDashboard, path: '/', enabled: true },
+  { label: 'Users', icon: Users, path: '/admin/users', enabled: true },
+  { label: 'Products', icon: Package, path: '/admin/products', enabled: true },
+  { label: 'Inventory', icon: Boxes, path: '/admin/inventory', enabled: false },
+  { label: 'Orders', icon: ShoppingBag, path: '/admin/orders', enabled: false },
+  { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts', enabled: false },
+  { label: 'Payments', icon: CreditCard, path: '/admin/payments', enabled: false },
+  { label: 'Coupons', icon: Tag, path: '/admin/coupons', enabled: false },
+  { label: 'Wholesale', icon: Building2, path: '/admin/wholesales', enabled: false },
+  { label: 'Newsletter', icon: Mail, path: '/admin/newsletters', enabled: false },
+  { label: 'Analytics', icon: BarChart3, path: '/admin/analytics', enabled: false },
+  { label: 'Settings', icon: Settings, path: '/admin/settings', enabled: false },
 ];
 
 const notifications = [
@@ -140,7 +147,23 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-2">
           {navItems.map((item) => {
-            const active = isActive(item.path);
+            const active = item.enabled && isActive(item.path);
+            const baseClasses = `flex items-center gap-3 px-2.5 py-2 rounded-lg mb-0.5 transition-all duration-150 group relative${collapsed ? ' justify-center' : ''}`;
+
+            if (!item.enabled) {
+              return (
+                <div
+                  key={item.path}
+                  title="Coming soon"
+                  className={`${baseClasses} cursor-not-allowed select-none opacity-40 ${
+                    theme === 'dark' ? 'text-gray-400' : 'text-[#6B7280]'
+                  }`}
+                >
+                  <item.icon className={`flex-shrink-0 ${collapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
+                  {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+                </div>
+              );
+            }
 
             return (
               <Link
@@ -149,7 +172,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 onClick={() => setMobileOpen(false)}
                 title={collapsed ? item.label : undefined}
                 className={`
-                  flex items-center gap-3 px-2.5 py-2 rounded-lg mb-0.5 transition-all duration-150 group relative
+                  ${baseClasses}
                   ${
                     active
                       ? theme === 'dark'
@@ -159,13 +182,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
                         : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
                   }
-                  ${collapsed ? 'justify-center' : ''}
                 `}
               >
                 <item.icon className={`flex-shrink-0 ${collapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-
                 {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
-
                 {collapsed && (
                   <div
                     className={`absolute left-full ml-2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 ${

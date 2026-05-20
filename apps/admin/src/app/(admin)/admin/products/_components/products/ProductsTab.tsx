@@ -114,6 +114,7 @@ export default function ProductsTab({
   const navigate = useCallback(
     (params: { page?: number; search?: string }) => {
       const q = new URLSearchParams();
+      q.set('tab', 'products');
       if ((params.page ?? 1) > 1) q.set('page', String(params.page));
       if (params.search) q.set('search', params.search);
       if (currentLimit !== 20) q.set('limit', String(currentLimit));

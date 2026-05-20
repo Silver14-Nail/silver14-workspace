@@ -1,53 +1,81 @@
-import type { CustomerAuthResponse, CustomerUser } from './customer-auth.types';
+import type {
+  CustomerAuthResponse,
+  CustomerUser,
+  ForgotPasswordResponse,
+  ResetPasswordResponse,
+} from './customer-auth.types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api';
+const getApiBase = () => process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 
-export async function registerCustomer({
-  email,
-  name,
-  password,
-}: {
+async function post<T>(path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${getApiBase()}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  });
+
+  if (!res.ok) {
+    let message = `Request failed: ${res.status}`;
+    try {
+      const json = (await res.json()) as { message?: string };
+      if (typeof json.message === 'string') message = json.message;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<T>;
+}
+
+export async function registerCustomer(input: {
   email: string;
   name: string;
   password: string;
-}) {
-  const response = await fetch(`${API_BASE_URL}/auth/customer/register`, {
-    body: JSON.stringify({ email, name, password }),
-    headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
-  });
-
-  if (!response.ok) {
-    throw new Error('Unable to register customer');
-  }
-
-  return (await response.json()) as CustomerAuthResponse;
+}): Promise<CustomerAuthResponse> {
+  return post('/client-api/auth/register', input);
 }
 
-export async function loginCustomer(email: string, password: string) {
-  const response = await fetch(`${API_BASE_URL}/auth/customer/login`, {
-    body: JSON.stringify({ email, password }),
-    headers: { 'Content-Type': 'application/json' },
-    method: 'POST',
-  });
-
-  if (!response.ok) {
-    throw new Error('Invalid email or password');
-  }
-
-  return (await response.json()) as CustomerAuthResponse;
+export async function loginCustomer(
+  email: string,
+  password: string,
+): Promise<CustomerAuthResponse> {
+  return post('/client-api/auth/login', { email, password });
 }
 
-export async function getCurrentCustomer(accessToken: string) {
-  const response = await fetch(`${API_BASE_URL}/auth/customer/me`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+export async function logoutCustomer(): Promise<void> {
+  await post('/client-api/auth/logout');
+}
+
+export async function refreshCustomerToken(): Promise<CustomerAuthResponse> {
+  return post('/client-api/auth/refresh');
+}
+
+export async function getCurrentCustomer(accessToken: string): Promise<CustomerUser> {
+  const res = await fetch(`${getApiBase()}/client-api/auth/me`, {
+    credentials: 'include',
+    headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  if (!response.ok) {
-    throw new Error('Invalid customer session');
+  if (!res.ok) {
+    throw new Error('Invalid or expired session');
   }
 
-  return (await response.json()) as CustomerUser;
+  return res.json() as Promise<CustomerUser>;
+}
+
+export async function forgotCustomerPassword(email: string): Promise<ForgotPasswordResponse> {
+  return post('/client-api/auth/forgot-password', { email });
+}
+
+export async function resetCustomerPassword(
+  token: string,
+  newPassword: string,
+): Promise<ResetPasswordResponse> {
+  return post('/client-api/auth/reset-password', { token, newPassword });
+}
+
+export function authHeaders(accessToken: string): HeadersInit {
+  return { Authorization: `Bearer ${accessToken}` };
 }

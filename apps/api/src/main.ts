@@ -3,6 +3,7 @@ import 'reflect-metadata';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
 import type { EnvConfiguration } from './config/configuration';
 
@@ -14,6 +15,7 @@ async function bootstrap() {
   const port = configService.getOrThrow<number>('port');
   const corsOrigins = configService.get<string[]>('corsOrigin');
 
+  app.use(cookieParser());
   app.setGlobalPrefix(globalPrefix);
   app.enableCors({
     origin: corsOrigins ?? true,

@@ -3,6 +3,7 @@ import { RouterModule } from '@nestjs/core';
 
 import { UserApiMiddleware } from './client-api.middleware';
 import { AuthModule } from '../../shared/auth/auth.module';
+import { ClientAuthModule } from './auth/auth.module';
 import { ClientPaymentsModule } from './payments/payments.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { ClientProductsModule } from './products/products.module';
@@ -12,6 +13,7 @@ import { ClientCheckoutModule } from './checkout/checkout.module';
 import { ClientUserModule } from './user/user.module';
 
 const clientModules = [
+  ClientAuthModule,
   ClientProductsModule,
   ClientWholesalesModule,
   ClientPaymentsModule,
