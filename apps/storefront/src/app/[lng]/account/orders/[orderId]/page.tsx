@@ -162,7 +162,7 @@ export default function OrderDetailPage() {
           </div>
           <h1
             className="text-[#1A1A1A] mb-3"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '1.5rem' }}
+            style={{ fontWeight: 400, fontSize: '1.5rem' }}
           >
             {t('orders.detail.notFound')}
           </h1>
@@ -198,14 +198,13 @@ export default function OrderDetailPage() {
             <h1
               className="text-[#1A1A1A]"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
               }}
             >
               {t('orders.detail.title')}
             </h1>
-            <p className="text-[#9A9A9A] text-xs mt-1 font-mono">{order.id}</p>
+            <p className="text-[#9A9A9A] text-xs mt-1">{order.id}</p>
           </div>
           <div className="text-right">
             <StatusBadge status={order.status} label={statusLabel} />
@@ -239,7 +238,7 @@ export default function OrderDetailPage() {
                 </span>
               </div>
               {order.trackingNumber ? (
-                <p className="font-mono text-[#1A1A1A] text-sm">{order.trackingNumber}</p>
+                <p className="text-[#1A1A1A] text-sm">{order.trackingNumber}</p>
               ) : (
                 <p className="text-[#9A9A9A] text-sm">{t('orders.detail.noTracking')}</p>
               )}

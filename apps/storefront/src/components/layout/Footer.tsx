@@ -33,7 +33,6 @@ export function Footer() {
           <h3
             className="text-white mb-3"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.75rem',
               letterSpacing: '0.05em',
@@ -79,7 +78,6 @@ export function Footer() {
             <p
               className="text-white mb-4"
               style={{
-                fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
                 fontWeight: 400,
                 fontSize: '1.65rem',
                 letterSpacing: '0.02em',
@@ -241,9 +239,6 @@ export function Footer() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p
             className="text-[#5A5A5A] text-xs"
-            style={{
-              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
-            }}
           >
             {t('copyright')}
           </p>

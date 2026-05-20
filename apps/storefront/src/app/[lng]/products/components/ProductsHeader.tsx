@@ -17,7 +17,6 @@ export function ProductsHeader({ activeCollectionLabel, t }: Props) {
       <h1
         className="text-[#1A1A1A]"
         style={{
-          fontFamily: "'Cormorant Garamond', serif",
           fontWeight: 400,
           fontSize: 'clamp(1.8rem, 5vw, 3rem)',
         }}

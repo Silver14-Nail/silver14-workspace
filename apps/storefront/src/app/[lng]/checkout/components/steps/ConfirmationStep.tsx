@@ -36,7 +36,6 @@ export function ConfirmationStep({ orderId, firstName, email, phone }: Confirmat
         <h2
           className="text-[#1A1A1A] mb-4"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(1.5rem, 4vw, 2rem)',
           }}
@@ -58,7 +57,7 @@ export function ConfirmationStep({ orderId, firstName, email, phone }: Confirmat
           </p>
           <p
             className="text-[#1A1A1A] text-lg"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
+            style={{ fontWeight: 500 }}
           >
             {orderId}
           </p>

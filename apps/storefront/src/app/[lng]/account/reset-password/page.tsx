@@ -48,7 +48,6 @@ export default function ResetPasswordPage() {
         <p
           className="text-[#9A9A9A]"
           style={{
-            fontFamily: "'Grenze Gotisch', 'Pirata One', cursive",
             fontSize: '1.45rem',
             fontWeight: 500,
             letterSpacing: '0.03em',

@@ -24,7 +24,6 @@ export default function OrderResult({ order }: { order: TrackedOrder }) {
           <p className="text-[#9A9A9A] text-xs uppercase tracking-widest mb-1">{t('order')}</p>
           <p
             className="text-[#1A1A1A] text-xl"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
           >
             {order.id}
           </p>

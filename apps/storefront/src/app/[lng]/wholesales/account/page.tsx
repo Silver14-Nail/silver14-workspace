@@ -87,7 +87,6 @@ export default function WholesaleAccountPage() {
           <h1
             className="text-[#1A1A1A] mb-3"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.5rem',
             }}
@@ -128,7 +127,6 @@ export default function WholesaleAccountPage() {
           <h1
             className="text-[#1A1A1A] mb-3"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.5rem',
             }}
@@ -171,7 +169,6 @@ export default function WholesaleAccountPage() {
         <h1
           className="text-[#1A1A1A] mb-8"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(1.5rem, 3vw, 2rem)',
           }}
@@ -191,7 +188,6 @@ export default function WholesaleAccountPage() {
                   <p
                     className="text-[#1A1A1A]"
                     style={{
-                      fontFamily: "'Cormorant Garamond', serif",
                       fontWeight: 500,
                       fontSize: '1.1rem',
                     }}
@@ -253,7 +249,6 @@ export default function WholesaleAccountPage() {
                 <p
                   className="text-[#1A1A1A]"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
                     fontWeight: 500,
                     fontSize: '1.4rem',
                   }}
@@ -266,7 +261,6 @@ export default function WholesaleAccountPage() {
                 <p
                   className="text-[#1A1A1A]"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
                     fontWeight: 500,
                     fontSize: '1.4rem',
                   }}
@@ -348,7 +342,7 @@ export default function WholesaleAccountPage() {
                   <tbody className="divide-y divide-[#F0F0F0]">
                     {ordersData.items.map((wo) => (
                       <tr key={wo.id} className="hover:bg-[#FAFAFA] transition-colors">
-                        <td className="px-6 py-4 font-mono text-[#1A1A1A]">
+                        <td className="px-6 py-4 text-[#1A1A1A]">
                           {wo.order?.id?.slice(0, 8) ?? wo.id.slice(0, 8)}…
                         </td>
                         <td className="px-6 py-4 text-[#6A6A6A]">
@@ -386,7 +380,7 @@ export default function WholesaleAccountPage() {
                 {ordersData.items.map((wo) => (
                   <div key={wo.id} className="p-4 space-y-2">
                     <div className="flex justify-between items-start">
-                      <p className="font-mono text-[#1A1A1A] text-xs">
+                      <p className="text-[#1A1A1A] text-xs">
                         {wo.order?.id?.slice(0, 8) ?? wo.id.slice(0, 8)}…
                       </p>
                       <StatusBadge status={wo.paymentStatus} />

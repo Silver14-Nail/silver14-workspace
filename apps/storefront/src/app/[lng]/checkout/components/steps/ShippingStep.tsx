@@ -48,7 +48,7 @@ export function ShippingStep({
 
       <h2
         className="text-[#1A1A1A] mb-6"
-        style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '1.4rem' }}
+        style={{ fontWeight: 400, fontSize: '1.4rem' }}
       >
         {t('shipping.title')}
       </h2>

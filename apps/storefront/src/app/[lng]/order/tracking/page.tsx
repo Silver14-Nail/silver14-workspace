@@ -18,7 +18,6 @@ export default function OrderTrackingPage() {
         <h1
           className="text-[#1A1A1A]"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontSize: 'clamp(1.8rem, 5vw, 3rem)',
           }}
         >

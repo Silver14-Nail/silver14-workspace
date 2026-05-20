@@ -67,7 +67,6 @@ export default function ContactPage() {
         <h1
           className="text-[#1A1A1A] mb-6"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(2rem, 5vw, 3rem)',
             lineHeight: 1.2,
@@ -99,7 +98,6 @@ export default function ContactPage() {
                 <p
                   className="text-[#1A1A1A] text-sm mb-1"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
                     fontWeight: 500,
                   }}
                 >
@@ -119,7 +117,6 @@ export default function ContactPage() {
           <h2
             className="text-[#1A1A1A] mb-8 text-center"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.8rem',
             }}
@@ -148,7 +145,6 @@ export default function ContactPage() {
               <h3
                 className="text-[#1A1A1A] text-lg mb-2"
                 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 500,
                 }}
               >

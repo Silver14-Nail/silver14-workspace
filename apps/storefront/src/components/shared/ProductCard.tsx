@@ -97,7 +97,7 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
         <div className="pt-4 pb-2">
           <h3
             className="text-[#1A1A1A] text-sm mb-2 group-hover:text-[#3A3A3A] transition-colors"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1rem' }}
+            style={{ fontWeight: 500, fontSize: '1rem' }}
           >
             {product.name}
           </h3>

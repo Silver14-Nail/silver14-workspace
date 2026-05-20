@@ -131,7 +131,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         </div>
                         <span
                           className="text-[#1A1A1A] text-sm"
-                          style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
+                          style={{ fontWeight: 500 }}
                         >
                           {format(item.lineTotal)}
                         </span>
@@ -158,7 +158,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <span
                     className="text-[#1A1A1A]"
                     style={{
-                      fontFamily: "'Cormorant Garamond', serif",
                       fontWeight: 500,
                       fontSize: '1.1rem',
                     }}
