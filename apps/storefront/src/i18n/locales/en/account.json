@@ -17,5 +17,43 @@
   "errors": {
     "registerFailed": "Unable to create this account.",
     "invalidCredentials": "Invalid email or password."
+  },
+  "orders": {
+    "title": "Order History",
+    "viewAll": "My Orders",
+    "empty": "No orders yet.",
+    "browse": "Browse collections",
+    "orderId": "Order ID",
+    "date": "Date",
+    "total": "Total",
+    "itemCount": "Items",
+    "previous": "← Previous",
+    "next": "Next →",
+    "page": "Page {{page}} of {{total}}",
+    "statusLabel": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "detail": {
+      "title": "Order Details",
+      "backToOrders": "← Back to Orders",
+      "orderStatus": "Order Status",
+      "trackingNumber": "Tracking Number",
+      "noTracking": "Not yet available",
+      "shippingAddress": "Shipping Address",
+      "shippingMethod": "Shipping Method",
+      "orderItems": "Items",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "shippingFee": "Shipping",
+      "total": "Total",
+      "notFound": "Order not found",
+      "notFoundDesc": "This order doesn't exist or doesn't belong to your account."
+    }
   }
 }

@@ -92,16 +92,23 @@ export default function AccountPage() {
 
           <p className="mt-5 text-sm leading-6 text-[#6A6A6A]">{t('accountDescription')}</p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <LinkBase
+              href="/account/orders"
+              className="inline-flex justify-center bg-[#1A1A1A] px-4 py-3 text-xs uppercase tracking-[0.14em] text-white"
+            >
+              {t('orders.viewAll')}
+            </LinkBase>
+
             <LinkBase
               href="/products"
-              className="inline-flex flex-1 justify-center bg-[#1A1A1A] px-4 py-3 text-xs uppercase tracking-[0.14em] text-white"
+              className="inline-flex justify-center border border-[#1A1A1A] px-4 py-3 text-xs uppercase tracking-[0.14em] text-[#1A1A1A]"
             >
               {t('continueShopping')}
             </LinkBase>
 
             <button
-              className="inline-flex flex-1 justify-center border border-[#1A1A1A] px-4 py-3 text-xs uppercase tracking-[0.14em] text-[#1A1A1A]"
+              className="inline-flex justify-center border border-[#E0E0E0] px-4 py-3 text-xs uppercase tracking-[0.14em] text-[#9A9A9A]"
               onClick={logout}
               type="button"
             >
