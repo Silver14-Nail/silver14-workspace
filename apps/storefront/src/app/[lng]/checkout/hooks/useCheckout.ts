@@ -4,7 +4,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Stripe, StripeCardElement } from '@stripe/stripe-js';
 import { useCart } from '@/hooks/useCart';
-import { getStoredCustomerTokens, isAccessTokenExpired } from '@/features/auth/customer-auth.storage';
+import {
+  getStoredCustomerTokens,
+  isAccessTokenExpired,
+} from '@/features/auth/customer-auth.storage';
 import { checkoutApi } from '@/features/checkout/checkout.api';
 import {
   getCheckoutSessionId,
@@ -128,9 +131,8 @@ export function useCheckout() {
 
     if (session.currentStep >= 3 && step === 'contact') setStep('payment');
     else if (session.currentStep >= 2 && step === 'contact') setStep('shipping');
-  // Run once per session load (session.id change means a new/restored session)
-  }, [session?.id]); // eslint-disable-line
-
+    // Run once per session load (session.id change means a new/restored session)
+  }, [session?.id]);
   // ── Step: Contact ─────────────────────────────────────────────────────────
 
   const handleContactNext = useCallback(async () => {

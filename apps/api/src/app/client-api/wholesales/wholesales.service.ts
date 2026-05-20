@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { WholesaleEnquiryEntity } from '@/db/entities/wholesales/wholesale-enquiry.entity';
 import { WholesaleAccountEntity } from '@/db/entities/wholesales/wholesale-account.entity';
 import { WholesaleOrderEntity } from '@/db/entities/wholesales/wholesale-order.entity';
+import { WholesaleTierEntity } from '@/db/entities/wholesales/wholesale-tier.entity';
 import { NewsletterSubscriberEntity } from '@/db/entities/wholesales/newsletter-subscribers.entity';
 import { UserEntity } from '@/db/entities/auths/user.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
@@ -34,11 +35,19 @@ export class ClientWholesalesService {
     private readonly accountRepo: Repository<WholesaleAccountEntity>,
     @InjectRepository(WholesaleOrderEntity)
     private readonly wholesaleOrderRepo: Repository<WholesaleOrderEntity>,
+    @InjectRepository(WholesaleTierEntity)
+    private readonly tierRepo: Repository<WholesaleTierEntity>,
     @InjectRepository(NewsletterSubscriberEntity)
     private readonly newsletterRepo: Repository<NewsletterSubscriberEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
   ) {}
+
+  // ─── Public tier listing ──────────────────────────────────────────────────────
+
+  async getPublicTiers() {
+    return this.tierRepo.find({ order: { minMonthlyQty: 'ASC' } });
+  }
 
   // ─── Enquiry ─────────────────────────────────────────────────────────────────
 
