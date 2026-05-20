@@ -17,5 +17,43 @@
   "errors": {
     "registerFailed": "Không thể tạo tài khoản này.",
     "invalidCredentials": "Email hoặc mật khẩu không đúng."
+  },
+  "orders": {
+    "title": "Lịch sử đơn hàng",
+    "viewAll": "Đơn hàng của tôi",
+    "empty": "Chưa có đơn hàng nào.",
+    "browse": "Duyệt bộ sưu tập",
+    "orderId": "Mã đơn hàng",
+    "date": "Ngày",
+    "total": "Tổng cộng",
+    "itemCount": "Sản phẩm",
+    "previous": "← Trước",
+    "next": "Tiếp →",
+    "page": "Trang {{page}} / {{total}}",
+    "statusLabel": {
+      "pending": "Chờ xử lý",
+      "confirmed": "Đã xác nhận",
+      "processing": "Đang xử lý",
+      "shipped": "Đã giao vận",
+      "delivered": "Đã giao hàng",
+      "cancelled": "Đã hủy",
+      "refunded": "Đã hoàn tiền"
+    },
+    "detail": {
+      "title": "Chi tiết đơn hàng",
+      "backToOrders": "← Quay lại đơn hàng",
+      "orderStatus": "Trạng thái đơn hàng",
+      "trackingNumber": "Mã vận đơn",
+      "noTracking": "Chưa có thông tin",
+      "shippingAddress": "Địa chỉ giao hàng",
+      "shippingMethod": "Phương thức vận chuyển",
+      "orderItems": "Sản phẩm",
+      "subtotal": "Tạm tính",
+      "discount": "Giảm giá",
+      "shippingFee": "Vận chuyển",
+      "total": "Tổng cộng",
+      "notFound": "Không tìm thấy đơn hàng",
+      "notFoundDesc": "Đơn hàng này không tồn tại hoặc không thuộc về tài khoản của bạn."
+    }
   }
 }

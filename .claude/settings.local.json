@@ -70,7 +70,11 @@
       "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; $pnpm = \"C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm\\\\pnpm.cmd\"; & $pnpm add -D @types/cookie-parser --filter @source/api 2>&1 | Select-Object -Last 5)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\" -Directory)",
       "Bash(npx nx *)",
-      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\apps\\\\storefront\\\\src\" -Recurse -Directory)"
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\apps\\\\storefront\\\\src\" -Recurse -Directory)",
+      "PowerShell(Get-ChildItem -Path ./apps -Directory -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.Name -match 'order|track|shipment'} | Select-Object -ExpandProperty FullName)",
+      "PowerShell(Get-ChildItem -Path \"./apps/storefront/src\" -Recurse -File | Where-Object {$_.Name -match 'order|track'})",
+      "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | head -20)",
+      "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | Select-Object -First 20)"
     ]
   }
 }
