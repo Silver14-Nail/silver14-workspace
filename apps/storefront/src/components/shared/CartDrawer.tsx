@@ -21,7 +21,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   }, []);
 
   const updateQuantity = (productId: string, size: string, shape: string, newQuantity: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, size, shape, quantity: newQuantity } });
+    dispatch({
+      type: 'UPDATE_QUANTITY',
+      payload: { productId, size, shape, quantity: newQuantity },
+    });
   };
 
   const removeItem = (productId: string, size: string, shape: string) => {
@@ -77,7 +80,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="space-y-4">
                 {state.items.map((item) => {
-                  const unitPrice = item.product.price;
+                  const unitPrice = item.product.salePrice ?? item.product.price;
                   const itemTotal = unitPrice * item.quantity;
 
                   return (
@@ -120,7 +123,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           <div className="flex items-center border border-[#E0E0E0]">
                             <button
                               onClick={() =>
-                                updateQuantity(item.product.id, item.size, item.shape, item.quantity - 1)
+                                updateQuantity(
+                                  item.product.id,
+                                  item.size,
+                                  item.shape,
+                                  item.quantity - 1,
+                                )
                               }
                               className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
                             >
@@ -131,7 +139,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             </span>
                             <button
                               onClick={() =>
-                                updateQuantity(item.product.id, item.size, item.shape, item.quantity + 1)
+                                updateQuantity(
+                                  item.product.id,
+                                  item.size,
+                                  item.shape,
+                                  item.quantity + 1,
+                                )
                               }
                               className="px-2 py-1 hover:bg-[#F5F5F5] transition-colors"
                             >

@@ -50,10 +50,13 @@ export interface ApiProductListItem {
   slug: string | null;
   description: string | null;
   basePrice: string;
+  salePrice: string | null;
   currency: string;
   isActive: boolean;
   isNew: boolean;
   isBestSeller: boolean;
+  isOnSale: boolean;
+  discountPercent: number | null;
   thumbnail: ApiProductImage | null;
 }
 
@@ -63,10 +66,13 @@ export interface ApiProductDetail {
   slug: string | null;
   description: string | null;
   basePrice: string;
+  salePrice: string | null;
   currency: string;
   isActive: boolean;
   isNew: boolean;
   isBestSeller: boolean;
+  isOnSale: boolean;
+  discountPercent: number | null;
   images: ApiProductImage[];
   shapePricings: ApiShapePricing[];
   variants: ApiVariant[];

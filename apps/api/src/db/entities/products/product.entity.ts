@@ -39,6 +39,16 @@ export class ProductEntity extends SoftDeleteAbstractEntity {
   basePrice: number;
 
   @Column({
+    name: 'sale_price',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: null,
+  })
+  salePrice: number | null;
+
+  @Column({
     type: 'varchar',
     length: 3,
     default: 'USD',

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
@@ -118,11 +123,16 @@ export class ProductsService {
       slug = `${baseSlug}-${attempt}`;
     }
 
+    if (dto.salePrice != null && dto.salePrice >= dto.basePrice) {
+      throw new BadRequestException('Sale price must be less than base price');
+    }
+
     const product = this.productRepo.create({
       name: dto.name,
       slug,
       description: dto.description ?? null,
       basePrice: dto.basePrice,
+      salePrice: dto.salePrice ?? null,
       currency: dto.currency ?? 'USD',
       isActive: dto.isActive ?? true,
       isNew: dto.isNew ?? false,
@@ -146,6 +156,15 @@ export class ProductsService {
     if (dto.isActive !== undefined) product.isActive = dto.isActive;
     if (dto.isNew !== undefined) product.isNew = dto.isNew;
     if (dto.isBestSeller !== undefined) product.isBestSeller = dto.isBestSeller;
+
+    if (dto.salePrice !== undefined) {
+      const effectiveBase = dto.basePrice ?? product.basePrice;
+      const base = typeof effectiveBase === 'string' ? parseFloat(effectiveBase) : effectiveBase;
+      if (dto.salePrice !== null && dto.salePrice >= base) {
+        throw new BadRequestException('Sale price must be less than base price');
+      }
+      product.salePrice = dto.salePrice;
+    }
 
     return this.productRepo.save(product);
   }

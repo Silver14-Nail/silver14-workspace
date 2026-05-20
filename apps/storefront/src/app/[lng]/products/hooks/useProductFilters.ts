@@ -47,12 +47,11 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
   useEffect(() => {
     fetchShapes()
       .then((data: ApiShape[]) =>
-        setShapes([
-          ALL_SHAPE,
-          ...data.map((s) => ({ id: s.id, label: s.name })),
-        ]),
+        setShapes([ALL_SHAPE, ...data.map((s) => ({ id: s.id, label: s.name }))]),
       )
-      .catch(() => {});
+      .catch(() => {
+        return;
+      });
   }, []);
 
   // Sync with URL params
@@ -64,7 +63,11 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
 
   const apiSort = mapSortToApiParams(sortBy);
 
-  const { products: filteredProducts, loading, error } = useProducts({
+  const {
+    products: filteredProducts,
+    loading,
+    error,
+  } = useProducts({
     search: searchQuery.trim() || undefined,
     shapeId: activeShapeId !== 'all' ? activeShapeId : undefined,
     limit: 100,
@@ -73,9 +76,7 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
   });
 
   const activeCollectionLabel =
-    activeShapeId !== 'all'
-      ? (shapes.find((s) => s.id === activeShapeId)?.label ?? null)
-      : null;
+    activeShapeId !== 'all' ? (shapes.find((s) => s.id === activeShapeId)?.label ?? null) : null;
 
   const pushQuery = useCallback(
     (params: URLSearchParams) => {

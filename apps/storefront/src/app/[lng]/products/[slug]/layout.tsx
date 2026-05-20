@@ -14,6 +14,9 @@ async function fetchProductForMeta(slug: string) {
       slug: string;
       description: string | null;
       basePrice: string;
+      salePrice: string | null;
+      isOnSale: boolean;
+      discountPercent: number | null;
       images: { url: string; sortOrder: number }[];
     }>;
   } catch {
@@ -39,10 +42,14 @@ export async function generateMetadata({
     };
   }
 
-  const price = parseFloat(product.basePrice);
-  const images = product.images
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((img) => img.url);
+  const basePrice = parseFloat(product.basePrice);
+  const salePrice = product.salePrice != null ? parseFloat(product.salePrice) : null;
+  const displayPrice = salePrice ?? basePrice;
+  const images = product.images.sort((a, b) => a.sortOrder - b.sortOrder).map((img) => img.url);
+
+  const priceLabel = product.isOnSale
+    ? `$${displayPrice.toFixed(2)} (was $${basePrice.toFixed(2)})`
+    : `$${displayPrice.toFixed(2)}`;
 
   return {
     ...createStorefrontMetadata({
@@ -53,7 +60,7 @@ export async function generateMetadata({
     openGraph: {
       description: product.description ?? undefined,
       images: images.map((url) => ({ alt: product.name, url })),
-      title: `${product.name} — $${price.toFixed(2)}`,
+      title: `${product.name} — ${priceLabel}`,
       type: 'website',
       url: `/${lng}/products/${product.slug ?? slug}`,
     },

@@ -108,7 +108,10 @@ type ProductInput = {
   name: string;
   description: string;
   basePrice: number;
+  salePrice?: number | null;
   currency: string;
+  isNew?: boolean;
+  isBestSeller?: boolean;
   images: string[];
   shapePricings: ShapePricingInput[];
   variants: VariantInput[];
@@ -119,7 +122,10 @@ const PRODUCTS: ProductInput[] = [
     name: 'Crystal Aurora Set',
     description: 'Shimmering translucent gel nails with aurora effect',
     basePrice: 38.0,
+    salePrice: 29.9,
     currency: 'EUR',
+    isNew: true,
+    isBestSeller: false,
     images: [
       'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400',
       'https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400',
@@ -144,7 +150,10 @@ const PRODUCTS: ProductInput[] = [
     name: 'Midnight Velvet',
     description: 'Deep black matte finish with velvet texture',
     basePrice: 35.0,
+    salePrice: null,
     currency: 'EUR',
+    isNew: false,
+    isBestSeller: true,
     images: ['https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400'],
     shapePricings: [
       { shapeName: 'Almond', priceOverride: null, priceAdjustment: null, adjustmentType: null },
@@ -167,7 +176,10 @@ const PRODUCTS: ProductInput[] = [
     name: 'Rose Quartz Luxe',
     description: 'Elegant pink gradient with gold accents',
     basePrice: 42.0,
+    salePrice: 34.9,
     currency: 'EUR',
+    isNew: true,
+    isBestSeller: true,
     images: [
       'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400',
       'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400',
@@ -305,8 +317,11 @@ async function seedProducts(
         name: p.name,
         description: p.description,
         basePrice: p.basePrice,
+        salePrice: p.salePrice ?? null,
         currency: p.currency,
         isActive: true,
+        isNew: p.isNew ?? false,
+        isBestSeller: p.isBestSeller ?? false,
       }),
     );
 

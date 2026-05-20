@@ -1,4 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+
+function computePricing(basePrice: number, salePrice: number | null) {
+  const base =
+    typeof basePrice === 'string' ? parseFloat(basePrice as unknown as string) : basePrice;
+  const sale =
+    salePrice !== null
+      ? typeof salePrice === 'string'
+        ? parseFloat(salePrice as unknown as string)
+        : salePrice
+      : null;
+  const isOnSale = sale !== null && !isNaN(sale) && sale < base;
+  return {
+    isOnSale,
+    discountPercent: isOnSale ? Math.round((1 - sale! / base) * 100) : null,
+  };
+}
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -101,6 +117,7 @@ export class ClientProductsService {
         ...p,
         thumbnail: p.images?.find((img) => img.isMain) ?? p.images?.[0] ?? null,
         images: undefined,
+        ...computePricing(p.basePrice, p.salePrice),
       })),
       pagination,
     };
@@ -130,7 +147,7 @@ export class ClientProductsService {
     );
     product.variants = product.variants.filter((v) => !v.deletedAt);
 
-    return product;
+    return { ...product, ...computePricing(product.basePrice, product.salePrice) };
   }
 
   async getProductBySlug(slug: string) {
@@ -157,7 +174,7 @@ export class ClientProductsService {
     );
     product.variants = product.variants.filter((v) => !v.deletedAt);
 
-    return product;
+    return { ...product, ...computePricing(product.basePrice, product.salePrice) };
   }
 
   getShapes() {

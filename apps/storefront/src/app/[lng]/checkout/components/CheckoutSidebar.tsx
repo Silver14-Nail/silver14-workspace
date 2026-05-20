@@ -34,7 +34,7 @@ export function CheckoutSidebar({
       <ul className="space-y-4 mb-5" aria-label={t('sidebar.itemsAriaLabel')}>
         {items.map((item) => {
           const lineTotal = (
-            item.product.price * item.quantity
+            (item.product.salePrice ?? item.product.price) * item.quantity
           ).toFixed(2);
           const key = `${item.product.id}-${item.size}-${item.shape}-${item.length}`;
           return (

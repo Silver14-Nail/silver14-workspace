@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString, Length, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, Length, Max, Min } from 'class-validator';
 
 export class CreateProductDto {
   @ApiProperty()
@@ -37,4 +37,10 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   isBestSeller?: boolean;
+
+  @ApiPropertyOptional({ description: 'Sale price — must be ≥ 0 and < basePrice. Omit or null to disable sale.' })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  salePrice?: number | null;
 }

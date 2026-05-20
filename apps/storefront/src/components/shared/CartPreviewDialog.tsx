@@ -24,7 +24,7 @@ export function CartPreviewDialog({
 
   if (!addedItem) return null;
 
-  const displayPrice = addedItem.product.price;
+  const displayPrice = addedItem.product.salePrice ?? addedItem.product.price;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
