@@ -1,12 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
 import {
+  forgotCustomerPassword,
   getCurrentCustomer,
   loginCustomer,
+  logoutCustomer,
+  refreshCustomerToken,
   registerCustomer,
+  resetCustomerPassword,
 } from '@/features/auth/customer-auth.api';
 import {
   clearStoredCustomerTokens,
   getStoredCustomerTokens,
+  isAccessTokenExpired,
   setStoredCustomerTokens,
 } from '@/features/auth/customer-auth.storage';
 import type { CustomerAuthTokens, CustomerUser } from '@/features/auth/customer-auth.types';
@@ -27,12 +33,30 @@ const initialState: AuthState = {
   tokens: null,
 };
 
+// Restores session from localStorage; falls back to the httpOnly refresh-token cookie
 export const initializeAuth = createAsyncThunk('auth/initialize', async () => {
   if (typeof window === 'undefined') return null;
-  const storedTokens = getStoredCustomerTokens();
-  if (!storedTokens) return null;
-  const user = await getCurrentCustomer(storedTokens.accessToken);
-  return { tokens: storedTokens, user };
+
+  const stored = getStoredCustomerTokens();
+
+  if (stored && !isAccessTokenExpired(stored)) {
+    try {
+      const user = await getCurrentCustomer(stored.accessToken);
+      return { tokens: stored, user };
+    } catch {
+      // Server rejected the token — fall through to cookie refresh
+    }
+  }
+
+  try {
+    const response = await refreshCustomerToken();
+    setStoredCustomerTokens(response.tokens);
+    const user = await getCurrentCustomer(response.tokens.accessToken);
+    return { tokens: response.tokens, user };
+  } catch {
+    clearStoredCustomerTokens();
+    return null;
+  }
 });
 
 export const loginThunk = createAsyncThunk(
@@ -53,10 +77,31 @@ export const registerThunk = createAsyncThunk(
   },
 );
 
+export const logoutThunk = createAsyncThunk('auth/logout', async () => {
+  try {
+    await logoutCustomer();
+  } catch {
+    // Always clear local state even if the API call fails
+  }
+  clearStoredCustomerTokens();
+});
+
+export const forgotPasswordThunk = createAsyncThunk(
+  'auth/forgotPassword',
+  async (email: string) => forgotCustomerPassword(email),
+);
+
+export const resetPasswordThunk = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ token, newPassword }: { token: string; newPassword: string }) =>
+    resetCustomerPassword(token, newPassword),
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    // Sync action for immediate 401 handling without waiting for the thunk
     logout(state) {
       clearStoredCustomerTokens();
       state.status = 'guest';
@@ -76,11 +121,15 @@ const authSlice = createSlice({
           state.tokens = action.payload.tokens;
         } else {
           state.status = 'guest';
+          state.user = null;
+          state.tokens = null;
         }
       })
       .addCase(initializeAuth.rejected, (state) => {
         clearStoredCustomerTokens();
         state.status = 'guest';
+        state.user = null;
+        state.tokens = null;
       })
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.status = 'authenticated';
@@ -91,6 +140,11 @@ const authSlice = createSlice({
         state.status = 'authenticated';
         state.user = action.payload.user;
         state.tokens = action.payload.tokens;
+      })
+      .addCase(logoutThunk.fulfilled, (state) => {
+        state.status = 'guest';
+        state.user = null;
+        state.tokens = null;
       });
   },
 });

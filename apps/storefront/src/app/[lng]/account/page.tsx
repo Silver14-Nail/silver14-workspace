@@ -14,9 +14,9 @@ export default function AccountPage() {
   const { t } = useT('account');
 
   const [mode, setMode] = useState<AuthMode>('login');
-  const [email, setEmail] = useState('customer@silver14.test');
-  const [name, setName] = useState('Demo Customer');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -31,12 +31,38 @@ export default function AccountPage() {
       } else {
         await login(email, password);
       }
-    } catch {
-      setError(mode === 'register' ? t('errors.registerFailed') : t('errors.invalidCredentials'));
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message
+          ? err.message
+          : mode === 'register'
+            ? t('errors.registerFailed')
+            : t('errors.invalidCredentials'),
+      );
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (status === 'checking') {
+    return (
+      <main className="min-h-screen bg-[#FAFAFA] px-4 py-20">
+        <section className="mx-auto max-w-xl animate-pulse bg-white p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <span className="size-11 rounded-full bg-[#E8E8E8]" />
+            <div className="space-y-2">
+              <div className="h-3 w-24 rounded bg-[#E8E8E8]" />
+              <div className="h-5 w-36 rounded bg-[#E8E8E8]" />
+            </div>
+          </div>
+          <div className="space-y-3 border-y border-[#E8E8E8] py-5">
+            <div className="h-4 w-48 rounded bg-[#E8E8E8]" />
+            <div className="h-4 w-32 rounded bg-[#E8E8E8]" />
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (status === 'authenticated' && user) {
     return (
@@ -51,7 +77,6 @@ export default function AccountPage() {
               <p className="text-xs uppercase tracking-[0.16em] text-[#9A9A9A]">
                 {t('customerAccount')}
               </p>
-
               <h1 className="text-2xl text-[#1A1A1A]">{user.name}</h1>
             </div>
           </div>
@@ -60,7 +85,6 @@ export default function AccountPage() {
             <p>
               {t('email')}: {user.email}
             </p>
-
             <p>
               {t('role')}: {user.role}
             </p>
@@ -119,7 +143,10 @@ export default function AccountPage() {
                 mode === option ? 'bg-[#1A1A1A] text-white' : 'bg-white text-[#6A6A6A]'
               }`}
               key={option}
-              onClick={() => setMode(option)}
+              onClick={() => {
+                setMode(option);
+                setError('');
+              }}
               type="button"
             >
               {option === 'login' ? t('signIn') : t('register')}
@@ -128,9 +155,9 @@ export default function AccountPage() {
         </div>
 
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-          {mode === 'register' ? (
+          {mode === 'register' && (
             <AccountInput label={t('name')} onChange={setName} value={name} autoComplete="name" />
-          ) : null}
+          )}
 
           <AccountInput
             label={t('email')}
@@ -140,19 +167,30 @@ export default function AccountPage() {
             autoComplete="email"
           />
 
-          <AccountInput
-            label={t('password')}
-            onChange={setPassword}
-            type="password"
-            value={password}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          />
+          <div className="grid gap-1.5">
+            <AccountInput
+              label={t('password')}
+              onChange={setPassword}
+              type="password"
+              value={password}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            />
+
+            {mode === 'login' && (
+              <LinkBase
+                href="/account/forgot-password"
+                className="justify-self-end text-xs text-[#6A6A6A] underline-offset-2 hover:underline"
+              >
+                {t('forgotPassword')}
+              </LinkBase>
+            )}
+          </div>
 
           {error ? <p className="text-sm text-rose-600">{error}</p> : null}
 
           <button
             className="bg-[#1A1A1A] px-4 py-3 text-xs uppercase tracking-[0.14em] text-white disabled:bg-[#9A9A9A]"
-            disabled={submitting || status === 'checking'}
+            disabled={submitting}
             type="submit"
           >
             {submitting ? t('pleaseWait') : mode === 'login' ? t('signIn') : t('createAccount')}
