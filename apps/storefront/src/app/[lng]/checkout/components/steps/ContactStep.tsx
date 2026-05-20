@@ -33,7 +33,7 @@ export function ContactStep({
     <div className="bg-white p-6 sm:p-8">
       <h2
         className="text-[#1A1A1A] mb-6"
-        style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '1.4rem' }}
+        style={{ fontWeight: 400, fontSize: '1.4rem' }}
       >
         {t('contact.title')}
       </h2>

@@ -32,7 +32,6 @@ export default function FAQPage() {
         <h1
           className="text-[#1A1A1A] mb-6"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(2rem, 5vw, 3rem)',
           }}
@@ -49,7 +48,6 @@ export default function FAQPage() {
             <h2
               className="text-[#1A1A1A] mb-4 pb-2 border-b border-[#E8E8E8]"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: '1.5rem',
               }}
@@ -95,7 +93,6 @@ export default function FAQPage() {
           <h2
             className="text-[#1A1A1A] mb-4"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.8rem',
             }}

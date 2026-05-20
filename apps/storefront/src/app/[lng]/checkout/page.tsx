@@ -66,7 +66,6 @@ export default function CheckoutPage() {
             href="/"
             className="text-[#1A1A1A]"
             style={{
-              fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
               fontWeight: 400,
               fontSize: '1.9rem',
               letterSpacing: '0.02em',

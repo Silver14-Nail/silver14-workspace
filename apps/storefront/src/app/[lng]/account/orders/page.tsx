@@ -58,7 +58,6 @@ export default function AccountOrdersPage() {
           <h1
             className="text-[#1A1A1A] mb-3"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.5rem',
             }}
@@ -97,7 +96,6 @@ export default function AccountOrdersPage() {
         <h1
           className="text-[#1A1A1A] mb-8"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(1.5rem, 3vw, 2rem)',
           }}
@@ -175,7 +173,7 @@ export default function AccountOrdersPage() {
                   <tbody className="divide-y divide-[#F0F0F0]">
                     {ordersData.items.map((order) => (
                       <tr key={order.id} className="hover:bg-[#FAFAFA] transition-colors">
-                        <td className="px-6 py-4 font-mono text-[#1A1A1A]">
+                        <td className="px-6 py-4 text-[#1A1A1A]">
                           {order.id.slice(0, 8)}…
                         </td>
                         <td className="px-6 py-4 text-[#6A6A6A]">
@@ -215,7 +213,7 @@ export default function AccountOrdersPage() {
                     className="block p-4 hover:bg-[#FAFAFA] transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <p className="font-mono text-[#1A1A1A] text-xs">{order.id.slice(0, 8)}…</p>
+                      <p className="text-[#1A1A1A] text-xs">{order.id.slice(0, 8)}…</p>
                       <StatusBadge status={order.status} label={statusLabel(order.status)} />
                     </div>
                     <p className="text-[#9A9A9A] text-xs">

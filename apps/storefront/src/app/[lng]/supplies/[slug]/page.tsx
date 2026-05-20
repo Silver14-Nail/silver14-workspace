@@ -64,7 +64,6 @@ export default function SupplyDetailPage() {
               <h1
                 className="text-[#1A1A1A] mb-3"
                 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
                   fontSize: '2.5rem',
                   fontWeight: 300,
                 }}
@@ -74,7 +73,6 @@ export default function SupplyDetailPage() {
               <p
                 className="text-[#1A1A1A]"
                 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
                   fontSize: '1.75rem',
                   fontWeight: 400,
                 }}

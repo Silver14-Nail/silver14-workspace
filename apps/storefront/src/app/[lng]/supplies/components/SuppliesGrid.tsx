@@ -51,7 +51,7 @@ export function SuppliesGrid({ supplies, t }: Props) {
                 </h3>
                 <p
                   className="text-[#1A1A1A]"
-                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '0.95rem' }}
+                  style={{ fontSize: '0.95rem' }}
                 >
                   ${supply.price.toFixed(2)}
                 </p>

@@ -62,7 +62,6 @@ export const ProductInfo = memo(function ProductInfo({
       <h1
         className="text-[#1A1A1A] mb-3"
         style={{
-          fontFamily: "'Cormorant Garamond', serif",
           fontWeight: 400,
           fontSize: 'clamp(1.6rem, 4vw, 2rem)',
           lineHeight: 1.2,
@@ -78,7 +77,6 @@ export const ProductInfo = memo(function ProductInfo({
             <span
               className="text-[#C0392B]"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 500,
                 fontSize: '1.6rem',
               }}
@@ -88,7 +86,6 @@ export const ProductInfo = memo(function ProductInfo({
             <span
               className="text-[#9A9A9A] line-through"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: '1.1rem',
               }}
@@ -105,7 +102,6 @@ export const ProductInfo = memo(function ProductInfo({
           <span
             className="text-[#1A1A1A]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 500,
               fontSize: '1.6rem',
             }}
@@ -117,7 +113,7 @@ export const ProductInfo = memo(function ProductInfo({
 
       <div
         className="text-[#6A6A6A] mb-6"
-        style={{ fontSize: '0.9rem', fontFamily: "'Cormorant Garamond', serif" }}
+        style={{ fontSize: '0.9rem' }}
       >
         <LinkBase
           href="/shipping-policy"

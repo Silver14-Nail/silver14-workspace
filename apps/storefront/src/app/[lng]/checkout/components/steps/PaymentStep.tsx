@@ -16,7 +16,6 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 const CARD_ELEMENT_OPTIONS = {
   style: {
     base: {
-      fontFamily: "'Inter', sans-serif",
       fontSize: '14px',
       color: '#1A1A1A',
       '::placeholder': { color: '#B0B0B0' },
@@ -122,7 +121,7 @@ export function PaymentStep({
 
       <h2
         className="text-[#1A1A1A] mb-6"
-        style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '1.4rem' }}
+        style={{ fontWeight: 400, fontSize: '1.4rem' }}
       >
         {t('payment.title')}
       </h2>

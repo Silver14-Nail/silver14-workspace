@@ -30,7 +30,6 @@ export const RelatedProducts = memo(function RelatedProducts({ products }: Relat
             id="related-heading"
             className="text-[#1A1A1A]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: 'clamp(1.5rem, 3vw, 2rem)',
             }}

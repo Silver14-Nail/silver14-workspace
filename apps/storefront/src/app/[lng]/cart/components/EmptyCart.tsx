@@ -14,7 +14,7 @@ export function EmptyCart() {
         <p className="text-[#9A9A9A] uppercase tracking-[0.2em] text-xs mb-3">{t('title')}</p>
         <h1
           className="text-[#1A1A1A] mb-4"
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontSize: '1.8rem' }}
+          style={{ fontWeight: 400, fontSize: '1.8rem' }}
         >
           {t('empty.heading')}
         </h1>

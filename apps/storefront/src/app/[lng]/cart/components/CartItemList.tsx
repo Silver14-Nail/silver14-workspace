@@ -74,7 +74,7 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
           <Link
             href={`/products/${item.productSlug}`}
             className="text-[#1A1A1A] hover:opacity-70 transition-opacity"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1rem' }}
+            style={{ fontWeight: 500, fontSize: '1rem' }}
           >
             {item.productName}
           </Link>

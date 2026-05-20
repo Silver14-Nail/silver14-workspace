@@ -1,4 +1,5 @@
 import { dir } from 'i18next';
+import { Cormorant } from 'next/font/google';
 // import Script from 'next/script';
 import {
   initServerI18next,
@@ -13,6 +14,14 @@ import { Navbar } from '../../components/layout/Navbar';
 import i18nConfig from '../../i18n.config';
 import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo';
 import '../../styles/index.css';
+
+const cormorant = Cormorant({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+  display: 'swap',
+});
 
 initServerI18next(i18nConfig);
 
@@ -38,7 +47,7 @@ export default async function RootLayout({
   const resources = getResources(i18n);
 
   return (
-    <html lang={lng} dir={dir(lng)}>
+    <html lang={lng} dir={dir(lng)} className={cormorant.variable}>
       <head />
       <body>
         <script

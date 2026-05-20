@@ -38,7 +38,6 @@ export default function AboutPage() {
         <h1
           className="text-[#1A1A1A] mb-6"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(2rem, 5vw, 3rem)',
             lineHeight: 1.2,
@@ -59,7 +58,6 @@ export default function AboutPage() {
             <h2
               className="text-[#1A1A1A] mb-6"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: 'clamp(1.5rem, 3vw, 2rem)',
               }}
@@ -88,7 +86,6 @@ export default function AboutPage() {
                 <p
                   className="text-[#1A1A1A] text-lg"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
                     fontWeight: 500,
                   }}
                 >
@@ -122,7 +119,6 @@ export default function AboutPage() {
             <h2
               className="text-[#1A1A1A]"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: 'clamp(1.5rem, 3vw, 2rem)',
               }}
@@ -142,7 +138,6 @@ export default function AboutPage() {
                   <h3
                     className="text-[#1A1A1A] text-lg mb-3"
                     style={{
-                      fontFamily: "'Cormorant Garamond', serif",
                       fontWeight: 500,
                     }}
                   >
@@ -162,7 +157,6 @@ export default function AboutPage() {
         <h2
           className="text-[#1A1A1A] mb-6"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(1.5rem, 3vw, 2rem)',
           }}

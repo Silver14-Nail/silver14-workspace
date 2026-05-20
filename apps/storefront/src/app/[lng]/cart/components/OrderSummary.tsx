@@ -42,7 +42,6 @@ export function OrderSummary() {
           <span
             className="text-[#1A1A1A]"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 500,
               fontSize: '1.2rem',
             }}

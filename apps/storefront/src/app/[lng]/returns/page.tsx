@@ -37,7 +37,6 @@ export default function ReturnsPage() {
         <h1
           className="text-[#1A1A1A] mb-6"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: 'clamp(2rem, 5vw, 3rem)',
           }}
@@ -63,7 +62,6 @@ export default function ReturnsPage() {
                 <h3
                   className="text-[#1A1A1A] text-sm mb-1"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
                     fontWeight: 500,
                   }}
                 >
@@ -83,7 +81,6 @@ export default function ReturnsPage() {
           <h2
             className="text-[#1A1A1A] mb-8 text-center"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.8rem',
             }}
@@ -105,7 +102,6 @@ export default function ReturnsPage() {
           <h2
             className="text-[#1A1A1A] mb-8 text-center"
             style={{
-              fontFamily: "'Cormorant Garamond', serif",
               fontWeight: 400,
               fontSize: '1.8rem',
             }}
@@ -131,7 +127,6 @@ export default function ReturnsPage() {
         <h2
           className="text-[#1A1A1A] mb-4"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 400,
             fontSize: '1.8rem',
           }}

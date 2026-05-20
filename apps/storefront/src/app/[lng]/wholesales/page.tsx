@@ -143,7 +143,6 @@ export default function WholesalePage() {
         <h1
           className="text-white mb-5"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontWeight: 300,
             fontSize: 'clamp(2rem, 6vw, 3.5rem)',
             letterSpacing: '0.05em',
@@ -181,7 +180,6 @@ export default function WholesalePage() {
                 <h3
                   className="text-[#1A1A1A]"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
                     fontWeight: 500,
                     fontSize: '1.1rem',
                   }}
@@ -208,7 +206,6 @@ export default function WholesalePage() {
             <h2
               className="text-[#1A1A1A]"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: 'clamp(1.4rem, 3vw, 2rem)',
               }}
@@ -239,7 +236,6 @@ export default function WholesalePage() {
                   <p
                     className="text-[#1A1A1A]"
                     style={{
-                      fontFamily: "'Cormorant Garamond', serif",
                       fontWeight: 500,
                       fontSize: '2rem',
                     }}
@@ -302,7 +298,6 @@ export default function WholesalePage() {
             <h2
               className="text-[#1A1A1A] mb-4"
               style={{
-                fontFamily: "'Cormorant Garamond', serif",
                 fontWeight: 400,
                 fontSize: '1.8rem',
               }}
@@ -333,7 +328,6 @@ export default function WholesalePage() {
               <h2
                 className="text-[#1A1A1A]"
                 style={{
-                  fontFamily: "'Cormorant Garamond', serif",
                   fontWeight: 400,
                   fontSize: 'clamp(1.5rem, 4vw, 2rem)',
                 }}

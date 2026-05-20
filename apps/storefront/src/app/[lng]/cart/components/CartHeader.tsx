@@ -15,7 +15,6 @@ export function CartHeader({ cartCount }: CartHeaderProps) {
       <h1
         className="text-[#1A1A1A]"
         style={{
-          fontFamily: "'Cormorant Garamond', serif",
           fontWeight: 400,
           fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
         }}

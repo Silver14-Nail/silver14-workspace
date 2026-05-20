@@ -28,7 +28,6 @@ const SectionTitle = ({
     <h2
       className="text-[#1A1A1A]"
       style={{
-        fontFamily: "'Cormorant Garamond', serif",
         fontWeight: 400,
         fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
         letterSpacing: '0.02em',

@@ -57,7 +57,7 @@ export function StripePaymentForm({ amount, onSuccess, onError }: StripePaymentF
         '::placeholder': {
           color: '#B0B0B0',
         },
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: 'inherit',
       },
       invalid: {
         color: '#DC2626',

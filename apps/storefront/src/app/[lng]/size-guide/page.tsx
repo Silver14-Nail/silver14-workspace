@@ -12,7 +12,6 @@ export default function SizeGuidePage() {
         <h1
           className="mb-5 text-[#1A1A1A]"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontSize: 'clamp(2rem, 5vw, 3.5rem)',
             fontWeight: 300,
             lineHeight: 1.15,
@@ -37,7 +36,6 @@ export default function SizeGuidePage() {
         <h2
           className="mb-8 text-center text-[#1A1A1A]"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontSize: '1.75rem',
             fontWeight: 400,
             letterSpacing: '0.04em',
@@ -60,7 +58,6 @@ export default function SizeGuidePage() {
         <h2
           className="mb-8 text-center text-[#1A1A1A]"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontSize: '1.75rem',
             fontWeight: 400,
             letterSpacing: '0.04em',
@@ -83,7 +80,6 @@ export default function SizeGuidePage() {
         <h2
           className="mb-8 text-center text-[#1A1A1A]"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontSize: '1.75rem',
             fontWeight: 400,
             letterSpacing: '0.04em',
@@ -106,7 +102,6 @@ export default function SizeGuidePage() {
         <h2
           className="mb-4 text-center text-[#1A1A1A]"
           style={{
-            fontFamily: "'Cormorant Garamond', serif",
             fontSize: '1.75rem',
             fontWeight: 400,
             letterSpacing: '0.04em',
