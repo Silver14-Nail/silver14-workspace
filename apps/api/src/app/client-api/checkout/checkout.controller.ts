@@ -58,6 +58,14 @@ export class ClientCheckoutController {
     return this.checkoutService.getSession(id);
   }
 
+  @Get(':id/order')
+  @ApiOkResponse({
+    description: 'Order associated with this session, null if not yet created by webhook',
+  })
+  getSessionOrder(@Param('id') id: string) {
+    return this.checkoutService.getSessionOrder(id);
+  }
+
   @Patch(':id/contact')
   @ApiOkResponse({ description: 'Contact info saved, step advances to SHIPPING' })
   updateContact(@Param('id') id: string, @Body() dto: UpdateContactDto) {

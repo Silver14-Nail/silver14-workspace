@@ -20,18 +20,31 @@ export function BackButton({ label, onClick }: BackButtonProps) {
 interface StepButtonProps {
   label: string;
   disabled?: boolean;
+  isLoading?: boolean;
   onClick: () => void;
 }
 
-export function StepButton({ label, disabled, onClick }: StepButtonProps) {
+export function StepButton({ label, disabled, isLoading, onClick }: StepButtonProps) {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || isLoading}
       className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors disabled:bg-[#D0D0D0] disabled:cursor-not-allowed"
       style={{ letterSpacing: '0.15em' }}
     >
-      {label} <ChevronRight className="size-4" aria-hidden />
+      {isLoading ? (
+        <>
+          <span
+            className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+            aria-hidden
+          />
+          {label}
+        </>
+      ) : (
+        <>
+          {label} <ChevronRight className="size-4" aria-hidden />
+        </>
+      )}
     </button>
   );
 }

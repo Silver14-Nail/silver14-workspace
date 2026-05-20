@@ -1,10 +1,9 @@
-import { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_COST } from '@/config/commerce.config';
+// Form-level types for the checkout UI (not persisted until submitted to API)
 
 export type ContactDetails = {
   email: string;
   phone: string;
-  createAccount: boolean;
-  password: string;
+  fullName: string;
 };
 
 export type ShippingDetails = {
@@ -15,12 +14,6 @@ export type ShippingDetails = {
   city: string;
   postalCode: string;
   country: string;
-  notes: string;
 };
 
 export type PaymentMethod = 'paypal' | 'card';
-
-export { FREE_SHIPPING_THRESHOLD, STANDARD_SHIPPING_COST };
-
-export const getShippingCost = (subtotal: number) =>
-  subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_COST;

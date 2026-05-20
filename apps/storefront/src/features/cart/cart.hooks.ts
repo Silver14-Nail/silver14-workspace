@@ -106,6 +106,7 @@ export function useCart() {
 
   // ── Derived state ─────────────────────────────────────────────────────────
 
+  const cartId: string | null = rawCart?.id ?? null;
   const items: CartDisplayItem[] = rawCart?.items ?? [];
   const { cartCount, subtotal } = calcCartTotals(items);
   const isMutating =
@@ -115,6 +116,7 @@ export function useCart() {
     clearCartMutation.isPending;
 
   return {
+    cartId,
     items,
     cartCount,
     subtotal,
