@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, Globe, Package } from 'lucide-react';
+import { Check, ArrowRight, Globe, Package, Star } from 'lucide-react';
 import Link from 'next/link';
+import { useWholesaleEnquiry } from '@/features/wholesale/hooks/useWholesaleEnquiry';
+import { useWholesaleTiers } from '@/features/wholesale/hooks/useWholesaleTiers';
 
 const PRODUCT_INTERESTS = [
   'French & Classic',
@@ -41,11 +43,55 @@ const COUNTRIES = [
   'Other',
 ];
 
+const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  Bronze: { bg: '#FDF6EC', text: '#92400E', border: '#D97706' },
+  Silver: { bg: '#F8F8F8', text: '#374151', border: '#9CA3AF' },
+  Gold: { bg: '#FFFBEB', text: '#78350F', border: '#F59E0B' },
+};
+
+function InputField({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  required = false,
+  placeholder = '',
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label
+        className="block text-[#6A6A6A] text-xs uppercase tracking-widest mb-1.5"
+        style={{ letterSpacing: '0.1em' }}
+      >
+        {label} {required && <span className="text-[#C0C0C0]">*</span>}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        className="w-full border border-[#E0E0E0] px-4 py-3 text-sm text-[#1A1A1A] bg-white placeholder:text-[#C0C0C0] outline-none focus:border-[#9A9A9A] transition-colors"
+      />
+    </div>
+  );
+}
+
 export default function WholesalePage() {
   const params = useParams<{ lng?: string }>();
   const lng = params.lng ?? 'en';
+
+  const { submit, isSubmitting, error } = useWholesaleEnquiry();
+  const { data: tiers = [] } = useWholesaleTiers();
+
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -69,44 +115,20 @@ export default function WholesalePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
+    await submit({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      country: form.country,
+      businessName: form.businessName || undefined,
+      businessType: form.businessType || undefined,
+      monthlyOrderQtyRange: form.expectedQty || undefined,
+      collectionsOfInterest: form.interests.length > 0 ? form.interests : undefined,
+      additionalMessage: form.message || undefined,
+    });
     setSubmitted(true);
   };
-
-  const InputField = ({
-    label,
-    value,
-    onChange,
-    type = 'text',
-    required = false,
-    placeholder = '',
-  }: {
-    label: string;
-    value: string;
-    onChange: (v: string) => void;
-    type?: string;
-    required?: boolean;
-    placeholder?: string;
-  }) => (
-    <div>
-      <label
-        className="block text-[#6A6A6A] text-xs uppercase tracking-widest mb-1.5"
-        style={{ letterSpacing: '0.1em' }}
-      >
-        {label} {required && <span className="text-[#C0C0C0]">*</span>}
-      </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        className="w-full border border-[#E0E0E0] px-4 py-3 text-sm text-[#1A1A1A] bg-white placeholder:text-[#C0C0C0] outline-none focus:border-[#9A9A9A] transition-colors"
-      />
-    </div>
-  );
 
   return (
     <div className="min-h-screen pt-16 md:pt-20">
@@ -144,7 +166,7 @@ export default function WholesalePage() {
               {
                 icon: Package,
                 title: 'Competitive Pricing',
-                desc: 'Tiered wholesale pricing starting at 30-50% below retail. Volume discounts available.',
+                desc: 'Tiered wholesale pricing with volume discounts based on your monthly order quantity.',
               },
               {
                 icon: Globe,
@@ -172,6 +194,92 @@ export default function WholesalePage() {
           </div>
         </div>
       </div>
+
+      {/* Tier comparison — shown when backend data is available */}
+      {tiers.length > 0 && (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-10">
+            <p
+              className="text-[#9A9A9A] uppercase tracking-[0.2em] text-xs mb-3"
+              style={{ letterSpacing: '0.2em' }}
+            >
+              Partnership Tiers
+            </p>
+            <h2
+              className="text-[#1A1A1A]"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 400,
+                fontSize: 'clamp(1.4rem, 3vw, 2rem)',
+              }}
+            >
+              Wholesale Pricing Tiers
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {tiers.map((tier) => {
+              const colors = TIER_COLORS[tier.name] ?? TIER_COLORS['Bronze'];
+              return (
+                <div
+                  key={tier.id}
+                  className="border p-6 flex flex-col gap-4"
+                  style={{ borderColor: colors.border, backgroundColor: colors.bg }}
+                >
+                  <div className="flex items-center gap-2">
+                    <Star className="size-4" style={{ color: colors.border }} aria-hidden />
+                    <span
+                      className="text-xs uppercase tracking-widest font-medium"
+                      style={{ color: colors.text, letterSpacing: '0.12em' }}
+                    >
+                      {tier.name}
+                    </span>
+                  </div>
+
+                  <p
+                    className="text-[#1A1A1A]"
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontWeight: 500,
+                      fontSize: '2rem',
+                    }}
+                  >
+                    {Number(tier.discountPercent)}%
+                    <span className="text-sm font-normal text-[#6A6A6A] ml-1">off retail</span>
+                  </p>
+
+                  <ul className="space-y-2 text-[#6A6A6A] text-xs">
+                    {tier.minMonthlyQty > 0 && (
+                      <li className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
+                        Min. {tier.minMonthlyQty} sets / month
+                      </li>
+                    )}
+                    {Number(tier.minOrderAmount) > 0 && (
+                      <li className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
+                        Min. order €{Number(tier.minOrderAmount).toFixed(0)}
+                      </li>
+                    )}
+                    {tier.freeShipping && (
+                      <li className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
+                        Free shipping included
+                      </li>
+                    )}
+                    {tier.maxDiscountAmount && (
+                      <li className="flex items-center gap-2">
+                        <Check className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
+                        Up to €{Number(tier.maxDiscountAmount).toFixed(0)} savings/order
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -202,7 +310,7 @@ export default function WholesalePage() {
               Thank you, {form.firstName}!
             </h2>
             <p className="text-[#6A6A6A] text-sm leading-relaxed max-w-sm mx-auto mb-8">
-              We've received your wholesale enquiry and will review your request within 2-3 business
+              We've received your wholesale enquiry and will review your request within 2–3 business
               days. Our partnership team will contact you at <strong>{form.email}</strong>.
             </p>
             <Link
@@ -407,13 +515,15 @@ export default function WholesalePage() {
               />
             </div>
 
+            {error && <p className="text-red-600 text-xs px-1">{error}</p>}
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors disabled:bg-[#6A6A6A]"
               style={{ letterSpacing: '0.15em' }}
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
                   <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{' '}
                   Submitting...
@@ -425,7 +535,7 @@ export default function WholesalePage() {
               )}
             </button>
             <p className="text-[#9A9A9A] text-xs text-center">
-              We typically respond within 2-3 business days. For urgent enquiries, email us at
+              We typically respond within 2–3 business days. For urgent enquiries, email us at{' '}
               wholesale@silver14nail.com
             </p>
           </form>

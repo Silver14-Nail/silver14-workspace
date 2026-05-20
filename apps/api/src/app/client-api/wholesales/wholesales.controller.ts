@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, Post, Query, UseGuards } from '@nestjs/common';
+
 import {
   ApiTags,
   ApiOkResponse,
@@ -24,6 +25,12 @@ import { WholesaleOrdersQueryDto } from './dto/wholesale-orders-query.dto';
 @Controller('wholesales')
 export class WholesaleEnquiryController {
   constructor(private readonly wholesalesService: ClientWholesalesService) {}
+
+  @Get('tiers')
+  @ApiOkResponse({ description: 'List of available wholesale tiers' })
+  getTiers() {
+    return this.wholesalesService.getPublicTiers();
+  }
 
   @Post('enquire')
   @ApiCreatedResponse({ description: 'Enquiry submitted, admin will review' })
