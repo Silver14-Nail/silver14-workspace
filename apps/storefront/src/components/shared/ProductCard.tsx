@@ -7,6 +7,7 @@ import { ImageWithFallback } from '../figma/ImageWithFallback';
 import type { StorefrontProduct } from '@/types/product';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useCurrency } from '../../hooks/useCurrency';
+import { getPricingInfo } from '@/lib/pricing';
 
 interface ProductCardProps {
   product: StorefrontProduct;
@@ -17,6 +18,7 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { format } = useCurrency();
   const inWishlist = isInWishlist(product.id);
+  const pricing = getPricingInfo(product);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,6 +52,14 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
           </button>
 
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+            {pricing.isOnSale && pricing.discountPercent != null && (
+              <span
+                className="bg-[#C0392B] text-white text-[9px] uppercase tracking-widest px-2.5 py-1"
+                style={{ letterSpacing: '0.12em' }}
+              >
+                -{pricing.discountPercent}%
+              </span>
+            )}
             {product.isNew && (
               <span
                 className="bg-[#1A1A1A] text-white text-[9px] uppercase tracking-widest px-2.5 py-1"
@@ -91,10 +101,19 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
           >
             {product.name}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-[#1A1A1A] text-sm" style={{ fontWeight: 500 }}>
-              {format(product.price)}
-            </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            {pricing.isOnSale ? (
+              <>
+                <span className="text-[#C0392B] text-sm" style={{ fontWeight: 500 }}>
+                  {format(pricing.effectivePrice)}
+                </span>
+                <span className="text-[#9A9A9A] text-xs line-through">{format(pricing.price)}</span>
+              </>
+            ) : (
+              <span className="text-[#1A1A1A] text-sm" style={{ fontWeight: 500 }}>
+                {format(pricing.price)}
+              </span>
+            )}
           </div>
         </div>
       </LinkBase>

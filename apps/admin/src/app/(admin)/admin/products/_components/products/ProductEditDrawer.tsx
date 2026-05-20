@@ -35,6 +35,7 @@ export default function ProductEditDrawer({
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [basePrice, setBasePrice] = useState('');
+  const [salePrice, setSalePrice] = useState('');
   const [currency, setCurrency] = useState('EUR');
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,6 +49,7 @@ export default function ProductEditDrawer({
       setName(p.name);
       setDescription(p.description ?? '');
       setBasePrice(Number(p.basePrice).toFixed(2));
+      setSalePrice(p.salePrice != null ? Number(p.salePrice).toFixed(2) : '');
       setCurrency(p.currency);
       setIsActive(p.isActive);
     } else {
@@ -73,6 +75,7 @@ export default function ProductEditDrawer({
       name: name.trim(),
       description: description.trim() || undefined,
       basePrice: parseFloat(basePrice),
+      salePrice: salePrice !== '' ? parseFloat(salePrice) : null,
       currency,
       isActive,
     });
@@ -84,7 +87,15 @@ export default function ProductEditDrawer({
     }
   };
 
-  const canSave = name.trim() !== '' && basePrice !== '' && parseFloat(basePrice) >= 0;
+  const salePriceNum = salePrice !== '' ? parseFloat(salePrice) : null;
+  const basePriceNum = basePrice !== '' ? parseFloat(basePrice) : 0;
+  const salePriceValid = salePriceNum === null || (salePriceNum >= 0 && salePriceNum < basePriceNum);
+  const discountPreview =
+    salePriceNum != null && basePriceNum > 0 && salePriceNum < basePriceNum
+      ? Math.round((1 - salePriceNum / basePriceNum) * 100)
+      : null;
+
+  const canSave = name.trim() !== '' && basePrice !== '' && basePriceNum >= 0 && salePriceValid;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'info', label: 'General Info' },
@@ -209,6 +220,36 @@ export default function ProductEditDrawer({
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                    Sale Price{' '}
+                    <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                  </label>
+                  <input
+                    value={salePrice}
+                    onChange={(e) => setSalePrice(e.target.value)}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Leave empty for no sale"
+                    className={`w-full px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
+                      !salePriceValid
+                        ? 'border-red-400 focus:border-red-500'
+                        : 'border-[#E5E7EB] focus:border-[#111827]'
+                    }`}
+                  />
+                  {!salePriceValid && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Sale price must be less than base price
+                    </p>
+                  )}
+                  {discountPreview != null && (
+                    <p className="mt-1 text-xs text-emerald-600 font-medium">
+                      {discountPreview}% off
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between p-4 rounded-lg bg-[#F9FAFB]">

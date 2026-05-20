@@ -3,6 +3,7 @@ export interface StorefrontProduct {
   name: string;
   slug: string;
   price: number;
+  salePrice: number | null;
   currency: string;
   thumbnail: string | null;
   isNew: boolean;

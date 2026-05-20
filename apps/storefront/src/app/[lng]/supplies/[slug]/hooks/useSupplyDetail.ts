@@ -25,6 +25,7 @@ export function useSupplyDetail() {
       name: supply.name,
       slug: supply.slug,
       price: supply.price,
+      salePrice: null,
       currency: 'USD',
       thumbnail: supply.images[0] ?? null,
       isNew: false,

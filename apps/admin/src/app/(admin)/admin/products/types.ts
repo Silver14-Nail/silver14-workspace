@@ -9,6 +9,7 @@ export interface Product {
   name: string;
   description: string | null;
   basePrice: number | string;
+  salePrice: number | string | null;
   currency: string;
   isActive: boolean;
   createdAt: string;
@@ -33,6 +34,7 @@ export interface CreateProductPayload {
   name: string;
   description?: string;
   basePrice: number;
+  salePrice?: number | null;
   currency?: string;
   isActive?: boolean;
 }
@@ -41,6 +43,7 @@ export interface UpdateProductPayload {
   name?: string;
   description?: string | null;
   basePrice?: number;
+  salePrice?: number | null;
   currency?: string;
   isActive?: boolean;
 }
@@ -130,6 +133,7 @@ export interface ApiProductDetail {
   name: string;
   description: string | null;
   basePrice: number | string;
+  salePrice: number | string | null;
   currency: string;
   isActive: boolean;
   createdAt: string;

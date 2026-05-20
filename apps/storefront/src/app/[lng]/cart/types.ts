@@ -7,6 +7,7 @@ export interface CartItemType {
     name: string;
     slug: string;
     price: number;
+    salePrice?: number | null;
     thumbnail: string | null;
   };
   size: string;

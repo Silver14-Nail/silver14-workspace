@@ -38,16 +38,31 @@ const ProductRow = memo(function ProductRow({
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-[#111827] truncate">{product.name}</p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="text-sm font-medium text-[#111827] truncate">{product.name}</p>
+              {product.salePrice != null && (
+                <span className="text-[10px] font-semibold bg-red-100 text-red-600 px-1.5 py-0.5 rounded shrink-0">
+                  SALE
+                </span>
+              )}
+            </div>
             {product.description && (
               <p className="text-xs text-[#9CA3AF] truncate max-w-[200px]">{product.description}</p>
             )}
           </div>
         </div>
       </td>
-      <td className="px-4 py-3 text-sm font-medium text-[#111827] whitespace-nowrap">
-        {CURRENCY_SYMBOLS[product.currency] ?? product.currency}
-        {Number(product.basePrice).toFixed(2)}
+      <td className="px-4 py-3 whitespace-nowrap">
+        <p className="text-sm font-medium text-[#111827]">
+          {CURRENCY_SYMBOLS[product.currency] ?? product.currency}
+          {Number(product.basePrice).toFixed(2)}
+        </p>
+        {product.salePrice != null && (
+          <p className="text-xs text-red-500 font-medium">
+            Sale: {CURRENCY_SYMBOLS[product.currency] ?? product.currency}
+            {Number(product.salePrice).toFixed(2)}
+          </p>
+        )}
       </td>
       <td className="px-4 py-3">
         <span

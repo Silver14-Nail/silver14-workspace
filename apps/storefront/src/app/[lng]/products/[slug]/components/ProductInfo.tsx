@@ -5,10 +5,12 @@ import { Minus, Plus, ShoppingBag, Heart } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { LinkBase } from '@/components/shared/LinkBase';
 import type { ProductSelections } from '../types';
+import { getPricingInfo } from '@/lib/pricing';
 
 interface Product {
   name: string;
   price: number;
+  salePrice?: number | null;
   inStock: boolean;
   availableShapes: string[];
   availableSizes: string[];
@@ -37,6 +39,7 @@ export const ProductInfo = memo(function ProductInfo({
   onToggleWishlist,
 }: ProductInfoProps) {
   const { t } = useT('product-details');
+  const pricing = getPricingInfo(product);
 
   const decrement = useCallback(
     () => onUpdateSelection('quantity', Math.max(1, selections.quantity - 1)),
@@ -69,13 +72,47 @@ export const ProductInfo = memo(function ProductInfo({
       </h1>
 
       {/* Price */}
-      <div className="flex items-center gap-3 mb-4">
-        <span
-          className="text-[#1A1A1A]"
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1.6rem' }}
-        >
-          ${product.price.toFixed(2)}
-        </span>
+      <div className="flex items-center flex-wrap gap-3 mb-4">
+        {pricing.isOnSale ? (
+          <>
+            <span
+              className="text-[#C0392B]"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 500,
+                fontSize: '1.6rem',
+              }}
+            >
+              ${pricing.effectivePrice.toFixed(2)}
+            </span>
+            <span
+              className="text-[#9A9A9A] line-through"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 400,
+                fontSize: '1.1rem',
+              }}
+            >
+              ${pricing.price.toFixed(2)}
+            </span>
+            {pricing.discountPercent != null && (
+              <span className="text-xs bg-[#C0392B] text-white px-2 py-0.5 uppercase tracking-wider">
+                -{pricing.discountPercent}%
+              </span>
+            )}
+          </>
+        ) : (
+          <span
+            className="text-[#1A1A1A]"
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 500,
+              fontSize: '1.6rem',
+            }}
+          >
+            ${pricing.price.toFixed(2)}
+          </span>
+        )}
       </div>
 
       <div
