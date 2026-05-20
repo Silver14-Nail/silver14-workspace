@@ -1,9 +1,9 @@
 'use client';
 
 import { useT } from 'next-i18next/client';
-import { MockOrder } from '@/hooks/useCart';
+import type { TrackedOrderAddress } from '../types';
 
-export default function ShippingInfo({ address }: { address: MockOrder['shippingAddress'] }) {
+export default function ShippingInfo({ address }: { address: TrackedOrderAddress }) {
   const { t } = useT('tracking');
 
   return (

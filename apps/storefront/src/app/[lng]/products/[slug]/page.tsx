@@ -116,8 +116,6 @@ export default function ProductDetailPage() {
         open={pd.showCartPreview}
         onOpenChange={pd.setShowCartPreview}
         addedItem={pd.lastAddedItem}
-        cartCount={pd.cartCount}
-        subtotal={pd.subtotal}
       />
     </div>
   );

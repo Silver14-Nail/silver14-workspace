@@ -35,7 +35,9 @@ export function useCustomerAuth() {
     // Clear local state immediately for instant UI feedback,
     // then ask the API to clear the httpOnly refresh-token cookie.
     dispatch(authActions.logout());
-    await dispatch(logoutThunk()).unwrap().catch(() => undefined);
+    await dispatch(logoutThunk())
+      .unwrap()
+      .catch(() => undefined);
   }, [dispatch]);
 
   const forgotPassword = useCallback(

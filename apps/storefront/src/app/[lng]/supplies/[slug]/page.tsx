@@ -210,8 +210,6 @@ export default function SupplyDetailPage() {
         open={sd.showCartPreview}
         onOpenChange={sd.setShowCartPreview}
         addedItem={sd.lastAddedItem}
-        cartCount={sd.cartCount}
-        subtotal={sd.subtotal}
       />
     </div>
   );

@@ -8,9 +8,9 @@ import ShippingInfo from './ShippingInfo';
 import OrderSummary from './OrderSummary';
 
 import StatusBadge from './ui/StatusBadge';
-import { MockOrder } from '@/hooks/useCart';
+import type { TrackedOrder } from '../types';
 
-export default function OrderResult({ order }: { order: MockOrder }) {
+export default function OrderResult({ order }: { order: TrackedOrder }) {
   const { t } = useT('tracking');
 
   return (

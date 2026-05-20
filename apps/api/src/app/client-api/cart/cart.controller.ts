@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -24,6 +25,7 @@ import type { AuthenticatedUser } from '@/shared/auth/auth.types';
 import { ClientCartService } from './cart.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { MergeCartDto } from './dto/merge-cart.dto';
 
 @ApiTags('Client - Cart')
 @ApiBearerAuth()
@@ -71,5 +73,21 @@ export class ClientCartController {
     @MaybeCurrentUser() user?: AuthenticatedUser,
   ) {
     return this.cartService.removeItem(itemId, user?.id, cartId);
+  }
+
+  @Delete()
+  @ApiOkResponse({ description: 'Cart cleared — returns empty cart' })
+  clearCart(
+    @Headers('x-cart-id') cartId: string | undefined,
+    @MaybeCurrentUser() user?: AuthenticatedUser,
+  ) {
+    return this.cartService.clearCart(user?.id, cartId);
+  }
+
+  @Post('merge')
+  @ApiCreatedResponse({ description: 'Guest cart merged into authenticated user cart' })
+  mergeCart(@Body() dto: MergeCartDto, @MaybeCurrentUser() user?: AuthenticatedUser) {
+    if (!user) throw new UnauthorizedException('Login required to merge cart');
+    return this.cartService.mergeCart(dto, user.id);
   }
 }

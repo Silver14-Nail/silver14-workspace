@@ -29,4 +29,3 @@ export const tierColors: Record<SizeTier, string> = {
   large: 'bg-purple-100 text-purple-700',
   xl: 'bg-orange-100 text-orange-700',
 };
-

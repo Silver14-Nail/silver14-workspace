@@ -8,22 +8,31 @@ import {
   CartItemList,
   OrderSummary,
 } from './components';
-import { CartItemType } from './types';
-import { toItemKey } from './utils';
+import type { CartItemType } from './types';
 
 export default function CartPage() {
-  const { state, dispatch, cartCount, subtotal } = useCart();
+  const { items, cartCount, subtotal, updateItem, removeItem, isLoading } = useCart();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pt-16 md:pt-20 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#1A1A1A] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (cartCount === 0) return <EmptyCart />;
 
-  const handleQuantityChange = (item: CartItemType, delta: number) =>
-    dispatch({
-      type: 'UPDATE_QUANTITY',
-      payload: { ...toItemKey(item), quantity: item.quantity + delta },
-    });
+  const handleQuantityChange = (item: CartItemType, delta: number) => {
+    const next = item.quantity + delta;
+    if (next <= 0) {
+      removeItem(item.id);
+    } else {
+      updateItem(item.id, next);
+    }
+  };
 
-  const handleRemove = (item: CartItemType) =>
-    dispatch({ type: 'REMOVE_ITEM', payload: toItemKey(item) });
+  const handleRemove = (item: CartItemType) => removeItem(item.id);
 
   return (
     <div className="min-h-screen pt-16 md:pt-20">
@@ -33,7 +42,7 @@ export default function CartPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16">
           <CartItemList
-            items={state.items}
+            items={items}
             onQuantityChange={handleQuantityChange}
             onRemove={handleRemove}
           />

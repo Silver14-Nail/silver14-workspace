@@ -5,13 +5,12 @@ import { ArrowRight } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { useCart } from '@/hooks/useCart';
 import { useCurrency } from '@/hooks/useCurrency';
-import { DiscountInput } from './DiscountInput';
 import { FREE_SHIPPING_THRESHOLD, PAYMENT_METHODS } from '../types';
 
 export function OrderSummary() {
   const { t } = useT('cart');
   const router = useRouter();
-  const { subtotal, discountAmount, total, state } = useCart();
+  const { subtotal, total } = useCart();
   const { format } = useCurrency();
 
   return (
@@ -23,17 +22,8 @@ export function OrderSummary() {
         {t('summary.title')}
       </h2>
 
-      {/* Line items */}
       <div className="space-y-3 mb-6">
         <SummaryRow label={t('summary.subtotal')} value={format(subtotal)} />
-
-        {discountAmount > 0 && (
-          <SummaryRow
-            label={t('summary.discount', { code: state.discountCode })}
-            value={`-${format(discountAmount)}`}
-            valueClass="text-[#4A7A5A]"
-          />
-        )}
 
         <SummaryRow
           label={t('summary.shipping')}
@@ -61,8 +51,6 @@ export function OrderSummary() {
           </span>
         </div>
       </div>
-
-      <DiscountInput />
 
       <button
         onClick={() => router.push('/checkout')}

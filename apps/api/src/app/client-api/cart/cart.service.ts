@@ -9,6 +9,7 @@ import { CartStatus } from '@/common/enums/entity.enum';
 
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
+import { MergeCartDto } from './dto/merge-cart.dto';
 
 const CART_EXPIRY_HOURS = 72;
 
@@ -16,6 +17,7 @@ const CART_ITEM_RELATIONS = [
   'items',
   'items.variant',
   'items.variant.product',
+  'items.variant.product.images',
   'items.variant.shape',
   'items.variant.size',
 ];
@@ -126,6 +128,46 @@ export class ClientCartService {
       });
     }
     return null;
+  }
+
+  async clearCart(userId?: string, cartId?: string) {
+    const cart = await this.findCart(userId, cartId);
+    if (!cart) return null;
+    await this.cartItemRepo.delete({ cart: { id: cart.id } });
+    return this.loadCart(cart.id);
+  }
+
+  async mergeCart(dto: MergeCartDto, userId: string) {
+    const userCart = await this.findOrCreateCart(userId);
+
+    const guestCart = await this.cartRepo.findOne({
+      where: { id: dto.guestCartId, status: CartStatus.ACTIVE },
+      relations: ['items', 'items.variant'],
+    });
+
+    if (!guestCart || guestCart.items.length === 0) {
+      return this.loadCart(userCart.id);
+    }
+
+    for (const guestItem of guestCart.items) {
+      const existing = await this.cartItemRepo.findOne({
+        where: { cart: { id: userCart.id }, variant: { id: guestItem.variant.id } },
+      });
+
+      if (existing) {
+        const merged = Math.min(existing.quantity + guestItem.quantity, guestItem.variant.stockQty);
+        existing.quantity = merged;
+        await this.cartItemRepo.save(existing);
+      } else {
+        guestItem.cart = userCart;
+        await this.cartItemRepo.save(guestItem);
+      }
+    }
+
+    guestCart.status = CartStatus.MERGED;
+    await this.cartRepo.save(guestCart);
+
+    return this.loadCart(userCart.id);
   }
 
   private async findOrCreateCart(userId?: string, cartId?: string): Promise<CartEntity> {

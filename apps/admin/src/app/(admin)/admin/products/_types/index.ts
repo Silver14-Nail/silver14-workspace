@@ -29,4 +29,3 @@ export interface ProductImage {
   isMain: boolean;
   sortOrder: number;
 }
-

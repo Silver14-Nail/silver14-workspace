@@ -86,9 +86,8 @@ export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   clearStoredCustomerTokens();
 });
 
-export const forgotPasswordThunk = createAsyncThunk(
-  'auth/forgotPassword',
-  async (email: string) => forgotCustomerPassword(email),
+export const forgotPasswordThunk = createAsyncThunk('auth/forgotPassword', async (email: string) =>
+  forgotCustomerPassword(email),
 );
 
 export const resetPasswordThunk = createAsyncThunk(

@@ -2,14 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  Eye,
-  Loader2,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Users,
-} from 'lucide-react';
+import { Eye, Loader2, MoreHorizontal, Plus, Search, Users } from 'lucide-react';
 
 import { deleteUsersAction } from '../actions';
 import { UserDrawer } from './UserDrawer';
@@ -121,8 +114,7 @@ export function UsersClient({
   const toggleSelect = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
-  const toggleAll = (checked: boolean) =>
-    setSelected(checked ? data.items.map((u) => u.id) : []);
+  const toggleAll = (checked: boolean) => setSelected(checked ? data.items.map((u) => u.id) : []);
 
   const handleBatchDelete = () => {
     startDelete(async () => {
@@ -140,9 +132,7 @@ export function UsersClient({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Users</h1>
-          <p className="text-sm text-[#6B7280] mt-0.5">
-            {pagination.totalItems} registered users
-          </p>
+          <p className="text-sm text-[#6B7280] mt-0.5">{pagination.totalItems} registered users</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors">
           <Plus className="w-4 h-4" />
@@ -161,7 +151,9 @@ export function UsersClient({
             onChange={(e) => handleSearchChange(e.target.value)}
             className="flex-1 text-sm outline-none text-[#111827] placeholder:text-[#9CA3AF]"
           />
-          {isNavigating && <Loader2 className="w-3.5 h-3.5 text-[#9CA3AF] animate-spin flex-shrink-0" />}
+          {isNavigating && (
+            <Loader2 className="w-3.5 h-3.5 text-[#9CA3AF] animate-spin flex-shrink-0" />
+          )}
         </div>
 
         <select
@@ -258,7 +250,9 @@ export function UsersClient({
                     <div className="flex items-center gap-3">
                       <Avatar user={user} />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#111827] truncate">{user.fullName}</p>
+                        <p className="text-sm font-medium text-[#111827] truncate">
+                          {user.fullName}
+                        </p>
                         <p className="text-xs text-[#9CA3AF] truncate">{user.email}</p>
                       </div>
                       {!user.emailVerified && (
@@ -366,9 +360,7 @@ export function UsersClient({
         )}
       </div>
 
-      {drawerUserId && (
-        <UserDrawer userId={drawerUserId} onClose={() => setDrawerUserId(null)} />
-      )}
+      {drawerUserId && <UserDrawer userId={drawerUserId} onClose={() => setDrawerUserId(null)} />}
     </div>
   );
 }

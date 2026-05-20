@@ -1,9 +1,5 @@
 import { useState, useCallback } from 'react';
-import {
-  createMockOrder,
-  generateOrderId,
-  getShippingCost,
-} from '@/features/checkout/checkout.utils';
+import { getShippingCost } from '@/features/checkout/checkout.utils';
 import { useCart } from '@/hooks/useCart';
 import type { Step, CardDetails, CheckoutState } from '../types';
 import type {
@@ -14,7 +10,7 @@ import type {
 import { DEFAULT_CARD, DEFAULT_CONTACT, DEFAULT_SHIPPING } from '../constants';
 
 export function useCheckout() {
-  const { state, subtotal, discountAmount, total, dispatch, addOrder } = useCart();
+  const { items, subtotal, total, clearCart } = useCart();
 
   const [step, setStep] = useState<Step>('contact');
   const [checkoutType, setCheckoutType] = useState<CheckoutState['checkoutType']>('guest');
@@ -28,7 +24,6 @@ export function useCheckout() {
   const shippingCost = getShippingCost(subtotal);
   const finalTotal = total + shippingCost;
 
-  // Typed partial-update helpers — avoid re-renders from inline lambdas in JSX
   const updateContact = useCallback(
     <K extends keyof ContactDetails>(key: K, value: ContactDetails[K]) => {
       setContact((prev) => ({ ...prev, [key]: value }));
@@ -55,42 +50,18 @@ export function useCheckout() {
   const handlePayment = useCallback(async () => {
     setIsProcessing(true);
     try {
-      // Simulated async payment — replace with real gateway call
+      // Placeholder: real payment gateway integration (Stripe/PayPal) goes here
       await new Promise<void>((r) => setTimeout(r, 2000));
-      const id = generateOrderId();
-      setOrderId(id);
-      addOrder(
-        createMockOrder({
-          id,
-          contact,
-          shipping,
-          payment,
-          items: state.items,
-          subtotal,
-          discount: discountAmount,
-          total: finalTotal,
-        }),
-      );
-      dispatch({ type: 'CLEAR_CART' });
+      const mockId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+      setOrderId(mockId);
+      await clearCart();
       setStep('confirmation');
     } finally {
-      // Always stop spinner even on error
       setIsProcessing(false);
     }
-  }, [
-    contact,
-    shipping,
-    payment,
-    state.items,
-    subtotal,
-    discountAmount,
-    finalTotal,
-    addOrder,
-    dispatch,
-  ]);
+  }, [clearCart]);
 
   return {
-    // State
     step,
     checkoutType,
     isProcessing,
@@ -99,23 +70,19 @@ export function useCheckout() {
     shipping,
     payment,
     card,
-    // Cart-derived
-    cartItems: state.items,
+    cartItems: items,
     subtotal,
-    discountAmount,
+    discountAmount: 0,
     shippingCost,
     finalTotal,
-    // Validity
     isContactValid,
     isShippingValid,
-    // Setters
     setStep,
     setCheckoutType,
     setPayment,
     updateContact,
     updateShipping,
     updateCard,
-    // Actions
     handlePayment,
   };
 }

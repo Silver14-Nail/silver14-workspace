@@ -11,10 +11,23 @@ export interface StorefrontProduct {
   inStock: boolean;
 }
 
+/** A single variant with its display labels — used to resolve variantId from selections */
+export interface StorefrontVariant {
+  id: string;
+  /** Matches an entry in availableShapes — use for lookup */
+  shapeLabel: string;
+  /** Matches an entry in availableSizes — use for lookup */
+  sizeLabel: string;
+  stockQty: number;
+  computedPrice: number;
+  isAvailable: boolean;
+}
+
 export interface StorefrontProductDetail extends StorefrontProduct {
   description: string | null;
   images: string[];
   availableShapes: string[];
   availableSizes: string[];
   processingTime: string;
+  variants: StorefrontVariant[];
 }

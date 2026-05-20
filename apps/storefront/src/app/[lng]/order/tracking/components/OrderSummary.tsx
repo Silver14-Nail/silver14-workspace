@@ -1,13 +1,13 @@
 'use client';
 
 import { useT } from 'next-i18next/client';
-import { MockOrder } from '@/hooks/useCart';
+import type { TrackedOrderItem } from '../types';
 
 export default function OrderSummary({
   items,
   total,
 }: {
-  items: MockOrder['items'];
+  items: TrackedOrderItem[];
   total: number;
 }) {
   const { t } = useT('tracking');
@@ -18,10 +18,10 @@ export default function OrderSummary({
       <div className="space-y-1 text-sm">
         {items.slice(0, 3).map((item, i) => (
           <p key={i} className="text-[#5A5A5A]">
-            {item.quantity}× {item.product.name}
+            {item.quantity}× {item.productName}
             <span className="text-[#9A9A9A] text-xs">
               {' '}
-              ({item.size}, {item.shape})
+              ({item.sizeName}, {item.shapeName})
             </span>
           </p>
         ))}

@@ -175,11 +175,11 @@ git push origin feat/your-branch
 
 ## Environment Variables
 
-| File                      | App         |
-| ------------------------- | ----------- |
-| `apps/storefront/.env.local` | Storefront  |
-| `apps/admin/.env.local`   | Admin       |
-| `apps/api/.env`           | API (MySQL, JWT, CORS) |
+| File                         | App                    |
+| ---------------------------- | ---------------------- |
+| `apps/storefront/.env.local` | Storefront             |
+| `apps/admin/.env.local`      | Admin                  |
+| `apps/api/.env`              | API (MySQL, JWT, CORS) |
 
 Never commit `.env` files. Use `.env.example` as template.
 

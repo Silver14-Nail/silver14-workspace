@@ -1,4 +1,8 @@
-import type { StorefrontProduct, StorefrontProductDetail } from '@/types/product';
+import type {
+  StorefrontProduct,
+  StorefrontProductDetail,
+  StorefrontVariant,
+} from '@/types/product';
 import type { ApiProductListItem, ApiProductDetail, ApiShape, ApiVariant } from './products.api';
 
 function shapeLabel(shape: ApiShape, priceOverride: string | null): string {
@@ -27,17 +31,36 @@ export function adaptListItem(item: ApiProductListItem): StorefrontProduct {
 }
 
 export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
-  const availableShapes = detail.shapePricings
-    .filter((sp) => sp.isEnabled && sp.shape?.isActive)
-    .map((sp) => shapeLabel(sp.shape, sp.priceOverride));
-
-  const uniqueSizes = new Map<string, ApiVariant['size']>();
-  for (const v of detail.variants) {
-    if (v.isAvailable && !uniqueSizes.has(v.size.id)) {
-      uniqueSizes.set(v.size.id, v.size);
+  // Build shape label map: shapeId → display label
+  const shapeLabelById = new Map<string, string>();
+  for (const sp of detail.shapePricings) {
+    if (sp.isEnabled && sp.shape?.isActive) {
+      shapeLabelById.set(sp.shape.id, shapeLabel(sp.shape, sp.priceOverride));
     }
   }
-  const availableSizes = [...uniqueSizes.values()].map(sizeLabel);
+  const availableShapes = [...shapeLabelById.values()];
+
+  // Build size label map: sizeId → display label (from available variants only)
+  const sizeLabelById = new Map<string, string>();
+  for (const v of detail.variants) {
+    if (v.isAvailable && !sizeLabelById.has(v.size.id)) {
+      sizeLabelById.set(v.size.id, sizeLabel(v.size));
+    }
+  }
+  const availableSizes = [...sizeLabelById.values()];
+
+  // Build variants with display labels for variantId resolution on the product page
+  const variants: StorefrontVariant[] = detail.variants
+    .filter((v) => v.isAvailable && shapeLabelById.has(v.shape.id))
+    .map((v) => ({
+      id: v.id,
+      shapeLabel: shapeLabelById.get(v.shape.id)!,
+      sizeLabel: sizeLabelById.get(v.size.id) ?? sizeLabel(v.size),
+      stockQty: v.stockQty,
+      computedPrice: parseFloat(v.computedPrice),
+      isAvailable: v.isAvailable,
+    }));
+
   const inStock = detail.variants.some((v) => v.stockQty > 0 && v.isAvailable);
 
   const orderedImages = [...detail.images].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -59,5 +82,6 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
     availableShapes,
     availableSizes,
     processingTime: '3-5 business days',
+    variants,
   };
 }

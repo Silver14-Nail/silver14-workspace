@@ -89,7 +89,8 @@ export default function ProductEditDrawer({
 
   const salePriceNum = salePrice !== '' ? parseFloat(salePrice) : null;
   const basePriceNum = basePrice !== '' ? parseFloat(basePrice) : 0;
-  const salePriceValid = salePriceNum === null || (salePriceNum >= 0 && salePriceNum < basePriceNum);
+  const salePriceValid =
+    salePriceNum === null || (salePriceNum >= 0 && salePriceNum < basePriceNum);
   const discountPreview =
     salePriceNum != null && basePriceNum > 0 && salePriceNum < basePriceNum
       ? Math.round((1 - salePriceNum / basePriceNum) * 100)
@@ -117,9 +118,7 @@ export default function ProductEditDrawer({
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] shrink-0">
           <div className="min-w-0 pr-4">
             <h2 className="text-sm font-semibold text-[#111827]">Edit Product</h2>
-            {product && (
-              <p className="text-xs text-[#9CA3AF] mt-0.5 truncate">{product.name}</p>
-            )}
+            {product && <p className="text-xs text-[#9CA3AF] mt-0.5 truncate">{product.name}</p>}
           </div>
           <button
             onClick={onClose}
@@ -178,8 +177,7 @@ export default function ProductEditDrawer({
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                    Description{' '}
-                    <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                    Description <span className="font-normal text-[#9CA3AF]">(optional)</span>
                   </label>
                   <textarea
                     value={description}
@@ -224,8 +222,7 @@ export default function ProductEditDrawer({
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                    Sale Price{' '}
-                    <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                    Sale Price <span className="font-normal text-[#9CA3AF]">(optional)</span>
                   </label>
                   <input
                     value={salePrice}
@@ -289,7 +286,9 @@ export default function ProductEditDrawer({
                       <div key={row.label} className="flex justify-between text-xs">
                         <span className="text-[#9CA3AF]">{row.label}</span>
                         <span
-                          className={row.mono ? 'font-mono text-[#9CA3AF] text-[11px]' : 'text-[#374151]'}
+                          className={
+                            row.mono ? 'font-mono text-[#9CA3AF] text-[11px]' : 'text-[#374151]'
+                          }
                         >
                           {row.value}
                         </span>

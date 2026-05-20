@@ -38,7 +38,9 @@ export class CreateProductDto {
   @IsBoolean()
   isBestSeller?: boolean;
 
-  @ApiPropertyOptional({ description: 'Sale price — must be ≥ 0 and < basePrice. Omit or null to disable sale.' })
+  @ApiPropertyOptional({
+    description: 'Sale price — must be ≥ 0 and < basePrice. Omit or null to disable sale.',
+  })
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)

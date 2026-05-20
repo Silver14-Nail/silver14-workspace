@@ -36,11 +36,7 @@ async function UsersContent({ searchParams }: { searchParams: SearchParams }) {
   );
 }
 
-export default function AdminUsersPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default function AdminUsersPage({ searchParams }: { searchParams: SearchParams }) {
   return (
     <Suspense
       fallback={

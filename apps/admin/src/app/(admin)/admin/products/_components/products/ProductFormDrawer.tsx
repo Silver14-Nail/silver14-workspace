@@ -29,7 +29,8 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
 
   const salePriceNum = salePrice !== '' ? parseFloat(salePrice) : null;
   const basePriceNum = basePrice !== '' ? parseFloat(basePrice) : 0;
-  const salePriceValid = salePriceNum === null || (salePriceNum >= 0 && salePriceNum < basePriceNum);
+  const salePriceValid =
+    salePriceNum === null || (salePriceNum >= 0 && salePriceNum < basePriceNum);
   const discountPreview =
     salePriceNum != null && basePriceNum > 0 && salePriceNum < basePriceNum
       ? Math.round((1 - salePriceNum / basePriceNum) * 100)
@@ -157,7 +158,9 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
               step="0.01"
               placeholder="Leave empty for no sale"
               className={`w-full px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
-                !salePriceValid ? 'border-red-400 focus:border-red-500' : 'border-[#E5E7EB] focus:border-[#111827]'
+                !salePriceValid
+                  ? 'border-red-400 focus:border-red-500'
+                  : 'border-[#E5E7EB] focus:border-[#111827]'
               }`}
             />
             {!salePriceValid && (

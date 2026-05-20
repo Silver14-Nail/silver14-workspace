@@ -1,4 +1,4 @@
-import type { CartItem } from '@/hooks/useCart';
+import type { CartPreviewItem } from '@/hooks/useCart';
 
 export interface ProductSelections {
   shape: string;
@@ -9,4 +9,4 @@ export interface ProductSelections {
 
 export type AccordionKey = 'description' | 'nail-method' | 'shipping' | 'includes';
 
-export type { CartItem };
+export type { CartPreviewItem };

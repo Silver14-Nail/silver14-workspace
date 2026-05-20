@@ -5,7 +5,7 @@ import { Minus, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useT } from 'next-i18next/client';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { CartItemType } from '../types';
+import type { CartItemType } from '../types';
 
 interface CartItemListProps {
   items: CartItemType[];
@@ -18,7 +18,6 @@ export function CartItemList({ items, onQuantityChange, onRemove }: CartItemList
 
   return (
     <div className="lg:col-span-2 space-y-0">
-      {/* Table header */}
       <div
         className="hidden sm:grid grid-cols-[2fr_1fr_1fr_auto] gap-4 pb-3 border-b border-[#E0E0E0] text-[#9A9A9A] text-xs uppercase tracking-widest"
         style={{ letterSpacing: '0.1em' }}
@@ -29,11 +28,10 @@ export function CartItemList({ items, onQuantityChange, onRemove }: CartItemList
         <span />
       </div>
 
-      {/* Items */}
       <AnimatePresence>
         {items.map((item) => (
           <CartItemRow
-            key={`${item.product.id}-${item.size}-${item.shape}`}
+            key={item.id}
             item={item}
             onQuantityChange={onQuantityChange}
             onRemove={onRemove}
@@ -54,8 +52,7 @@ interface CartItemRowProps {
 
 function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
   const { t } = useT('cart');
-  const price = item.product.price;
-  const lineTotal = (price * item.quantity).toFixed(2);
+  const isOnSale = item.salePrice !== null && item.salePrice < item.basePrice;
 
   return (
     <motion.div
@@ -68,23 +65,24 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
       <div className="flex gap-4 items-start">
         <div className="size-20 sm:size-24 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
           <ImageWithFallback
-            src={item.product.thumbnail ?? ''}
-            alt={item.product.name}
+            src={item.thumbnail ?? ''}
+            alt={item.productName}
             className="w-full h-full object-cover"
           />
         </div>
         <div className="min-w-0">
           <Link
-            href={`/products/${item.product.slug}`}
+            href={`/products/${item.productSlug}`}
             className="text-[#1A1A1A] hover:opacity-70 transition-opacity"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1rem' }}
           >
-            {item.product.name}
+            {item.productName}
           </Link>
           <p className="text-[#9A9A9A] text-xs mt-1">
-            {item.size} / {item.shape}
+            {item.sizeName} / {item.shapeName}
           </p>
-          <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">${lineTotal}</p>
+          {isOnSale && <p className="text-[#C0392B] text-xs mt-0.5">Sale</p>}
+          <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">${item.lineTotal.toFixed(2)}</p>
         </div>
       </div>
 
@@ -104,7 +102,8 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
           <button
             onClick={() => onQuantityChange(item, 1)}
             aria-label={t('quantity.increase')}
-            className="px-2.5 py-2 hover:bg-[#F5F5F5] transition-colors"
+            disabled={item.quantity >= item.stockQty}
+            className="px-2.5 py-2 hover:bg-[#F5F5F5] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus className="size-3" />
           </button>
@@ -112,7 +111,14 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
       </div>
 
       {/* Line total */}
-      <div className="hidden sm:block text-right text-[#1A1A1A] text-sm">${lineTotal}</div>
+      <div className="hidden sm:flex sm:flex-col sm:items-end gap-0.5">
+        <span className="text-[#1A1A1A] text-sm">${item.lineTotal.toFixed(2)}</span>
+        {isOnSale && (
+          <span className="text-[#9A9A9A] text-xs line-through">
+            ${(item.basePrice * item.quantity).toFixed(2)}
+          </span>
+        )}
+      </div>
 
       {/* Remove */}
       <button
