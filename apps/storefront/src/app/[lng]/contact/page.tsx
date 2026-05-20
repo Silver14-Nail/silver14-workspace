@@ -97,9 +97,6 @@ export default function ContactPage() {
 
                 <p
                   className="text-[#1A1A1A] text-sm mb-1"
-                  style={{
-                    fontWeight: 500,
-                  }}
                 >
                   {info.content}
                 </p>
@@ -144,9 +141,6 @@ export default function ContactPage() {
 
               <h3
                 className="text-[#1A1A1A] text-lg mb-2"
-                style={{
-                  fontWeight: 500,
-                }}
               >
                 {t('success.title')}
               </h3>

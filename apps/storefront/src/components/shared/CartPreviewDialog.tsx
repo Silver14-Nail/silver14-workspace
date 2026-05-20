@@ -29,7 +29,6 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
             <DialogTitle
               className="text-[#1A1A1A] text-left"
               style={{
-                fontWeight: 500,
                 fontSize: '1.4rem',
               }}
             >
@@ -58,7 +57,6 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
             <div className="flex items-center gap-3 mt-2">
               <span
                 className="text-[#1A1A1A] text-sm"
-                style={{ fontWeight: 500 }}
               >
                 {format(addedItem.price)}
               </span>
@@ -75,7 +73,6 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
             <span
               className="text-[#1A1A1A]"
               style={{
-                fontWeight: 500,
                 fontSize: '1.1rem',
               }}
             >

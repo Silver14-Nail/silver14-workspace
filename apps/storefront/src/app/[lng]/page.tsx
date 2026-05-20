@@ -10,8 +10,8 @@ import { LinkBase } from '@/components/shared/LinkBase';
 import { useProducts } from '@/hooks/useProducts';
 
 const heroImages = {
-  desktop: '/images/hero-desktop.jpg',
-  mobile: '/images/hero-mobile.jpg',
+  desktop: '/images/home/main-banner_desktop.svg',
+  mobile: '/images/home/main-banner_mobile.JPG',
 };
 
 const SectionTitle = ({

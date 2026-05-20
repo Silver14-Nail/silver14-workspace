@@ -97,20 +97,20 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
         <div className="pt-4 pb-2">
           <h3
             className="text-[#1A1A1A] text-sm mb-2 group-hover:text-[#3A3A3A] transition-colors"
-            style={{ fontWeight: 500, fontSize: '1rem' }}
+            style={{ fontSize: '1rem' }}
           >
             {product.name}
           </h3>
           <div className="flex items-center gap-2 flex-wrap">
             {pricing.isOnSale ? (
               <>
-                <span className="text-[#C0392B] text-sm" style={{ fontWeight: 500 }}>
+                <span className="text-[#C0392B] text-sm">
                   {format(pricing.effectivePrice)}
                 </span>
                 <span className="text-[#9A9A9A] text-xs line-through">{format(pricing.price)}</span>
               </>
             ) : (
-              <span className="text-[#1A1A1A] text-sm" style={{ fontWeight: 500 }}>
+              <span className="text-[#1A1A1A] text-sm">
                 {format(pricing.price)}
               </span>
             )}

@@ -13,7 +13,7 @@ export default function SizeGuidePage() {
           className="mb-5 text-[#1A1A1A]"
           style={{
             fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-            fontWeight: 300,
+            fontWeight: 400,
             lineHeight: 1.15,
           }}
         >

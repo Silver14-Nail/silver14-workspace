@@ -61,9 +61,6 @@ export default function ReturnsPage() {
 
                 <h3
                   className="text-[#1A1A1A] text-sm mb-1"
-                  style={{
-                    fontWeight: 500,
-                  }}
                 >
                   {item.title}
                 </h3>

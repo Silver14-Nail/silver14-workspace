@@ -37,7 +37,6 @@ export default function ForgotPasswordPage() {
           className="text-[#9A9A9A]"
           style={{
             fontSize: '1.45rem',
-            fontWeight: 500,
             letterSpacing: '0.03em',
             lineHeight: 1,
             opacity: 0.9,
