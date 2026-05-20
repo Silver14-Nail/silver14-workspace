@@ -1,6 +1,20 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+
+export enum ProductSortBy {
+  NEWEST = 'newest',
+  OLDEST = 'oldest',
+  PRICE_ASC = 'price_asc',
+  PRICE_DESC = 'price_desc',
+  NAME_ASC = 'name_asc',
+  NAME_DESC = 'name_desc',
+}
+
+export enum ProductFilterBy {
+  NEW = 'new',
+  BEST_SELLER = 'bestseller',
+}
 
 export class ProductQueryDto {
   @ApiPropertyOptional({ default: 1 })
@@ -41,4 +55,20 @@ export class ProductQueryDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   maxPrice?: number;
+
+  @ApiPropertyOptional({
+    enum: ProductSortBy,
+    description: 'Sort order: newest | oldest | price_asc | price_desc | name_asc | name_desc',
+  })
+  @IsOptional()
+  @IsEnum(ProductSortBy)
+  sortBy?: ProductSortBy;
+
+  @ApiPropertyOptional({
+    enum: ProductFilterBy,
+    description: 'Filter: new | bestseller',
+  })
+  @IsOptional()
+  @IsEnum(ProductFilterBy)
+  filterBy?: ProductFilterBy;
 }

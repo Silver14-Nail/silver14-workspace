@@ -1,4 +1,4 @@
-import type { Product } from '@/MOCK_DATAS/products';
+import type { StorefrontProduct, StorefrontProductDetail } from '@/types/product';
 import type { ApiProductListItem, ApiProductDetail, ApiShape, ApiVariant } from './products.api';
 
 function shapeLabel(shape: ApiShape, priceOverride: string | null): string {
@@ -11,59 +11,51 @@ function sizeLabel(size: ApiVariant['size']): string {
   return size.measurements ? `${size.label} (${size.measurements})` : size.label;
 }
 
-export function adaptListItem(item: ApiProductListItem): Product {
+export function adaptListItem(item: ApiProductListItem): StorefrontProduct {
   return {
     id: item.id,
     name: item.name,
-    slug: item.id,
+    slug: item.slug ?? item.id,
     price: parseFloat(item.basePrice),
-    images: item.thumbnail ? [item.thumbnail.url] : [],
-    category: 'all',
-    collection: '',
-    description: item.description ?? '',
-    material: '',
+    currency: item.currency,
+    thumbnail: item.thumbnail?.url ?? null,
+    isNew: item.isNew,
+    isBestSeller: item.isBestSeller,
     inStock: true,
-    isNew: false,
-    isBestSeller: false,
-    availableSizes: [],
-    availableShapes: [],
-    processingTime: '3-5 business days',
-    tags: [],
-    rating: 0,
-    reviewCount: 0,
   };
 }
 
-export function adaptDetail(detail: ApiProductDetail): Product {
+export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
   const availableShapes = detail.shapePricings
     .filter((sp) => sp.isEnabled && sp.shape?.isActive)
     .map((sp) => shapeLabel(sp.shape, sp.priceOverride));
 
   const uniqueSizes = new Map<string, ApiVariant['size']>();
   for (const v of detail.variants) {
-    if (!uniqueSizes.has(v.size.id)) uniqueSizes.set(v.size.id, v.size);
+    if (v.isAvailable && !uniqueSizes.has(v.size.id)) {
+      uniqueSizes.set(v.size.id, v.size);
+    }
   }
   const availableSizes = [...uniqueSizes.values()].map(sizeLabel);
-  const inStock = detail.variants.some((v) => v.stockQty > 0);
+  const inStock = detail.variants.some((v) => v.stockQty > 0 && v.isAvailable);
+
+  const orderedImages = [...detail.images].sort((a, b) => a.sortOrder - b.sortOrder);
+  const mainImage = orderedImages.find((img) => img.isMain) ?? orderedImages[0];
 
   return {
     id: detail.id,
     name: detail.name,
-    slug: detail.id,
+    slug: detail.slug ?? detail.id,
     price: parseFloat(detail.basePrice),
-    images: detail.images.map((img) => img.url),
-    category: 'all',
-    collection: '',
-    description: detail.description ?? '',
-    material: '',
+    currency: detail.currency,
+    thumbnail: mainImage?.url ?? null,
+    isNew: detail.isNew,
+    isBestSeller: detail.isBestSeller,
     inStock,
-    isNew: false,
-    isBestSeller: false,
-    availableSizes,
+    description: detail.description,
+    images: orderedImages.map((img) => img.url),
     availableShapes,
+    availableSizes,
     processingTime: '3-5 business days',
-    tags: [],
-    rating: 0,
-    reviewCount: 0,
   };
 }

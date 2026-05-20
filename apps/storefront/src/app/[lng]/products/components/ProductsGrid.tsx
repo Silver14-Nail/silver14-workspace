@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProductCard } from '@/components/shared/ProductCard';
 import type { TFunction } from 'i18next';
-import type { Product } from '@/MOCK_DATAS/products';
+import type { StorefrontProduct } from '@/types/product';
 
 // ─── Shared ───────────────────────────────────────────────────────────────────
 
@@ -67,14 +67,13 @@ function DesktopPaginatedGrid({
   onClearFilters,
   t,
 }: {
-  products: Product[];
+  products: StorefrontProduct[];
   loading?: boolean;
   onClearFilters: () => void;
   t: TFunction;
 }) {
   const [page, setPage] = useState(1);
 
-  // Reset to page 1 whenever the product set changes (new filter/sort)
   const resetKey = `${products.length}:${products[0]?.id ?? ''}`;
   const prevKey = useRef(resetKey);
   useEffect(() => {
@@ -178,7 +177,7 @@ function DesktopPaginatedGrid({
 
 // ─── Mobile: windowed 2-column grid ──────────────────────────────────────────
 
-function MobileVirtualGrid({ products }: { products: Product[] }) {
+function MobileVirtualGrid({ products }: { products: StorefrontProduct[] }) {
   const rowCount = Math.ceil(products.length / 2);
 
   const virtualizer = useWindowVirtualizer({
@@ -220,7 +219,7 @@ function MobileVirtualGrid({ products }: { products: Product[] }) {
 // ─── Public component ─────────────────────────────────────────────────────────
 
 interface Props {
-  products: Product[];
+  products: StorefrontProduct[];
   loading?: boolean;
   error?: string | null;
   onClearFilters: () => void;

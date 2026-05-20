@@ -4,17 +4,16 @@ import { motion } from 'motion/react';
 import { Heart } from 'lucide-react';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { Product } from '@/MOCK_DATAS/products';
+import type { StorefrontProduct } from '@/types/product';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useCurrency } from '../../hooks/useCurrency';
 
 interface ProductCardProps {
-  product: Product;
+  product: StorefrontProduct;
   className?: string;
 }
 
 export function ProductCard({ product, className = '' }: ProductCardProps) {
-  const displayPrice = product.salePrice ?? product.price;
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { format } = useCurrency();
   const inWishlist = isInWishlist(product.id);
@@ -36,7 +35,7 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
       <LinkBase href={`/products/${product.slug}`} className="block">
         <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[3/4]">
           <ImageWithFallback
-            src={product.images[0]}
+            src={product.thumbnail ?? ''}
             alt={product.name}
             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
@@ -67,14 +66,6 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
                 Best Seller
               </span>
             )}
-            {product.salePrice && (
-              <span
-                className="bg-[#C0C0C0] text-white text-[9px] uppercase tracking-widest px-2.5 py-1"
-                style={{ letterSpacing: '0.12em' }}
-              >
-                Sale
-              </span>
-            )}
             {!product.inStock && (
               <span
                 className="bg-[#9A9A9A]/80 text-white text-[9px] uppercase tracking-widest px-2.5 py-1"
@@ -94,12 +85,6 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
         </div>
 
         <div className="pt-4 pb-2">
-          <p
-            className="text-[#9A9A9A] text-xs uppercase tracking-widest mb-1"
-            style={{ letterSpacing: '0.1em' }}
-          >
-            {product.collection}
-          </p>
           <h3
             className="text-[#1A1A1A] text-sm mb-2 group-hover:text-[#3A3A3A] transition-colors"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1rem' }}
@@ -107,28 +92,9 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
             {product.name}
           </h3>
           <div className="flex items-center gap-2">
-            <span
-              className="text-[#1A1A1A] text-sm"
-              style={{ fontWeight: product.salePrice ? 400 : 500 }}
-            >
-              {format(displayPrice)}
+            <span className="text-[#1A1A1A] text-sm" style={{ fontWeight: 500 }}>
+              {format(product.price)}
             </span>
-            {product.salePrice && (
-              <span className="text-[#9A9A9A] text-sm line-through">{format(product.price)}</span>
-            )}
-          </div>
-          <div className="flex items-center gap-1 mt-1.5">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  className={`text-[10px] ${star <= Math.round(product.rating) ? 'text-[#C0C0C0]' : 'text-[#E5E5E5]'}`}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-            <span className="text-[#9A9A9A] text-[10px]">({product.reviewCount})</span>
           </div>
         </div>
       </LinkBase>

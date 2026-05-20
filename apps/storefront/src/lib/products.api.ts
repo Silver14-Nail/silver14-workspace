@@ -6,6 +6,7 @@ export interface ApiProductImage {
   id: string;
   url: string;
   sortOrder: number;
+  isMain: boolean;
 }
 
 export interface ApiShape {
@@ -38,6 +39,7 @@ export interface ApiVariant {
   id: string;
   stockQty: number;
   computedPrice: string;
+  isAvailable: boolean;
   shape: Pick<ApiShape, 'id' | 'name'>;
   size: ApiSize;
 }
@@ -45,20 +47,26 @@ export interface ApiVariant {
 export interface ApiProductListItem {
   id: string;
   name: string;
+  slug: string | null;
   description: string | null;
   basePrice: string;
   currency: string;
   isActive: boolean;
+  isNew: boolean;
+  isBestSeller: boolean;
   thumbnail: ApiProductImage | null;
 }
 
 export interface ApiProductDetail {
   id: string;
   name: string;
+  slug: string | null;
   description: string | null;
   basePrice: string;
   currency: string;
   isActive: boolean;
+  isNew: boolean;
+  isBestSeller: boolean;
   images: ApiProductImage[];
   shapePricings: ApiShapePricing[];
   variants: ApiVariant[];
@@ -84,6 +92,8 @@ export interface ProductQueryParams {
   shapeId?: string;
   minPrice?: number;
   maxPrice?: number;
+  sortBy?: string;
+  filterBy?: string;
 }
 
 // ─── Fetch helpers ────────────────────────────────────────────────────────────
@@ -102,12 +112,18 @@ export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductLi
   if (params?.shapeId) qs.set('shapeId', params.shapeId);
   if (params?.minPrice !== undefined) qs.set('minPrice', String(params.minPrice));
   if (params?.maxPrice !== undefined) qs.set('maxPrice', String(params.maxPrice));
+  if (params?.sortBy) qs.set('sortBy', params.sortBy);
+  if (params?.filterBy) qs.set('filterBy', params.filterBy);
   const query = qs.toString();
   return get<ApiProductListResponse>(`/client-api/products${query ? `?${query}` : ''}`);
 }
 
 export function fetchProduct(id: string): Promise<ApiProductDetail> {
   return get<ApiProductDetail>(`/client-api/products/${id}`);
+}
+
+export function fetchProductBySlug(slug: string): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/products/slug/${slug}`);
 }
 
 export function fetchShapes(): Promise<ApiShape[]> {

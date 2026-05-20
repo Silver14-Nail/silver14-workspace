@@ -3,7 +3,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getSupplyBySlug } from '@/MOCK_DATAS/supplies';
 import { useCart } from '@/hooks/useCart';
 import type { CartItem } from '@/hooks/useCart';
-import type { Product } from '@/MOCK_DATAS/products';
+import type { StorefrontProduct } from '@/types/product';
 
 export function useSupplyDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -20,20 +20,16 @@ export function useSupplyDetail() {
   const handleAddToCart = useCallback(() => {
     if (!supply || !supply.inStock) return;
 
-    const cartProduct: Product = {
-      ...supply,
-      salePrice: undefined,
-      collection: 'Supplies',
-      material: '',
+    const cartProduct: StorefrontProduct = {
+      id: supply.id,
+      name: supply.name,
+      slug: supply.slug,
+      price: supply.price,
+      currency: 'USD',
+      thumbnail: supply.images[0] ?? null,
       isNew: false,
       isBestSeller: false,
-      availableSizes: [],
-      availableShapes: [],
-      availableLengths: [],
-      processingTime: '',
-      tags: [],
-      rating: 0,
-      reviewCount: 0,
+      inStock: supply.inStock,
     };
 
     const item: CartItem = {

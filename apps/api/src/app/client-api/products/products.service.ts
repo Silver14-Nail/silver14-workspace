@@ -7,7 +7,7 @@ import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
 
-import { ProductQueryDto } from './dto/product-query.dto';
+import { ProductFilterBy, ProductQueryDto, ProductSortBy } from './dto/product-query.dto';
 
 @Injectable()
 export class ClientProductsService {
@@ -29,7 +29,6 @@ export class ClientProductsService {
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.images', 'images')
       .where('product.isActive = true')
-      .orderBy('product.createdAt', 'DESC')
       .addOrderBy('images.sortOrder', 'ASC')
       .skip(skip)
       .take(limit);
@@ -49,7 +48,6 @@ export class ClientProductsService {
     }
 
     if (query.shapeId) {
-      // Only return products that have an enabled pricing for the requested shape
       qb.andWhere(
         `EXISTS (
           SELECT 1 FROM product_shape_pricings psp
@@ -62,6 +60,32 @@ export class ClientProductsService {
       );
     }
 
+    if (query.filterBy === ProductFilterBy.NEW) {
+      qb.andWhere('product.isNew = true');
+    } else if (query.filterBy === ProductFilterBy.BEST_SELLER) {
+      qb.andWhere('product.isBestSeller = true');
+    }
+
+    switch (query.sortBy) {
+      case ProductSortBy.PRICE_ASC:
+        qb.orderBy('product.basePrice', 'ASC');
+        break;
+      case ProductSortBy.PRICE_DESC:
+        qb.orderBy('product.basePrice', 'DESC');
+        break;
+      case ProductSortBy.NAME_ASC:
+        qb.orderBy('product.name', 'ASC');
+        break;
+      case ProductSortBy.NAME_DESC:
+        qb.orderBy('product.name', 'DESC');
+        break;
+      case ProductSortBy.OLDEST:
+        qb.orderBy('product.createdAt', 'ASC');
+        break;
+      default:
+        qb.orderBy('product.createdAt', 'DESC');
+    }
+
     const [items, totalItems] = await qb.getManyAndCount();
 
     const pagination: PaginationDTO = {
@@ -72,11 +96,10 @@ export class ClientProductsService {
       currentPage: page,
     };
 
-    // Expose only the first image per product in the list view
     return {
       items: items.map((p) => ({
         ...p,
-        thumbnail: p.images?.[0] ?? null,
+        thumbnail: p.images?.find((img) => img.isMain) ?? p.images?.[0] ?? null,
         images: undefined,
       })),
       pagination,
@@ -102,13 +125,36 @@ export class ClientProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    // Filter: only enabled shape pricings where the shape is also active
     product.shapePricings = product.shapePricings.filter(
       (sp) => sp.isEnabled && sp.shape?.isActive,
     );
+    product.variants = product.variants.filter((v) => !v.deletedAt);
 
-    // Filter: only non-deleted variants (soft delete already handled by TypeORM)
-    // Group in-stock variants first (already ordered by stockQty DESC)
+    return product;
+  }
+
+  async getProductBySlug(slug: string) {
+    const product = await this.productRepo
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images', 'images')
+      .leftJoinAndSelect('product.shapePricings', 'shapePricings')
+      .leftJoinAndSelect('shapePricings.shape', 'shape')
+      .leftJoinAndSelect('product.variants', 'variants')
+      .leftJoinAndSelect('variants.shape', 'variantShape')
+      .leftJoinAndSelect('variants.size', 'variantSize')
+      .where('product.slug = :slug', { slug })
+      .andWhere('product.isActive = true')
+      .orderBy('images.sortOrder', 'ASC')
+      .addOrderBy('variants.stockQty', 'DESC')
+      .getOne();
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    product.shapePricings = product.shapePricings.filter(
+      (sp) => sp.isEnabled && sp.shape?.isActive,
+    );
     product.variants = product.variants.filter((v) => !v.deletedAt);
 
     return product;

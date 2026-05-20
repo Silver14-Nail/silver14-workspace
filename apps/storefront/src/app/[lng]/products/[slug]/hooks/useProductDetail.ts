@@ -8,16 +8,16 @@ import type { CartItem } from '@/hooks/useCart';
 import type { AccordionKey, ProductSelections } from '../types';
 
 export function useProductDetail() {
-  const { slug: id } = useParams<{ slug: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
   const { dispatch, cartCount, subtotal } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const { product, loading, error } = useProduct(id ?? '');
+  const { product, loading, error } = useProduct(slug ?? '');
 
   // Fetch a few products for "related" (exclude current)
   const { products: allProducts } = useProducts({ limit: 8 });
-  const related = allProducts.filter((p) => p.id !== id).slice(0, 4);
+  const related = allProducts.filter((p) => p.id !== product?.id).slice(0, 4);
 
   // Gallery
   const [selectedImage, setSelectedImage] = useState(0);
@@ -39,7 +39,7 @@ export function useProductDetail() {
   useEffect(() => {
     setSelectedImage(0);
     setSelections({ shape: '', size: '', customization: '', quantity: 1 });
-  }, [id]);
+  }, [slug]);
 
   // Auto-select if only one shape available
   useEffect(() => {

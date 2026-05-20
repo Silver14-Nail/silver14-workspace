@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { products } from '@/MOCK_DATAS/products';
 
 export const storefrontLocales = ['en', 'vi'] as const;
 
@@ -71,7 +70,7 @@ export function createStorefrontMetadata({
         {
           alt: siteName,
           height: 630,
-          url: products[0]?.images[0] ?? '/og-image.jpg',
+          url: '/og-image.jpg',
           width: 1200,
         },
       ],

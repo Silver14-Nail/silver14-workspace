@@ -16,8 +16,18 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 import { useCustomerAuth } from '../../hooks/useCustomerAuth';
-import { COLLECTIONS } from '../../MOCK_DATAS/products';
 import { HeaderPreferencesDropdown } from '../shared/HeaderPreferencesDropdown';
+
+const COLLECTIONS = [
+  { id: 'all', label: 'All Collections' },
+  { id: 'summer', label: 'Summer' },
+  { id: 'cat-eye', label: 'Cat Eye' },
+  { id: 'cute-nails', label: 'Cute Nails' },
+  { id: 'valentines', label: 'Valentines' },
+  { id: 'christmas-eve', label: 'Christmas Eve' },
+  { id: 'cyber-y2k-chrome', label: 'Cyber & Y2K & Chrome Nails' },
+  { id: 'custom', label: 'Custom' },
+];
 import { CartDrawer } from '../shared/CartDrawer';
 
 const navLinks = [

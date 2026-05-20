@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
-import type { Product } from '@/MOCK_DATAS/products';
+import type { StorefrontProduct } from '@/types/product';
 import { fetchProducts, type ProductQueryParams, type ApiPagination } from '@/lib/products.api';
 import { adaptListItem } from '@/lib/product.adapter';
 
 export interface UseProductsResult {
-  products: Product[];
+  products: StorefrontProduct[];
   loading: boolean;
   error: string | null;
   pagination: ApiPagination | null;
 }
 
 export function useProducts(params?: ProductQueryParams): UseProductsResult {
-  const { page, limit, search, shapeId, minPrice, maxPrice } = params ?? {};
+  const { page, limit, search, shapeId, minPrice, maxPrice, sortBy, filterBy } = params ?? {};
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<StorefrontProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<ApiPagination | null>(null);
@@ -23,7 +23,7 @@ export function useProducts(params?: ProductQueryParams): UseProductsResult {
     setLoading(true);
     setError(null);
 
-    fetchProducts({ page, limit, search, shapeId, minPrice, maxPrice })
+    fetchProducts({ page, limit, search, shapeId, minPrice, maxPrice, sortBy, filterBy })
       .then((data) => {
         if (cancelled) return;
         setProducts(data.items.map(adaptListItem));
@@ -40,7 +40,7 @@ export function useProducts(params?: ProductQueryParams): UseProductsResult {
     return () => {
       cancelled = true;
     };
-  }, [page, limit, search, shapeId, minPrice, maxPrice]);
+  }, [page, limit, search, shapeId, minPrice, maxPrice, sortBy, filterBy]);
 
   return { products, loading, error, pagination };
 }

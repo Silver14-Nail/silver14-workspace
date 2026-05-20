@@ -16,6 +16,7 @@ export default function ProductsPage() {
   const {
     searchQuery,
     activeCollection,
+    activeCollectionLabel,
     sortBy,
     sortOpen,
     filteredProducts,
@@ -31,7 +32,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">
-      <ProductsHeader activeCollection={activeCollection} t={t} />
+      <ProductsHeader activeCollectionLabel={activeCollectionLabel} t={t} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ProductsFilters

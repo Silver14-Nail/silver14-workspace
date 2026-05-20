@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
 import { ProductImageEntity } from './product-image.entity';
@@ -15,6 +15,14 @@ export class ProductEntity extends SoftDeleteAbstractEntity {
     length: 200,
   })
   name: string;
+
+  @Index({ unique: true })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  slug: string | null;
 
   @Column({
     type: 'text',
@@ -43,6 +51,20 @@ export class ProductEntity extends SoftDeleteAbstractEntity {
     default: true,
   })
   isActive: boolean;
+
+  @Column({
+    name: 'is_new',
+    type: 'boolean',
+    default: false,
+  })
+  isNew: boolean;
+
+  @Column({
+    name: 'is_best_seller',
+    type: 'boolean',
+    default: false,
+  })
+  isBestSeller: boolean;
 
   @OneToMany(() => ProductImageEntity, (img) => img.product)
   images: ProductImageEntity[];

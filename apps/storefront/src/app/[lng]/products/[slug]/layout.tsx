@@ -1,6 +1,25 @@
 import type { Metadata } from 'next';
-import { products } from '@/MOCK_DATAS/products';
 import { createStorefrontMetadata } from '@/lib/seo';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+async function fetchProductForMeta(slug: string) {
+  try {
+    const res = await fetch(`${API_BASE}/client-api/products/slug/${slug}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return null;
+    return res.json() as Promise<{
+      name: string;
+      slug: string;
+      description: string | null;
+      basePrice: string;
+      images: { url: string; sortOrder: number }[];
+    }>;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -8,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ lng: string; slug: string }>;
 }): Promise<Metadata> {
   const { lng, slug } = await params;
-  const product = products.find((item) => item.slug === slug);
+  const product = await fetchProductForMeta(slug);
 
   if (!product) {
     return {
@@ -20,29 +39,29 @@ export async function generateMetadata({
     };
   }
 
-  const displayPrice = product.salePrice ?? product.price;
+  const price = parseFloat(product.basePrice);
+  const images = product.images
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((img) => img.url);
 
   return {
     ...createStorefrontMetadata({
       locale: lng,
-      path: `/products/${product.slug}`,
+      path: `/products/${product.slug ?? slug}`,
     }),
-    description: product.description,
+    description: product.description ?? undefined,
     openGraph: {
-      description: product.description,
-      images: product.images.map((image) => ({
-        alt: product.name,
-        url: image,
-      })),
-      title: `${product.name} - $${displayPrice}`,
+      description: product.description ?? undefined,
+      images: images.map((url) => ({ alt: product.name, url })),
+      title: `${product.name} — $${price.toFixed(2)}`,
       type: 'website',
-      url: `/${lng}/products/${product.slug}`,
+      url: `/${lng}/products/${product.slug ?? slug}`,
     },
     title: product.name,
     twitter: {
       card: 'summary_large_image',
-      description: product.description,
-      images: product.images,
+      description: product.description ?? undefined,
+      images,
       title: product.name,
     },
   };

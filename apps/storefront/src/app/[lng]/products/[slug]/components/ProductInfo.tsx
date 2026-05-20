@@ -1,18 +1,14 @@
 'use client';
 
 import { memo, useCallback } from 'react';
-import { Star, Minus, Plus, ShoppingBag, Heart } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Heart } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { LinkBase } from '@/components/shared/LinkBase';
 import type { ProductSelections } from '../types';
 
 interface Product {
-  collection: string;
   name: string;
-  rating: number;
-  reviewCount: number;
   price: number;
-  salePrice?: number;
   inStock: boolean;
   availableShapes: string[];
   availableSizes: string[];
@@ -41,7 +37,6 @@ export const ProductInfo = memo(function ProductInfo({
   onToggleWishlist,
 }: ProductInfoProps) {
   const { t } = useT('product-details');
-  const displayPrice = product.salePrice ?? product.price;
 
   const decrement = useCallback(
     () => onUpdateSelection('quantity', Math.max(1, selections.quantity - 1)),
@@ -60,14 +55,6 @@ export const ProductInfo = memo(function ProductInfo({
 
   return (
     <div className="lg:pt-4">
-      {/* Collection */}
-      <p
-        className="text-[#9A9A9A] uppercase text-xs tracking-widest mb-2"
-        style={{ letterSpacing: '0.15em' }}
-      >
-        {product.collection}
-      </p>
-
       {/* Name */}
       <h1
         className="text-[#1A1A1A] mb-3"
@@ -81,42 +68,14 @@ export const ProductInfo = memo(function ProductInfo({
         {product.name}
       </h1>
 
-      {/* Rating */}
-      <div
-        className="flex items-center gap-2 mb-4"
-        aria-label={t('rating.ariaLabel', { rating: product.rating, count: product.reviewCount })}
-      >
-        <div className="flex" aria-hidden>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              className={`size-3.5 ${star <= Math.round(product.rating) ? 'fill-[#C0C0C0] text-[#C0C0C0]' : 'text-[#E0E0E0]'}`}
-            />
-          ))}
-        </div>
-        <span className="text-[#9A9A9A] text-xs">
-          {product.rating} ({t('rating.reviews', { count: product.reviewCount })})
-        </span>
-      </div>
-
       {/* Price */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-4">
         <span
           className="text-[#1A1A1A]"
           style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1.6rem' }}
         >
-          ${displayPrice.toFixed(2)}
+          ${product.price.toFixed(2)}
         </span>
-        {product.salePrice && (
-          <>
-            <span className="text-[#9A9A9A] line-through" style={{ fontSize: '1.1rem' }}>
-              ${product.price.toFixed(2)}
-            </span>
-            <span className="bg-[#F0F0F0] text-[#6A6A6A] text-xs px-2 py-0.5 uppercase tracking-wider">
-              {t('price.save', { amount: (product.price - product.salePrice).toFixed(2) })}
-            </span>
-          </>
-        )}
       </div>
 
       <div

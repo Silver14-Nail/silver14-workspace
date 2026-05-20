@@ -54,7 +54,7 @@ interface CartItemRowProps {
 
 function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
   const { t } = useT('cart');
-  const price = item.product.salePrice ?? item.product.price;
+  const price = item.product.price;
   const lineTotal = (price * item.quantity).toFixed(2);
 
   return (
@@ -68,14 +68,14 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
       <div className="flex gap-4 items-start">
         <div className="size-20 sm:size-24 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
           <ImageWithFallback
-            src={item.product.images[0]}
+            src={item.product.thumbnail ?? ''}
             alt={item.product.name}
             className="w-full h-full object-cover"
           />
         </div>
         <div className="min-w-0">
           <Link
-            href={`/products/${item.product.id}`}
+            href={`/products/${item.product.slug}`}
             className="text-[#1A1A1A] hover:opacity-70 transition-opacity"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: '1rem' }}
           >

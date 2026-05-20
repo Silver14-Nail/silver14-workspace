@@ -7,10 +7,12 @@ import { useT } from 'next-i18next/client';
 import { ProductCard } from '@/components/shared/ProductCard';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { LinkBase } from '@/components/shared/LinkBase';
-import { products, heroImages } from '@/MOCK_DATAS/products';
+import { useProducts } from '@/hooks/useProducts';
 
-const newArrivals = products.filter((p) => p.isNew).slice(0, 4);
-const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4);
+const heroImages = {
+  desktop: '/images/hero-desktop.jpg',
+  mobile: '/images/hero-mobile.jpg',
+};
 
 const SectionTitle = ({
   eyebrow,
@@ -37,8 +39,32 @@ const SectionTitle = ({
   </div>
 );
 
+function ProductSectionSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="animate-pulse">
+          <div className="bg-[#F0F0F0] aspect-[3/4] mb-4" />
+          <div className="h-4 bg-[#F0F0F0] rounded w-3/4 mb-2" />
+          <div className="h-3 bg-[#F0F0F0] rounded w-1/4" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
   const { t } = useT('home');
+
+  const { products: newArrivals, loading: loadingNew } = useProducts({
+    filterBy: 'new',
+    limit: 4,
+  });
+
+  const { products: bestSellers, loading: loadingBest } = useProducts({
+    filterBy: 'bestseller',
+    limit: 4,
+  });
 
   return (
     <>
@@ -87,7 +113,6 @@ export default function HomePage() {
           <h1
             className="text-white mb-6"
             style={{
-              // fontFamily: "'Pirata One', 'UnifrakturMaguntia', 'Old English Text MT', cursive",
               fontWeight: 300,
               fontSize: 'clamp(3.5rem, 9vw, 6.5rem)',
               lineHeight: 1,
@@ -160,11 +185,15 @@ export default function HomePage() {
           </LinkBase>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {newArrivals.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        {loadingNew ? (
+          <ProductSectionSkeleton />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {newArrivals.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* BEST SELLERS */}
@@ -179,11 +208,15 @@ export default function HomePage() {
           </LinkBase>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {bestSellers.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        {loadingBest ? (
+          <ProductSectionSkeleton />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {bestSellers.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* CTA */}

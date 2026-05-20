@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SortOption, getSortFromParams } from '../constants';
 import { useProducts } from '@/hooks/useProducts';
@@ -17,12 +17,31 @@ export interface ShapeFilter {
 
 const ALL_SHAPE: ShapeFilter = { id: 'all', label: 'All' };
 
+function mapSortToApiParams(sortBy: SortOption): { sortBy?: string; filterBy?: string } {
+  switch (sortBy) {
+    case 'newest':
+      return { sortBy: 'newest' };
+    case 'price-asc':
+      return { sortBy: 'price_asc' };
+    case 'price-desc':
+      return { sortBy: 'price_desc' };
+    case 'bestseller':
+      return { filterBy: 'bestseller' };
+    default:
+      return {};
+  }
+}
+
 export function useProductFilters({ searchParams, router, lng }: Props) {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [activeShapeId, setActiveShapeId] = useState(searchParams.get('shapeId') || 'all');
   const [sortBy, setSortBy] = useState<SortOption>(() => getSortFromParams(searchParams));
   const [sortOpen, setSortOpen] = useState(false);
   const [shapes, setShapes] = useState<ShapeFilter[]>([ALL_SHAPE]);
+
+  // Handle legacy filter=new param separately from sortBy
+  const legacyFilter = searchParams.get('filter');
+  const legacyFilterBy = legacyFilter === 'new' ? 'new' : undefined;
 
   // Fetch shapes for filter pills (non-critical — silently ignore errors)
   useEffect(() => {
@@ -43,23 +62,20 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
     setSortBy(getSortFromParams(searchParams));
   }, [searchParams]);
 
-  const { products, loading, error } = useProducts({
+  const apiSort = mapSortToApiParams(sortBy);
+
+  const { products: filteredProducts, loading, error } = useProducts({
     search: searchQuery.trim() || undefined,
     shapeId: activeShapeId !== 'all' ? activeShapeId : undefined,
     limit: 100,
+    sortBy: apiSort.sortBy,
+    filterBy: legacyFilterBy ?? apiSort.filterBy,
   });
 
-  const filteredProducts = useMemo(() => {
-    if (!products.length) return products;
-    switch (sortBy) {
-      case 'price-asc':
-        return [...products].sort((a, b) => (a.salePrice ?? a.price) - (b.salePrice ?? b.price));
-      case 'price-desc':
-        return [...products].sort((a, b) => (b.salePrice ?? b.price) - (a.salePrice ?? a.price));
-      default:
-        return products;
-    }
-  }, [products, sortBy]);
+  const activeCollectionLabel =
+    activeShapeId !== 'all'
+      ? (shapes.find((s) => s.id === activeShapeId)?.label ?? null)
+      : null;
 
   const pushQuery = useCallback(
     (params: URLSearchParams) => {
@@ -74,6 +90,7 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
       setActiveShapeId(shapeId);
       const params = new URLSearchParams(searchParams.toString());
       params.delete('collection');
+      params.delete('filter');
       shapeId === 'all' ? params.delete('shapeId') : params.set('shapeId', shapeId);
       pushQuery(params);
     },
@@ -95,6 +112,7 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
       setSortBy(option);
       setSortOpen(false);
       const params = new URLSearchParams(searchParams.toString());
+      params.delete('filter');
       option === 'featured' ? params.delete('sort') : params.set('sort', option);
       pushQuery(params);
     },
@@ -107,6 +125,7 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
   return {
     searchQuery,
     activeCollection: activeShapeId,
+    activeCollectionLabel,
     sortBy,
     sortOpen,
     filteredProducts,

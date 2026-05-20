@@ -25,7 +25,7 @@ export function useCart() {
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => {
-    const price = item.product.salePrice ?? item.product.price;
+    const price = item.product.price;
     return sum + price * item.quantity;
   }, 0);
   const discountAmount = subtotal * discountRate;

@@ -24,7 +24,7 @@ export function CartPreviewDialog({
 
   if (!addedItem) return null;
 
-  const displayPrice = addedItem.product.salePrice ?? addedItem.product.price;
+  const displayPrice = addedItem.product.price;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,14 +50,13 @@ export function CartPreviewDialog({
         <div className="flex gap-4 py-4">
           <div className="size-20 bg-[#F5F5F5] overflow-hidden flex-shrink-0">
             <ImageWithFallback
-              src={addedItem.product.images[0]}
+              src={addedItem.product.thumbnail ?? ''}
               alt={addedItem.product.name}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">{addedItem.product.name}</h3>
-            <p className="text-[#9A9A9A] text-xs mb-2">{addedItem.product.collection}</p>
             {(addedItem.size || addedItem.shape) && (
               <div className="flex flex-wrap gap-2 text-xs text-[#5A5A5A]">
                 {addedItem.size && <span>Size: {addedItem.size}</span>}

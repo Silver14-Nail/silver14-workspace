@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { wishlistActions } from '@/store/slices/wishlist.slice';
-import type { Product } from '@/MOCK_DATAS/products';
+import type { StorefrontProduct } from '@/types/product';
 
 export function useWishlist() {
   const dispatch = useAppDispatch();
@@ -15,7 +15,7 @@ export function useWishlist() {
   );
 
   const toggleWishlist = useCallback(
-    (product: Product) => {
+    (product: StorefrontProduct) => {
       dispatch(wishlistActions.toggleWishlist(product));
     },
     [dispatch],

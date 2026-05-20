@@ -3,6 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as crypto from 'crypto';
 
+function toSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
 import { ProductEntity } from '@/db/entities/products/product.entity';
 import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
@@ -99,12 +110,23 @@ export class ProductsService {
   }
 
   async createProduct(dto: CreateProductDto) {
+    const baseSlug = toSlug(dto.name);
+    let slug = baseSlug;
+    let attempt = 0;
+    while (await this.productRepo.findOne({ where: { slug } })) {
+      attempt++;
+      slug = `${baseSlug}-${attempt}`;
+    }
+
     const product = this.productRepo.create({
       name: dto.name,
+      slug,
       description: dto.description ?? null,
       basePrice: dto.basePrice,
       currency: dto.currency ?? 'USD',
       isActive: dto.isActive ?? true,
+      isNew: dto.isNew ?? false,
+      isBestSeller: dto.isBestSeller ?? false,
     });
 
     return this.productRepo.save(product);
@@ -122,6 +144,8 @@ export class ProductsService {
     if (dto.basePrice !== undefined) product.basePrice = dto.basePrice;
     if (dto.currency !== undefined) product.currency = dto.currency;
     if (dto.isActive !== undefined) product.isActive = dto.isActive;
+    if (dto.isNew !== undefined) product.isNew = dto.isNew;
+    if (dto.isBestSeller !== undefined) product.isBestSeller = dto.isBestSeller;
 
     return this.productRepo.save(product);
   }

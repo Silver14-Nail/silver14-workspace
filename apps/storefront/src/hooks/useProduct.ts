@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
-import type { Product } from '@/MOCK_DATAS/products';
-import { fetchProduct } from '@/lib/products.api';
+import type { StorefrontProductDetail } from '@/types/product';
+import { fetchProductBySlug } from '@/lib/products.api';
 import { adaptDetail } from '@/lib/product.adapter';
 
 export interface UseProductResult {
-  product: Product | null;
+  product: StorefrontProductDetail | null;
   loading: boolean;
   error: string | null;
 }
 
-export function useProduct(id: string): UseProductResult {
-  const [product, setProduct] = useState<Product | null>(null);
+export function useProduct(slug: string): UseProductResult {
+  const [product, setProduct] = useState<StorefrontProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return undefined;
+    if (!slug) return undefined;
     let cancelled = false;
     setLoading(true);
     setError(null);
 
-    fetchProduct(id)
+    fetchProductBySlug(slug)
       .then((data) => {
         if (cancelled) return;
         setProduct(adaptDetail(data));
@@ -36,7 +36,7 @@ export function useProduct(id: string): UseProductResult {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [slug]);
 
   return { product, loading, error };
 }

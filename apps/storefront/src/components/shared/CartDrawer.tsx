@@ -77,7 +77,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="space-y-4">
                 {state.items.map((item) => {
-                  const unitPrice = item.product.salePrice ?? item.product.price;
+                  const unitPrice = item.product.price;
                   const itemTotal = unitPrice * item.quantity;
 
                   return (
@@ -87,7 +87,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     >
                       <div className="size-20 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
                         <ImageWithFallback
-                          src={item.product.images[0]}
+                          src={item.product.thumbnail ?? ''}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
                         />
@@ -99,7 +99,6 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">
                               {item.product.name}
                             </h3>
-                            <p className="text-[#9A9A9A] text-xs">{item.product.collection}</p>
                           </div>
                           <button
                             onClick={() => removeItem(item.product.id, item.size, item.shape)}

@@ -24,10 +24,17 @@ export class ClientProductsController {
   @Get()
   @ApiOkResponse({
     description:
-      'Paginated active products with thumbnail. Supports search, shape filter, price range.',
+      'Paginated active products with thumbnail. Supports search, shape filter, price range, sortBy, filterBy.',
   })
   list(@Query() query: ProductQueryDto) {
     return this.productsService.listProducts(query);
+  }
+
+  @Get('slug/:slug')
+  @ApiOkResponse({ description: 'Full product detail by slug' })
+  @ApiNotFoundResponse({ description: 'Product not found or inactive' })
+  getBySlug(@Param('slug') slug: string) {
+    return this.productsService.getProductBySlug(slug);
   }
 
   @Get(':id')

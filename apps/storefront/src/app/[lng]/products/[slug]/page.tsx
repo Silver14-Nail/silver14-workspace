@@ -62,7 +62,7 @@ export default function ProductDetailPage() {
           <ImageGallery
             images={product.images}
             productName={product.name}
-            hasSale={Boolean(product.salePrice)}
+            hasSale={false}
             selectedIndex={pd.selectedImage}
             onSelect={pd.setSelectedImage}
           />
