@@ -13,6 +13,8 @@ import {
   getCheckoutSessionId,
   setCheckoutSessionId,
   clearCheckoutSessionId,
+  getPendingCoupon,
+  clearPendingCoupon,
 } from '@/features/checkout/checkout.storage';
 import type { CheckoutSession, ShippingMethod } from '@/features/checkout/checkout.types';
 import type { Step, ContactDetails, ShippingDetails, PaymentMethod } from '../types';
@@ -85,10 +87,22 @@ export function useCheckout() {
       const s = await checkoutApi.createSession(cartId, getToken());
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
+
+      // Auto-apply any coupon code pre-entered on the cart page
+      const pending = getPendingCoupon();
+      if (pending?.code) {
+        try {
+          const updated = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
+          queryClient.setQueryData(['checkout-session', s.id], updated);
+        } catch {
+          // Coupon may have expired or become invalid since cart validation — ignore silently
+        }
+        clearPendingCoupon();
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to start checkout');
     }
-  }, [cartId, sessionId]);
+  }, [cartId, sessionId, queryClient]);
 
   useEffect(() => {
     initSession();

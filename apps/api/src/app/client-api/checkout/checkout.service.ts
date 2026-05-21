@@ -6,18 +6,22 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 import { CartEntity } from '@/db/entities/checkouts/cart.entity';
 import { CheckoutSessionEntity } from '@/db/entities/checkouts/checkout-session.entity';
 import { ShippingMethodEntity } from '@/db/entities/checkouts/shipping-method.entity';
 import { CouponEntity } from '@/db/entities/coupons/coupon.entity';
+import { CouponRestrictionEntity } from '@/db/entities/coupons/coupon-restriction.entity';
+import { CouponUsageEntity } from '@/db/entities/coupons/coupon-usage.entity';
 import { OrderEntity } from '@/db/entities/orders/order.entity';
 import {
   CartStatus,
   CheckoutSessionStatus,
   CheckoutStep,
+  CouponRestrictionType,
   DiscountType,
+  OrderStatus,
 } from '@/common/enums/entity.enum';
 
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
@@ -38,6 +42,8 @@ export class ClientCheckoutService {
     private readonly shippingRepo: Repository<ShippingMethodEntity>,
     @InjectRepository(CouponEntity)
     private readonly couponRepo: Repository<CouponEntity>,
+    @InjectRepository(CouponUsageEntity)
+    private readonly couponUsageRepo: Repository<CouponUsageEntity>,
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
   ) {}
@@ -146,6 +152,7 @@ export class ClientCheckoutService {
     const now = new Date();
     const coupon = await this.couponRepo.findOne({
       where: { code: dto.code, isActive: true },
+      relations: ['restrictions', 'whitelist', 'whitelist.user'],
     });
 
     if (!coupon) throw new NotFoundException('Coupon not found or inactive');
@@ -159,12 +166,44 @@ export class ClientCheckoutService {
       throw new BadRequestException('Coupon usage limit reached');
     }
 
+    // Whitelist: if any entries exist, only those users may use this coupon
+    if (coupon.whitelist.length > 0) {
+      const userId = (session.user as any)?.id;
+      if (!userId) {
+        throw new BadRequestException(
+          'This coupon is restricted to specific customers. Please log in to use it.',
+        );
+      }
+      const inWhitelist = coupon.whitelist.some((w) => w.user?.id === userId);
+      if (!inWhitelist) {
+        throw new BadRequestException('You are not eligible for this coupon');
+      }
+    }
+
+    // Per-user usage limit
+    const userId = (session.user as any)?.id;
+    if (userId && coupon.maxUsesPerUser > 0) {
+      const usageCount = await this.couponUsageRepo.count({
+        where: { coupon: { id: coupon.id }, user: { id: userId } },
+      });
+      if (usageCount >= coupon.maxUsesPerUser) {
+        throw new BadRequestException(
+          'You have already used this coupon the maximum number of times',
+        );
+      }
+    }
+
     const subtotal = await this.calculateSubtotal(session);
 
     if (subtotal < Number(coupon.minOrderAmount)) {
       throw new BadRequestException(
-        `Minimum order amount of ${coupon.minOrderAmount} required for this coupon`,
+        `Minimum order amount of €${Number(coupon.minOrderAmount).toFixed(2)} required for this coupon`,
       );
+    }
+
+    // Restriction enforcement
+    for (const restriction of coupon.restrictions) {
+      await this.enforceRestriction(restriction, session);
     }
 
     const discountAmount = this.computeDiscount(coupon, subtotal);
@@ -203,7 +242,14 @@ export class ClientCheckoutService {
   private async findActiveSession(sessionId: string): Promise<CheckoutSessionEntity> {
     const session = await this.sessionRepo.findOne({
       where: { id: sessionId, status: CheckoutSessionStatus.IN_PROGRESS },
-      relations: ['cart', 'cart.items', 'cart.items.variant'],
+      relations: [
+        'cart',
+        'cart.items',
+        'cart.items.variant',
+        'cart.items.variant.product',
+        'cart.items.variant.shape',
+        'user',
+      ],
     });
 
     if (!session) throw new NotFoundException('Active checkout session not found');
@@ -215,6 +261,72 @@ export class ClientCheckoutService {
     }
 
     return session;
+  }
+
+  private async enforceRestriction(
+    restriction: CouponRestrictionEntity,
+    session: CheckoutSessionEntity,
+  ): Promise<void> {
+    const items = session.cart?.items ?? [];
+
+    switch (restriction.restrictionType) {
+      case CouponRestrictionType.NEW_USER: {
+        const userId = (session.user as any)?.id;
+        if (userId) {
+          const pastOrders = await this.orderRepo.count({
+            where: {
+              user: { id: userId },
+              status: Not(OrderStatus.CANCELLED),
+            },
+          });
+          if (pastOrders > 0) {
+            throw new BadRequestException('This coupon is for new customers only');
+          }
+        }
+        break;
+      }
+
+      case CouponRestrictionType.MIN_QTY: {
+        const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+        const minQty = restriction.refId ? parseInt(restriction.refId, 10) : 1;
+        if (isNaN(minQty) || totalQty < minQty) {
+          throw new BadRequestException(
+            `This coupon requires a minimum of ${minQty} item${minQty !== 1 ? 's' : ''} in your cart`,
+          );
+        }
+        break;
+      }
+
+      case CouponRestrictionType.PRODUCT: {
+        if (!restriction.refId) break;
+        const hasProduct = items.some(
+          (item) => (item.variant as any).product?.id === restriction.refId,
+        );
+        if (!hasProduct) {
+          throw new BadRequestException(
+            `This coupon requires "${restriction.refLabel ?? 'a specific product'}" to be in your cart`,
+          );
+        }
+        break;
+      }
+
+      case CouponRestrictionType.SHAPE: {
+        if (!restriction.refId) break;
+        const hasShape = items.some(
+          (item) => (item.variant as any).shape?.id === restriction.refId,
+        );
+        if (!hasShape) {
+          throw new BadRequestException(
+            `This coupon requires "${restriction.refLabel ?? 'a specific nail shape'}" products in your cart`,
+          );
+        }
+        break;
+      }
+
+      case CouponRestrictionType.CATEGORY:
+        // Category association is not stored on variants; skip without error
+        break;
+    }
   }
 
   private async calculateSubtotal(session: CheckoutSessionEntity): Promise<number> {

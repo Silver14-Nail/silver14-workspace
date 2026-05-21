@@ -34,7 +34,7 @@
     "placeholder": "Discount code",
     "apply": "Apply",
     "applied": "Code \"{{code}}\" applied!",
-    "invalid": "Invalid discount code. Try SILVER14, WELCOME15, or EU20",
+    "invalid": "Invalid or expired discount code",
     "codeApplied": "{{code}} applied",
     "remove": "Remove discount code"
   },
