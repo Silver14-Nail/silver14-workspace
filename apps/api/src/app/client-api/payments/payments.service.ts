@@ -9,6 +9,8 @@ import { OrderItemEntity } from '@/db/entities/orders/order-item.entity';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 import { PaypalDetailEntity } from '@/db/entities/payments/paypal-detail.entity';
 import { CardDetailEntity } from '@/db/entities/payments/card-detail.entity';
+import { CouponEntity } from '@/db/entities/coupons/coupon.entity';
+import { CouponUsageEntity } from '@/db/entities/coupons/coupon-usage.entity';
 import {
   CardBrand,
   CardProcessor,
@@ -44,6 +46,10 @@ export class ClientPaymentsService {
     private readonly sessionRepo: Repository<CheckoutSessionEntity>,
     @InjectRepository(PaymentEntity)
     private readonly paymentRepo: Repository<PaymentEntity>,
+    @InjectRepository(CouponEntity)
+    private readonly couponRepo: Repository<CouponEntity>,
+    @InjectRepository(CouponUsageEntity)
+    private readonly couponUsageRepo: Repository<CouponUsageEntity>,
     private readonly stripeService: StripeService,
     private readonly paypalService: PaypalService,
   ) {}
@@ -214,15 +220,20 @@ export class ClientPaymentsService {
     }, 0);
 
     const shippingSnapshot = session.shippingSnapshot as Record<string, any>;
-    const shippingFee = Number(shippingSnapshot?.shippingFee ?? 0);
+    const rawShippingFee = Number(shippingSnapshot?.shippingFee ?? 0);
     const discountAmount = Number(session.discountAmount ?? 0);
     const currency = (shippingSnapshot?.currency as string) || 'EUR';
+
+    // FREE_SHIPPING coupon: couponCode is set but discountAmount == 0
+    const isFreeShipping =
+      session.couponCode !== null && discountAmount === 0 && rawShippingFee > 0;
+    const effectiveShipping = isFreeShipping ? 0 : rawShippingFee;
 
     return {
       subtotal,
       discountAmount,
-      shippingFee,
-      total: Math.max(0, subtotal - discountAmount + shippingFee),
+      shippingFee: effectiveShipping,
+      total: Math.max(0, subtotal - discountAmount + effectiveShipping),
       currency,
     };
   }
@@ -239,9 +250,19 @@ export class ClientPaymentsService {
     };
     const shippingSnapshot = session.shippingSnapshot as Record<string, any>;
 
+    // Resolve coupon entity if one was applied to this session
+    let couponEntity: CouponEntity | null = null;
+    if (session.couponCode) {
+      couponEntity = await manager.findOne(CouponEntity, {
+        where: { code: session.couponCode },
+      });
+    }
+
     const order = manager.create(OrderEntity, {
       user: session.user ?? null,
       guest: session.guest ?? null,
+      checkoutSession: session,
+      coupon: couponEntity ?? null,
       status: OrderStatus.CONFIRMED,
       contactSnapshot: {
         fullName: contactSnapshot.fullName,
@@ -265,6 +286,7 @@ export class ClientPaymentsService {
 
     await manager.save(OrderEntity, order);
 
+    // Order items
     const orderItems = (session.cart?.items ?? []).map((cartItem) =>
       manager.create(OrderItemEntity, {
         order,
@@ -280,6 +302,19 @@ export class ClientPaymentsService {
     );
 
     await manager.save(OrderItemEntity, orderItems);
+
+    // Track coupon usage
+    if (couponEntity) {
+      await manager.increment(CouponEntity, { id: couponEntity.id }, 'usedCount', 1);
+
+      const usage = manager.create(CouponUsageEntity, {
+        coupon: couponEntity,
+        user: session.user ?? null,
+        order,
+        discountApplied: totals.discountAmount,
+      });
+      await manager.save(CouponUsageEntity, usage);
+    }
 
     return order;
   }

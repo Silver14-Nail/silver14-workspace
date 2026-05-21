@@ -7,6 +7,8 @@ import { OrderItemEntity } from '@/db/entities/orders/order-item.entity';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 import { PaypalDetailEntity } from '@/db/entities/payments/paypal-detail.entity';
 import { CardDetailEntity } from '@/db/entities/payments/card-detail.entity';
+import { CouponEntity } from '@/db/entities/coupons/coupon.entity';
+import { CouponUsageEntity } from '@/db/entities/coupons/coupon-usage.entity';
 import { PaymentsSharedModule } from '@/shared/payments/payments-shared.module';
 
 import { ClientPaymentsService } from './payments.service';
@@ -21,6 +23,8 @@ import { ClientPaymentsController } from './payments.controller';
       PaymentEntity,
       PaypalDetailEntity,
       CardDetailEntity,
+      CouponEntity,
+      CouponUsageEntity,
     ]),
     PaymentsSharedModule,
   ],

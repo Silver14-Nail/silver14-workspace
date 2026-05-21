@@ -28,7 +28,7 @@
     "placeholder": "Mã giảm giá",
     "apply": "Áp dụng",
     "applied": "Đã áp dụng mã \"{{code}}\"!",
-    "invalid": "Mã giảm giá không hợp lệ. Thử SILVER14, WELCOME15 hoặc EU20",
+    "invalid": "Mã giảm giá không hợp lệ hoặc đã hết hạn",
     "codeApplied": "Đã áp dụng {{code}}",
     "remove": "Xóa mã giảm giá"
   },

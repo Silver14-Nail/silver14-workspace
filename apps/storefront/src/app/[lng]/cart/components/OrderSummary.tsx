@@ -1,17 +1,30 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { useCart } from '@/hooks/useCart';
 import { useCurrency } from '@/hooks/useCurrency';
+import { getPendingCoupon, type PendingCoupon } from '@/features/checkout/checkout.storage';
 import { FREE_SHIPPING_THRESHOLD, PAYMENT_METHODS } from '../types';
+import { DiscountInput } from './DiscountInput';
 
 export function OrderSummary() {
   const { t } = useT('cart');
   const router = useRouter();
-  const { subtotal, total } = useCart();
+  const { cartId, subtotal } = useCart();
   const { format } = useCurrency();
+
+  const [pendingCoupon, setPendingCouponState] = useState<PendingCoupon | null>(null);
+
+  // Hydrate pending coupon from sessionStorage (SSR-safe)
+  useEffect(() => {
+    setPendingCouponState(getPendingCoupon());
+  }, []);
+
+  const discountPreview = pendingCoupon?.discountPreview ?? 0;
+  const estimatedTotal = Math.max(0, subtotal - discountPreview);
 
   return (
     <div className="bg-[#F8F8F8] p-6 sticky top-24">
@@ -22,13 +35,31 @@ export function OrderSummary() {
         {t('summary.title')}
       </h2>
 
+      <DiscountInput
+        cartId={cartId}
+        onApplied={(coupon) => setPendingCouponState(coupon)}
+        onRemoved={() => setPendingCouponState(null)}
+      />
+
       <div className="space-y-3 mb-6">
         <SummaryRow label={t('summary.subtotal')} value={format(subtotal)} />
+
+        {discountPreview > 0 && pendingCoupon && (
+          <SummaryRow
+            label={t('summary.discount', { code: pendingCoupon.code })}
+            value={`-${format(discountPreview)}`}
+            valueClass="text-[#4A7A5A]"
+          />
+        )}
 
         <SummaryRow
           label={t('summary.shipping')}
           value={
-            subtotal >= FREE_SHIPPING_THRESHOLD ? t('shipping.free') : t('shipping.calculated')
+            pendingCoupon?.discountType === 'free_shipping'
+              ? t('shipping.free')
+              : subtotal >= FREE_SHIPPING_THRESHOLD
+                ? t('shipping.free')
+                : t('shipping.calculated')
           }
         />
 
@@ -41,12 +72,9 @@ export function OrderSummary() {
           </span>
           <span
             className="text-[#1A1A1A]"
-            style={{
-              fontWeight: 500,
-              fontSize: '1.2rem',
-            }}
+            style={{ fontWeight: 500, fontSize: '1.2rem' }}
           >
-            {format(total)}
+            {format(estimatedTotal)}
           </span>
         </div>
       </div>
