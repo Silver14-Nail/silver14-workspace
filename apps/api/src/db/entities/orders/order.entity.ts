@@ -126,6 +126,20 @@ export class OrderEntity extends SoftDeleteAbstractEntity {
   })
   currency: string;
 
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  carrier: string | null;
+
+  @Column({
+    name: 'internal_notes',
+    type: 'text',
+    nullable: true,
+  })
+  internalNotes: string | null;
+
   @OneToMany(() => OrderItemEntity, (item) => item.order)
   items: OrderItemEntity[];
 }

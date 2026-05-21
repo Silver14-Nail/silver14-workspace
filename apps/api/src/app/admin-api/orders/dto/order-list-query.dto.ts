@@ -1,8 +1,20 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
-import { OrderStatus } from '@/common/enums/entity.enum';
+import { OrderStatus, PaymentStatus } from '@/common/enums/entity.enum';
+
+export type OrderSortField = 'createdAt' | 'total' | 'status';
+export type SortOrder = 'ASC' | 'DESC';
 
 export class OrderListQueryDto {
   @ApiPropertyOptional({ default: 1 })
@@ -29,4 +41,43 @@ export class OrderListQueryDto {
   @IsOptional()
   @IsEnum(OrderStatus)
   status?: OrderStatus;
+
+  @ApiPropertyOptional({ enum: PaymentStatus })
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  paymentStatus?: PaymentStatus;
+
+  @ApiPropertyOptional({ description: 'Filter orders placed on or after this date (ISO 8601)' })
+  @IsOptional()
+  @IsDateString()
+  dateFrom?: string;
+
+  @ApiPropertyOptional({ description: 'Filter orders placed on or before this date (ISO 8601)' })
+  @IsOptional()
+  @IsDateString()
+  dateTo?: string;
+
+  @ApiPropertyOptional({ description: 'Minimum order total (inclusive)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  minAmount?: number;
+
+  @ApiPropertyOptional({ description: 'Maximum order total (inclusive)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  maxAmount?: number;
+
+  @ApiPropertyOptional({ enum: ['createdAt', 'total', 'status'], default: 'createdAt' })
+  @IsOptional()
+  @IsString()
+  sortBy?: OrderSortField = 'createdAt';
+
+  @ApiPropertyOptional({ enum: ['ASC', 'DESC'], default: 'DESC' })
+  @IsOptional()
+  @IsEnum(['ASC', 'DESC'])
+  sortOrder?: SortOrder = 'DESC';
 }
