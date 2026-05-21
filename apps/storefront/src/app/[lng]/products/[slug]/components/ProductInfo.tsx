@@ -20,7 +20,10 @@ interface ProductInfoProps {
   product: Product;
   selections: ProductSelections;
   canAddToCart: boolean;
+  isCustomSize: boolean;
   inWishlist: boolean;
+  availableSizes: string[];
+  variantComputedPrice: number | null;
   onUpdateSelection: <K extends keyof ProductSelections>(
     key: K,
     value: ProductSelections[K],
@@ -33,13 +36,24 @@ export const ProductInfo = memo(function ProductInfo({
   product,
   selections,
   canAddToCart,
+  isCustomSize,
   inWishlist,
+  availableSizes,
+  variantComputedPrice,
   onUpdateSelection,
   onAddToCart,
   onToggleWishlist,
 }: ProductInfoProps) {
   const { t } = useT('product-details');
-  const pricing = getPricingInfo(product);
+  const basePricing = getPricingInfo(product);
+
+  // When a shape with price adjustment is selected, compute adjusted pricing
+  const pricing = variantComputedPrice !== null
+    ? getPricingInfo({ price: variantComputedPrice, salePrice: basePricing.isOnSale
+        ? variantComputedPrice * (product.salePrice! / product.price)
+        : null
+      })
+    : basePricing;
 
   const decrement = useCallback(
     () => onUpdateSelection('quantity', Math.max(1, selections.quantity - 1)),
@@ -159,7 +173,7 @@ export const ProductInfo = memo(function ProductInfo({
           className="w-full border border-[#E0E0E0] px-4 py-2.5 text-sm text-[#1A1A1A] bg-white outline-none focus:border-[#1A1A1A] transition-colors"
         >
           <option value="">{t('selectors.size.placeholder')}</option>
-          {product.availableSizes.map((s) => (
+          {availableSizes.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>

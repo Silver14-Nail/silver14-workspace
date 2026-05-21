@@ -7,7 +7,7 @@ interface Props {
 
 export function ProductsHeader({ activeCollectionLabel, t }: Props) {
   return (
-    <div className="text-center py-14 px-4 border-b border-[#E8E8E8]">
+    <div className="text-center py-7 px-4 border-b border-[#E8E8E8]">
       <p
         className="text-[#9A9A9A] uppercase tracking-[0.2em] text-xs mb-3"
         style={{ letterSpacing: '0.2em' }}

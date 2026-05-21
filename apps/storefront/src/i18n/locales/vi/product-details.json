@@ -36,7 +36,10 @@
     "customization": {
       "label": "Tùy chỉnh",
       "hint": "Nếu bạn chọn tùy chỉnh (được khuyến nghị), hãy để lại kích thước móng của bạn tại đây. Vui lòng kiểm tra email thường xuyên để chúng tôi có thể hỗ trợ kịp thời nếu có vấn đề về size.",
-      "placeholder": "Nhập nội dung tùy chỉnh hoặc ý tưởng thiết kế"
+      "placeholder": "Nhập nội dung tùy chỉnh hoặc ý tưởng thiết kế",
+      "labelCustomSize": "Đo kích thước tùy chỉnh",
+      "hintCustomSize": "Vui lòng cung cấp số đo ngón tay để chúng tôi tạo ra sản phẩm vừa vặn nhất. Bao gồm chiều rộng ngón cái, trỏ, giữa, áp út và út (tính bằng mm).",
+      "placeholderCustomSize": "VD: Ngón cái: 14mm, Ngón trỏ: 13mm, Ngón giữa: 13mm, Ngón áp út: 12mm, Ngón út: 10mm"
     }
   },
   "quantity": {
@@ -48,6 +51,7 @@
     "soldOut": "Hết hàng",
     "selectOptions": "Chọn tùy chọn",
     "addToBag": "Thêm vào giỏ",
+    "customComingSoon": "Liên hệ để đặt tùy chỉnh",
     "addToWishlist": "Thêm vào danh sách yêu thích",
     "removeFromWishlist": "Xóa khỏi danh sách yêu thích",
     "selectHint": "Vui lòng chọn kích cỡ, hình dạng và độ dài"

@@ -70,6 +70,16 @@ export class ClientCheckoutService {
       throw new ForbiddenException('Cart does not belong to this user');
     }
 
+    // Return existing in-progress session for this cart if one exists
+    const existing = await this.sessionRepo.findOne({
+      where: { cart: { id: cart.id }, status: CheckoutSessionStatus.IN_PROGRESS },
+    });
+    if (existing) {
+      // Refresh expiry and return
+      existing.expiresAt = new Date(Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+      return this.sessionRepo.save(existing);
+    }
+
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + SESSION_EXPIRY_HOURS);
 
@@ -123,15 +133,18 @@ export class ClientCheckoutService {
       );
     }
 
-    const method = await this.shippingRepo.findOneBy({ id: dto.shippingMethodId, isActive: true });
-    if (!method) throw new NotFoundException('Shipping method not found');
+    let method: ShippingMethodEntity | null = null;
+    if (dto.shippingMethodId) {
+      method = await this.shippingRepo.findOneBy({ id: dto.shippingMethodId, isActive: true });
+      if (!method) throw new NotFoundException('Shipping method not found');
+    }
 
     session.shippingSnapshot = {
-      shippingMethodId: method.id,
-      shippingMethodName: method.name,
-      carrier: method.carrier,
-      shippingFee: Number(method.fee),
-      currency: method.currency,
+      shippingMethodId: method?.id ?? null,
+      shippingMethodName: method?.name ?? null,
+      carrier: method?.carrier ?? null,
+      shippingFee: method ? Number(method.fee) : 0,
+      currency: method?.currency ?? 'EUR',
       recipientName: dto.recipientName,
       street: dto.street,
       city: dto.city,

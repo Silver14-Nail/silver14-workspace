@@ -14,7 +14,13 @@
     "email": "Địa chỉ email",
     "phone": "Số điện thoại",
     "guestHint": "Sau khi đặt hàng, bạn có thể dùng số điện thoại và mã đơn hàng để theo dõi trạng thái.",
-    "cta": "Tiếp tục đến Vận chuyển"
+    "cta": "Tiếp tục đến Vận chuyển",
+    "errors": {
+      "fullNameRequired": "Họ và tên là bắt buộc",
+      "emailRequired": "Email là bắt buộc",
+      "emailInvalid": "Email không hợp lệ",
+      "phoneRequired": "Số điện thoại là bắt buộc"
+    }
   },
   "shipping": {
     "title": "Địa chỉ giao hàng",
@@ -30,7 +36,14 @@
     "methodAriaLabel": "Chọn phương thức vận chuyển",
     "delivery": "{{min}}–{{max}} ngày làm việc",
     "methodsFree": "Miễn phí",
-    "cta": "Tiếp tục đến Thanh toán"
+    "cta": "Tiếp tục đến Thanh toán",
+    "errors": {
+      "firstNameRequired": "Tên là bắt buộc",
+      "lastNameRequired": "Họ là bắt buộc",
+      "addressRequired": "Địa chỉ là bắt buộc",
+      "cityRequired": "Thành phố là bắt buộc",
+      "methodRequired": "Vui lòng chọn phương thức vận chuyển"
+    }
   },
   "payment": {
     "title": "Phương thức thanh toán",

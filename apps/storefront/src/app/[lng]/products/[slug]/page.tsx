@@ -38,11 +38,6 @@ function ProductDetailSkeleton() {
 export default function ProductDetailPage() {
   const pd = useProductDetail();
 
-  if (pd.loading) return <ProductDetailSkeleton />;
-  if (!pd.product) return <ProductNotFound />;
-
-  const { product } = pd;
-
   const decrement = useCallback(
     () => pd.updateSelection('quantity', Math.max(1, pd.selections.quantity - 1)),
     [pd],
@@ -51,6 +46,11 @@ export default function ProductDetailPage() {
     () => pd.updateSelection('quantity', pd.selections.quantity + 1),
     [pd],
   );
+
+  if (pd.loading) return <ProductDetailSkeleton />;
+  if (!pd.product) return <ProductNotFound />;
+
+  const { product } = pd;
 
   return (
     <div className="min-h-screen pt-16 md:pt-20 pb-20 md:pb-12">
@@ -73,7 +73,10 @@ export default function ProductDetailPage() {
               product={product}
               selections={pd.selections}
               canAddToCart={pd.canAddToCart}
+              isCustomSize={pd.isCustomSize}
               inWishlist={pd.inWishlist}
+              availableSizes={pd.availableSizesForShape}
+              variantComputedPrice={pd.selectedVariant?.computedPrice ?? null}
               onUpdateSelection={pd.updateSelection}
               onAddToCart={pd.handleAddToCart}
               onToggleWishlist={pd.handleWishlist}
@@ -104,6 +107,7 @@ export default function ProductDetailPage() {
       <MobileCartBar
         inStock={product.inStock}
         canAddToCart={pd.canAddToCart}
+        isCustomSize={pd.isCustomSize}
         inWishlist={pd.inWishlist}
         selections={pd.selections}
         onDecrement={decrement}

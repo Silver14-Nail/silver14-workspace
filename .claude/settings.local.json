@@ -75,7 +75,24 @@
       "PowerShell(Get-ChildItem -Path \"./apps/storefront/src\" -Recurse -File | Where-Object {$_.Name -match 'order|track'})",
       "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | head -20)",
       "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | Select-Object -First 20)",
-      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\Administrator\\\\.claude\\\\projects\\\\c--Users-Administrator-Desktop-codes-silver14-workspace\\\\3b6cd681-b18b-4ce0-b2f8-0efe98968eee\\\\tool-results\\\\toolu_016zCytJr6CYD4yxu2FH3pmX.json\" -Raw | ConvertFrom-Json\\)[0].text)"
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\Administrator\\\\.claude\\\\projects\\\\c--Users-Administrator-Desktop-codes-silver14-workspace\\\\3b6cd681-b18b-4ce0-b2f8-0efe98968eee\\\\tool-results\\\\toolu_016zCytJr6CYD4yxu2FH3pmX.json\" -Raw | ConvertFrom-Json\\)[0].text)",
+      "Bash(pnpm nx *)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;C:\\\\Users\\\\Administrator\\\\AppData\\\\Roaming\\\\npm;\" + $env:PATH; Set-Location \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; pnpm nx run admin:build 2>&1 | Select-Object -Last 80)",
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\storefront\\\\src\" -Recurse)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\api\\\\src\" -Recurse -Filter \"*checkout*.ts\")",
+      "Bash(xargs grep -l \"isCustomSize\\\\|is_custom_size\\\\|CustomSizeRequest\")",
+      "Bash(pnpm --filter storefront exec tsc --noEmit)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; node .\\\\node_modules\\\\.bin\\\\tsc --project apps\\\\storefront\\\\tsconfig.json --noEmit 2>&1 | Select-Object -First 60)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; & \".\\\\node_modules\\\\.bin\\\\tsc.cmd\" --project \"apps\\\\storefront\\\\tsconfig.json\" --noEmit 2>&1 | Select-Object -First 60)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; & \".\\\\node_modules\\\\.bin\\\\tsc.cmd\" --project \"apps\\\\storefront\\\\tsconfig.json\" --noEmit 2>&1 | Select-Object -First 30)",
+      "Bash(cd \"/c/Users/Administrator/Desktop/codes/silver14-workspace\" && cat apps/storefront/package.json | grep -E \"react-hook-form|zod|@hookform\")",
+      "Read(//c/c/Users/Administrator/Desktop/codes/silver14-workspace/apps/storefront/**)",
+      "Bash(cd \"/c/Users/Administrator/Desktop/codes/silver14-workspace\" && cat package.json | grep -E \"react-hook-form|zod|@hookform\" && echo \"---root---\" && cat apps/storefront/package.json)",
+      "Read(//c/c/Users/Administrator/Desktop/codes/silver14-workspace/**)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; & \".\\\\node_modules\\\\.bin\\\\tsc.cmd\" --project \"apps\\\\storefront\\\\tsconfig.json\" --noEmit 2>&1 | Select-Object -First 40)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; & \".\\\\node_modules\\\\.bin\\\\tsc.cmd\" --project \"apps\\\\storefront\\\\tsconfig.json\" --noEmit 2>&1 | Select-Object -First 20)",
+      "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; & \".\\\\node_modules\\\\.bin\\\\tsc.cmd\" --project \"apps\\\\api\\\\tsconfig.app.json\" --noEmit 2>&1 | Select-Object -First 20)"
     ]
   }
 }

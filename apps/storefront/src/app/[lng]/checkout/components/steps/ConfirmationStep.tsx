@@ -55,12 +55,22 @@ export function ConfirmationStep({ orderId, firstName, email, phone }: Confirmat
           >
             {t('confirmation.orderIdLabel')}
           </p>
-          <p
-            className="text-[#1A1A1A] text-lg"
-            style={{ fontWeight: 500 }}
-          >
-            {orderId}
-          </p>
+          {orderId ? (
+            <p
+              className="text-[#1A1A1A] text-lg break-all"
+              style={{ fontWeight: 500 }}
+            >
+              {orderId}
+            </p>
+          ) : (
+            <div className="flex items-center justify-center gap-2 py-1">
+              <span
+                className="size-3.5 border-2 border-[#C0C0C0] border-t-[#1A1A1A] rounded-full animate-spin"
+                aria-hidden
+              />
+              <span className="text-[#9A9A9A] text-sm">Processing...</span>
+            </div>
+          )}
           <p className="text-[#9A9A9A] text-xs mt-2">{t('confirmation.orderIdHint')}</p>
         </div>
 

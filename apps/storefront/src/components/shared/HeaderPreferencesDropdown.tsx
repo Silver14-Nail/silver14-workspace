@@ -67,7 +67,7 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
       >
         <span className="hidden sm:inline">{t('preferences.shipTo')}</span>
         <span>{t(`preferences.destinations.${shipTo}`)}</span>
-        <span>
+        <span suppressHydrationWarning>
           / {currentCurrencyCode} / {currentLanguageLabel}
         </span>
         <ChevronDown className={`size-3 transition-transform ${open ? 'rotate-180' : ''}`} />

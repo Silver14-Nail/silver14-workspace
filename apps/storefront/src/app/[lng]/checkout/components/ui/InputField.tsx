@@ -1,28 +1,27 @@
-import { memo } from 'react';
+import { memo, useId } from 'react';
+import type { UseFormRegisterReturn } from 'react-hook-form';
 
 interface InputFieldProps {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
+  registration: UseFormRegisterReturn;
   type?: string;
   placeholder?: string;
   required?: boolean;
   autoComplete?: string;
+  error?: string;
 }
 
-/**
- * Memoized to prevent re-renders when sibling fields update.
- * onChange must be a stable reference (useCallback) for memo to be effective.
- */
 export const InputField = memo(function InputField({
   label,
-  value,
-  onChange,
+  registration,
   type = 'text',
   placeholder = '',
   required = false,
   autoComplete = '',
+  error,
 }: InputFieldProps) {
+  const errorId = useId();
+
   return (
     <div>
       <label
@@ -31,21 +30,30 @@ export const InputField = memo(function InputField({
       >
         {label}{' '}
         {required && (
-          <span className="text-[#C0C0C0]" aria-hidden>
-            *
-          </span>
+          <>
+            <span className="text-[#C0C0C0]" aria-hidden>*</span>
+            <span className="sr-only">(required)</span>
+          </>
         )}
-        {required && <span className="sr-only">(required)</span>}
       </label>
       <input
+        {...registration}
         type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        required={required}
         autoComplete={autoComplete}
-        className="w-full border border-[#E0E0E0] px-4 py-3 text-sm text-[#1A1A1A] bg-white placeholder:text-[#B0B0B0] outline-none focus:border-[#9A9A9A] transition-colors"
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
+        className={`w-full border px-4 py-3 text-sm text-[#1A1A1A] bg-white placeholder:text-[#B0B0B0] outline-none transition-colors ${
+          error
+            ? 'border-[#C0392B] focus:border-[#C0392B]'
+            : 'border-[#E0E0E0] focus:border-[#9A9A9A]'
+        }`}
       />
+      {error && (
+        <p id={errorId} role="alert" className="mt-1 text-[#C0392B] text-xs">
+          {error}
+        </p>
+      )}
     </div>
   );
 });

@@ -96,6 +96,7 @@ export interface ProductQueryParams {
   limit?: number;
   search?: string;
   shapeId?: string;
+  collection?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: string;
@@ -116,6 +117,7 @@ export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductLi
   if (params?.limit !== undefined) qs.set('limit', String(params.limit));
   if (params?.search) qs.set('search', params.search);
   if (params?.shapeId) qs.set('shapeId', params.shapeId);
+  if (params?.collection) qs.set('collection', params.collection);
   if (params?.minPrice !== undefined) qs.set('minPrice', String(params.minPrice));
   if (params?.maxPrice !== undefined) qs.set('maxPrice', String(params.maxPrice));
   if (params?.sortBy) qs.set('sortBy', params.sortBy);

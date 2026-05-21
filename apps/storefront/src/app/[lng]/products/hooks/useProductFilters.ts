@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SortOption, getSortFromParams } from '../constants';
 import { useProducts } from '@/hooks/useProducts';
-import { fetchShapes, type ApiShape } from '@/lib/products.api';
+import { getCollections, type StorefrontCollection } from '@/features/collections/collections.api';
 
 type Props = {
   searchParams: ReturnType<typeof useSearchParams>;
@@ -10,12 +10,13 @@ type Props = {
   lng: string;
 };
 
-export interface ShapeFilter {
-  id: string;
+export interface CollectionFilter {
+  id: string;    // UUID — used as React key
+  slug: string;  // used for URL param + API filter
   label: string;
 }
 
-const ALL_SHAPE: ShapeFilter = { id: 'all', label: 'All' };
+const ALL_COLLECTION: CollectionFilter = { id: 'all', slug: 'all', label: 'All' };
 
 function mapSortToApiParams(sortBy: SortOption): { sortBy?: string; filterBy?: string } {
   switch (sortBy) {
@@ -34,49 +35,47 @@ function mapSortToApiParams(sortBy: SortOption): { sortBy?: string; filterBy?: s
 
 export function useProductFilters({ searchParams, router, lng }: Props) {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [activeShapeId, setActiveShapeId] = useState(searchParams.get('shapeId') || 'all');
+  const [activeSlug, setActiveSlug] = useState(searchParams.get('collection') || 'all');
   const [sortBy, setSortBy] = useState<SortOption>(() => getSortFromParams(searchParams));
   const [sortOpen, setSortOpen] = useState(false);
-  const [shapes, setShapes] = useState<ShapeFilter[]>([ALL_SHAPE]);
+  const [collections, setCollections] = useState<CollectionFilter[]>([ALL_COLLECTION]);
 
-  // Handle legacy filter=new param separately from sortBy
   const legacyFilter = searchParams.get('filter');
   const legacyFilterBy = legacyFilter === 'new' ? 'new' : undefined;
 
-  // Fetch shapes for filter pills (non-critical — silently ignore errors)
   useEffect(() => {
-    fetchShapes()
-      .then((data: ApiShape[]) =>
-        setShapes([ALL_SHAPE, ...data.map((s) => ({ id: s.id, label: s.name }))]),
+    getCollections({ limit: 50 })
+      .then((res: { data: StorefrontCollection[] }) =>
+        setCollections([
+          ALL_COLLECTION,
+          ...res.data.map((c) => ({ id: c.id, slug: c.slug, label: c.name })),
+        ]),
       )
       .catch(() => {
         return;
       });
   }, []);
 
-  // Sync with URL params
   useEffect(() => {
-    setActiveShapeId(searchParams.get('shapeId') || 'all');
+    setActiveSlug(searchParams.get('collection') || 'all');
     setSearchQuery(searchParams.get('search') || '');
     setSortBy(getSortFromParams(searchParams));
   }, [searchParams]);
 
   const apiSort = mapSortToApiParams(sortBy);
 
-  const {
-    products: filteredProducts,
-    loading,
-    error,
-  } = useProducts({
+  const { products: filteredProducts, loading, error } = useProducts({
     search: searchQuery.trim() || undefined,
-    shapeId: activeShapeId !== 'all' ? activeShapeId : undefined,
+    collection: activeSlug !== 'all' ? activeSlug : undefined,
     limit: 100,
     sortBy: apiSort.sortBy,
     filterBy: legacyFilterBy ?? apiSort.filterBy,
   });
 
   const activeCollectionLabel =
-    activeShapeId !== 'all' ? (shapes.find((s) => s.id === activeShapeId)?.label ?? null) : null;
+    activeSlug !== 'all'
+      ? (collections.find((c) => c.slug === activeSlug)?.label ?? null)
+      : null;
 
   const pushQuery = useCallback(
     (params: URLSearchParams) => {
@@ -87,12 +86,11 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
   );
 
   const handleCollectionChange = useCallback(
-    (shapeId: string) => {
-      setActiveShapeId(shapeId);
+    (slug: string) => {
+      setActiveSlug(slug);
       const params = new URLSearchParams(searchParams.toString());
-      params.delete('collection');
       params.delete('filter');
-      shapeId === 'all' ? params.delete('shapeId') : params.set('shapeId', shapeId);
+      slug === 'all' ? params.delete('collection') : params.set('collection', slug);
       pushQuery(params);
     },
     [searchParams, pushQuery],
@@ -125,14 +123,14 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
 
   return {
     searchQuery,
-    activeCollection: activeShapeId,
+    activeCollection: activeSlug,
     activeCollectionLabel,
     sortBy,
     sortOpen,
     filteredProducts,
     loading,
     error,
-    collections: shapes,
+    collections,
     handleCollectionChange,
     handleSearchChange,
     handleSortChange,

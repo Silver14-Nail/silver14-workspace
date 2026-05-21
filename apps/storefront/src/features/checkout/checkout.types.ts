@@ -15,8 +15,8 @@ export interface ContactSnapshot {
 }
 
 export interface ShippingSnapshot {
-  shippingMethodId: string;
-  shippingMethodName: string;
+  shippingMethodId: string | null;
+  shippingMethodName: string | null;
   carrier: string | null;
   shippingFee: number;
   currency: string;
@@ -68,7 +68,7 @@ export interface CompletedOrderRef {
 }
 
 export interface UpdateShippingInput {
-  shippingMethodId: string;
+  shippingMethodId?: string;
   recipientName: string;
   street: string;
   city: string;

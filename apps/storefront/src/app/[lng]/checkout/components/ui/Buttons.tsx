@@ -21,12 +21,13 @@ interface StepButtonProps {
   label: string;
   disabled?: boolean;
   isLoading?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 export function StepButton({ label, disabled, isLoading, onClick }: StepButtonProps) {
   return (
     <button
+      type={onClick ? 'button' : 'submit'}
       onClick={onClick}
       disabled={disabled || isLoading}
       className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors disabled:bg-[#D0D0D0] disabled:cursor-not-allowed"

@@ -12,7 +12,7 @@ export class PaymentEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => OrderEntity, {
+  @OneToOne(() => OrderEntity, (o) => o.payment, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'order_id' })

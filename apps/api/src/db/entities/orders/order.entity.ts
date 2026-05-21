@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { OrderStatus } from '../../../common/enums/entity.enum';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
@@ -8,6 +8,7 @@ import { CheckoutSessionEntity } from '../checkouts/checkout-session.entity';
 import { ShippingMethodEntity } from '../checkouts/shipping-method.entity';
 import { CouponEntity } from '../coupons/coupon.entity';
 import { OrderItemEntity } from './order-item.entity';
+import { PaymentEntity } from '../payments/payment.entity';
 
 @Entity('orders')
 export class OrderEntity extends SoftDeleteAbstractEntity {
@@ -142,4 +143,7 @@ export class OrderEntity extends SoftDeleteAbstractEntity {
 
   @OneToMany(() => OrderItemEntity, (item) => item.order)
   items: OrderItemEntity[];
+
+  @OneToOne(() => PaymentEntity, (p) => p.order)
+  payment: PaymentEntity;
 }

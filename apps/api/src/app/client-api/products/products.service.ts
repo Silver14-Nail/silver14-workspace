@@ -70,9 +70,21 @@ export class ClientProductsService {
           WHERE psp.product_id = product.id
             AND psp.shape_id = :shapeId
             AND psp.is_enabled = true
-            AND psp.deleted_at IS NULL
         )`,
         { shapeId: query.shapeId },
+      );
+    }
+
+    if (query.collection) {
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1 FROM product_collections pc
+          INNER JOIN collections c ON c.id = pc.collection_id
+          WHERE pc.product_id = product.id
+            AND c.slug = :collectionSlug
+            AND c.deleted_at IS NULL
+        )`,
+        { collectionSlug: query.collection },
       );
     }
 
@@ -151,19 +163,22 @@ export class ClientProductsService {
   }
 
   async getProductBySlug(slug: string) {
-    const product = await this.productRepo
-      .createQueryBuilder('product')
-      .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.shapePricings', 'shapePricings')
-      .leftJoinAndSelect('shapePricings.shape', 'shape')
-      .leftJoinAndSelect('product.variants', 'variants')
-      .leftJoinAndSelect('variants.shape', 'variantShape')
-      .leftJoinAndSelect('variants.size', 'variantSize')
-      .where('product.slug = :slug', { slug })
-      .andWhere('product.isActive = true')
-      .orderBy('images.sortOrder', 'ASC')
-      .addOrderBy('variants.stockQty', 'DESC')
-      .getOne();
+    const qb = () =>
+      this.productRepo
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.images', 'images')
+        .leftJoinAndSelect('product.shapePricings', 'shapePricings')
+        .leftJoinAndSelect('shapePricings.shape', 'shape')
+        .leftJoinAndSelect('product.variants', 'variants')
+        .leftJoinAndSelect('variants.shape', 'variantShape')
+        .leftJoinAndSelect('variants.size', 'variantSize')
+        .andWhere('product.isActive = true')
+        .orderBy('images.sortOrder', 'ASC')
+        .addOrderBy('variants.stockQty', 'DESC');
+
+    let product =
+      (await qb().where('product.slug = :slug', { slug }).getOne()) ??
+      (await qb().where('product.id = :slug', { slug }).getOne());
 
     if (!product) {
       throw new NotFoundException('Product not found');

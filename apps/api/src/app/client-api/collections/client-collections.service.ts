@@ -98,19 +98,20 @@ export class ClientCollectionsService {
       })
       .leftJoinAndSelect('p.images', 'images')
       .where('p.isActive = true')
-      .addOrderBy('images.sortOrder', 'ASC')
       .skip(skip)
       .take(limit);
 
-    if (query.sortBy === 'newest') {
-      qb.orderBy('p.createdAt', 'DESC');
-    } else if (query.sortBy === 'price_asc') {
+    if (query.sortBy === 'price_asc') {
       qb.orderBy('p.basePrice', 'ASC');
     } else if (query.sortBy === 'price_desc') {
       qb.orderBy('p.basePrice', 'DESC');
     } else if (query.sortBy === 'bestseller') {
-      qb.andWhere('p.isBestSeller = true');
+      qb.andWhere('p.isBestSeller = true').orderBy('p.createdAt', 'DESC');
+    } else {
+      // default: newest
+      qb.orderBy('p.createdAt', 'DESC');
     }
+    qb.addOrderBy('images.sortOrder', 'ASC');
 
     const [products, total] = await qb.getManyAndCount();
 
@@ -122,7 +123,7 @@ export class ClientCollectionsService {
         return {
           id: p.id,
           name: p.name,
-          slug: p.slug,
+          slug: p.slug ?? p.id,
           basePrice: p.basePrice,
           salePrice: p.salePrice,
           currency: p.currency,

@@ -1,5 +1,5 @@
 import { dir } from 'i18next';
-import { Cormorant } from 'next/font/google';
+import { Nunito, Noto_Sans_JP } from 'next/font/google';
 // import Script from 'next/script';
 import {
   initServerI18next,
@@ -17,11 +17,18 @@ import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo'
 import { getCollections } from '../../features/collections/collections.api';
 import '../../styles/index.css';
 
-const cormorant = Cormorant({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+const nunito = Nunito({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   style: ['normal', 'italic'],
-  variable: '--font-cormorant',
+  variable: '--font-primary',
+  display: 'swap',
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '700'],
+  variable: '--font-jp',
   display: 'swap',
 });
 
@@ -57,7 +64,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={lng} dir={dir(lng)} className={cormorant.variable}>
+    <html lang={lng} dir={dir(lng)} className={`${nunito.variable} ${notoSansJP.variable}`}>
       <head />
       <body>
         <script
