@@ -1,9 +1,8 @@
 {
   "version": 2,
   "buildCommand": "cd ../.. && npx nx build api --skip-nx-cache",
-  "outputDirectory": "dist",
   "functions": {
-    "main.js": {
+    "api/index.js": {
       "memory": 1024,
       "maxDuration": 30
     }
@@ -11,7 +10,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/main.js"
+      "dest": "/api/index.js"
     }
   ]
 }
