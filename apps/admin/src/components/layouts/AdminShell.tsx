@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
   { label: 'Orders', icon: ShoppingBag, path: '/admin/orders', enabled: false },
   { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts', enabled: true },
   { label: 'Payments', icon: CreditCard, path: '/admin/payments', enabled: false },
-  { label: 'Coupons', icon: Tag, path: '/admin/coupons', enabled: false },
+  { label: 'Coupons', icon: Tag, path: '/admin/coupons', enabled: true },
   { label: 'Wholesale', icon: Building2, path: '/admin/wholesales', enabled: false },
   { label: 'Newsletter', icon: Mail, path: '/admin/newsletters', enabled: false },
   { label: 'Analytics', icon: BarChart3, path: '/admin/analytics', enabled: false },
