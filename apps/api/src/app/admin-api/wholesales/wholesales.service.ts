@@ -8,7 +8,7 @@ import { WholesaleTierEntity } from '@/db/entities/wholesales/wholesale-tier.ent
 import { NewsletterSubscriberEntity } from '@/db/entities/wholesales/newsletter-subscribers.entity';
 import { UserEntity } from '@/db/entities/auths/user.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
-import { NewsletterStatus } from '@/common/enums/entity.enum';
+import { NewsletterStatus, WholesaleEnquiryStatus } from '@/common/enums/entity.enum';
 
 import { AccountListQueryDto } from './dto/account-list-query.dto';
 import { UpdateWholesaleAccountDto } from './dto/update-wholesale-account.dto';
@@ -17,6 +17,7 @@ import { UpdateWholesaleEnquiryDto } from './dto/update-wholesale-enquiry.dto';
 import { UpdateWholesaleTierDto } from './dto/update-wholesale-tier.dto';
 import { NewsletterListQueryDto } from './dto/newsletter-list-query.dto';
 import { UpdateNewsletterSubscriberDto } from './dto/update-newsletter-subscriber.dto';
+import { ApproveEnquiryDto } from './dto/approve-enquiry.dto';
 
 @Injectable()
 export class WholesalesService {
@@ -217,6 +218,68 @@ export class WholesalesService {
     if (dto.minOrderAmount !== undefined) tier.minOrderAmount = dto.minOrderAmount;
 
     return this.tierRepo.save(tier);
+  }
+
+  // ─── Stats ──────────────────────────────────────────────────────────────────
+
+  async getStats() {
+    const [totalAccounts, activeAccounts, pendingEnquiries, reviewingEnquiries, totalEnquiries] =
+      await Promise.all([
+        this.accountRepo.count(),
+        this.accountRepo.count({ where: { isActive: true } }),
+        this.enquiryRepo.count({ where: { status: WholesaleEnquiryStatus.PENDING } }),
+        this.enquiryRepo.count({ where: { status: WholesaleEnquiryStatus.REVIEWING } }),
+        this.enquiryRepo.count(),
+      ]);
+
+    return { totalAccounts, activeAccounts, pendingEnquiries, reviewingEnquiries, totalEnquiries };
+  }
+
+  // ─── Enquiry approve / reject ────────────────────────────────────────────────
+
+  async approveEnquiry(id: string, dto: ApproveEnquiryDto) {
+    const enquiry = await this.enquiryRepo.findOneBy({ id });
+    if (!enquiry) throw new NotFoundException('Wholesale enquiry not found');
+
+    const tier = await this.tierRepo.findOneBy({ id: dto.tierId });
+    if (!tier) throw new NotFoundException('Wholesale tier not found');
+
+    enquiry.status = WholesaleEnquiryStatus.APPROVED;
+    enquiry.respondedAt = new Date();
+    await this.enquiryRepo.save(enquiry);
+
+    let account: WholesaleAccountEntity | null = null;
+    const user = await this.userRepo.findOneBy({ email: enquiry.email });
+
+    if (user) {
+      const existing = await this.accountRepo.findOne({ where: { user: { id: user.id } } });
+      if (!existing) {
+        account = this.accountRepo.create({
+          user,
+          enquiry,
+          tier,
+          country: enquiry.country,
+          businessName: enquiry.businessName,
+          isActive: true,
+          approvedAt: new Date(),
+        });
+        account = await this.accountRepo.save(account);
+      } else {
+        account = existing;
+      }
+    }
+
+    return { enquiry, account };
+  }
+
+  async rejectEnquiry(id: string) {
+    const enquiry = await this.enquiryRepo.findOneBy({ id });
+    if (!enquiry) throw new NotFoundException('Wholesale enquiry not found');
+
+    enquiry.status = WholesaleEnquiryStatus.REJECTED;
+    enquiry.respondedAt = new Date();
+
+    return this.enquiryRepo.save(enquiry);
   }
 
   // ─── Newsletter ─────────────────────────────────────────────────────────────
