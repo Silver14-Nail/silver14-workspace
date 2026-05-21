@@ -29,7 +29,7 @@ export default function TrackForm({ formData, loading, onChange, onSubmit }: Tra
           label={t('orderId')}
           value={formData.orderId}
           onChange={(e) => onChange('orderId', e.target.value)}
-          placeholder="e.g. LNL-ABC123-XY"
+          placeholder="e.g. 90BB8367"
           required
         />
         <InputField

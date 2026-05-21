@@ -50,15 +50,9 @@ const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
   partially_refunded: 'bg-orange-50 text-orange-700 border-orange-200',
 };
 
-const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  pending: ['confirmed', 'cancelled'],
-  confirmed: ['processing', 'cancelled'],
-  processing: ['shipped', 'cancelled'],
-  shipped: ['delivered'],
-  delivered: ['refunded'],
-  cancelled: [],
-  refunded: [],
-};
+const ALL_ORDER_STATUSES: OrderStatus[] = [
+  'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded',
+];
 
 const PAYMENT_STATUS_OPTIONS: PaymentStatus[] = [
   'pending',
@@ -95,10 +89,11 @@ function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: 
 interface OrderDrawerProps {
   orderId: string;
   onClose: (refreshed?: OrderListResponse) => void;
+  onRefresh?: (data: OrderListResponse) => void;
   currentQuery: OrderListQuery;
 }
 
-export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps) {
+export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: OrderDrawerProps) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,9 +171,11 @@ export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps
         reason: statusReason || undefined,
       });
       if (result.success) {
-        setOrder(result.data);
         setStatusReason('');
+        setSelectedStatus('');
         showFeedback('success', `Order status updated to ${newStatus}`);
+        const refreshed = await refreshAndSync();
+        if (refreshed) onRefresh?.(refreshed);
       } else {
         showFeedback('error', getErr(result));
       }
@@ -192,8 +189,9 @@ export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps
         trackingNumber: trackingNumber || null,
       });
       if (result.success) {
-        setOrder(result.data);
         showFeedback('success', 'Shipping info updated');
+        const refreshed = await refreshAndSync();
+        if (refreshed) onRefresh?.(refreshed);
       } else {
         showFeedback('error', getErr(result));
       }
@@ -223,17 +221,21 @@ export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps
     startTransition(async () => {
       const result = await cancelOrderAction(orderId, { reason: cancelReason || undefined });
       if (result.success) {
-        setOrder(result.data);
         setShowCancelConfirm(false);
         setCancelReason('');
         showFeedback('success', 'Order cancelled');
+        const refreshed = await refreshAndSync();
+        if (refreshed) onRefresh?.(refreshed);
       } else {
         showFeedback('error', getErr(result));
       }
     });
   };
 
-  const allowedTransitions = order ? STATUS_TRANSITIONS[order.status] : [];
+  const [selectedStatus, setSelectedStatus] = useState<OrderStatus | ''>('');
+  const availableStatuses = order
+    ? ALL_ORDER_STATUSES.filter((s) => s !== order.status)
+    : [];
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -351,14 +353,14 @@ export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps
 
               {/* Order Items */}
               <CollapsibleSection
-                title={`Order Items (${order.items.length})`}
+                title={`Order Items (${order.items?.length ?? 0})`}
                 icon={Package}
                 sectionKey="items"
                 expanded={expandedSection}
                 onToggle={setExpandedSection}
               >
                 <div className="space-y-3">
-                  {order.items.map((item) => (
+                  {(order.items ?? []).map((item) => (
                     <div key={item.id} className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 text-sm">
                         💅
@@ -555,10 +557,22 @@ export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps
               )}
 
               {/* Status Workflow */}
-              {allowedTransitions.length > 0 && (
+              {order && (
                 <div className="px-6 py-4 border-t border-[#E5E7EB]">
                   <SectionHeader icon={CheckCircle2} title="Update Order Status" />
                   <div className="space-y-3">
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value as OrderStatus | '')}
+                      className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827] capitalize bg-white"
+                    >
+                      <option value="">— Select new status —</option>
+                      {availableStatuses.map((s) => (
+                        <option key={s} value={s} className="capitalize">
+                          {s}
+                        </option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       placeholder="Reason for change (optional)..."
@@ -566,26 +580,23 @@ export function OrderDrawer({ orderId, onClose, currentQuery }: OrderDrawerProps
                       onChange={(e) => setStatusReason(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
                     />
-                    <div className="grid grid-cols-2 gap-2">
-                      {allowedTransitions.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => handleStatusTransition(s)}
-                          disabled={isPending}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium border capitalize transition-colors disabled:opacity-60 ${
-                            s === 'cancelled'
-                              ? 'border-red-200 text-red-600 hover:bg-red-50'
-                              : 'border-[#111827] bg-[#111827] text-white hover:bg-[#374151]'
-                          }`}
-                        >
-                          {isPending ? (
-                            <Loader2 className="w-3 h-3 animate-spin mx-auto" />
-                          ) : (
-                            `→ ${s}`
-                          )}
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      onClick={() => selectedStatus && handleStatusTransition(selectedStatus)}
+                      disabled={!selectedStatus || isPending}
+                      className={`w-full px-3 py-2 rounded-lg text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                        selectedStatus === 'cancelled'
+                          ? 'border-red-200 text-red-600 hover:bg-red-50'
+                          : 'border-[#111827] bg-[#111827] text-white hover:bg-[#374151]'
+                      }`}
+                    >
+                      {isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin mx-auto" />
+                      ) : selectedStatus ? (
+                        `→ ${selectedStatus}`
+                      ) : (
+                        'Select a status'
+                      )}
+                    </button>
                   </div>
                 </div>
               )}

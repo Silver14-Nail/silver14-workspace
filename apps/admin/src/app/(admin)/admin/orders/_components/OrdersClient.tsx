@@ -383,7 +383,12 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
 
       {/* Order Detail Drawer */}
       {selectedId && (
-        <OrderDrawer orderId={selectedId} onClose={handleDrawerClose} currentQuery={buildQuery()} />
+        <OrderDrawer
+          orderId={selectedId}
+          onClose={handleDrawerClose}
+          onRefresh={(data) => setOrders(data)}
+          currentQuery={buildQuery()}
+        />
       )}
     </div>
   );

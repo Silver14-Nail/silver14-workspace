@@ -57,10 +57,10 @@ export function ConfirmationStep({ orderId, firstName, email, phone }: Confirmat
           </p>
           {orderId ? (
             <p
-              className="text-[#1A1A1A] text-lg break-all"
+              className="text-[#1A1A1A] text-lg font-mono tracking-widest"
               style={{ fontWeight: 500 }}
             >
-              {orderId}
+              {orderId.slice(0, 8).toUpperCase()}
             </p>
           ) : (
             <div className="flex items-center justify-center gap-2 py-1">

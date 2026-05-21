@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 import { OrderEntity } from '@/db/entities/orders/order.entity';
 import { OrderStatus } from '@/common/enums/entity.enum';
@@ -32,8 +32,9 @@ export class ClientOrdersService {
   ) {}
 
   async trackOrder(dto: TrackOrderQueryDto) {
+    const prefix = dto.orderId.trim().toLowerCase();
     const order = await this.orderRepo.findOne({
-      where: { id: dto.orderId },
+      where: { id: Like(`${prefix}%`) },
       relations: ['items', 'items.variant', 'items.variant.product'],
     });
 
@@ -45,7 +46,7 @@ export class ClientOrdersService {
     const lastName = rest.join(' ');
 
     return {
-      id: order.id,
+      id: order.id.slice(0, 8).toUpperCase(),
       status: mapStatus(order.status),
       createdAt: order.createdAt,
       total: Number(order.total),
