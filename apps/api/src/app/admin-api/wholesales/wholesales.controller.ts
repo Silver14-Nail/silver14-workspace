@@ -15,12 +15,19 @@ import { UpdateWholesaleEnquiryDto } from './dto/update-wholesale-enquiry.dto';
 import { UpdateWholesaleTierDto } from './dto/update-wholesale-tier.dto';
 import { NewsletterListQueryDto } from './dto/newsletter-list-query.dto';
 import { UpdateNewsletterSubscriberDto } from './dto/update-newsletter-subscriber.dto';
+import { ApproveEnquiryDto } from './dto/approve-enquiry.dto';
 
 @ApiTags('Admin - Wholesale Accounts')
 @ApiBearerAuth()
 @Controller('wholesales/accounts')
 export class WholesaleAccountsController {
   constructor(private readonly wholesalesService: WholesalesService) {}
+
+  @Get('stats')
+  @ApiOkResponse({ description: 'Wholesale stats summary' })
+  getStats() {
+    return this.wholesalesService.getStats();
+  }
 
   @Get()
   @ApiOkResponse({ description: 'Paginated list of wholesale accounts' })
@@ -75,6 +82,21 @@ export class WholesaleEnquiriesController {
   @ApiNotFoundResponse({ description: 'Enquiry not found' })
   update(@Param('id') id: string, @Body() dto: UpdateWholesaleEnquiryDto) {
     return this.wholesalesService.updateEnquiry(id, dto);
+  }
+
+  @Patch(':id/approve')
+  @ApiOkResponse({ description: 'Enquiry approved; account created if user exists' })
+  @ApiNotFoundResponse({ description: 'Enquiry or tier not found' })
+  approve(@Param('id') id: string, @Body() dto: ApproveEnquiryDto) {
+    return this.wholesalesService.approveEnquiry(id, dto);
+  }
+
+  @Patch(':id/reject')
+  @HttpCode(200)
+  @ApiOkResponse({ description: 'Enquiry rejected' })
+  @ApiNotFoundResponse({ description: 'Enquiry not found' })
+  reject(@Param('id') id: string) {
+    return this.wholesalesService.rejectEnquiry(id);
   }
 }
 
