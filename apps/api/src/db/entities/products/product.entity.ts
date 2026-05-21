@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, Index } from 'typeorm';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 
 import { ProductImageEntity } from './product-image.entity';
 import { ProductShapePricingEntity } from './product-shape-pricing.entity';
 import { ProductVariantEntity } from './product-variants.entity';
+import { CollectionEntity } from './collection.entity';
 
 @Entity('products')
 export class ProductEntity extends SoftDeleteAbstractEntity {
@@ -84,4 +85,7 @@ export class ProductEntity extends SoftDeleteAbstractEntity {
 
   @OneToMany(() => ProductVariantEntity, (v) => v.product)
   variants: ProductVariantEntity[];
+
+  @ManyToMany(() => CollectionEntity, (collection) => collection.products)
+  collections: CollectionEntity[];
 }

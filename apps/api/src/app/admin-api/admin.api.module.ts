@@ -11,6 +11,7 @@ import { OrdersModule } from './orders/orders.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { PaymentsModule } from './payments/payments.module';
 import { CheckoutsModule } from './checkouts/checkouts.module';
+import { AdminCollectionsModule } from './collections/collections.module';
 
 const adminModules = [
   ProductsModule,
@@ -21,6 +22,7 @@ const adminModules = [
   CouponsModule,
   PaymentsModule,
   CheckoutsModule,
+  AdminCollectionsModule,
 ];
 
 @Module({
