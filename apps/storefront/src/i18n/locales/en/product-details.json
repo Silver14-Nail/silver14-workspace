@@ -36,7 +36,10 @@
     "customization": {
       "label": "Customization",
       "hint": "If you choose custom (strongly recommended), leave your nail size here. Kindly check your email regularly so we can support you promptly if there's any sizing concern.",
-      "placeholder": "Enter custom text or design ideas"
+      "placeholder": "Enter custom text or design ideas",
+      "labelCustomSize": "Custom Measurements",
+      "hintCustomSize": "Please provide your finger measurements below so we can craft the perfect fit. Include thumb, index, middle, ring, and pinky widths (in mm).",
+      "placeholderCustomSize": "e.g. Thumb: 14mm, Index: 13mm, Middle: 13mm, Ring: 12mm, Pinky: 10mm"
     }
   },
   "quantity": {
@@ -48,6 +51,7 @@
     "soldOut": "Sold Out",
     "selectOptions": "Select Options",
     "addToBag": "Add to Bag",
+    "customComingSoon": "Contact Us for Custom",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist",
     "selectHint": "Please select size, shape, and length"

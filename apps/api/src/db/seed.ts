@@ -394,7 +394,8 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'New Arrivals',
     slug: 'new-arrivals',
     shortDescription: 'The latest styles fresh from our studio',
-    description: 'Discover the newest nail art designs added to our collection. Fresh styles, trending shapes, and vibrant colours arrive every week.',
+    description:
+      'Discover the newest nail art designs added to our collection. Fresh styles, trending shapes, and vibrant colours arrive every week.',
     seoTitle: 'New Arrivals — Silver14 Nail',
     seoDescription: 'Shop the latest press-on nail sets from Silver14. New designs added weekly.',
     isFeatured: true,
@@ -405,9 +406,10 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Best Sellers',
     slug: 'best-sellers',
     shortDescription: 'Our most loved nail sets',
-    description: 'The nail sets our customers keep coming back to. Tried, tested, and loved by thousands of happy customers worldwide.',
+    description:
+      'The nail sets our customers keep coming back to. Tried, tested, and loved by thousands of happy customers worldwide.',
     seoTitle: 'Best Sellers — Silver14 Nail',
-    seoDescription: 'Shop Silver14\'s bestselling press-on nail sets loved by customers worldwide.',
+    seoDescription: "Shop Silver14's bestselling press-on nail sets loved by customers worldwide.",
     isFeatured: true,
     sortOrder: 2,
     productNames: ['Midnight Velvet', 'Rose Quartz Luxe'],
@@ -416,9 +418,11 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Luxury Collection',
     slug: 'luxury-collection',
     shortDescription: 'Premium nail art for special occasions',
-    description: 'Our finest nail art sets crafted with premium materials. Designed for those moments when only the best will do.',
+    description:
+      'Our finest nail art sets crafted with premium materials. Designed for those moments when only the best will do.',
     seoTitle: 'Luxury Collection — Silver14 Nail',
-    seoDescription: 'Explore Silver14\'s luxury press-on nail sets for weddings, galas, and special events.',
+    seoDescription:
+      "Explore Silver14's luxury press-on nail sets for weddings, galas, and special events.",
     isFeatured: true,
     sortOrder: 3,
     productNames: ['Rose Quartz Luxe'],
@@ -427,7 +431,8 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'French Collection',
     slug: 'french-collection',
     shortDescription: 'Classic French tips reimagined',
-    description: 'Timeless French manicure styles elevated with modern twists. From clean classic whites to coloured and glitter tips.',
+    description:
+      'Timeless French manicure styles elevated with modern twists. From clean classic whites to coloured and glitter tips.',
     seoTitle: 'French Collection — Silver14 Nail',
     seoDescription: 'Classic and modern French tip press-on nails from Silver14.',
     isFeatured: false,
@@ -438,9 +443,10 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Nude Collection',
     slug: 'nude-collection',
     shortDescription: 'Understated elegance in every shade',
-    description: 'Sophisticated nude and neutral tones that complement every skin tone and outfit. Perfect for the office or a night out.',
+    description:
+      'Sophisticated nude and neutral tones that complement every skin tone and outfit. Perfect for the office or a night out.',
     seoTitle: 'Nude Collection — Silver14 Nail',
-    seoDescription: 'Shop Silver14\'s nude and neutral press-on nail sets for every skin tone.',
+    seoDescription: "Shop Silver14's nude and neutral press-on nail sets for every skin tone.",
     isFeatured: false,
     sortOrder: 5,
     productNames: ['Midnight Velvet'],
@@ -449,9 +455,11 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Wedding Collection',
     slug: 'wedding-collection',
     shortDescription: 'Beautiful nails for your big day',
-    description: 'Bridal-inspired nail sets designed to complement wedding looks. Elegant, romantic, and unforgettable for brides and bridal parties.',
+    description:
+      'Bridal-inspired nail sets designed to complement wedding looks. Elegant, romantic, and unforgettable for brides and bridal parties.',
     seoTitle: 'Wedding Collection — Silver14 Nail',
-    seoDescription: 'Bridal and wedding press-on nail sets from Silver14. Perfect for your big day.',
+    seoDescription:
+      'Bridal and wedding press-on nail sets from Silver14. Perfect for your big day.',
     isFeatured: true,
     sortOrder: 6,
     productNames: ['Rose Quartz Luxe', 'Crystal Aurora Set'],
@@ -460,7 +468,8 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Spring Collection',
     slug: 'spring-collection',
     shortDescription: 'Fresh florals and pastel tones',
-    description: 'Celebrate the season with pastel shades, floral designs, and light-catching finishes that capture the energy of spring.',
+    description:
+      'Celebrate the season with pastel shades, floral designs, and light-catching finishes that capture the energy of spring.',
     seoTitle: 'Spring Collection — Silver14 Nail',
     seoDescription: 'Spring-inspired press-on nails with pastels and florals from Silver14.',
     isFeatured: false,
@@ -471,9 +480,11 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Summer Collection',
     slug: 'summer-collection',
     shortDescription: 'Bold colours for sun-soaked days',
-    description: 'Vibrant shades and playful designs made for summer adventures. From beach days to rooftop parties.',
+    description:
+      'Vibrant shades and playful designs made for summer adventures. From beach days to rooftop parties.',
     seoTitle: 'Summer Collection — Silver14 Nail',
-    seoDescription: 'Summer press-on nail sets with bold colours and playful designs from Silver14.',
+    seoDescription:
+      'Summer press-on nail sets with bold colours and playful designs from Silver14.',
     isFeatured: false,
     sortOrder: 8,
     productNames: ['Midnight Velvet'],
@@ -482,9 +493,11 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Holiday Collection',
     slug: 'holiday-collection',
     shortDescription: 'Festive nails for every celebration',
-    description: 'Glittery, sparkly, and festive nail sets for holiday parties, Christmas gatherings, and New Year celebrations.',
+    description:
+      'Glittery, sparkly, and festive nail sets for holiday parties, Christmas gatherings, and New Year celebrations.',
     seoTitle: 'Holiday Collection — Silver14 Nail',
-    seoDescription: 'Festive and holiday press-on nail sets from Silver14. Perfect for Christmas and New Year.',
+    seoDescription:
+      'Festive and holiday press-on nail sets from Silver14. Perfect for Christmas and New Year.',
     isFeatured: false,
     sortOrder: 9,
     productNames: ['Crystal Aurora Set', 'Midnight Velvet', 'Rose Quartz Luxe'],
@@ -493,7 +506,8 @@ const COLLECTIONS: CollectionInput[] = [
     name: 'Trending Now',
     slug: 'trending-now',
     shortDescription: 'What everyone is wearing this season',
-    description: 'Our curated selection of the most-searched and talked-about nail styles right now. Stay ahead of the trend.',
+    description:
+      'Our curated selection of the most-searched and talked-about nail styles right now. Stay ahead of the trend.',
     seoTitle: 'Trending Now — Silver14 Nail',
     seoDescription: 'Shop trending press-on nail designs from Silver14. Updated regularly.',
     isFeatured: true,

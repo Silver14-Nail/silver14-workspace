@@ -31,15 +31,18 @@ export function adaptListItem(item: ApiProductListItem): StorefrontProduct {
 }
 
 export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
-  // Build shape label map: shapeId → display label
+  const base = parseFloat(detail.basePrice);
+
+  // Build shape label map and price-adjustment map simultaneously
   const shapeLabelById = new Map<string, string>();
+  const shapeAdjById = new Map<string, number>();
   for (const sp of detail.shapePricings) {
     if (sp.isEnabled && sp.shape?.isActive) {
       shapeLabelById.set(sp.shape.id, shapeLabel(sp.shape, sp.priceOverride));
+      const raw = parseFloat(sp.priceOverride ?? sp.shape.priceAdjustment ?? '0');
+      shapeAdjById.set(sp.shape.id, isNaN(raw) ? 0 : raw);
     }
   }
-  const availableShapes = [...shapeLabelById.values()];
-
   // Build size label map: sizeId → display label (from available variants only)
   const sizeLabelById = new Map<string, string>();
   for (const v of detail.variants) {
@@ -47,9 +50,12 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
       sizeLabelById.set(v.size.id, sizeLabel(v.size));
     }
   }
-  const availableSizes = [...sizeLabelById.values()];
+  // "Custom" is always offered (made-to-order) — append if not already present from variants
+  const sizeValues = [...sizeLabelById.values()].filter((s) => s !== 'Custom');
+  const availableSizes = [...sizeValues, 'Custom'];
 
-  // Build variants with display labels for variantId resolution on the product page
+  // Compute variant price from basePrice + shape adjustment (not the stored computedPrice
+  // which may be stale if the shape adjustment was changed after variants were created)
   const variants: StorefrontVariant[] = detail.variants
     .filter((v) => v.isAvailable && shapeLabelById.has(v.shape.id))
     .map((v) => ({
@@ -57,9 +63,18 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
       shapeLabel: shapeLabelById.get(v.shape.id)!,
       sizeLabel: sizeLabelById.get(v.size.id) ?? sizeLabel(v.size),
       stockQty: v.stockQty,
-      computedPrice: parseFloat(v.computedPrice),
+      computedPrice: base + (shapeAdjById.get(v.shape.id) ?? 0),
       isAvailable: v.isAvailable,
     }));
+
+  // Only list shapes that have at least one in-stock regular variant.
+  // Custom is always shown as an extra option for every visible shape.
+  const shapesWithStock = new Set(
+    variants.filter((v) => v.stockQty > 0).map((v) => v.shapeLabel),
+  );
+  const availableShapes = [...shapeLabelById.values()].filter((label) =>
+    shapesWithStock.has(label),
+  );
 
   const inStock = detail.variants.some((v) => v.stockQty > 0 && v.isAvailable);
 

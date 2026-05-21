@@ -20,8 +20,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-cormorant)', 'serif'],
-        serif: ['var(--font-cormorant)', 'serif'],
+        sans: ['var(--font-primary)', 'var(--font-jp)', 'sans-serif'],
+        serif: ['var(--font-primary)', 'var(--font-jp)', 'serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',

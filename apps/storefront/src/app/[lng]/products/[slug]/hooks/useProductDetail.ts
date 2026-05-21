@@ -1,10 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useProduct } from '@/hooks/useProduct';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
 import type { AccordionKey, ProductSelections, CartPreviewItem } from '../types';
+
+function computeEffectivePrice(
+  computedPrice: number,
+  basePrice: number,
+  salePrice: number | null,
+): number {
+  if (salePrice !== null && salePrice < basePrice && basePrice > 0) {
+    return computedPrice * (salePrice / basePrice);
+  }
+  return computedPrice;
+}
 
 export function useProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -47,9 +58,14 @@ export function useProductDetail() {
     }
   }, [product]);
 
+  // Reset size when shape changes — prevent stale shape+size combos with no variant
   const updateSelection = useCallback(
     <K extends keyof ProductSelections>(key: K, value: ProductSelections[K]) => {
-      setSelections((prev) => ({ ...prev, [key]: value }));
+      setSelections((prev) => ({
+        ...prev,
+        [key]: value,
+        ...(key === 'shape' ? { size: '' } : {}),
+      }));
     },
     [],
   );
@@ -58,14 +74,53 @@ export function useProductDetail() {
     setOpenSection((prev) => (prev === key ? null : key));
   }, []);
 
-  // Resolve the matching variant from the current shape+size selection
-  const selectedVariant =
-    product?.variants.find(
-      (v) => v.shapeLabel === selections.shape && v.sizeLabel === selections.size,
-    ) ?? null;
+  const isCustomSize = selections.size === 'Custom';
 
+  // Sizes available for the currently selected shape.
+  // Regular sizes require in-stock variants; "Custom" is always appended last.
+  const availableSizesForShape = useMemo(() => {
+    if (!product) return [];
+    if (!selections.shape) return product.availableSizes; // includes 'Custom' always
+    const validSizes = new Set(
+      product.variants
+        .filter((v) => v.shapeLabel === selections.shape && v.isAvailable && v.stockQty > 0)
+        .map((v) => v.sizeLabel),
+    );
+    const regular = product.availableSizes.filter((s) => s !== 'Custom' && validSizes.has(s));
+    return [...regular, 'Custom']; // Custom always last
+  }, [product, selections.shape]);
+
+  // Exact variant match for regular sizes; for Custom, fall back to any in-stock
+  // variant of the selected shape so the price and variantId are always available.
+  const selectedVariant = useMemo(() => {
+    if (!product || !selections.shape) return null;
+    if (isCustomSize) {
+      return (
+        product.variants.find(
+          (v) => v.shapeLabel === selections.shape && v.sizeLabel === 'Custom',
+        ) ??
+        product.variants.find((v) => v.shapeLabel === selections.shape && v.stockQty > 0) ??
+        null
+      );
+    }
+    return (
+      product.variants.find(
+        (v) => v.shapeLabel === selections.shape && v.sizeLabel === selections.size,
+      ) ?? null
+    );
+  }, [product, selections.shape, selections.size, isCustomSize]);
+
+  // Effective display price — variant computed price with sale ratio applied
+  const selectedEffectivePrice = useMemo(() => {
+    if (!selectedVariant || !product) return null;
+    return computeEffectivePrice(selectedVariant.computedPrice, product.price, product.salePrice);
+  }, [selectedVariant, product]);
+
+  // Custom is always purchasable when a shape is selected (made-to-order).
   const canAddToCart = Boolean(
-    selectedVariant && selectedVariant.isAvailable && selectedVariant.stockQty > 0,
+    selectedVariant &&
+      selectedVariant.isAvailable &&
+      (selectedVariant.stockQty > 0 || isCustomSize),
   );
 
   const handleAddToCart = useCallback(async () => {
@@ -73,25 +128,39 @@ export function useProductDetail() {
 
     setAddToCartError(null);
 
-    // Build preview snapshot immediately for instant feedback
+    const effectivePrice = computeEffectivePrice(
+      selectedVariant.computedPrice,
+      product.price,
+      product.salePrice,
+    );
+
     const preview: CartPreviewItem = {
       productName: product.name,
       thumbnail: product.thumbnail,
       shapeName: selections.shape,
       sizeName: selections.size,
-      price: selectedVariant.computedPrice,
+      price: effectivePrice,
       quantity: selections.quantity,
     };
     setLastAddedItem(preview);
     setShowCartPreview(true);
 
     try {
-      await addItem({ variantId: selectedVariant.id, quantity: selections.quantity });
+      await addItem({
+        variantId: selectedVariant.id,
+        quantity: selections.quantity,
+        ...(isCustomSize && {
+          isCustomSize: true,
+          customMeasurements: selections.customization
+            ? { notes: selections.customization }
+            : undefined,
+        }),
+      });
     } catch (err) {
       setShowCartPreview(false);
       setAddToCartError(err instanceof Error ? err.message : 'Failed to add item to cart');
     }
-  }, [product, selectedVariant, canAddToCart, selections, addItem]);
+  }, [product, selectedVariant, canAddToCart, selections, addItem, isCustomSize]);
 
   const handleWishlist = useCallback(() => {
     if (product) toggleWishlist(product);
@@ -110,7 +179,11 @@ export function useProductDetail() {
     // Selections
     selections,
     updateSelection,
+    availableSizesForShape,
+    selectedVariant,
+    selectedEffectivePrice,
     canAddToCart,
+    isCustomSize,
     // UI
     openSection,
     toggleSection,

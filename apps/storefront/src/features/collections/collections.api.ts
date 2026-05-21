@@ -19,9 +19,12 @@ export interface StorefrontCollectionProduct {
   name: string;
   slug: string;
   basePrice: string;
+  salePrice?: string | null;
   currency: string;
   isActive: boolean;
-  images?: { url: string; isMain: boolean }[];
+  isOnSale?: boolean;
+  discountPercent?: number | null;
+  thumbnail?: { url: string } | null;
 }
 
 export interface CollectionListResponse {

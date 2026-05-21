@@ -42,6 +42,11 @@ export class ProductQueryDto {
   @IsUUID()
   shapeId?: string;
 
+  @ApiPropertyOptional({ description: 'Filter by collection slug' })
+  @IsOptional()
+  @IsString()
+  collection?: string;
+
   @ApiPropertyOptional({ description: 'Minimum base price' })
   @IsOptional()
   @Type(() => Number)

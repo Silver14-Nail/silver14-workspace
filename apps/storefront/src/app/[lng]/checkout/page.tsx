@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { AnimatePresence, motion } from 'motion/react';
 import { useT } from 'next-i18next/client';
 import { useCheckout } from './hooks/useCheckout';
+import { DEFAULT_SHIPPING } from './constants';
 import {
   StepIndicator,
   CheckoutSidebar,
@@ -24,30 +25,26 @@ export default function CheckoutPage() {
   const {
     step,
     session,
+    sessionId,
     isSubmitting,
     error,
     completedOrderId,
     confirmEmail,
     confirmFirstName,
     confirmPhone,
-    contact,
-    shipping,
+    contactDefaults,
     selectedMethodId,
-    paymentMethod,
     shippingMethods,
+    paymentMethod,
     cartItems,
     subtotal,
     discountAmount,
     shippingCost,
     finalTotal,
     currency,
-    isContactValid,
-    isShippingValid,
     setStep,
     setPaymentMethod,
     setSelectedMethodId,
-    updateContact,
-    updateShipping,
     handleContactNext,
     handleShippingNext,
     handleStripeConfirm,
@@ -85,11 +82,10 @@ export default function CheckoutPage() {
               {step === 'contact' && (
                 <motion.div key="contact" {...SLIDE} transition={{ duration: 0.3 }}>
                   <ContactStep
-                    contact={contact}
-                    isValid={isContactValid}
+                    defaultValues={contactDefaults}
+                    sessionId={sessionId}
                     isSubmitting={isSubmitting}
                     error={error}
-                    onUpdate={updateContact}
                     onNext={handleContactNext}
                   />
                 </motion.div>
@@ -98,13 +94,12 @@ export default function CheckoutPage() {
               {step === 'shipping' && (
                 <motion.div key="shipping" {...SLIDE} transition={{ duration: 0.3 }}>
                   <ShippingStep
-                    shipping={shipping}
+                    defaultValues={DEFAULT_SHIPPING}
+                    sessionId={sessionId}
                     shippingMethods={shippingMethods}
                     selectedMethodId={selectedMethodId}
-                    isValid={isShippingValid}
                     isSubmitting={isSubmitting}
                     error={error}
-                    onUpdate={updateShipping}
                     onMethodChange={setSelectedMethodId}
                     onBack={() => setStep('contact')}
                     onNext={handleShippingNext}

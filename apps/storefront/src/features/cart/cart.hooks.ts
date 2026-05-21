@@ -10,7 +10,7 @@ import {
 import { getGuestCartId, setGuestCartId, clearGuestCartId } from './cart.storage';
 import { cartApi, type AddItemInput } from './cart.api';
 import { adaptCart, calcCartTotals } from './cart.utils';
-import type { CartDisplayItem } from './cart.types';
+import type { ApiCart, CartDisplayItem } from './cart.types';
 
 export const CART_QUERY_KEY = ['cart'] as const;
 
@@ -85,7 +85,19 @@ export function useCart() {
       const { accessToken, guestCartId } = getCredentials();
       return cartApi.updateItem(itemId, quantity, accessToken, guestCartId);
     },
-    onSuccess: invalidate,
+    onMutate: async ({ itemId, quantity }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const snapshot = queryClient.getQueryData<ApiCart>(queryKey);
+      queryClient.setQueryData<ApiCart | null>(queryKey, (old) => {
+        if (!old) return old;
+        return { ...old, items: old.items.map((i) => (i.id === itemId ? { ...i, quantity } : i)) };
+      });
+      return { snapshot };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.snapshot !== undefined) queryClient.setQueryData(queryKey, ctx.snapshot);
+    },
+    onSettled: invalidate,
   });
 
   const removeItemMutation = useMutation({
@@ -93,7 +105,19 @@ export function useCart() {
       const { accessToken, guestCartId } = getCredentials();
       return cartApi.removeItem(itemId, accessToken, guestCartId);
     },
-    onSuccess: invalidate,
+    onMutate: async (itemId) => {
+      await queryClient.cancelQueries({ queryKey });
+      const snapshot = queryClient.getQueryData<ApiCart>(queryKey);
+      queryClient.setQueryData<ApiCart | null>(queryKey, (old) => {
+        if (!old) return old;
+        return { ...old, items: old.items.filter((i) => i.id !== itemId) };
+      });
+      return { snapshot };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.snapshot !== undefined) queryClient.setQueryData(queryKey, ctx.snapshot);
+    },
+    onSettled: invalidate,
   });
 
   const clearCartMutation = useMutation({

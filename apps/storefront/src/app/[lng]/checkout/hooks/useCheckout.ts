@@ -17,8 +17,9 @@ import {
   clearPendingCoupon,
 } from '@/features/checkout/checkout.storage';
 import type { CheckoutSession, ShippingMethod } from '@/features/checkout/checkout.types';
-import type { Step, ContactDetails, ShippingDetails, PaymentMethod } from '../types';
-import { DEFAULT_CONTACT, DEFAULT_SHIPPING } from '../constants';
+import type { PaymentMethod } from '../types';
+import type { ContactFormData, ShippingFormData } from '../schemas';
+import { DEFAULT_CONTACT } from '../constants';
 
 function getToken(): string | null {
   const tokens = getStoredCustomerTokens();
@@ -28,8 +29,8 @@ function getToken(): string | null {
 async function pollForOrder(
   sessionId: string,
   token: string | null,
-  attempts = 6,
-  intervalMs = 2500,
+  attempts = 12,
+  intervalMs = 3000,
 ): Promise<string | null> {
   for (let i = 0; i < attempts; i++) {
     await new Promise<void>((r) => setTimeout(r, intervalMs));
@@ -48,7 +49,7 @@ export function useCheckout() {
   const { cartId, items, subtotal, clearCart } = useCart();
 
   const [sessionId, setSessionId] = useState<string | null>(getCheckoutSessionId);
-  const [step, setStep] = useState<Step>('contact');
+  const [step, setStep] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>('contact');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
@@ -56,9 +57,9 @@ export function useCheckout() {
   const [confirmFirstName, setConfirmFirstName] = useState('');
   const [confirmPhone, setConfirmPhone] = useState('');
 
-  // Local form state — committed to backend on "Next"
-  const [contact, setContact] = useState<ContactDetails>(DEFAULT_CONTACT);
-  const [shipping, setShipping] = useState<ShippingDetails>(DEFAULT_SHIPPING);
+  // Contact defaults — updated on session restore so the form can reset with pre-filled data
+  const [contactDefaults, setContactDefaults] = useState<ContactFormData>(DEFAULT_CONTACT);
+
   const [selectedMethodId, setSelectedMethodId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
 
@@ -88,14 +89,13 @@ export function useCheckout() {
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
 
-      // Auto-apply any coupon code pre-entered on the cart page
       const pending = getPendingCoupon();
       if (pending?.code) {
         try {
           const updated = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
           queryClient.setQueryData(['checkout-session', s.id], updated);
         } catch {
-          // Coupon may have expired or become invalid since cart validation — ignore silently
+          // ignore — coupon may have expired
         }
         clearPendingCoupon();
       }
@@ -108,14 +108,14 @@ export function useCheckout() {
     initSession();
   }, [initSession]);
 
-  // Auto-select first method once loaded
+  // Auto-select first shipping method once loaded
   useEffect(() => {
     if (shippingMethods.length > 0 && !selectedMethodId) {
       setSelectedMethodId(shippingMethods[0].id);
     }
   }, [shippingMethods, selectedMethodId]);
 
-  // Restore step + form values from a resumed session
+  // Restore step + form defaults from a resumed session
   useEffect(() => {
     if (!session) return;
 
@@ -132,78 +132,79 @@ export function useCheckout() {
 
     if (session.contactSnapshot) {
       const snap = session.contactSnapshot;
-      setContact((p) => ({ ...p, email: snap.email, phone: snap.phone, fullName: snap.fullName }));
+      setContactDefaults({ email: snap.email, phone: snap.phone, fullName: snap.fullName });
       setConfirmEmail(snap.email);
       setConfirmPhone(snap.phone);
       const [first = ''] = snap.fullName.split(' ');
       setConfirmFirstName(first);
     }
 
-    if (session.shippingSnapshot) {
+    if (session.shippingSnapshot?.shippingMethodId) {
       setSelectedMethodId(session.shippingSnapshot.shippingMethodId);
     }
 
     if (session.currentStep >= 3 && step === 'contact') setStep('payment');
     else if (session.currentStep >= 2 && step === 'contact') setStep('shipping');
-    // Run once per session load (session.id change means a new/restored session)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.id]);
+
   // ── Step: Contact ─────────────────────────────────────────────────────────
 
-  const handleContactNext = useCallback(async () => {
-    if (!sessionId) return;
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      await checkoutApi.updateContact(
-        sessionId,
-        { email: contact.email, phone: contact.phone, fullName: contact.fullName },
-        getToken(),
-      );
-      setConfirmEmail(contact.email);
-      setConfirmPhone(contact.phone);
-      const [first = ''] = contact.fullName.split(' ');
-      setConfirmFirstName(first);
-      queryClient.invalidateQueries({ queryKey: ['checkout-session', sessionId] });
-      setStep('shipping');
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to save contact info');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [sessionId, contact, queryClient]);
+  const handleContactNext = useCallback(
+    async (data: ContactFormData) => {
+      if (!sessionId) return;
+      setIsSubmitting(true);
+      setError(null);
+      try {
+        await checkoutApi.updateContact(sessionId, data, getToken());
+        setConfirmEmail(data.email);
+        setConfirmPhone(data.phone);
+        const [first = ''] = data.fullName.split(' ');
+        setConfirmFirstName(first);
+        queryClient.invalidateQueries({ queryKey: ['checkout-session', sessionId] });
+        setStep('shipping');
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to save contact info');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [sessionId, queryClient],
+  );
 
   // ── Step: Shipping ────────────────────────────────────────────────────────
 
-  const handleShippingNext = useCallback(async () => {
-    if (!sessionId || !selectedMethodId) return;
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      const recipientName = `${shipping.firstName} ${shipping.lastName}`.trim();
-      const street = shipping.apartment
-        ? `${shipping.address}, ${shipping.apartment}`
-        : shipping.address;
+  const handleShippingNext = useCallback(
+    async (data: ShippingFormData) => {
+      if (!sessionId) return;
+      setIsSubmitting(true);
+      setError(null);
+      try {
+        const recipientName = `${data.firstName} ${data.lastName}`.trim();
+        const street = data.apartment ? `${data.address}, ${data.apartment}` : data.address;
 
-      await checkoutApi.updateShipping(
-        sessionId,
-        {
-          shippingMethodId: selectedMethodId,
-          recipientName,
-          street,
-          city: shipping.city,
-          country: shipping.country,
-          postalCode: shipping.postalCode || undefined,
-        },
-        getToken(),
-      );
-      queryClient.invalidateQueries({ queryKey: ['checkout-session', sessionId] });
-      setStep('payment');
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to save shipping info');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [sessionId, shipping, selectedMethodId, queryClient]);
+        await checkoutApi.updateShipping(
+          sessionId,
+          {
+            ...(selectedMethodId ? { shippingMethodId: selectedMethodId } : {}),
+            recipientName,
+            street,
+            city: data.city,
+            country: data.country,
+            postalCode: data.postalCode || undefined,
+          },
+          getToken(),
+        );
+        queryClient.invalidateQueries({ queryKey: ['checkout-session', sessionId] });
+        setStep('payment');
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to save shipping info');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [sessionId, selectedMethodId, queryClient],
+  );
 
   // ── Payment: Stripe card ──────────────────────────────────────────────────
 
@@ -223,13 +224,16 @@ export function useCheckout() {
         if (stripeError) throw new Error(stripeError.message ?? 'Card payment failed');
 
         if (paymentIntent?.status === 'succeeded') {
-          // Webhook creates the order async — poll for up to ~15 s
-          const orderId = await pollForOrder(sessionId, getToken());
-          setCompletedOrderId(orderId);
+          // Show confirmation immediately — don't make user wait for webhook
+          const capturedSessionId = sessionId;
           await clearCart();
           clearCheckoutSessionId();
           setSessionId(null);
           setStep('confirmation');
+          // Poll for order ID in background; update when ready
+          pollForOrder(capturedSessionId!, getToken()).then((id) => {
+            if (id) setCompletedOrderId(id);
+          });
         }
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Payment failed. Please try again.');
@@ -294,27 +298,6 @@ export function useCheckout() {
   const currency = totals?.currency ?? 'EUR';
   const finalTotal = totals?.total ?? subtotal + (shippingCost ?? 0);
 
-  const isContactValid = Boolean(contact.email && contact.phone && contact.fullName);
-  const isShippingValid = Boolean(
-    shipping.firstName &&
-      shipping.lastName &&
-      shipping.address &&
-      shipping.city &&
-      selectedMethodId,
-  );
-
-  const updateContact = useCallback(
-    <K extends keyof ContactDetails>(key: K, value: ContactDetails[K]) =>
-      setContact((p) => ({ ...p, [key]: value })),
-    [],
-  );
-
-  const updateShipping = useCallback(
-    <K extends keyof ShippingDetails>(key: K, value: ShippingDetails[K]) =>
-      setShipping((p) => ({ ...p, [key]: value })),
-    [],
-  );
-
   return {
     // State
     step,
@@ -326,12 +309,13 @@ export function useCheckout() {
     confirmEmail,
     confirmFirstName,
     confirmPhone,
-    // Forms
-    contact,
-    shipping,
+    // Form defaults (for RHF initialization + session restore reset)
+    contactDefaults,
+    // Shipping method (outside RHF form)
     selectedMethodId,
-    paymentMethod,
     shippingMethods,
+    // Payment
+    paymentMethod,
     // Cart / totals
     cartItems: items,
     subtotal,
@@ -339,15 +323,10 @@ export function useCheckout() {
     shippingCost,
     finalTotal,
     currency,
-    // Validation
-    isContactValid,
-    isShippingValid,
     // Setters
     setStep,
     setPaymentMethod,
     setSelectedMethodId,
-    updateContact,
-    updateShipping,
     // Handlers
     handleContactNext,
     handleShippingNext,

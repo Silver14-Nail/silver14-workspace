@@ -149,7 +149,20 @@ export class ProductsService {
       throw new NotFoundException(`Product #${id} not found`);
     }
 
-    if (dto.name !== undefined) product.name = dto.name;
+    if (dto.name !== undefined) {
+      product.name = dto.name;
+      // Backfill slug for products created before auto-slug was added
+      if (!product.slug) {
+        const baseSlug = toSlug(dto.name);
+        let slug = baseSlug;
+        let attempt = 0;
+        while (await this.productRepo.findOne({ where: { slug } })) {
+          attempt++;
+          slug = `${baseSlug}-${attempt}`;
+        }
+        product.slug = slug;
+      }
+    }
     if (dto.description !== undefined) product.description = dto.description;
     if (dto.basePrice !== undefined) product.basePrice = dto.basePrice;
     if (dto.currency !== undefined) product.currency = dto.currency;

@@ -25,6 +25,7 @@ import { TotpService } from './totp.service';
     TotpService,
   ],
   exports: [
+    TypeOrmModule,
     AuthService,
     CustomerJwtAuthGuard,
     JwtAuthGuard,

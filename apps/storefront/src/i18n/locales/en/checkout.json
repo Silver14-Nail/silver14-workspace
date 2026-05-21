@@ -17,7 +17,13 @@
     "email": "Email Address",
     "phone": "Phone Number",
     "guestHint": "💡 After ordering, use your phone number and order ID to track your order status.",
-    "cta": "Continue to Shipping"
+    "cta": "Continue to Shipping",
+    "errors": {
+      "fullNameRequired": "Full name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneRequired": "Phone number is required"
+    }
   },
 
   "shipping": {
@@ -34,7 +40,14 @@
     "methodAriaLabel": "Select a shipping method",
     "delivery": "{{min}}–{{max}} business days",
     "methodsFree": "Free",
-    "cta": "Continue to Payment"
+    "cta": "Continue to Payment",
+    "errors": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "addressRequired": "Address is required",
+      "cityRequired": "City is required",
+      "methodRequired": "Please select a shipping method"
+    }
   },
 
   "payment": {

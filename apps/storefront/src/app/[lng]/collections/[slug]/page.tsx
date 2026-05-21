@@ -9,6 +9,7 @@ import type {
   StorefrontCollection,
   StorefrontCollectionProduct,
 } from '../../../../features/collections/collections.api';
+import { CollectionSortBar } from './CollectionSortBar';
 
 interface CollectionPageProps {
   params: Promise<{ lng: string; slug: string }>;
@@ -19,6 +20,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
   const { lng, slug } = await params;
   const { page: pageStr, sortBy } = await searchParams;
   const page = pageStr ? parseInt(pageStr, 10) : 1;
+  const currentSort = sortBy ?? 'newest';
 
   let collection: StorefrontCollection;
   let products: StorefrontCollectionProduct[] = [];
@@ -32,20 +34,13 @@ export default async function CollectionPage({ params, searchParams }: Collectio
   }
 
   try {
-    const result = await getCollectionProducts(slug, { page, limit: 24, sortBy });
+    const result = await getCollectionProducts(slug, { page, limit: 24, sortBy: currentSort });
     products = result.data;
     totalPages = result.meta.totalPages;
     total = result.meta.total;
   } catch {
     // show empty state
   }
-
-  const sortOptions = [
-    { value: 'newest', label: 'Newest' },
-    { value: 'price_asc', label: 'Price: Low to High' },
-    { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'bestseller', label: 'Best Seller' },
-  ];
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">
@@ -62,9 +57,8 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           </div>
         </div>
       ) : (
-        <div className="bg-[#F8F8F8] py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#F8F8F8] py-10 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-xs text-[#9A9A9A] mb-4">
               <Link href={`/${lng}`} className="hover:text-[#1A1A1A] transition">Home</Link>
               <ChevronRight className="size-3" />
@@ -80,10 +74,10 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* With banner, show breadcrumb + description inline */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* With banner: show breadcrumb + description inline */}
         {collection.bannerImage && (
-          <div className="mb-8">
+          <div className="mb-6">
             <nav className="flex items-center gap-1.5 text-xs text-[#9A9A9A] mb-3">
               <Link href={`/${lng}`} className="hover:text-[#1A1A1A] transition">Home</Link>
               <ChevronRight className="size-3" />
@@ -97,28 +91,8 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           </div>
         )}
 
-        {/* Sort + count bar */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-xs text-[#9A9A9A]">{total} {total === 1 ? 'product' : 'products'}</p>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[#9A9A9A]">Sort by</span>
-            <div className="flex gap-1">
-              {sortOptions.map((opt) => (
-                <Link
-                  key={opt.value}
-                  href={`/${lng}/collections/${slug}?sortBy=${opt.value}&page=1`}
-                  className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em] border transition ${
-                    (sortBy ?? 'newest') === opt.value
-                      ? 'border-[#1A1A1A] bg-[#1A1A1A] text-white'
-                      : 'border-[#E5E5E5] text-[#5A5A5A] hover:border-[#1A1A1A]'
-                  }`}
-                >
-                  {opt.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Sort + count bar — client component */}
+        <CollectionSortBar total={total} currentSort={currentSort} />
 
         {/* Products grid */}
         {products.length === 0 ? (
@@ -128,39 +102,53 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {products.map((product) => {
-              const mainImage =
-                product.images?.find((i) => i.isMain) ?? product.images?.[0];
-              return (
-                <Link
-                  key={product.id}
-                  href={`/${lng}/products/${product.slug}`}
-                  className="group block"
-                >
-                  <div className="aspect-square overflow-hidden bg-[#F8F8F8]">
-                    {mainImage ? (
-                      <img
-                        src={mainImage.url}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+            {products.map((product) => (
+              <Link
+                key={product.id}
+                href={`/${lng}/products/${product.slug || product.id}`}
+                className="group block"
+              >
+                <div className="aspect-square overflow-hidden bg-[#F8F8F8] relative">
+                  {product.thumbnail?.url ? (
+                    <img
+                      src={product.thumbnail.url}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <Package className="size-8 text-[#D1D5DB]" />
+                    </div>
+                  )}
+                  {product.isOnSale && product.discountPercent && (
+                    <span className="absolute top-2 left-2 text-[10px] bg-[#C0392B] text-white px-1.5 py-0.5 uppercase tracking-wider">
+                      -{product.discountPercent}%
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#1A1A1A] group-hover:text-[#5A5A5A] transition line-clamp-2">
+                    {product.name}
+                  </p>
+                  <div className="mt-1 flex items-center gap-2">
+                    {product.isOnSale && product.salePrice ? (
+                      <>
+                        <span className="text-xs text-[#C0392B]">
+                          {product.currency} {Number(product.salePrice).toFixed(2)}
+                        </span>
+                        <span className="text-xs text-[#9A9A9A] line-through">
+                          {product.currency} {Number(product.basePrice).toFixed(2)}
+                        </span>
+                      </>
                     ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <Package className="size-8 text-[#D1D5DB]" />
-                      </div>
+                      <span className="text-xs text-[#9A9A9A]">
+                        {product.currency} {Number(product.basePrice).toFixed(2)}
+                      </span>
                     )}
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#1A1A1A] group-hover:text-[#5A5A5A] transition line-clamp-2">
-                      {product.name}
-                    </p>
-                    <p className="mt-1 text-xs text-[#9A9A9A]">
-                      {product.currency} {Number(product.basePrice).toFixed(2)}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
+                </div>
+              </Link>
+            ))}
           </div>
         )}
 
@@ -169,7 +157,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           <div className="flex items-center justify-center gap-2 mt-12">
             {page > 1 && (
               <Link
-                href={`/${lng}/collections/${slug}?page=${page - 1}${sortBy ? `&sortBy=${sortBy}` : ''}`}
+                href={`/${lng}/collections/${slug}?page=${page - 1}&sortBy=${currentSort}`}
                 className="px-4 py-2 border border-[#E5E5E5] text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#1A1A1A] transition"
               >
                 Previous
@@ -178,7 +166,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <Link
                 key={p}
-                href={`/${lng}/collections/${slug}?page=${p}${sortBy ? `&sortBy=${sortBy}` : ''}`}
+                href={`/${lng}/collections/${slug}?page=${p}&sortBy=${currentSort}`}
                 className={`px-4 py-2 text-xs font-semibold uppercase tracking-[0.1em] border transition ${
                   p === page
                     ? 'border-[#1A1A1A] bg-[#1A1A1A] text-white'
@@ -190,7 +178,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
             ))}
             {page < totalPages && (
               <Link
-                href={`/${lng}/collections/${slug}?page=${page + 1}${sortBy ? `&sortBy=${sortBy}` : ''}`}
+                href={`/${lng}/collections/${slug}?page=${page + 1}&sortBy=${currentSort}`}
                 className="px-4 py-2 border border-[#E5E5E5] text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#1A1A1A] transition"
               >
                 Next

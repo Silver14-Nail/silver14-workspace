@@ -2,9 +2,10 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsUUID, IsString, MaxLength, IsOptional } from 'class-validator';
 
 export class UpdateShippingDto {
-  @ApiProperty({ description: 'Shipping method ID' })
+  @ApiPropertyOptional({ description: 'Shipping method ID — omit when none are configured' })
+  @IsOptional()
   @IsUUID()
-  shippingMethodId: string;
+  shippingMethodId?: string;
 
   @ApiProperty()
   @IsString()

@@ -30,6 +30,15 @@ export default function VariantFormDrawer({
   const [price, setPrice] = useState(variant ? Number(variant.computedPrice).toFixed(2) : '');
   const [stock, setStock] = useState(variant ? String(variant.stockQty) : '0');
   const [isAvailable, setIsAvailable] = useState(variant?.isAvailable ?? true);
+
+  const selectedSize = sizes.find((s) => s.id === sizeId);
+  const isCustomSizeSelected = selectedSize?.label === 'Custom';
+
+  const handleSizeChange = (id: string) => {
+    setSizeId(id);
+    const s = sizes.find((sz) => sz.id === id);
+    if (s?.label === 'Custom') setStock('9999');
+  };
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -115,7 +124,7 @@ export default function VariantFormDrawer({
             <label className="block text-xs font-semibold mb-1.5 text-[#374151]">Nail Size *</label>
             <select
               value={sizeId}
-              onChange={(e) => setSizeId(e.target.value)}
+              onChange={(e) => handleSizeChange(e.target.value)}
               className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
             >
               <option value="">Select a size...</option>
@@ -123,9 +132,15 @@ export default function VariantFormDrawer({
                 <option key={s.id} value={s.id}>
                   {s.label} — {s.sizeCode}
                   {s.measurements ? ` (${s.measurements})` : ''}
+                  {s.label === 'Custom' ? ' (made-to-order)' : ''}
                 </option>
               ))}
             </select>
+            {isCustomSizeSelected && (
+              <p className="text-xs text-amber-600 mt-1.5 bg-amber-50 px-2.5 py-1.5 rounded-md border border-amber-100">
+                Custom size is made-to-order. Stock is set to 9999 (unlimited). Price should include any custom work surcharge.
+              </p>
+            )}
           </div>
 
           <div>
@@ -156,14 +171,21 @@ export default function VariantFormDrawer({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5 text-[#374151]">Stock Qty</label>
+              <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                Stock Qty{isCustomSizeSelected && <span className="ml-1 font-normal text-[#9CA3AF]">(unlimited)</span>}
+              </label>
               <input
                 value={stock}
-                onChange={(e) => setStock(e.target.value)}
+                onChange={(e) => !isCustomSizeSelected && setStock(e.target.value)}
+                readOnly={isCustomSizeSelected}
                 type="number"
                 min="0"
                 step="1"
-                className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                className={`w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none transition-colors ${
+                  isCustomSizeSelected
+                    ? 'bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed'
+                    : 'text-[#111827] focus:border-[#111827]'
+                }`}
               />
             </div>
           </div>

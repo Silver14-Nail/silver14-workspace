@@ -34,7 +34,13 @@ interface StripeCardFormProps {
   onConfirm: (stripe: Stripe, cardElement: StripeCardElement) => Promise<void>;
 }
 
-function StripeCardForm({ isSubmitting, error, finalTotal, currency, onConfirm }: StripeCardFormProps) {
+function StripeCardForm({
+  isSubmitting,
+  error,
+  finalTotal,
+  currency,
+  onConfirm,
+}: StripeCardFormProps) {
   const { t } = useT('checkout');
   const stripe = useStripe();
   const elements = useElements();
@@ -119,10 +125,7 @@ export function PaymentStep({
     <div className="bg-white p-6 sm:p-8">
       <BackButton label={t('payment.back')} onClick={onBack} />
 
-      <h2
-        className="text-[#1A1A1A] mb-6"
-        style={{ fontWeight: 400, fontSize: '1.4rem' }}
-      >
+      <h2 className="text-[#1A1A1A] mb-6" style={{ fontWeight: 400, fontSize: '1.4rem' }}>
         {t('payment.title')}
       </h2>
 

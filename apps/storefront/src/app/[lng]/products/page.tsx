@@ -45,14 +45,9 @@ export default function ProductsPage() {
           sortOpen={sortOpen}
           onSortToggle={toggleSort}
           onSortChange={handleSortChange}
+          productCount={filteredProducts.length}
           t={t}
         />
-
-        {!loading && !error && (
-          <p className="text-[#9A9A9A] text-xs mb-8">
-            {t('results', { count: filteredProducts.length })}
-          </p>
-        )}
 
         <ProductsGrid
           products={filteredProducts}

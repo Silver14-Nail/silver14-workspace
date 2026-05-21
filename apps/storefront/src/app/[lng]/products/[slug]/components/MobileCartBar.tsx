@@ -8,6 +8,7 @@ import type { ProductSelections } from '../types';
 interface MobileCartBarProps {
   inStock: boolean;
   canAddToCart: boolean;
+  isCustomSize: boolean;
   inWishlist: boolean;
   selections: ProductSelections;
   onDecrement: () => void;
@@ -19,6 +20,7 @@ interface MobileCartBarProps {
 export const MobileCartBar = memo(function MobileCartBar({
   inStock,
   canAddToCart,
+  isCustomSize,
   inWishlist,
   selections,
   onDecrement,

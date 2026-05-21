@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { LinkBase as Link } from '@/components/shared/LinkBase';
 import { Minus, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useT } from 'next-i18next/client';
@@ -73,8 +73,7 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
         <div className="min-w-0">
           <Link
             href={`/products/${item.productSlug}`}
-            className="text-[#1A1A1A] hover:opacity-70 transition-opacity"
-            style={{ fontWeight: 500, fontSize: '1rem' }}
+            className="text-[#1A1A1A] hover:opacity-70 transition-opacity font-medium text-base"
           >
             {item.productName}
           </Link>
