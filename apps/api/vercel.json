@@ -1,14 +1,17 @@
 {
-  "builds": [
-    {
-      "src": "dist/main.js",
-      "use": "@vercel/node"
+  "version": 2,
+  "buildCommand": "cd ../.. && npx nx build api --skip-nx-cache",
+  "outputDirectory": "dist",
+  "functions": {
+    "main.js": {
+      "memory": 1024,
+      "maxDuration": 30
     }
-  ],
+  },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/main.js"
+      "dest": "/main.js"
     }
   ]
 }
