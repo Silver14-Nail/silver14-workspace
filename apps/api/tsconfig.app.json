@@ -12,6 +12,7 @@
     "useDefineForClassFields": false,
     "strictPropertyInitialization": false,
     "target": "es2022",
+    "emitDeclarationOnly": false,
     "paths": {
       "@/*": ["./src/*"]
     }
