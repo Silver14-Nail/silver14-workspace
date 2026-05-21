@@ -74,7 +74,8 @@
       "PowerShell(Get-ChildItem -Path ./apps -Directory -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.Name -match 'order|track|shipment'} | Select-Object -ExpandProperty FullName)",
       "PowerShell(Get-ChildItem -Path \"./apps/storefront/src\" -Recurse -File | Where-Object {$_.Name -match 'order|track'})",
       "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | head -20)",
-      "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | Select-Object -First 20)"
+      "PowerShell(Get-ChildItem -Path \"./apps/storefront/src/features/checkout\" -Recurse -File | Where-Object {$_.Name -match '\\\\.ts|\\\\.tsx'} | Select-Object -ExpandProperty FullName | Select-Object -First 20)",
+      "PowerShell(\\(Get-Content \"C:\\\\Users\\\\Administrator\\\\.claude\\\\projects\\\\c--Users-Administrator-Desktop-codes-silver14-workspace\\\\3b6cd681-b18b-4ce0-b2f8-0efe98968eee\\\\tool-results\\\\toolu_016zCytJr6CYD4yxu2FH3pmX.json\" -Raw | ConvertFrom-Json\\)[0].text)"
     ]
   }
 }

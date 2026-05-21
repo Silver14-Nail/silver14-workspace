@@ -4,7 +4,7 @@ import { AbstractEntity } from '../../../common/entities';
 
 import { UserEntity } from './user.entity';
 
-@Entity('password_resetsEntity')
+@Entity('password_resets')
 export class PasswordResetEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
