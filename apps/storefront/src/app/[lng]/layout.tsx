@@ -14,6 +14,7 @@ import { Navbar } from '../../components/layout/Navbar';
 import { AIChat } from '../../components/shared/AIChat';
 import i18nConfig from '../../i18n.config';
 import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo';
+import { getCollections } from '../../features/collections/collections.api';
 import '../../styles/index.css';
 
 const cormorant = Cormorant({
@@ -47,6 +48,14 @@ export default async function RootLayout({
   const { i18n } = await getT();
   const resources = getResources(i18n);
 
+  let navCollections: Awaited<ReturnType<typeof getCollections>>['data'] = [];
+  try {
+    const result = await getCollections({ limit: 20 });
+    navCollections = result.data;
+  } catch {
+    // fallback to empty — Navbar handles gracefully
+  }
+
   return (
     <html lang={lng} dir={dir(lng)} className={cormorant.variable}>
       <head />
@@ -75,7 +84,7 @@ export default async function RootLayout({
         </Script> */}
         <StoreProvider>
           <I18nProvider language={lng} resources={resources}>
-            <Navbar />
+            <Navbar initialCollections={navCollections} />
             {children}
             <Footer />
             <AIChat />

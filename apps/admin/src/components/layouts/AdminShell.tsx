@@ -28,6 +28,7 @@ import {
   ChevronRight,
   Store,
   Loader2,
+  Layers,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -44,6 +45,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/', enabled: true },
   { label: 'Users', icon: Users, path: '/admin/users', enabled: true },
   { label: 'Products', icon: Package, path: '/admin/products', enabled: true },
+  { label: 'Collections', icon: Layers, path: '/admin/collections', enabled: true },
   { label: 'Inventory', icon: Boxes, path: '/admin/inventory', enabled: false },
   { label: 'Orders', icon: ShoppingBag, path: '/admin/orders', enabled: false },
   { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts', enabled: true },

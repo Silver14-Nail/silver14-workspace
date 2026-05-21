@@ -14,6 +14,7 @@ import { ProductEntity } from './entities/products/product.entity';
 import { ProductImageEntity } from './entities/products/product-image.entity';
 import { ProductShapePricingEntity } from './entities/products/product-shape-pricing.entity';
 import { ProductVariantEntity } from './entities/products/product-variants.entity';
+import { CollectionEntity } from './entities/products/collection.entity';
 
 // ─── Seed definitions ─────────────────────────────────────────────────────────
 
@@ -374,6 +375,167 @@ async function seedProducts(
   }
 }
 
+// ─── Collections ──────────────────────────────────────────────────────────────
+
+type CollectionInput = {
+  name: string;
+  slug: string;
+  shortDescription: string;
+  description: string;
+  seoTitle: string;
+  seoDescription: string;
+  isFeatured: boolean;
+  sortOrder: number;
+  productNames: string[];
+};
+
+const COLLECTIONS: CollectionInput[] = [
+  {
+    name: 'New Arrivals',
+    slug: 'new-arrivals',
+    shortDescription: 'The latest styles fresh from our studio',
+    description: 'Discover the newest nail art designs added to our collection. Fresh styles, trending shapes, and vibrant colours arrive every week.',
+    seoTitle: 'New Arrivals — Silver14 Nail',
+    seoDescription: 'Shop the latest press-on nail sets from Silver14. New designs added weekly.',
+    isFeatured: true,
+    sortOrder: 1,
+    productNames: ['Crystal Aurora Set'],
+  },
+  {
+    name: 'Best Sellers',
+    slug: 'best-sellers',
+    shortDescription: 'Our most loved nail sets',
+    description: 'The nail sets our customers keep coming back to. Tried, tested, and loved by thousands of happy customers worldwide.',
+    seoTitle: 'Best Sellers — Silver14 Nail',
+    seoDescription: 'Shop Silver14\'s bestselling press-on nail sets loved by customers worldwide.',
+    isFeatured: true,
+    sortOrder: 2,
+    productNames: ['Midnight Velvet', 'Rose Quartz Luxe'],
+  },
+  {
+    name: 'Luxury Collection',
+    slug: 'luxury-collection',
+    shortDescription: 'Premium nail art for special occasions',
+    description: 'Our finest nail art sets crafted with premium materials. Designed for those moments when only the best will do.',
+    seoTitle: 'Luxury Collection — Silver14 Nail',
+    seoDescription: 'Explore Silver14\'s luxury press-on nail sets for weddings, galas, and special events.',
+    isFeatured: true,
+    sortOrder: 3,
+    productNames: ['Rose Quartz Luxe'],
+  },
+  {
+    name: 'French Collection',
+    slug: 'french-collection',
+    shortDescription: 'Classic French tips reimagined',
+    description: 'Timeless French manicure styles elevated with modern twists. From clean classic whites to coloured and glitter tips.',
+    seoTitle: 'French Collection — Silver14 Nail',
+    seoDescription: 'Classic and modern French tip press-on nails from Silver14.',
+    isFeatured: false,
+    sortOrder: 4,
+    productNames: ['Crystal Aurora Set'],
+  },
+  {
+    name: 'Nude Collection',
+    slug: 'nude-collection',
+    shortDescription: 'Understated elegance in every shade',
+    description: 'Sophisticated nude and neutral tones that complement every skin tone and outfit. Perfect for the office or a night out.',
+    seoTitle: 'Nude Collection — Silver14 Nail',
+    seoDescription: 'Shop Silver14\'s nude and neutral press-on nail sets for every skin tone.',
+    isFeatured: false,
+    sortOrder: 5,
+    productNames: ['Midnight Velvet'],
+  },
+  {
+    name: 'Wedding Collection',
+    slug: 'wedding-collection',
+    shortDescription: 'Beautiful nails for your big day',
+    description: 'Bridal-inspired nail sets designed to complement wedding looks. Elegant, romantic, and unforgettable for brides and bridal parties.',
+    seoTitle: 'Wedding Collection — Silver14 Nail',
+    seoDescription: 'Bridal and wedding press-on nail sets from Silver14. Perfect for your big day.',
+    isFeatured: true,
+    sortOrder: 6,
+    productNames: ['Rose Quartz Luxe', 'Crystal Aurora Set'],
+  },
+  {
+    name: 'Spring Collection',
+    slug: 'spring-collection',
+    shortDescription: 'Fresh florals and pastel tones',
+    description: 'Celebrate the season with pastel shades, floral designs, and light-catching finishes that capture the energy of spring.',
+    seoTitle: 'Spring Collection — Silver14 Nail',
+    seoDescription: 'Spring-inspired press-on nails with pastels and florals from Silver14.',
+    isFeatured: false,
+    sortOrder: 7,
+    productNames: ['Crystal Aurora Set', 'Rose Quartz Luxe'],
+  },
+  {
+    name: 'Summer Collection',
+    slug: 'summer-collection',
+    shortDescription: 'Bold colours for sun-soaked days',
+    description: 'Vibrant shades and playful designs made for summer adventures. From beach days to rooftop parties.',
+    seoTitle: 'Summer Collection — Silver14 Nail',
+    seoDescription: 'Summer press-on nail sets with bold colours and playful designs from Silver14.',
+    isFeatured: false,
+    sortOrder: 8,
+    productNames: ['Midnight Velvet'],
+  },
+  {
+    name: 'Holiday Collection',
+    slug: 'holiday-collection',
+    shortDescription: 'Festive nails for every celebration',
+    description: 'Glittery, sparkly, and festive nail sets for holiday parties, Christmas gatherings, and New Year celebrations.',
+    seoTitle: 'Holiday Collection — Silver14 Nail',
+    seoDescription: 'Festive and holiday press-on nail sets from Silver14. Perfect for Christmas and New Year.',
+    isFeatured: false,
+    sortOrder: 9,
+    productNames: ['Crystal Aurora Set', 'Midnight Velvet', 'Rose Quartz Luxe'],
+  },
+  {
+    name: 'Trending Now',
+    slug: 'trending-now',
+    shortDescription: 'What everyone is wearing this season',
+    description: 'Our curated selection of the most-searched and talked-about nail styles right now. Stay ahead of the trend.',
+    seoTitle: 'Trending Now — Silver14 Nail',
+    seoDescription: 'Shop trending press-on nail designs from Silver14. Updated regularly.',
+    isFeatured: true,
+    sortOrder: 10,
+    productNames: ['Crystal Aurora Set', 'Rose Quartz Luxe'],
+  },
+];
+
+async function seedCollections(productsByName: Map<string, ProductEntity>) {
+  const repo = AppDataSource.getRepository(CollectionEntity);
+
+  for (const c of COLLECTIONS) {
+    let entity = await repo.findOne({ where: { slug: c.slug } });
+    if (entity) {
+      skip('Collection', c.slug);
+      continue;
+    }
+
+    const products = c.productNames
+      .map((name) => productsByName.get(name))
+      .filter((p): p is ProductEntity => !!p);
+
+    entity = repo.create({
+      name: c.name,
+      slug: c.slug,
+      shortDescription: c.shortDescription,
+      description: c.description,
+      seoTitle: c.seoTitle,
+      seoDescription: c.seoDescription,
+      isFeatured: c.isFeatured,
+      isActive: true,
+      sortOrder: c.sortOrder,
+      image: null,
+      bannerImage: null,
+      products,
+    });
+
+    await repo.save(entity);
+    created('Collection', `${c.name} (${products.length} products)`);
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function seed() {
@@ -386,6 +548,11 @@ async function seed() {
     const shapesByName = await seedNailShapes();
     const sizesByCode = await seedNailSizes();
     await seedProducts(shapesByName, sizesByCode);
+
+    const productRepo = AppDataSource.getRepository(ProductEntity);
+    const allProducts = await productRepo.find();
+    const productsByName = new Map(allProducts.map((p) => [p.name, p]));
+    await seedCollections(productsByName);
 
     console.log('\n✅  Seed completed successfully.\n');
   } catch (err) {

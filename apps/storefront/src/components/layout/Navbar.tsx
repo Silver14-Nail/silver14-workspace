@@ -17,18 +17,8 @@ import {
 import { useCart } from '../../hooks/useCart';
 import { useCustomerAuth } from '../../hooks/useCustomerAuth';
 import { HeaderPreferencesDropdown } from '../shared/HeaderPreferencesDropdown';
-
-const COLLECTIONS = [
-  { id: 'all', label: 'All Collections' },
-  { id: 'summer', label: 'Summer' },
-  { id: 'cat-eye', label: 'Cat Eye' },
-  { id: 'cute-nails', label: 'Cute Nails' },
-  { id: 'valentines', label: 'Valentines' },
-  { id: 'christmas-eve', label: 'Christmas Eve' },
-  { id: 'cyber-y2k-chrome', label: 'Cyber & Y2K & Chrome Nails' },
-  { id: 'custom', label: 'Custom' },
-];
 import { CartDrawer } from '../shared/CartDrawer';
+import type { StorefrontCollection } from '../../features/collections/collections.api';
 
 const navLinks = [
   { labelKey: 'shop', href: '/products' },
@@ -38,7 +28,11 @@ const navLinks = [
   { labelKey: 'trackOrder', href: '/order/tracking' },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  initialCollections?: StorefrontCollection[];
+}
+
+export function Navbar({ initialCollections = [] }: NavbarProps) {
   const { t } = useT('nav');
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -215,17 +209,19 @@ export function Navbar() {
                   }`}
                 >
                   <div className="border border-[#E5E5E5] bg-white py-2 shadow-lg">
-                    {COLLECTIONS.map((collection) => (
+                    <LinkBase
+                      href="/collections"
+                      className="block px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#1A1A1A] transition hover:bg-[#F8F8F8]"
+                    >
+                      All Collections
+                    </LinkBase>
+                    {initialCollections.map((collection) => (
                       <LinkBase
                         key={collection.id}
-                        href={
-                          collection.id === 'all'
-                            ? '/products'
-                            : `/products?collection=${collection.id}`
-                        }
+                        href={`/collections/${collection.slug}`}
                         className="block px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#1A1A1A] transition hover:bg-[#F8F8F8]"
                       >
-                        {collection.label}
+                        {collection.name}
                       </LinkBase>
                     ))}
                   </div>
@@ -328,17 +324,16 @@ export function Navbar() {
                           }`}
                         >
                           <div className="space-y-3 pl-3 pt-2">
-                            {COLLECTIONS.map((collection) => (
+                            <LinkBase href="/collections" className="block text-sm text-[#1A1A1A]">
+                              All Collections
+                            </LinkBase>
+                            {initialCollections.map((collection) => (
                               <LinkBase
                                 key={collection.id}
-                                href={
-                                  collection.id === 'all'
-                                    ? '/products'
-                                    : `/products?collection=${collection.id}`
-                                }
+                                href={`/collections/${collection.slug}`}
                                 className="block text-sm text-[#1A1A1A]"
                               >
-                                {collection.label}
+                                {collection.name}
                               </LinkBase>
                             ))}
                           </div>
