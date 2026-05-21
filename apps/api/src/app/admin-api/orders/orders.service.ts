@@ -13,15 +13,6 @@ import { UpdatePaymentStatusDto } from './dto/update-payment-status.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
 
-const STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
-  [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING, OrderStatus.CANCELLED],
-  [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
-  [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
-  [OrderStatus.DELIVERED]: [OrderStatus.REFUNDED],
-  [OrderStatus.CANCELLED]: [],
-  [OrderStatus.REFUNDED]: [],
-};
 
 @Injectable()
 export class OrdersService {
@@ -133,11 +124,8 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    const allowed = STATUS_TRANSITIONS[order.status];
-    if (!allowed.includes(dto.status)) {
-      throw new BadRequestException(
-        `Cannot transition order from '${order.status}' to '${dto.status}'. Allowed: [${allowed.join(', ') || 'none'}]`,
-      );
+    if (dto.status === order.status) {
+      throw new BadRequestException(`Order is already in '${order.status}' status`);
     }
 
     const timestamp = new Date().toISOString();
