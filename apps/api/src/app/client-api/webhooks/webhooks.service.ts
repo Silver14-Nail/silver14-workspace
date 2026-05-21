@@ -1,10 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
-import type Stripe from 'stripe';
 import type { IncomingHttpHeaders } from 'http';
 
 import { StripeService } from '@/shared/payments/stripe.service';
 import { PaypalService } from '@/shared/payments/paypal.service';
 import { ClientPaymentsService } from '../payments/payments.service';
+
+// Minimal shape of Stripe objects we extract from webhook events
+interface StripePaymentIntent {
+  id: string;
+  metadata?: Record<string, string> | null;
+  last_payment_error?: { message?: string } | null;
+}
 
 @Injectable()
 export class WebhooksService {
@@ -17,7 +23,7 @@ export class WebhooksService {
   ) {}
 
   async handleStripeWebhook(rawBody: Buffer, signature: string): Promise<void> {
-    let event: Stripe.Event;
+    let event: ReturnType<StripeService['constructWebhookEvent']>;
 
     try {
       event = this.stripeService.constructWebhookEvent(rawBody, signature);
@@ -30,7 +36,7 @@ export class WebhooksService {
 
     switch (event.type) {
       case 'payment_intent.succeeded': {
-        const intent = event.data.object as Stripe.PaymentIntent;
+        const intent = event.data.object as unknown as StripePaymentIntent;
         const checkoutSessionId = intent.metadata?.checkoutSessionId;
 
         if (!checkoutSessionId) {
@@ -44,7 +50,7 @@ export class WebhooksService {
       }
 
       case 'payment_intent.payment_failed': {
-        const intent = event.data.object as Stripe.PaymentIntent;
+        const intent = event.data.object as unknown as StripePaymentIntent;
         this.logger.warn(
           `PaymentIntent failed: ${intent.id} — ${intent.last_payment_error?.message}`,
         );
@@ -69,10 +75,6 @@ export class WebhooksService {
 
     switch (event.event_type) {
       case 'PAYMENT.CAPTURE.COMPLETED': {
-        // Fallback: payment already handled synchronously in capture endpoint.
-        // If it reaches here without an order, we could create one, but
-        // to keep idempotency safe the capturePaypalOrder method handles
-        // the COMPLETED guard.
         this.logger.log(`PayPal PAYMENT.CAPTURE.COMPLETED received — handled by capture endpoint`);
         break;
       }

@@ -7,6 +7,19 @@ import type { DatabaseConnectionState } from './database.types';
 export class DatabaseService {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
+  getConfig() {
+    const options = this.dataSource.options as any;
+    return {
+      type: options.type as string,
+      host: options.host as string,
+      port: options.port as number,
+      database: options.database as string,
+      username: options.username as string,
+      password: options.password as string,
+      ssl: !!options.ssl,
+    };
+  }
+
   getConnectionState(): DatabaseConnectionState {
     const options = this.dataSource.options as any;
 
