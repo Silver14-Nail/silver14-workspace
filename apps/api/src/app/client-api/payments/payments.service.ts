@@ -46,10 +46,6 @@ export class ClientPaymentsService {
     private readonly sessionRepo: Repository<CheckoutSessionEntity>,
     @InjectRepository(PaymentEntity)
     private readonly paymentRepo: Repository<PaymentEntity>,
-    @InjectRepository(CouponEntity)
-    private readonly couponRepo: Repository<CouponEntity>,
-    @InjectRepository(CouponUsageEntity)
-    private readonly couponUsageRepo: Repository<CouponUsageEntity>,
     private readonly stripeService: StripeService,
     private readonly paypalService: PaypalService,
   ) {}
