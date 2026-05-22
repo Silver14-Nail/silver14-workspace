@@ -13,6 +13,9 @@ import {
   featureCollection,
   unfeatureCollection,
   assignCollectionProducts,
+  getCollectionTranslations,
+  upsertCollectionTranslation,
+  regenerateCollectionTranslations,
 } from '../../../../services/collections.service';
 import type {
   Collection,
@@ -21,6 +24,8 @@ import type {
   CollectionStats,
   CreateCollectionPayload,
   UpdateCollectionPayload,
+  CollectionTranslation,
+  UpsertCollectionTranslationPayload,
 } from './types';
 import type { CollectionListQuery } from '../../../../services/collections.service';
 
@@ -146,5 +151,42 @@ export async function assignCollectionProductsAction(
     return { success: true, data };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to assign products' };
+  }
+}
+
+// ─── Collection Translations ───────────────────────────────────────────────────
+
+export async function getCollectionTranslationsAction(
+  collectionId: string,
+): Promise<ActionResult<CollectionTranslation[]>> {
+  try {
+    const data = await getCollectionTranslations(collectionId);
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to load translations' };
+  }
+}
+
+export async function upsertCollectionTranslationAction(
+  collectionId: string,
+  locale: string,
+  payload: UpsertCollectionTranslationPayload,
+): Promise<ActionResult<CollectionTranslation>> {
+  try {
+    const data = await upsertCollectionTranslation(collectionId, locale, payload);
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to save translation' };
+  }
+}
+
+export async function regenerateCollectionTranslationsAction(
+  collectionId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await regenerateCollectionTranslations(collectionId);
+    return { success: true, data: undefined };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to regenerate translations' };
   }
 }

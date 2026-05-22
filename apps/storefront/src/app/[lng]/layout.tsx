@@ -70,7 +70,7 @@ export default async function RootLayout({
 
   let navCollections: Awaited<ReturnType<typeof getCollections>>['data'] = [];
   try {
-    const result = await getCollections({ limit: 20 });
+    const result = await getCollections({ limit: 20, locale: lng });
     navCollections = result.data;
   } catch {
     // fallback to empty — Navbar handles gracefully

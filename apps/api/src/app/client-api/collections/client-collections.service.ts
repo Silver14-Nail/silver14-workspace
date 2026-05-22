@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 
 import { CollectionEntity } from '@/db/entities/products/collection.entity';
 import { ProductEntity } from '@/db/entities/products/product.entity';
+import { CollectionTranslationEntity } from '@/db/entities/products/collection-translation.entity';
+import { ProductTranslationEntity } from '@/db/entities/products/product-translation.entity';
+import { FALLBACK_LOCALE } from '@/shared/translation/translation.constants';
+import type { SupportedLocale } from '@/shared/translation/translation.constants';
 
 import { CollectionQueryDto, CollectionProductQueryDto } from './dto/collection-query.dto';
 
@@ -29,9 +33,13 @@ export class ClientCollectionsService {
     private readonly collectionRepo: Repository<CollectionEntity>,
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
+    @InjectRepository(CollectionTranslationEntity)
+    private readonly collectionTranslationRepo: Repository<CollectionTranslationEntity>,
+    @InjectRepository(ProductTranslationEntity)
+    private readonly productTranslationRepo: Repository<ProductTranslationEntity>,
   ) {}
 
-  async listCollections(query: CollectionQueryDto) {
+  async listCollections(query: CollectionQueryDto, locale: SupportedLocale = FALLBACK_LOCALE) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -49,13 +57,18 @@ export class ClientCollectionsService {
 
     const [data, total] = await qb.getManyAndCount();
 
+    const translations = await this.loadCollectionTranslations(
+      data.map((c) => c.id),
+      locale,
+    );
+
     return {
-      data: data.map((c) => this.mapCollectionSummary(c)),
+      data: data.map((c) => this.mapCollectionSummary(c, translations.get(c.id) ?? null)),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
 
-  async getFeaturedCollections() {
+  async getFeaturedCollections(locale: SupportedLocale = FALLBACK_LOCALE) {
     const collections = await this.collectionRepo
       .createQueryBuilder('c')
       .where('c.isActive = true AND c.isFeatured = true')
@@ -65,10 +78,15 @@ export class ClientCollectionsService {
       .orderBy('c.sortOrder', 'ASC')
       .getMany();
 
-    return collections.map((c) => this.mapCollectionSummary(c));
+    const translations = await this.loadCollectionTranslations(
+      collections.map((c) => c.id),
+      locale,
+    );
+
+    return collections.map((c) => this.mapCollectionSummary(c, translations.get(c.id) ?? null));
   }
 
-  async getCollectionBySlug(slug: string) {
+  async getCollectionBySlug(slug: string, locale: SupportedLocale = FALLBACK_LOCALE) {
     const collection = await this.collectionRepo
       .createQueryBuilder('c')
       .where('c.slug = :slug AND c.isActive = true', { slug })
@@ -78,10 +96,16 @@ export class ClientCollectionsService {
       .getOne();
 
     if (!collection) throw new NotFoundException('Collection not found');
-    return this.mapCollectionDetail(collection);
+
+    const translation = await this.loadCollectionTranslation(collection.id, locale);
+    return this.mapCollectionDetail(collection, translation);
   }
 
-  async getCollectionProducts(slug: string, query: CollectionProductQueryDto) {
+  async getCollectionProducts(
+    slug: string,
+    query: CollectionProductQueryDto,
+    locale: SupportedLocale = FALLBACK_LOCALE,
+  ) {
     const collection = await this.collectionRepo.findOne({
       where: { slug, isActive: true },
     });
@@ -108,21 +132,32 @@ export class ClientCollectionsService {
     } else if (query.sortBy === 'bestseller') {
       qb.andWhere('p.isBestSeller = true').orderBy('p.createdAt', 'DESC');
     } else {
-      // default: newest
       qb.orderBy('p.createdAt', 'DESC');
     }
     qb.addOrderBy('images.sortOrder', 'ASC');
 
     const [products, total] = await qb.getManyAndCount();
 
+    const productTranslations = await this.loadProductTranslations(
+      products.map((p) => p.id),
+      locale,
+    );
+
+    const collectionTranslation = await this.loadCollectionTranslation(collection.id, locale);
+
     return {
-      collection: { id: collection.id, name: collection.name, slug: collection.slug },
+      collection: {
+        id: collection.id,
+        name: collectionTranslation?.name ?? collection.name,
+        slug: collection.slug,
+      },
       data: products.map((p) => {
+        const tr = productTranslations.get(p.id) ?? null;
         const { isOnSale, discountPercent } = computePricing(p.basePrice, p.salePrice);
         const thumbnail = p.images?.find((img) => img.isMain) ?? p.images?.[0] ?? null;
         return {
           id: p.id,
-          name: p.name,
+          name: tr?.name ?? p.name,
           slug: p.slug ?? p.id,
           basePrice: p.basePrice,
           salePrice: p.salePrice,
@@ -139,14 +174,85 @@ export class ClientCollectionsService {
     };
   }
 
+  // ─── Private helpers ──────────────────────────────────────────────────────────
+
+  private async loadCollectionTranslation(
+    collectionId: string,
+    locale: SupportedLocale,
+  ): Promise<CollectionTranslationEntity | null> {
+    const tr = await this.collectionTranslationRepo.findOne({ where: { collectionId, locale } });
+    if (tr) return tr;
+    if (locale !== FALLBACK_LOCALE) {
+      return this.collectionTranslationRepo.findOne({
+        where: { collectionId, locale: FALLBACK_LOCALE },
+      });
+    }
+    return null;
+  }
+
+  private async loadCollectionTranslations(
+    collectionIds: string[],
+    locale: SupportedLocale,
+  ): Promise<Map<string, CollectionTranslationEntity>> {
+    if (collectionIds.length === 0) return new Map();
+
+    const rows = await this.collectionTranslationRepo
+      .createQueryBuilder('t')
+      .where('t.collection_id IN (:...ids)', { ids: collectionIds })
+      .andWhere('t.locale IN (:...locales)', {
+        locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
+      })
+      .getMany();
+
+    const map = new Map<string, CollectionTranslationEntity>();
+    for (const row of rows) {
+      if (row.locale === FALLBACK_LOCALE) map.set(row.collectionId, row);
+    }
+    if (locale !== FALLBACK_LOCALE) {
+      for (const row of rows) {
+        if (row.locale === locale) map.set(row.collectionId, row);
+      }
+    }
+    return map;
+  }
+
+  private async loadProductTranslations(
+    productIds: string[],
+    locale: SupportedLocale,
+  ): Promise<Map<string, ProductTranslationEntity>> {
+    if (productIds.length === 0) return new Map();
+
+    const rows = await this.productTranslationRepo
+      .createQueryBuilder('t')
+      .where('t.product_id IN (:...ids)', { ids: productIds })
+      .andWhere('t.locale IN (:...locales)', {
+        locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
+      })
+      .getMany();
+
+    const map = new Map<string, ProductTranslationEntity>();
+    for (const row of rows) {
+      if (row.locale === FALLBACK_LOCALE) map.set(row.productId, row);
+    }
+    if (locale !== FALLBACK_LOCALE) {
+      for (const row of rows) {
+        if (row.locale === locale) map.set(row.productId, row);
+      }
+    }
+    return map;
+  }
+
   // ─── Private mappers ─────────────────────────────────────────────────────────
 
-  private mapCollectionSummary(c: CollectionEntity & { productCount?: number }) {
+  private mapCollectionSummary(
+    c: CollectionEntity & { productCount?: number },
+    tr: CollectionTranslationEntity | null,
+  ) {
     return {
       id: c.id,
-      name: c.name,
+      name: tr?.name ?? c.name,
       slug: c.slug,
-      shortDescription: c.shortDescription,
+      shortDescription: tr?.shortDescription ?? c.shortDescription,
       image: c.image,
       isFeatured: c.isFeatured,
       sortOrder: c.sortOrder,
@@ -154,17 +260,20 @@ export class ClientCollectionsService {
     };
   }
 
-  private mapCollectionDetail(c: CollectionEntity & { productCount?: number }) {
+  private mapCollectionDetail(
+    c: CollectionEntity & { productCount?: number },
+    tr: CollectionTranslationEntity | null,
+  ) {
     return {
       id: c.id,
-      name: c.name,
+      name: tr?.name ?? c.name,
       slug: c.slug,
-      description: c.description,
-      shortDescription: c.shortDescription,
+      description: tr?.description ?? c.description,
+      shortDescription: tr?.shortDescription ?? c.shortDescription,
       image: c.image,
       bannerImage: c.bannerImage,
-      seoTitle: c.seoTitle,
-      seoDescription: c.seoDescription,
+      seoTitle: tr?.seoTitle ?? c.seoTitle,
+      seoDescription: tr?.seoDescription ?? c.seoDescription,
       isFeatured: c.isFeatured,
       sortOrder: c.sortOrder,
       productCount: (c as any).productCount ?? 0,

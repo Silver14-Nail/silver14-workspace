@@ -19,6 +19,9 @@ import {
   createProductVariant,
   updateProductVariant,
   deleteProductVariant,
+  getProductTranslations,
+  upsertProductTranslation,
+  regenerateProductTranslations,
 } from '../../../../services/products.service';
 import type {
   Product,
@@ -36,6 +39,8 @@ import type {
   ReorderImagesPayload,
   CreateVariantPayload,
   UpdateVariantPayload,
+  ProductTranslation,
+  UpsertProductTranslationPayload,
 } from './types';
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
@@ -273,5 +278,42 @@ export async function deleteVariantAction(
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete variant';
     return { success: false, error: message };
+  }
+}
+
+// ─── Product Translations ──────────────────────────────────────────────────────
+
+export async function getProductTranslationsAction(
+  productId: string,
+): Promise<ActionResult<ProductTranslation[]>> {
+  try {
+    const data = await getProductTranslations(productId);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to load translations' };
+  }
+}
+
+export async function upsertProductTranslationAction(
+  productId: string,
+  locale: string,
+  payload: UpsertProductTranslationPayload,
+): Promise<ActionResult<ProductTranslation>> {
+  try {
+    const data = await upsertProductTranslation(productId, locale, payload);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to save translation' };
+  }
+}
+
+export async function regenerateProductTranslationsAction(
+  productId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await regenerateProductTranslations(productId);
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to regenerate translations' };
   }
 }

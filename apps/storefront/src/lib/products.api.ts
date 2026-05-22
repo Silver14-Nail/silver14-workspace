@@ -101,12 +101,15 @@ export interface ProductQueryParams {
   maxPrice?: number;
   sortBy?: string;
   filterBy?: string;
+  locale?: string;
 }
 
 // ─── Fetch helpers ────────────────────────────────────────────────────────────
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`);
+async function get<T>(path: string, locale?: string): Promise<T> {
+  const headers: HeadersInit = {};
+  if (locale) headers['X-Locale'] = locale;
+  const res = await fetch(`${getBase()}${path}`, { headers });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText} — ${path}`);
   return res.json() as Promise<T>;
 }
@@ -123,15 +126,18 @@ export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductLi
   if (params?.sortBy) qs.set('sortBy', params.sortBy);
   if (params?.filterBy) qs.set('filterBy', params.filterBy);
   const query = qs.toString();
-  return get<ApiProductListResponse>(`/client-api/products${query ? `?${query}` : ''}`);
+  return get<ApiProductListResponse>(
+    `/client-api/products${query ? `?${query}` : ''}`,
+    params?.locale,
+  );
 }
 
-export function fetchProduct(id: string): Promise<ApiProductDetail> {
-  return get<ApiProductDetail>(`/client-api/products/${id}`);
+export function fetchProduct(id: string, locale?: string): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/products/${id}`, locale);
 }
 
-export function fetchProductBySlug(slug: string): Promise<ApiProductDetail> {
-  return get<ApiProductDetail>(`/client-api/products/slug/${slug}`);
+export function fetchProductBySlug(slug: string, locale?: string): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/products/slug/${slug}`, locale);
 }
 
 export function fetchShapes(): Promise<ApiShape[]> {

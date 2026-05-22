@@ -6,8 +6,9 @@ import type { ApiProductDetail, ApiNailShape, ApiNailSize } from '../../types';
 import { getProductDetailAction, updateProductAction } from '../../actions';
 import ProductEditImagesTab from './ProductEditImagesTab';
 import ProductEditVariantsTab from './ProductEditVariantsTab';
+import ProductTranslationsTab from './ProductTranslationsTab';
 
-type Tab = 'info' | 'images' | 'variants';
+type Tab = 'info' | 'images' | 'variants' | 'translations';
 
 interface ProductEditDrawerProps {
   productId: string;
@@ -114,6 +115,7 @@ export default function ProductEditDrawer({
       key: 'variants',
       label: product ? `Variants (${product.variants.length})` : 'Variants',
     },
+    { key: 'translations', label: 'Translations' },
   ];
 
   return (
@@ -363,6 +365,10 @@ export default function ProductEditDrawer({
                 sizes={sizes}
                 onRefresh={refreshProduct}
               />
+            )}
+
+            {tab === 'translations' && (
+              <ProductTranslationsTab productId={productId} />
             )}
           </div>
         )}

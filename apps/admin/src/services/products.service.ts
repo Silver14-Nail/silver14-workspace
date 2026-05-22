@@ -17,6 +17,8 @@ import type {
   ReorderImagesPayload,
   CreateVariantPayload,
   UpdateVariantPayload,
+  ProductTranslation,
+  UpsertProductTranslationPayload,
 } from '../app/(admin)/admin/products/types';
 
 export interface ProductListQuery {
@@ -202,4 +204,32 @@ export async function updateProductVariant(
 export async function deleteProductVariant(productId: string, variantId: string): Promise<void> {
   const client = await createApiClient();
   await client.delete(`/admin-api/products/${productId}/variants/${variantId}`);
+}
+
+// ─── Product Translations ──────────────────────────────────────────────────────
+
+export async function getProductTranslations(productId: string): Promise<ProductTranslation[]> {
+  const client = await createApiClient();
+  const { data } = await client.get<ProductTranslation[]>(
+    `/admin-api/products/${productId}/translations`,
+  );
+  return data;
+}
+
+export async function upsertProductTranslation(
+  productId: string,
+  locale: string,
+  payload: UpsertProductTranslationPayload,
+): Promise<ProductTranslation> {
+  const client = await createApiClient();
+  const { data } = await client.put<ProductTranslation>(
+    `/admin-api/products/${productId}/translations/${locale}`,
+    payload,
+  );
+  return data;
+}
+
+export async function regenerateProductTranslations(productId: string): Promise<void> {
+  const client = await createApiClient();
+  await client.post(`/admin-api/products/${productId}/translations/regenerate`, {});
 }

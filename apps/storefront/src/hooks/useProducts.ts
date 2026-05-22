@@ -11,7 +11,7 @@ export interface UseProductsResult {
 }
 
 export function useProducts(params?: ProductQueryParams): UseProductsResult {
-  const { page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy } = params ?? {};
+  const { page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy, locale } = params ?? {};
 
   const [products, setProducts] = useState<StorefrontProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export function useProducts(params?: ProductQueryParams): UseProductsResult {
     setLoading(true);
     setError(null);
 
-    fetchProducts({ page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy })
+    fetchProducts({ page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy, locale })
       .then((data) => {
         if (cancelled) return;
         setProducts(data.items.map(adaptListItem));
@@ -40,7 +40,7 @@ export function useProducts(params?: ProductQueryParams): UseProductsResult {
     return () => {
       cancelled = true;
     };
-  }, [page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy]);
+  }, [page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy, locale]);
 
   return { products, loading, error, pagination };
 }
