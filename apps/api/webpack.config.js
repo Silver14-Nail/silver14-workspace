@@ -5,7 +5,8 @@ const { join } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, 'dist'),
+    path: join(__dirname, 'api'),
+    filename: 'index.js',
     clean: true,
   },
 
