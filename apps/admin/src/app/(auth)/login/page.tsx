@@ -84,11 +84,11 @@ function LoginContent() {
                 border: '1px solid rgba(255,255,255,0.15)',
               }}
             >
-              <span className="text-white font-semibold text-sm tracking-widest">L</span>
+              <span className="text-white font-semibold text-sm tracking-widest">S</span>
             </div>
             <div>
               <span className="text-white text-sm font-light tracking-[0.3em] uppercase block">
-                Lunelle
+                Silver14
               </span>
               <span className="text-[#9A9A9A] text-xs tracking-widest">Admin Panel</span>
             </div>
@@ -122,7 +122,7 @@ function LoginContent() {
               className="text-[#6B6B6B] text-sm leading-relaxed max-w-xs"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              Full control over your LUNELLE storefront — products, orders, customers, analytics,
+              Full control over your Silver14 storefront — products, orders, customers, analytics,
               and more.
             </p>
           </div>
@@ -152,7 +152,7 @@ function LoginContent() {
         {/* Bottom */}
         <div className="relative z-10">
           <p className="text-[#4A4A4A] text-xs" style={{ fontFamily: "'Inter', sans-serif" }}>
-            &copy; 2026 LUNELLE. Secure admin access.
+            &copy; 2026 Silver14. Secure admin access.
           </p>
         </div>
       </div>
@@ -163,13 +163,13 @@ function LoginContent() {
         <div className="absolute top-6 left-6 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#1A1A1A] rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-semibold tracking-widest">L</span>
+              <span className="text-white text-xs font-semibold tracking-widest">S</span>
             </div>
             <span
               className="text-[#1A1A1A] text-sm font-light tracking-[0.25em] uppercase"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Lunelle
+              Silver14
             </span>
           </Link>
         </div>
@@ -213,10 +213,10 @@ function LoginContent() {
                 <span className="font-medium text-[#4A4A4A]">Demo credentials</span>
                 <br />
                 Email:{' '}
-                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">admin@lunelle.com</code>
+                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">admin@silver14.com</code>
                 <br />
                 Password:{' '}
-                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">admin2026</code>
+                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">Admin@123456</code>
               </p>
             </div>
           </div>
@@ -238,7 +238,7 @@ function LoginContent() {
                   setEmail(e.target.value);
                   setError('');
                 }}
-                placeholder="admin@lunelle.com"
+                placeholder="admin@silver14.com"
                 autoComplete="email"
                 required
                 className="w-full px-4 py-3.5 rounded-xl text-sm outline-none transition-all duration-200"
@@ -362,7 +362,7 @@ function LoginContent() {
                 &larr; Return to Store
               </Link>
               <p className="text-xs text-[#C0C0C0]" style={{ fontFamily: "'Inter', sans-serif" }}>
-                LUNELLE &copy; 2026
+                Silver14 &copy; 2026
               </p>
             </div>
           </div>
