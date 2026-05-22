@@ -99,7 +99,9 @@
       "Bash(dir /s \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\api\\\\src\")",
       "Bash(findstr /i \"r2\")",
       "Bash(grep -E \"\\\\.js$|^total\")",
-      "Bash(grep -E \"\\\\.json$|^d\")"
+      "Bash(grep -E \"\\\\.json$|^d\")",
+      "PowerShell(Get-Command node, pnpm, tsc -ErrorAction SilentlyContinue)",
+      "PowerShell($env:PATH)"
     ]
   }
 }
