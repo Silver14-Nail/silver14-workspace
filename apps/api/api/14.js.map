@@ -1,0 +1,1 @@
+{"version":3,"file":"14.js","mappings":";;;;;;;;;;;;;;;;;;;AAA0B","sources":["webpack://@source/api/../../node_modules/.pnpm/@aws-sdk+credential-provider-env@3.972.38/node_modules/@aws-sdk/credential-provider-env/dist-es/index.js"],"sourcesContent":["export * from \"./fromEnv\";\n"],"names":[],"sourceRoot":""}
