@@ -4,10 +4,12 @@ import {
   Column,
   Index,
   ManyToMany,
+  OneToMany,
   JoinTable,
 } from 'typeorm';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
 import { ProductEntity } from './product.entity';
+import { CollectionTranslationEntity } from './collection-translation.entity';
 
 @Entity('collections')
 export class CollectionEntity extends SoftDeleteAbstractEntity {
@@ -55,4 +57,7 @@ export class CollectionEntity extends SoftDeleteAbstractEntity {
     inverseJoinColumn: { name: 'product_id', referencedColumnName: 'id' },
   })
   products: ProductEntity[];
+
+  @OneToMany(() => CollectionTranslationEntity, (t) => t.collection)
+  translations: CollectionTranslationEntity[];
 }

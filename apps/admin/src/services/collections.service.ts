@@ -6,6 +6,8 @@ import type {
   CollectionStats,
   CreateCollectionPayload,
   UpdateCollectionPayload,
+  CollectionTranslation,
+  UpsertCollectionTranslationPayload,
 } from '../app/(admin)/admin/collections/types';
 
 export interface CollectionListQuery {
@@ -90,4 +92,34 @@ export async function assignCollectionProducts(
     { productIds },
   );
   return data;
+}
+
+// ─── Collection Translations ───────────────────────────────────────────────────
+
+export async function getCollectionTranslations(
+  collectionId: string,
+): Promise<CollectionTranslation[]> {
+  const client = await createApiClient();
+  const { data } = await client.get<CollectionTranslation[]>(
+    `/admin-api/collections/${collectionId}/translations`,
+  );
+  return data;
+}
+
+export async function upsertCollectionTranslation(
+  collectionId: string,
+  locale: string,
+  payload: UpsertCollectionTranslationPayload,
+): Promise<CollectionTranslation> {
+  const client = await createApiClient();
+  const { data } = await client.put<CollectionTranslation>(
+    `/admin-api/collections/${collectionId}/translations/${locale}`,
+    payload,
+  );
+  return data;
+}
+
+export async function regenerateCollectionTranslations(collectionId: string): Promise<void> {
+  const client = await createApiClient();
+  await client.post(`/admin-api/collections/${collectionId}/translations/regenerate`, {});
 }

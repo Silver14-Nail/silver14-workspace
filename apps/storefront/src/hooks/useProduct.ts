@@ -9,7 +9,7 @@ export interface UseProductResult {
   error: string | null;
 }
 
-export function useProduct(slug: string): UseProductResult {
+export function useProduct(slug: string, locale?: string): UseProductResult {
   const [product, setProduct] = useState<StorefrontProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export function useProduct(slug: string): UseProductResult {
     setLoading(true);
     setError(null);
 
-    fetchProductBySlug(slug)
+    fetchProductBySlug(slug, locale)
       .then((data) => {
         if (cancelled) return;
         setProduct(adaptDetail(data));
@@ -36,7 +36,7 @@ export function useProduct(slug: string): UseProductResult {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, locale]);
 
   return { product, loading, error };
 }

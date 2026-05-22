@@ -15,6 +15,7 @@ import {
   ProductsController,
   ProductImagesController,
   ProductVariantsController,
+  ProductTranslationsController,
 } from './products.controller';
 
 @Module({
@@ -34,6 +35,7 @@ import {
     NailSizesController,
     ProductImagesController,
     ProductVariantsController,
+    ProductTranslationsController,
   ],
   providers: [ProductsService],
 })

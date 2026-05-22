@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
+import { TranslationService } from '@/shared/translation/translation.service';
 
 import { CollectionEntity } from '@/db/entities/products/collection.entity';
 import { ProductEntity } from '@/db/entities/products/product.entity';
@@ -26,6 +27,7 @@ export class CollectionsService {
     private readonly collectionRepo: Repository<CollectionEntity>,
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
+    private readonly translationService: TranslationService,
   ) {}
 
   async listCollections(query: CollectionListQueryDto) {
@@ -71,7 +73,8 @@ export class CollectionsService {
   }
 
   async createCollection(dto: CreateCollectionDto) {
-    const slug = dto.slug?.trim() || slugify(dto.name);
+    const englishName = await this.translationService.resolveEnglishName(dto.name);
+    const slug = dto.slug?.trim() || slugify(englishName);
     await this.assertSlugUnique(slug);
 
     const collection = this.collectionRepo.create({
@@ -88,7 +91,9 @@ export class CollectionsService {
       sortOrder: dto.sortOrder ?? 0,
     });
 
-    return this.collectionRepo.save(collection);
+    const saved = await this.collectionRepo.save(collection);
+    this.translationService.generateForCollection(saved).catch(() => undefined);
+    return saved;
   }
 
   async updateCollection(id: string, dto: UpdateCollectionDto) {
@@ -111,7 +116,17 @@ export class CollectionsService {
     if (dto.isActive !== undefined) collection.isActive = dto.isActive;
     if (dto.sortOrder !== undefined) collection.sortOrder = dto.sortOrder;
 
-    return this.collectionRepo.save(collection);
+    const saved = await this.collectionRepo.save(collection);
+    const needsRegen =
+      dto.name !== undefined ||
+      dto.description !== undefined ||
+      dto.shortDescription !== undefined ||
+      dto.seoTitle !== undefined ||
+      dto.seoDescription !== undefined;
+    if (needsRegen) {
+      this.translationService.generateForCollection(saved).catch(() => undefined);
+    }
+    return saved;
   }
 
   async removeCollection(id: string): Promise<void> {

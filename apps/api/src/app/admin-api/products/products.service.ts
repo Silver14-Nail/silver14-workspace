@@ -45,6 +45,7 @@ import { UpdateVariantDto } from './dto/update-variant.dto';
 import { AddImageDto } from './dto/add-image.dto';
 import { ReorderImagesDto } from './dto/reorder-images.dto';
 import { R2Service } from '@/shared/r2/r2.service';
+import { TranslationService } from '@/shared/translation/translation.service';
 
 @Injectable()
 export class ProductsService {
@@ -60,6 +61,7 @@ export class ProductsService {
     @InjectRepository(ProductVariantEntity)
     private readonly productVariantRepo: Repository<ProductVariantEntity>,
     private readonly r2: R2Service,
+    private readonly translationService: TranslationService,
   ) {}
 
   // ─── Products ───────────────────────────────────────────────────────────────
@@ -120,7 +122,8 @@ export class ProductsService {
   }
 
   async createProduct(dto: CreateProductDto) {
-    const baseSlug = toSlug(dto.name);
+    const englishName = await this.translationService.resolveEnglishName(dto.name);
+    const baseSlug = toSlug(englishName);
     let slug = baseSlug;
     let attempt = 0;
     while (await this.productRepo.findOne({ where: { slug } })) {
@@ -144,7 +147,10 @@ export class ProductsService {
       isBestSeller: dto.isBestSeller ?? false,
     });
 
-    return this.productRepo.save(product);
+    const saved = await this.productRepo.save(product);
+    // Fire-and-forget: generate translations asynchronously
+    this.translationService.generateForProduct(saved).catch(() => undefined);
+    return saved;
   }
 
   async updateProduct(id: string, dto: UpdateProductDto) {
@@ -158,7 +164,8 @@ export class ProductsService {
       product.name = dto.name;
       // Backfill slug for products created before auto-slug was added
       if (!product.slug) {
-        const baseSlug = toSlug(dto.name);
+        const englishName = await this.translationService.resolveEnglishName(dto.name);
+        const baseSlug = toSlug(englishName);
         let slug = baseSlug;
         let attempt = 0;
         while (await this.productRepo.findOne({ where: { slug } })) {
@@ -184,7 +191,14 @@ export class ProductsService {
       product.salePrice = dto.salePrice;
     }
 
-    return this.productRepo.save(product);
+    const saved = await this.productRepo.save(product);
+    // Regenerate translations only if translatable fields changed
+    const needsRegen =
+      dto.name !== undefined || dto.description !== undefined;
+    if (needsRegen) {
+      this.translationService.generateForProduct(saved).catch(() => undefined);
+    }
+    return saved;
   }
 
   async removeProduct(id: string) {

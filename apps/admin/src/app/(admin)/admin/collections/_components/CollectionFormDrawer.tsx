@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import type { Collection, CreateCollectionPayload } from '../types';
 import { createCollectionAction, updateCollectionAction } from '../actions';
+import { CollectionTranslationsSection } from './CollectionTranslationsSection';
 
 interface Props {
   collection?: Collection | null;
@@ -217,6 +218,11 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
               </div>
             </div>
           </div>
+
+          {/* Translations — edit mode only */}
+          {isEdit && collection?.id && (
+            <CollectionTranslationsSection collectionId={collection.id} />
+          )}
         </form>
 
         {/* Footer */}
