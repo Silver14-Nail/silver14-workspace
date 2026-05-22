@@ -24,6 +24,7 @@ import {
   getOrderAction,
   updateOrderStatusAction,
   updateShippingAction,
+  updateShippingFeeAction,
   updatePaymentStatusAction,
   cancelOrderAction,
   listOrdersAction,
@@ -107,6 +108,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
   // Shipping panel
   const [carrier, setCarrier] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
+  const [shippingFeeInput, setShippingFeeInput] = useState('');
 
   // Payment panel
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | ''>('');
@@ -142,6 +144,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
         setOrder(result.data);
         setCarrier(result.data.carrier ?? '');
         setTrackingNumber(result.data.trackingNumber ?? '');
+        setShippingFeeInput(Number(result.data.shippingFee).toFixed(2));
         setPaymentStatus(result.data.payment?.status ?? '');
       } else {
         setError(getErr(result));
@@ -190,6 +193,26 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
       });
       if (result.success) {
         showFeedback('success', 'Shipping info updated');
+        const refreshed = await refreshAndSync();
+        if (refreshed) onRefresh?.(refreshed);
+      } else {
+        showFeedback('error', getErr(result));
+      }
+    });
+  };
+
+  const handleUpdateShippingFee = () => {
+    const parsed = parseFloat(shippingFeeInput);
+    if (isNaN(parsed) || parsed < 0) {
+      showFeedback('error', 'Invalid shipping fee value');
+      return;
+    }
+    startTransition(async () => {
+      const result = await updateShippingFeeAction(orderId, { shippingFee: parsed });
+      if (result.success) {
+        setOrder(result.data);
+        setShippingFeeInput(Number(result.data.shippingFee).toFixed(2));
+        showFeedback('success', 'Shipping fee updated and total recalculated');
         const refreshed = await refreshAndSync();
         if (refreshed) onRefresh?.(refreshed);
       } else {
@@ -364,13 +387,26 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                 <div className="space-y-3">
                   {(order.items ?? []).map((item) => (
                     <div key={item.id} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 text-sm">
-                        💅
-                      </div>
+                      {item.thumbnail ? (
+                        <img
+                          src={item.thumbnail}
+                          alt={item.productName ?? ''}
+                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 bg-[#F3F4F6]"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-[#F3F4F6] flex items-center justify-center flex-shrink-0 text-sm">
+                          💅
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-[#111827]">
-                          {item.variant?.shape?.name ?? item.shapeName} ·{' '}
-                          {item.variant?.size?.label ?? item.sizeLabel}
+                        {item.productName && (
+                          <p className="text-xs font-semibold text-[#111827] truncate">
+                            {item.productName}
+                          </p>
+                        )}
+                        <p className="text-xs text-[#6B7280]">
+                          {item.shapeName} · {item.sizeLabel}
+                          {item.sku && <span className="text-[#9CA3AF]"> · {item.sku}</span>}
                         </p>
                         <p className="text-xs text-[#9CA3AF]">
                           Qty: {item.quantity}
@@ -390,12 +426,26 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                   </div>
                   {Number(order.discountAmount) > 0 && (
                     <div className="flex justify-between text-xs text-emerald-600">
-                      <span>Discount</span>
+                      <span className="flex items-center gap-1.5">
+                        Discount
+                        {order.couponCode && (
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium font-mono">
+                            {order.couponCode}
+                          </span>
+                        )}
+                      </span>
                       <span>−{currencySymbol}{Number(order.discountAmount).toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-xs text-[#6B7280]">
-                    <span>Shipping</span>
+                    <span className="flex items-center gap-1.5">
+                      Shipping
+                      {order.shippingSnapshot.shippingMethodName && (
+                        <span className="px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] text-[10px] font-medium">
+                          {order.shippingSnapshot.shippingMethodName}
+                        </span>
+                      )}
+                    </span>
                     <span>{currencySymbol}{Number(order.shippingFee).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-semibold text-[#111827] pt-1 border-t border-[#F3F4F6]">
@@ -463,6 +513,34 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                     {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
                     Save Shipping Info
                   </button>
+
+                  <div className="pt-3 border-t border-[#F3F4F6]">
+                    <label className="text-xs font-medium text-[#374151] block mb-1">
+                      Override Shipping Fee ({order.currency})
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={shippingFeeInput}
+                        onChange={(e) => setShippingFeeInput(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
+                        placeholder="0.00"
+                      />
+                      <button
+                        onClick={handleUpdateShippingFee}
+                        disabled={isPending || shippingFeeInput === Number(order.shippingFee).toFixed(2)}
+                        className="px-4 py-2 rounded-lg border border-[#111827] text-[#111827] text-xs font-medium hover:bg-[#F3F4F6] disabled:opacity-40 flex items-center gap-1.5"
+                      >
+                        {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
+                        Apply
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-[#9CA3AF] mt-1">
+                      Recalculates order total. Auto-set from shipping zone at checkout.
+                    </p>
+                  </div>
                 </div>
               </CollapsibleSection>
 

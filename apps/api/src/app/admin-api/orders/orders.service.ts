@@ -11,6 +11,7 @@ import { OrderListQueryDto } from './dto/order-list-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UpdatePaymentStatusDto } from './dto/update-payment-status.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
+import { UpdateShippingFeeDto } from './dto/update-shipping-fee.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
 
 @Injectable()
@@ -178,6 +179,25 @@ export class OrdersService {
 
     if (dto.carrier !== undefined) order.carrier = dto.carrier;
     if (dto.trackingNumber !== undefined) order.trackingNumber = dto.trackingNumber;
+
+    return this.orderRepo.save(order);
+  }
+
+  async updateShippingFee(id: string, dto: UpdateShippingFeeDto) {
+    const order = await this.orderRepo.findOneBy({ id });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const newFee = Number(dto.shippingFee);
+    const subtotal = Number(order.subtotal);
+    const discount = Number(order.discountAmount);
+    const newTotal = parseFloat((subtotal - discount + newFee).toFixed(2));
+
+    const timestamp = new Date().toISOString();
+    const note = `[${timestamp}] Shipping fee adjusted: ${Number(order.shippingFee).toFixed(2)} → ${newFee.toFixed(2)} (total: ${Number(order.total).toFixed(2)} → ${newTotal.toFixed(2)})`;
+
+    order.shippingFee = newFee;
+    order.total = newTotal;
+    order.internalNotes = order.internalNotes ? `${order.internalNotes}\n${note}` : note;
 
     return this.orderRepo.save(order);
   }

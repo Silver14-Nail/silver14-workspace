@@ -8,6 +8,7 @@ import {
   updateOrderStatus,
   updatePaymentStatus,
   updateShipping,
+  updateShippingFee,
   cancelOrder,
   deleteOrder,
 } from '../../../../services/orders.service';
@@ -106,6 +107,20 @@ export async function cancelOrderAction(
     return { success: true, data };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to cancel order';
+    return { success: false, error: message };
+  }
+}
+
+export async function updateShippingFeeAction(
+  id: string,
+  payload: { shippingFee: number },
+): Promise<ActionResult<OrderDetail>> {
+  try {
+    const data = await updateShippingFee(id, payload);
+    revalidatePath('/admin/orders');
+    return { success: true, data };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to update shipping fee';
     return { success: false, error: message };
   }
 }

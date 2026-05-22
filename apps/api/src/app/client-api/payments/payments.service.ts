@@ -184,6 +184,8 @@ export class ClientPaymentsService {
         'cart.items.variant',
         'cart.items.variant.shape',
         'cart.items.variant.size',
+        'cart.items.variant.product',
+        'cart.items.variant.product.images',
         'user',
         'guest',
       ],
@@ -264,6 +266,9 @@ export class ClientPaymentsService {
       guest: session.guest ?? null,
       checkoutSession: session,
       coupon: couponEntity ?? null,
+      couponCode: session.couponCode ?? null,
+      couponDiscountType: couponEntity?.discountType ?? null,
+      couponDiscountValue: couponEntity ? Number(couponEntity.discountValue) : null,
       status: OrderStatus.CONFIRMED,
       contactSnapshot: {
         fullName: contactSnapshot.fullName,
@@ -300,6 +305,14 @@ export class ClientPaymentsService {
         shapeName: cartItem.variant.shape?.name ?? '',
         sizeLabel: cartItem.variant.size?.label ?? '',
         isCustomSize: cartItem.isCustomSize,
+        productId: cartItem.variant.product?.id ?? null,
+        productName: cartItem.variant.product?.name ?? null,
+        productSlug: cartItem.variant.product?.slug ?? null,
+        sku: cartItem.variant.sku ?? null,
+        thumbnail:
+          cartItem.variant.product?.images?.find((img) => img.isMain)?.url ??
+          cartItem.variant.product?.images?.[0]?.url ??
+          null,
       }),
     );
 

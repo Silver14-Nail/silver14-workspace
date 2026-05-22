@@ -50,6 +50,11 @@ export interface OrderItem {
   shapeName: string;
   sizeLabel: string;
   isCustomSize: boolean;
+  productId: string | null;
+  productName: string | null;
+  productSlug: string | null;
+  sku: string | null;
+  thumbnail: string | null;
   variant: OrderVariant;
   customSizeRequest?: {
     thumb: string | null;
@@ -107,6 +112,9 @@ export interface OrderDetail {
   shippingFee: number;
   total: number;
   currency: string;
+  couponCode: string | null;
+  couponDiscountType: string | null;
+  couponDiscountValue: number | null;
   createdAt: string;
   updatedAt: string;
   user: OrderUser | null;

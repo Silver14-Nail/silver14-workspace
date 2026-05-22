@@ -75,6 +75,44 @@ export class OrderItemEntity extends AbstractEntity {
   })
   isCustomSize: boolean;
 
+  @Column({
+    name: 'product_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  productId: string | null;
+
+  @Column({
+    name: 'product_name',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  productName: string | null;
+
+  @Column({
+    name: 'product_slug',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  productSlug: string | null;
+
+  @Column({
+    name: 'sku',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  sku: string | null;
+
+  @Column({
+    name: 'thumbnail',
+    type: 'text',
+    nullable: true,
+  })
+  thumbnail: string | null;
+
   @OneToOne(() => CustomSizeRequestEntity, (r) => r.orderItem)
   customSizeRequest: CustomSizeRequestEntity;
 }
