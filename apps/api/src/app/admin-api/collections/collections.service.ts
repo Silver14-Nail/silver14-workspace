@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 
@@ -105,7 +101,8 @@ export class CollectionsService {
     if (dto.name !== undefined) collection.name = dto.name;
     if (dto.slug !== undefined) collection.slug = dto.slug;
     if (dto.description !== undefined) collection.description = dto.description ?? null;
-    if (dto.shortDescription !== undefined) collection.shortDescription = dto.shortDescription ?? null;
+    if (dto.shortDescription !== undefined)
+      collection.shortDescription = dto.shortDescription ?? null;
     if (dto.image !== undefined) collection.image = dto.image ?? null;
     if (dto.bannerImage !== undefined) collection.bannerImage = dto.bannerImage ?? null;
     if (dto.seoTitle !== undefined) collection.seoTitle = dto.seoTitle ?? null;
@@ -154,9 +151,7 @@ export class CollectionsService {
     if (!collection) throw new NotFoundException('Collection not found');
 
     const products =
-      dto.productIds.length > 0
-        ? await this.productRepo.findBy({ id: In(dto.productIds) })
-        : [];
+      dto.productIds.length > 0 ? await this.productRepo.findBy({ id: In(dto.productIds) }) : [];
 
     collection.products = products;
     return this.collectionRepo.save(collection);

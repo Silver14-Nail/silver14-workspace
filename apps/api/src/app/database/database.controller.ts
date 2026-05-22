@@ -7,7 +7,7 @@ export class DatabaseController {
 
   @Get('config')
   getConfig() {
-    const { password: _password, ...safeConfig } = this.databaseService.getConfig();
+    const { ...safeConfig } = this.databaseService.getConfig();
 
     return safeConfig;
   }
