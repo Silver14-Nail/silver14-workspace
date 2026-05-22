@@ -24,6 +24,8 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
   );
   const [currency, setCurrency] = useState(product?.currency ?? 'USD');
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
+  const [isNew, setIsNew] = useState(product?.isNew ?? false);
+  const [isBestSeller, setIsBestSeller] = useState(product?.isBestSeller ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -50,6 +52,8 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
       salePrice: salePrice !== '' ? parseFloat(salePrice) : null,
       currency,
       isActive,
+      isNew,
+      isBestSeller,
     };
 
     const result = isEdit
@@ -171,24 +175,66 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
             )}
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-lg bg-[#F9FAFB]">
-            <div>
-              <p className="text-sm font-medium text-[#374151]">Active</p>
-              <p className="text-xs text-[#9CA3AF]">Visible to customers</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsActive((v) => !v)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                isActive ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  isActive ? 'translate-x-5' : 'translate-x-0.5'
+          <div className="rounded-lg bg-[#F9FAFB] divide-y divide-[#E5E7EB]">
+            <div className="flex items-center justify-between p-4">
+              <div>
+                <p className="text-sm font-medium text-[#374151]">Active</p>
+                <p className="text-xs text-[#9CA3AF]">Visible to customers</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsActive((v) => !v)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${
+                  isActive ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    isActive ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4">
+              <div>
+                <p className="text-sm font-medium text-[#374151]">New</p>
+                <p className="text-xs text-[#9CA3AF]">Show &ldquo;New&rdquo; badge</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNew((v) => !v)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${
+                  isNew ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    isNew ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4">
+              <div>
+                <p className="text-sm font-medium text-[#374151]">Best Seller</p>
+                <p className="text-xs text-[#9CA3AF]">Show &ldquo;Best Seller&rdquo; badge</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsBestSeller((v) => !v)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${
+                  isBestSeller ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    isBestSeller ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {!isEdit && (

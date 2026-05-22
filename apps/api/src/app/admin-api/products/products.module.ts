@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { R2SharedModule } from '@/shared/r2/r2.module';
 
 import { ProductEntity } from '@/db/entities/products/product.entity';
 import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
@@ -18,6 +19,7 @@ import {
 
 @Module({
   imports: [
+    R2SharedModule,
     TypeOrmModule.forFeature([
       ProductEntity,
       NailShapeEntity,

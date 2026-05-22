@@ -12,6 +12,8 @@ export interface Product {
   salePrice: number | string | null;
   currency: string;
   isActive: boolean;
+  isNew: boolean;
+  isBestSeller: boolean;
   createdAt: string;
   updatedAt: string;
   images: ProductImage[];
@@ -37,6 +39,8 @@ export interface CreateProductPayload {
   salePrice?: number | null;
   currency?: string;
   isActive?: boolean;
+  isNew?: boolean;
+  isBestSeller?: boolean;
 }
 
 export interface UpdateProductPayload {
@@ -46,6 +50,8 @@ export interface UpdateProductPayload {
   salePrice?: number | null;
   currency?: string;
   isActive?: boolean;
+  isNew?: boolean;
+  isBestSeller?: boolean;
 }
 
 // ─── Nail Shapes ─────────────────────────────────────────────────────────────
@@ -136,6 +142,8 @@ export interface ApiProductDetail {
   salePrice: number | string | null;
   currency: string;
   isActive: boolean;
+  isNew: boolean;
+  isBestSeller: boolean;
   createdAt: string;
   updatedAt: string;
   images: ApiProductImage[];

@@ -6,7 +6,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as crypto from 'crypto';
+
+interface UploadedFile {
+  buffer: Buffer;
+  mimetype: string;
+  originalname: string;
+  size: number;
+}
 
 function toSlug(text: string): string {
   return text
@@ -38,9 +44,7 @@ import { CreateVariantDto } from './dto/create-variant.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
 import { AddImageDto } from './dto/add-image.dto';
 import { ReorderImagesDto } from './dto/reorder-images.dto';
-import { GetPresignedUrlDto } from './dto/get-presigned-url.dto';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { R2Service } from '@/shared/r2/r2.service';
 
 @Injectable()
 export class ProductsService {
@@ -55,6 +59,7 @@ export class ProductsService {
     private readonly productImageRepo: Repository<ProductImageEntity>,
     @InjectRepository(ProductVariantEntity)
     private readonly productVariantRepo: Repository<ProductVariantEntity>,
+    private readonly r2: R2Service,
   ) {}
 
   // ─── Products ───────────────────────────────────────────────────────────────
@@ -309,44 +314,13 @@ export class ProductsService {
 
   // ─── Product Images ─────────────────────────────────────────────────────────
 
-  async getPresignedUploadUrl(productId: string, dto: GetPresignedUrlDto) {
+  async uploadProductImage(productId: string, file: UploadedFile) {
     const product = await this.productRepo.findOneBy({ id: productId });
     if (!product) throw new NotFoundException(`Product #${productId} not found`);
 
-    const accountId = process.env.R2_ACCOUNT_ID;
-    const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-    const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-    const bucket = process.env.R2_BUCKET_NAME;
-    const publicUrl = process.env.R2_PUBLIC_URL;
+    const publicUrl = await this.r2.upload(file.buffer, file.mimetype, 'products');
 
-    if (!accountId || !accessKeyId || !secretAccessKey || !bucket || !publicUrl) {
-      throw new Error(
-        'R2 storage is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, R2_PUBLIC_URL in .env',
-      );
-    }
-
-    const ext = dto.filename.split('.').pop() ?? 'jpg';
-    const key = `products/${productId}/${crypto.randomUUID()}.${ext}`;
-
-    const client = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: { accessKeyId, secretAccessKey },
-    });
-
-    const command = new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      ContentType: dto.contentType,
-    });
-
-    const presignedUrl = await getSignedUrl(client, command, { expiresIn: 300 });
-
-    return {
-      presignedUrl,
-      key,
-      publicUrl: `${publicUrl}/${key}`,
-    };
+    return this.addProductImage(productId, { url: publicUrl });
   }
 
   async addProductImage(productId: string, dto: AddImageDto) {

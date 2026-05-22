@@ -4,8 +4,7 @@ import { useRef, useState } from 'react';
 import { Upload, Trash2, Star, ChevronUp, ChevronDown, Loader2, Package } from 'lucide-react';
 import type { ApiProductImage } from '../../types';
 import {
-  getPresignedUrlAction,
-  addProductImageAction,
+  uploadProductImageAction,
   deleteProductImageAction,
   reorderProductImagesAction,
   setMainProductImageAction,
@@ -54,34 +53,12 @@ export default function ProductEditImagesTab({
 
       setUploading(true);
       try {
-        const presignResult = await getPresignedUrlAction(productId, {
-          filename: file.name,
-          contentType: file.type,
-        });
+        const formData = new FormData();
+        formData.append('file', file);
 
-        if (!presignResult.success) {
-          setUploadError((presignResult as { error: string }).error);
-          setUploading(false);
-          return;
-        }
-
-        const { presignedUrl, publicUrl } = presignResult.data;
-
-        const uploadRes = await fetch(presignedUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': file.type },
-        });
-
-        if (!uploadRes.ok) {
-          setUploadError(`Upload failed for "${file.name}". Please try again.`);
-          setUploading(false);
-          return;
-        }
-
-        const addResult = await addProductImageAction(productId, { url: publicUrl });
-        if (!addResult.success) {
-          setUploadError((addResult as { error: string }).error);
+        const result = await uploadProductImageAction(productId, formData);
+        if (!result.success) {
+          setUploadError((result as { error: string }).error);
           setUploading(false);
           return;
         }
