@@ -62,7 +62,7 @@ export class ClientCouponsService {
     if (subtotal < Number(coupon.minOrderAmount)) {
       return {
         valid: false,
-        message: `Minimum order of €${Number(coupon.minOrderAmount).toFixed(2)} required`,
+        message: `Minimum order of $${Number(coupon.minOrderAmount).toFixed(2)} USD required`,
       };
     }
 
@@ -75,10 +75,10 @@ export class ClientCouponsService {
         coupon.maxDiscountAmount !== null
           ? Math.min(raw, Number(coupon.maxDiscountAmount))
           : raw;
-      savingsLabel = `Save €${discountPreview.toFixed(2)}`;
+      savingsLabel = `Save $${discountPreview.toFixed(2)}`;
     } else if (coupon.discountType === DiscountType.FIXED) {
       discountPreview = Math.min(Number(coupon.discountValue), subtotal);
-      savingsLabel = `Save €${discountPreview.toFixed(2)}`;
+      savingsLabel = `Save $${discountPreview.toFixed(2)}`;
     } else {
       // FREE_SHIPPING
       discountPreview = 0;

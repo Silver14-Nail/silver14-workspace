@@ -21,10 +21,13 @@ export function ImageWithFallback({
   fill,
   ...rest
 }: Props) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const validSrc = (s: typeof src) => (s && String(s).trim() !== '' ? s : fallbackSrc);
+
+  const [imgSrc, setImgSrc] = useState(() => validSrc(src));
 
   useEffect(() => {
-    setImgSrc(src);
+    setImgSrc(validSrc(src));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
   const imageProps = {

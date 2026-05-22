@@ -28,6 +28,8 @@ export interface StorefrontProductDetail extends StorefrontProduct {
   images: string[];
   availableShapes: string[];
   availableSizes: string[];
+  /** Maps shape label → USD price adjustment; only entries with adj > 0 are present */
+  shapeAdjustments: Record<string, number>;
   processingTime: string;
   variants: StorefrontVariant[];
 }

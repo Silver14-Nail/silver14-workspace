@@ -1,8 +1,11 @@
+'use client';
+
 import { AnimatePresence, motion } from 'motion/react';
 import { TFunction } from 'i18next';
 import { Supply } from '@/MOCK_DATAS/supplies';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface Props {
   supplies: Supply[];
@@ -10,6 +13,7 @@ interface Props {
 }
 
 export function SuppliesGrid({ supplies, t }: Props) {
+  const { format } = useCurrency();
   if (supplies.length === 0) {
     return (
       <div className="text-center py-24">
@@ -53,7 +57,7 @@ export function SuppliesGrid({ supplies, t }: Props) {
                   className="text-[#1A1A1A]"
                   style={{ fontSize: '0.95rem' }}
                 >
-                  ${supply.price.toFixed(2)}
+                  {format(supply.price)}
                 </p>
                 {supply.category && (
                   <p className="text-[#9A9A9A] text-xs uppercase tracking-wider">

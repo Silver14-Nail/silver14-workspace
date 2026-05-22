@@ -1,12 +1,21 @@
-export const CURRENCIES = [
-  { code: 'USD', symbol: '$', rate: 1, label: 'US Dollar' },
-  { code: 'EUR', symbol: '€', rate: 0.92, label: 'Euro' },
-  { code: 'GBP', symbol: '£', rate: 0.79, label: 'British Pound' },
-] as const;
+export const SUPPORTED_CURRENCIES = ['USD', 'EUR'] as const;
 
-export type CurrencyCode = (typeof CURRENCIES)[number]['code'];
+export type CurrencyCode = (typeof SUPPORTED_CURRENCIES)[number];
 
-export const DEFAULT_CURRENCY = CURRENCIES[0];
+export interface CurrencyMeta {
+  code: CurrencyCode;
+  symbol: string;
+  label: string;
+}
+
+export const CURRENCY_META: Record<CurrencyCode, CurrencyMeta> = {
+  USD: { code: 'USD', symbol: '$', label: 'US Dollar' },
+  EUR: { code: 'EUR', symbol: '€', label: 'Euro' },
+};
+
+export const DEFAULT_CURRENCY_CODE: CurrencyCode = 'USD';
 
 export const FREE_SHIPPING_THRESHOLD = 100;
 export const STANDARD_SHIPPING_COST = 9.99;
+
+export const CURRENCY_COOKIE = 'silver14_currency';

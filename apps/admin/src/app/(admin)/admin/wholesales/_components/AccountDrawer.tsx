@@ -145,7 +145,7 @@ export function AccountDrawer({ account, tiers, onClose, onUpdated }: Props) {
             </h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-[#6B7280] mb-1">Credit Limit (€)</label>
+                <label className="block text-xs text-[#6B7280] mb-1">Credit Limit ($)</label>
                 <input
                   type="number"
                   min="0"
@@ -158,7 +158,7 @@ export function AccountDrawer({ account, tiers, onClose, onUpdated }: Props) {
               <div className="flex items-center gap-3">
                 <span className="text-xs text-[#6B7280]">Current Balance:</span>
                 <span className="text-xs font-semibold text-[#111827]">
-                  €{Number(account.currentBalance).toLocaleString()}
+                  ${Number(account.currentBalance).toLocaleString()}
                 </span>
               </div>
               <label className="flex items-center gap-3 cursor-pointer">

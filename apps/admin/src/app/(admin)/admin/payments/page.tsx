@@ -67,7 +67,7 @@ function PaymentDrawer({ payment, onClose }: { payment: AdminPayment; onClose: (
           <div className="px-6 py-5 border-b border-[#E5E7EB]">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-2xl font-bold text-[#111827]">€{payment.amount.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-[#111827]">${payment.amount.toFixed(2)}</p>
                 <p className="text-xs text-[#6B7280] mt-0.5">{payment.currency}</p>
               </div>
               <span
@@ -248,12 +248,12 @@ export default function AdminPaymentsPage() {
         {[
           {
             label: 'Total Collected',
-            value: `€${totalRevenue.toFixed(2)}`,
+            value: `$${totalRevenue.toFixed(2)}`,
             color: 'text-emerald-600',
           },
           {
             label: 'Total Refunded',
-            value: `€${totalRefunded.toFixed(2)}`,
+            value: `$${totalRefunded.toFixed(2)}`,
             color: 'text-rose-600',
           },
           { label: 'Failed Payments', value: String(failedCount), color: 'text-red-600' },
@@ -367,7 +367,7 @@ export default function AdminPaymentsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-[#111827]">
-                      €{payment.amount.toFixed(2)}
+                      ${payment.amount.toFixed(2)}
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-xs text-[#6B7280]">
                       {payment.cardBrand && payment.last4

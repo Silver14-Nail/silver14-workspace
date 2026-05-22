@@ -211,25 +211,30 @@ export class ClientPaymentsService {
 
   private calculateTotals(session: CheckoutSessionEntity): SessionTotals {
     const items = session.cart?.items ?? [];
-    const subtotal = items.reduce((sum, item) => {
+    // All variant prices are stored in USD
+    const subtotalUSD = items.reduce((sum, item) => {
       return sum + Number(item.variant.computedPrice) * item.quantity;
     }, 0);
 
     const shippingSnapshot = session.shippingSnapshot as Record<string, any>;
-    const rawShippingFee = Number(shippingSnapshot?.shippingFee ?? 0);
-    const discountAmount = Number(session.discountAmount ?? 0);
-    const currency = (shippingSnapshot?.currency as string) || 'EUR';
+    const rawShippingFeeUSD = Number(shippingSnapshot?.shippingFee ?? 0);
+    const discountAmountUSD = Number(session.discountAmount ?? 0);
 
-    // FREE_SHIPPING coupon: couponCode is set but discountAmount == 0
+    const currency = (session.currency as string) || 'USD';
+    const exchangeRate = Number(session.exchangeRate) || 1;
+
     const isFreeShipping =
-      session.couponCode !== null && discountAmount === 0 && rawShippingFee > 0;
-    const effectiveShipping = isFreeShipping ? 0 : rawShippingFee;
+      session.couponCode !== null && discountAmountUSD === 0 && rawShippingFeeUSD > 0;
+    const effectiveShippingUSD = isFreeShipping ? 0 : rawShippingFeeUSD;
+
+    const convert = (usd: number) =>
+      currency === 'USD' ? usd : parseFloat((usd * exchangeRate).toFixed(2));
 
     return {
-      subtotal,
-      discountAmount,
-      shippingFee: effectiveShipping,
-      total: Math.max(0, subtotal - discountAmount + effectiveShipping),
+      subtotal: convert(subtotalUSD),
+      discountAmount: convert(discountAmountUSD),
+      shippingFee: convert(effectiveShippingUSD),
+      total: Math.max(0, convert(subtotalUSD - discountAmountUSD + effectiveShippingUSD)),
       currency,
     };
   }
@@ -278,6 +283,7 @@ export class ClientPaymentsService {
       shippingFee: totals.shippingFee,
       total: totals.total,
       currency: totals.currency,
+      exchangeRate: Number(session.exchangeRate) || null,
     });
 
     await manager.save(OrderEntity, order);

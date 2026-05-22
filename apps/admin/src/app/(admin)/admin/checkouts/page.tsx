@@ -194,7 +194,7 @@ export default function AdminCheckoutPage() {
           },
           {
             label: 'Recovery Potential',
-            value: '€359',
+            value: '$359',
             icon: RefreshCw,
             color: 'text-emerald-600',
             bg: 'bg-emerald-50',
@@ -256,7 +256,7 @@ export default function AdminCheckoutPage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-[#374151]">{cart.items}</td>
                     <td className="px-4 py-3 text-sm font-semibold text-[#111827]">
-                      €{cart.value.toFixed(2)}
+                      ${cart.value.toFixed(2)}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -316,7 +316,7 @@ export default function AdminCheckoutPage() {
                       Step: {cart.step}
                     </span>
                     <span className="text-sm font-bold text-[#111827]">
-                      €{cart.value.toFixed(2)}
+                      ${cart.value.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -408,7 +408,7 @@ export default function AdminCheckoutPage() {
                     </td>
                     <td className="px-4 py-3 text-xs text-[#6B7280]">{session.duration}</td>
                     <td className="px-4 py-3 text-sm font-semibold text-[#111827]">
-                      €{session.total.toFixed(2)}
+                      ${session.total.toFixed(2)}
                     </td>
                     <td className="px-4 py-3 text-xs text-[#6B7280]">
                       {timeAgo(session.createdAt)}
@@ -450,7 +450,7 @@ export default function AdminCheckoutPage() {
                     <td className="px-4 py-3 text-xs text-[#6B7280]">{gc.country}</td>
                     <td className="px-4 py-3 text-sm text-[#374151]">{gc.items}</td>
                     <td className="px-4 py-3 text-sm font-semibold text-[#111827]">
-                      €{gc.total.toFixed(2)}
+                      ${gc.total.toFixed(2)}
                     </td>
                     <td className="px-4 py-3">
                       <span

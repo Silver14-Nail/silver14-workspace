@@ -4,8 +4,11 @@ import { useEffect, useRef } from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
 import { store } from './index';
+import { currencyActions } from './slices/currency.slice';
 import { initializeAuth } from './slices/auth.slice';
+import { fetchExchangeRates } from '@/services/currency.service';
 import { logger } from '../lib/logger';
+import type { CurrencyCode } from '@/config/commerce.config';
 
 function AuthInitializer() {
   useEffect(() => {
@@ -14,18 +17,32 @@ function AuthInitializer() {
   return null;
 }
 
-export function StoreProvider({ children }: { children: React.ReactNode }) {
-  // Stable QueryClient instance per app mount — not re-created on every render
+function ExchangeRateInitializer({ initialCode }: { initialCode?: CurrencyCode }) {
+  useEffect(() => {
+    // Always initialize from SSR cookie — never rely on potentially stale localStorage shape
+    store.dispatch(currencyActions.setCurrency(initialCode ?? 'USD'));
+
+    fetchExchangeRates()
+      .then((rates) => store.dispatch(currencyActions.setExchangeRates(rates)))
+      .catch((err) => logger.error('Failed to load exchange rates', err, 'ExchangeRateInitializer'));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return null;
+}
+
+export function StoreProvider({
+  children,
+  initialCurrencyCode,
+}: {
+  children: React.ReactNode;
+  initialCurrencyCode?: CurrencyCode;
+}) {
   const queryClientRef = useRef<QueryClient>(null);
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient({
       queryCache: new QueryCache({
         onError: (error, query) => {
-          logger.error(
-            `Query failed: ${String(query.queryKey)}`,
-            error,
-            'QueryCache',
-          );
+          logger.error(`Query failed: ${String(query.queryKey)}`, error, 'QueryCache');
         },
       }),
       mutationCache: new MutationCache({
@@ -46,6 +63,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     <Provider store={store}>
       <QueryClientProvider client={queryClientRef.current}>
         <AuthInitializer />
+        <ExchangeRateInitializer initialCode={initialCurrencyCode} />
         {children}
       </QueryClientProvider>
     </Provider>

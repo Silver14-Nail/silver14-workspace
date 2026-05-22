@@ -32,11 +32,11 @@ export const checkoutApi = {
       headers: authHeaders(token),
     }),
 
-  createSession: (cartId: string, token?: string | null) =>
+  createSession: (cartId: string, token?: string | null, currency?: string) =>
     api<CheckoutSession>(`${BASE}/client-api/checkout`, {
       method: 'POST',
       headers: authHeaders(token),
-      body: JSON.stringify({ cartId }),
+      body: JSON.stringify({ cartId, currency: currency ?? 'USD' }),
     }),
 
   getSession: (sessionId: string, token?: string | null) =>

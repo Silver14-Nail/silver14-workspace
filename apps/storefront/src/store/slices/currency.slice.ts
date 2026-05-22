@@ -1,19 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CURRENCIES, DEFAULT_CURRENCY, type CurrencyCode } from '@/config/commerce.config';
-
-export interface CurrencyInfo {
-  code: CurrencyCode;
-  symbol: string;
-  rate: number;
-  label: string;
-}
+import {
+  CURRENCY_META,
+  DEFAULT_CURRENCY_CODE,
+  type CurrencyCode,
+} from '@/config/commerce.config';
+import type { ExchangeRates } from '@/services/currency.service';
 
 export interface CurrencyState {
-  current: CurrencyInfo;
+  code: CurrencyCode;
+  exchangeRates: ExchangeRates;
 }
 
+const DEFAULT_RATES: ExchangeRates = { USD_EUR: 1, EUR_USD: 1 };
+
 const initialState: CurrencyState = {
-  current: DEFAULT_CURRENCY,
+  code: DEFAULT_CURRENCY_CODE,
+  exchangeRates: DEFAULT_RATES,
 };
 
 export const currencySlice = createSlice({
@@ -21,8 +23,12 @@ export const currencySlice = createSlice({
   initialState,
   reducers: {
     setCurrency(state, action: PayloadAction<CurrencyCode>) {
-      const found = CURRENCIES.find((c) => c.code === action.payload);
-      if (found) state.current = found;
+      if (CURRENCY_META[action.payload]) {
+        state.code = action.payload;
+      }
+    },
+    setExchangeRates(state, action: PayloadAction<ExchangeRates>) {
+      state.exchangeRates = action.payload;
     },
   },
 });

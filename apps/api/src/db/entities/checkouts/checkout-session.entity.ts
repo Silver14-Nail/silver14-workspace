@@ -77,6 +77,22 @@ export class CheckoutSessionEntity extends SoftDeleteAbstractEntity {
   status: CheckoutSessionStatus;
 
   @Column({
+    type: 'varchar',
+    length: 3,
+    default: 'USD',
+  })
+  currency: string;
+
+  @Column({
+    name: 'exchange_rate',
+    type: 'numeric',
+    precision: 10,
+    scale: 6,
+    nullable: true,
+  })
+  exchangeRate: number | null;
+
+  @Column({
     name: 'expires_at',
     type: 'timestamp',
   })

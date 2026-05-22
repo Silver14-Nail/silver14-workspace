@@ -237,7 +237,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
                       {type === 'percent'
                         ? '% Percent'
                         : type === 'fixed'
-                          ? '€ Fixed'
+                          ? '$ Fixed'
                           : 'Free Ship'}
                     </button>
                   ))}
@@ -248,7 +248,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {form.discountType !== 'free_shipping' && (
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    {form.discountType === 'percent' ? 'Percentage (%)' : 'Amount (€)'}{' '}
+                    {form.discountType === 'percent' ? 'Percentage (%)' : 'Amount ($)'}{' '}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -268,7 +268,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {form.discountType === 'percent' && (
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Max Discount Cap (€)
+                    Max Discount Cap ($)
                   </label>
                   <input
                     type="number"
@@ -286,7 +286,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Min. Order (€)
+                    Min. Order ($)
                   </label>
                   <input
                     type="number"

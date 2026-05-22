@@ -356,7 +356,7 @@ export default function WholesaleAccountPage() {
                           {wo.order?.total != null
                             ? new Intl.NumberFormat('en-US', {
                                 style: 'currency',
-                                currency: wo.order.currency ?? 'EUR',
+                                currency: wo.order.currency ?? 'USD',
                               }).format(Number(wo.order.total))
                             : '—'}
                         </td>
@@ -396,7 +396,7 @@ export default function WholesaleAccountPage() {
                       <p className="text-[#1A1A1A] text-sm">
                         {new Intl.NumberFormat('en-US', {
                           style: 'currency',
-                          currency: wo.order.currency ?? 'EUR',
+                          currency: wo.order.currency ?? 'USD',
                         }).format(Number(wo.order.total))}
                         {Number(wo.wholesaleDiscount) > 0 && (
                           <span className="text-[#4A7A5A] ml-2 text-xs">

@@ -22,7 +22,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
   const [salePrice, setSalePrice] = useState(
     product?.salePrice != null ? Number(product.salePrice).toFixed(2) : '',
   );
-  const [currency, setCurrency] = useState(product?.currency ?? 'EUR');
+  const [currency, setCurrency] = useState(product?.currency ?? 'USD');
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');

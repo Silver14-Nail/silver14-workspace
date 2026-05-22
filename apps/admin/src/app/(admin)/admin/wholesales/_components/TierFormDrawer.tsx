@@ -100,7 +100,7 @@ export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
           {/* Max discount cap */}
           <div>
             <label className="block text-xs font-medium text-[#374151] mb-1">
-              Max Discount Amount (€) — optional cap
+              Max Discount Amount ($) — optional cap
             </label>
             <input
               type="number"
@@ -134,7 +134,7 @@ export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
           {/* Min order amount */}
           <div>
             <label className="block text-xs font-medium text-[#374151] mb-1">
-              Minimum Order Amount (€)
+              Minimum Order Amount ($)
             </label>
             <input
               type="number"

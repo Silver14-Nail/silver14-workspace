@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Stripe, StripeCardElement } from '@stripe/stripe-js';
 import { useCart } from '@/hooks/useCart';
+import { useAppSelector } from '@/store/hooks';
 import {
   getStoredCustomerTokens,
   isAccessTokenExpired,
@@ -47,6 +48,7 @@ async function pollForOrder(
 export function useCheckout() {
   const queryClient = useQueryClient();
   const { cartId, items, subtotal, clearCart } = useCart();
+  const selectedCurrency = useAppSelector((s) => s.currency.code);
 
   const [sessionId, setSessionId] = useState<string | null>(getCheckoutSessionId);
   const [step, setStep] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>('contact');
@@ -85,7 +87,7 @@ export function useCheckout() {
   const initSession = useCallback(async () => {
     if (sessionId || !cartId) return;
     try {
-      const s = await checkoutApi.createSession(cartId, getToken());
+      const s = await checkoutApi.createSession(cartId, getToken(), selectedCurrency);
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
 
@@ -102,7 +104,7 @@ export function useCheckout() {
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to start checkout');
     }
-  }, [cartId, sessionId, queryClient]);
+  }, [cartId, sessionId, selectedCurrency, queryClient]);
 
   useEffect(() => {
     initSession();
@@ -295,7 +297,9 @@ export function useCheckout() {
   const totals = session?.totals ?? null;
   const shippingCost: number | null = totals?.shippingFee ?? null;
   const discountAmount = totals?.discountAmount ?? 0;
-  const currency = totals?.currency ?? 'EUR';
+  // Use session currency (authoritative — set from Redux at session creation time).
+  // Fall back to 'USD' before a session exists so SSR and the first client render match.
+  const currency = totals?.currency ?? 'USD';
   const finalTotal = totals?.total ?? subtotal + (shippingCost ?? 0);
 
   return {

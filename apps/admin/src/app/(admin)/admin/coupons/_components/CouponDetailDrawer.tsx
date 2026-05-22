@@ -396,16 +396,16 @@ function InfoTab({ coupon }: { coupon: CouponDetail }) {
         coupon.discountType === 'percent'
           ? `${coupon.discountValue}%`
           : coupon.discountType === 'fixed'
-            ? `€${coupon.discountValue}`
+            ? `$${coupon.discountValue}`
             : 'Free Shipping',
     },
     {
       label: 'Max Discount Cap',
-      value: coupon.maxDiscountAmount != null ? `€${coupon.maxDiscountAmount}` : '–',
+      value: coupon.maxDiscountAmount != null ? `$${coupon.maxDiscountAmount}` : '–',
     },
     {
       label: 'Min Order Amount',
-      value: coupon.minOrderAmount > 0 ? `€${coupon.minOrderAmount}` : '–',
+      value: coupon.minOrderAmount > 0 ? `$${coupon.minOrderAmount}` : '–',
     },
     {
       label: 'Max Uses (Total)',
@@ -736,7 +736,7 @@ function UsagesTab({
                 {usage.user?.fullName ?? 'Guest'}
               </span>
               <span className="text-xs font-bold text-emerald-600">
-                –€{usage.discountApplied.toFixed(2)}
+                –${usage.discountApplied.toFixed(2)}
               </span>
             </div>
             <div className="flex items-center justify-between">

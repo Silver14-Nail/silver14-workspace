@@ -1,6 +1,9 @@
+'use client';
+
 import { useState } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { CreditCard, Shield } from 'lucide-react';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface StripePaymentFormProps {
   amount: number;
@@ -12,6 +15,7 @@ export function StripePaymentForm({ amount, onSuccess, onError }: StripePaymentF
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { format } = useCurrency();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +102,7 @@ export function StripePaymentForm({ amount, onSuccess, onError }: StripePaymentF
         ) : (
           <>
             <CreditCard className="size-4" />
-            Pay ${amount.toFixed(2)}
+            Pay {format(amount)}
           </>
         )}
       </button>

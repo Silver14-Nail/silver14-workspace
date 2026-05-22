@@ -16,7 +16,8 @@ const persistConfig = {
   storage,
   // auth is NOT persisted — tokens live in their own localStorage key (silver14-customer-auth)
   // cart is NOT persisted — served by the real backend API via React Query
-  whitelist: ['wishlist', 'currency'],
+  // currency is NOT persisted — cookie is authoritative; localStorage old shape conflicts with new { code, exchangeRates }
+  whitelist: ['wishlist'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
