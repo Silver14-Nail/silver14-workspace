@@ -1,7 +1,7 @@
 import { dir } from 'i18next';
 import { Nunito, Noto_Sans_JP } from 'next/font/google';
 import { cookies } from 'next/headers';
-// import Script from 'next/script';
+import Script from 'next/script';
 import {
   initServerI18next,
   getT,
@@ -10,10 +10,13 @@ import {
 } from 'next-i18next/server';
 import { I18nProvider } from 'next-i18next/client';
 import { StoreProvider } from '../../store/StoreProvider';
-import { CURRENCY_COOKIE, SUPPORTED_CURRENCIES, type CurrencyCode } from '../../config/commerce.config';
+import {
+  CURRENCY_COOKIE,
+  SUPPORTED_CURRENCIES,
+  type CurrencyCode,
+} from '../../config/commerce.config';
 import { Footer } from '../../components/layout/Footer';
 import { Navbar } from '../../components/layout/Navbar';
-import { AIChat } from '../../components/shared/AIChat';
 import i18nConfig from '../../i18n.config';
 import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo';
 import { getCollections } from '../../features/collections/collections.api';
@@ -83,7 +86,7 @@ export default async function RootLayout({
           }}
           type="application/ld+json"
         />
-        {/* <Script id="crisp-chat" strategy="afterInteractive">
+        <Script id="crisp-chat" strategy="afterInteractive">
           {`
             window.$crisp = [];
             window.CRISP_WEBSITE_ID = "accfed8c-e6fd-452b-a8c8-6eb8b3e1078a";
@@ -98,13 +101,12 @@ export default async function RootLayout({
               d.getElementsByTagName("head")[0].appendChild(s);
             })();
         `}
-        </Script> */}
+        </Script>
         <StoreProvider initialCurrencyCode={initialCurrencyCode}>
           <I18nProvider language={lng} resources={resources}>
             <Navbar initialCollections={navCollections} />
             {children}
             <Footer />
-            <AIChat />
           </I18nProvider>
         </StoreProvider>
       </body>
