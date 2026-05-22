@@ -62,9 +62,7 @@ async function bootstrap(): Promise<INestApplication> {
       whitelist: true,
       forbidNonWhitelisted: false,
       exceptionFactory: (errors) => {
-        const messages = errors
-          .flatMap((e) => Object.values(e.constraints ?? {}))
-          .join('; ');
+        const messages = errors.flatMap((e) => Object.values(e.constraints ?? {})).join('; ');
         return new BadRequestException(messages || 'Validation failed');
       },
     }),
@@ -102,8 +100,13 @@ module.exports = async (req: any, res: any) => {
   try {
     await bootstrap();
   } catch (err) {
-    logger.error('Bootstrap failed in serverless handler', err instanceof Error ? err.stack : String(err));
-    res.status(500).json({ success: false, message: 'Service unavailable', errorCode: 'BOOTSTRAP_FAILED' });
+    logger.error(
+      'Bootstrap failed in serverless handler',
+      err instanceof Error ? err.stack : String(err),
+    );
+    res
+      .status(500)
+      .json({ success: false, message: 'Service unavailable', errorCode: 'BOOTSTRAP_FAILED' });
     return;
   }
   expressApp(req, res);

@@ -57,14 +57,14 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof BadRequestException) {
       const res = exception.getResponse() as any;
       const raw = res?.message;
-      const message = Array.isArray(raw) ? raw.join('; ') : raw ?? exception.message;
+      const message = Array.isArray(raw) ? raw.join('; ') : (raw ?? exception.message);
       return { status: 400, message, errorCode: 'VALIDATION_ERROR' };
     }
 
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const res = exception.getResponse();
-      const raw = typeof res === 'string' ? res : (res as any)?.message ?? exception.message;
+      const raw = typeof res === 'string' ? res : ((res as any)?.message ?? exception.message);
       const message = Array.isArray(raw) ? raw.join('; ') : raw;
       return { status, message, errorCode: `HTTP_${status}` };
     }

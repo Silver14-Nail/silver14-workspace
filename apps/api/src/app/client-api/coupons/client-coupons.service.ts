@@ -72,9 +72,7 @@ export class ClientCouponsService {
     if (coupon.discountType === DiscountType.PERCENT) {
       const raw = (subtotal * Number(coupon.discountValue)) / 100;
       discountPreview =
-        coupon.maxDiscountAmount !== null
-          ? Math.min(raw, Number(coupon.maxDiscountAmount))
-          : raw;
+        coupon.maxDiscountAmount !== null ? Math.min(raw, Number(coupon.maxDiscountAmount)) : raw;
       savingsLabel = `Save $${discountPreview.toFixed(2)}`;
     } else if (coupon.discountType === DiscountType.FIXED) {
       discountPreview = Math.min(Number(coupon.discountValue), subtotal);

@@ -176,7 +176,7 @@ export class ClientProductsService {
         .orderBy('images.sortOrder', 'ASC')
         .addOrderBy('variants.stockQty', 'DESC');
 
-    let product =
+    const product =
       (await qb().where('product.slug = :slug', { slug }).getOne()) ??
       (await qb().where('product.id = :slug', { slug }).getOne());
 
