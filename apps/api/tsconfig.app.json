@@ -13,6 +13,9 @@
     "strictPropertyInitialization": false,
     "target": "es2022",
     "emitDeclarationOnly": false,
+    "isolatedModules": false,
+    "noEmitOnError": false,
+    "noUnusedLocals": false,
     "paths": {
       "@/*": ["./src/*"]
     }
