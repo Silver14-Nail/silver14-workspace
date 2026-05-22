@@ -1,6 +1,7 @@
 'use client';
 
 import { useT } from 'next-i18next/client';
+import { useCurrency } from '@/hooks/useCurrency';
 import type { TrackedOrderItem } from '../types';
 
 export default function OrderSummary({
@@ -11,6 +12,7 @@ export default function OrderSummary({
   total: number;
 }) {
   const { t } = useT('tracking');
+  const { format } = useCurrency();
 
   return (
     <div className="bg-[#F8F8F8] p-4">
@@ -31,7 +33,7 @@ export default function OrderSummary({
 
         <div className="border-t border-[#E0E0E0] pt-2 mt-3 flex justify-between font-medium">
           <span className="text-[#6A6A6A]">{t('total')}</span>
-          <span className="text-[#1A1A1A]">${total.toFixed(2)}</span>
+          <span className="text-[#1A1A1A]">{format(total)}</span>
         </div>
       </div>
     </div>

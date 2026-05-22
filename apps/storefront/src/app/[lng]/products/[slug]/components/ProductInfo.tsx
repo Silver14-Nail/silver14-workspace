@@ -6,6 +6,7 @@ import { useT } from 'next-i18next/client';
 import { LinkBase } from '@/components/shared/LinkBase';
 import type { ProductSelections } from '../types';
 import { getPricingInfo } from '@/lib/pricing';
+import { useCurrency } from '@/hooks/useCurrency';
 
 interface Product {
   name: string;
@@ -14,6 +15,7 @@ interface Product {
   inStock: boolean;
   availableShapes: string[];
   availableSizes: string[];
+  shapeAdjustments?: Record<string, number>;
 }
 
 interface ProductInfoProps {
@@ -45,6 +47,7 @@ export const ProductInfo = memo(function ProductInfo({
   onToggleWishlist,
 }: ProductInfoProps) {
   const { t } = useT('product-details');
+  const { format } = useCurrency();
   const basePricing = getPricingInfo(product);
 
   // When a shape with price adjustment is selected, compute adjusted pricing
@@ -95,7 +98,7 @@ export const ProductInfo = memo(function ProductInfo({
                 fontSize: '1.6rem',
               }}
             >
-              ${pricing.effectivePrice.toFixed(2)}
+              {format(pricing.effectivePrice)}
             </span>
             <span
               className="text-[#9A9A9A] line-through"
@@ -104,7 +107,7 @@ export const ProductInfo = memo(function ProductInfo({
                 fontSize: '1.1rem',
               }}
             >
-              ${pricing.price.toFixed(2)}
+              {format(pricing.price)}
             </span>
             {pricing.discountPercent != null && (
               <span className="text-xs bg-[#C0392B] text-white px-2 py-0.5 uppercase tracking-wider">
@@ -120,7 +123,7 @@ export const ProductInfo = memo(function ProductInfo({
               fontSize: '1.6rem',
             }}
           >
-            ${pricing.price.toFixed(2)}
+            {format(pricing.price)}
           </span>
         )}
       </div>
@@ -146,7 +149,7 @@ export const ProductInfo = memo(function ProductInfo({
               className="px-4 py-2.5 text-xs border border-[#1A1A1A] bg-[#1A1A1A] text-white"
               aria-pressed
             >
-              {product.availableShapes[0]}
+              {shapeOptionLabel(product.availableShapes[0], product.shapeAdjustments, format)}
             </button>
           </div>
         ) : (
@@ -158,7 +161,7 @@ export const ProductInfo = memo(function ProductInfo({
             <option value="">{t('selectors.shape.placeholder')}</option>
             {product.availableShapes.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {shapeOptionLabel(s, product.shapeAdjustments, format)}
               </option>
             ))}
           </select>
@@ -264,6 +267,17 @@ export const ProductInfo = memo(function ProductInfo({
     </div>
   );
 });
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+function shapeOptionLabel(
+  label: string,
+  adjustments: Record<string, number> | undefined,
+  format: (amount: number) => string,
+): string {
+  const adj = adjustments?.[label] ?? 0;
+  return adj > 0 ? `${label} (+ ${format(adj)})` : label;
+}
 
 // ─── SelectorField ─────────────────────────────────────────────────────────────
 

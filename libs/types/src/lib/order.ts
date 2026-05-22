@@ -35,6 +35,10 @@ export interface Order {
   discountCode?: string;
   shippingCost: number;
   total: number;
+  /** ISO 4217 currency code — snapshot of the currency at order time (e.g. 'USD', 'EUR') */
+  currency: string;
+  /** Exchange rate snapshot at order time; 1 if paid in USD */
+  exchangeRate: number | null;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   paymentIntentId?: string;

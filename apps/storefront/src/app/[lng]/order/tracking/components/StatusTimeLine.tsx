@@ -7,7 +7,7 @@ import type { OrderTrackingStatus } from '../types';
 export default function StatusTimeline({ status }: { status: OrderTrackingStatus }) {
   const { t } = useT('tracking');
 
-  const currentIdx = status === 'Delivered' ? 3 : status === 'Shipped' ? 2 : 0;
+  const currentIdx = TRACKING_STEPS.findIndex((step) => step.key === status);
 
   return (
     <div className="mt-8">

@@ -158,7 +158,7 @@ export default function VariantFormDrawer({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Price (€) *
+                Price ($) *
               </label>
               <input
                 value={price}

@@ -152,6 +152,13 @@ export enum WholesalePaymentStatus {
   OVERDUE = 'overdue',
 }
 
+// ─── CURRENCY ───────────────────────────────────────────────────────────────
+
+export enum SupportedCurrency {
+  USD = 'USD',
+  EUR = 'EUR',
+}
+
 // ─── NEWSLETTER ─────────────────────────────────────────────────────────────
 
 export enum NewsletterStatus {

@@ -1,5 +1,6 @@
 import { dir } from 'i18next';
 import { Nunito, Noto_Sans_JP } from 'next/font/google';
+import { cookies } from 'next/headers';
 // import Script from 'next/script';
 import {
   initServerI18next,
@@ -9,6 +10,7 @@ import {
 } from 'next-i18next/server';
 import { I18nProvider } from 'next-i18next/client';
 import { StoreProvider } from '../../store/StoreProvider';
+import { CURRENCY_COOKIE, SUPPORTED_CURRENCIES, type CurrencyCode } from '../../config/commerce.config';
 import { Footer } from '../../components/layout/Footer';
 import { Navbar } from '../../components/layout/Navbar';
 import { AIChat } from '../../components/shared/AIChat';
@@ -55,6 +57,14 @@ export default async function RootLayout({
   const { i18n } = await getT();
   const resources = getResources(i18n);
 
+  const cookieStore = await cookies();
+  const rawCurrency = cookieStore.get(CURRENCY_COOKIE)?.value ?? '';
+  const initialCurrencyCode: CurrencyCode = (SUPPORTED_CURRENCIES as readonly string[]).includes(
+    rawCurrency,
+  )
+    ? (rawCurrency as CurrencyCode)
+    : 'USD';
+
   let navCollections: Awaited<ReturnType<typeof getCollections>>['data'] = [];
   try {
     const result = await getCollections({ limit: 20 });
@@ -89,7 +99,7 @@ export default async function RootLayout({
             })();
         `}
         </Script> */}
-        <StoreProvider>
+        <StoreProvider initialCurrencyCode={initialCurrencyCode}>
           <I18nProvider language={lng} resources={resources}>
             <Navbar initialCollections={navCollections} />
             {children}

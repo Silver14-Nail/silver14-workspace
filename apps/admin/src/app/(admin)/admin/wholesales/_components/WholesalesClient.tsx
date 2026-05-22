@@ -438,7 +438,7 @@ function AccountsTab({
                       </td>
                       <td className="px-4 py-3 text-[#374151]">{account.country}</td>
                       <td className="px-4 py-3 text-[#374151]">
-                        €{Number(account.creditLimit).toLocaleString()}
+                        ${Number(account.creditLimit).toLocaleString()}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -585,10 +585,10 @@ function TiersTab({
             <div className="space-y-3">
               <TierRow label="Discount" value={`${tier.discountPercent}%`} />
               {tier.maxDiscountAmount && (
-                <TierRow label="Max Discount" value={`€${tier.maxDiscountAmount}`} />
+                <TierRow label="Max Discount" value={`$${tier.maxDiscountAmount}`} />
               )}
               <TierRow label="Min Monthly Qty" value={`${tier.minMonthlyQty} sets`} />
-              <TierRow label="Min Order" value={`€${tier.minOrderAmount}`} />
+              <TierRow label="Min Order" value={`$${tier.minOrderAmount}`} />
               <TierRow label="Free Shipping" value={tier.freeShipping ? 'Yes' : 'No'} />
             </div>
             <button

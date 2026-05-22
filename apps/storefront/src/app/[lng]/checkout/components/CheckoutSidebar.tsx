@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useT } from 'next-i18next/client';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import type { CartDisplayItem } from '@/features/cart/cart.types';
@@ -32,13 +32,22 @@ export function CheckoutSidebar({
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Use 'USD' before mount so the first client render matches the server-rendered HTML.
+  // After mount, switch to the actual session currency (avoids redux-persist REHYDRATE mismatch).
+  const activeCurrency = mounted ? currency || 'USD' : 'USD';
 
   const fmt = useCallback(
     (amount: number) =>
-      new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'EUR' }).format(
+      new Intl.NumberFormat('en-US', { style: 'currency', currency: activeCurrency }).format(
         amount,
       ),
-    [currency],
+    [activeCurrency],
   );
 
   const handleApply = async () => {

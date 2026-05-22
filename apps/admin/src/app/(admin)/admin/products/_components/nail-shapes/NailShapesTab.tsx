@@ -239,7 +239,7 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
                     >
                       {shape.adjustmentType === 'percent'
                         ? `${Number(shape.priceAdjustment)}%`
-                        : `€${Number(shape.priceAdjustment).toFixed(2)}`}
+                        : `$${Number(shape.priceAdjustment).toFixed(2)}`}
                     </span>
                   </td>
                   <td className="px-4 py-3">

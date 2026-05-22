@@ -299,7 +299,9 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
             </div>
           )}
 
-          {order && (
+          {order && (() => {
+            const currencySymbol = order.currency === 'EUR' ? '€' : order.currency === 'GBP' ? '£' : '$';
+            return (
             <>
               {/* Status badges */}
               <div className="px-6 py-4 flex flex-wrap gap-2 border-b border-[#E5E7EB]">
@@ -376,7 +378,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                         </p>
                       </div>
                       <p className="text-xs font-semibold text-[#111827] flex-shrink-0">
-                        €{(Number(item.unitPrice) * item.quantity).toFixed(2)}
+                        {currencySymbol}{(Number(item.unitPrice) * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -384,21 +386,21 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                 <div className="mt-3 pt-3 border-t border-[#F3F4F6] space-y-1">
                   <div className="flex justify-between text-xs text-[#6B7280]">
                     <span>Subtotal</span>
-                    <span>€{Number(order.subtotal).toFixed(2)}</span>
+                    <span>{currencySymbol}{Number(order.subtotal).toFixed(2)}</span>
                   </div>
                   {Number(order.discountAmount) > 0 && (
                     <div className="flex justify-between text-xs text-emerald-600">
                       <span>Discount</span>
-                      <span>−€{Number(order.discountAmount).toFixed(2)}</span>
+                      <span>−{currencySymbol}{Number(order.discountAmount).toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-xs text-[#6B7280]">
                     <span>Shipping</span>
-                    <span>€{Number(order.shippingFee).toFixed(2)}</span>
+                    <span>{currencySymbol}{Number(order.shippingFee).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-semibold text-[#111827] pt-1 border-t border-[#F3F4F6]">
                     <span>Total</span>
-                    <span>€{Number(order.total).toFixed(2)}</span>
+                    <span>{currencySymbol}{Number(order.total).toFixed(2)}</span>
                   </div>
                 </div>
               </CollapsibleSection>
@@ -484,7 +486,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                       <div>
                         <span className="text-[#9CA3AF]">Amount</span>
                         <p className="font-medium text-[#111827] mt-0.5">
-                          €{Number(order.payment.amount).toFixed(2)}
+                          {currencySymbol}{Number(order.payment.amount).toFixed(2)}
                         </p>
                       </div>
                       {order.payment.gatewayTxnId && (
@@ -656,7 +658,8 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                 </div>
               )}
             </>
-          )}
+            );
+          })()}
         </div>
       </div>
     </div>

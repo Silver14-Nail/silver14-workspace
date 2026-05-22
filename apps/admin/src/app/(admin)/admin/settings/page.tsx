@@ -257,7 +257,7 @@ export default function AdminSettingsPage() {
                   description="Order amount for free shipping"
                 >
                   <div className="flex items-center gap-1">
-                    <span className="text-sm text-[#6B7280]">€</span>
+                    <span className="text-sm text-[#6B7280]">$</span>
                     <input
                       type="number"
                       defaultValue="70"
@@ -267,7 +267,7 @@ export default function AdminSettingsPage() {
                 </SettingRow>
                 <SettingRow label="Default Shipping Cost" description="Standard EU shipping">
                   <div className="flex items-center gap-1">
-                    <span className="text-sm text-[#6B7280]">€</span>
+                    <span className="text-sm text-[#6B7280]">$</span>
                     <input
                       type="number"
                       defaultValue="5.90"
@@ -277,7 +277,7 @@ export default function AdminSettingsPage() {
                 </SettingRow>
                 <SettingRow label="Express Shipping Cost" description="DHL Express premium">
                   <div className="flex items-center gap-1">
-                    <span className="text-sm text-[#6B7280]">€</span>
+                    <span className="text-sm text-[#6B7280]">$</span>
                     <input
                       type="number"
                       defaultValue="12.90"

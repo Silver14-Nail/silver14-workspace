@@ -159,7 +159,7 @@ export default function ShapeDrawer({ shape, onClose, onSuccess }: ShapeDrawerPr
                 onChange={(e) => setAdjustmentType(e.target.value as AdjustmentType)}
                 className={inputCls + ' cursor-pointer'}
               >
-                <option value="fixed">Fixed (€)</option>
+                <option value="fixed">Fixed ($)</option>
                 <option value="percent">Percentage (%)</option>
               </select>
             </div>

@@ -22,7 +22,9 @@ import {
   CouponRestrictionType,
   DiscountType,
   OrderStatus,
+  SupportedCurrency,
 } from '@/common/enums/entity.enum';
+import { CurrencyService } from '@/shared/currency/currency.service';
 
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -46,6 +48,7 @@ export class ClientCheckoutService {
     private readonly couponUsageRepo: Repository<CouponUsageEntity>,
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
+    private readonly currencyService: CurrencyService,
   ) {}
 
   // ─── Shipping Methods ─────────────────────────────────────────────────────────
@@ -65,20 +68,21 @@ export class ClientCheckoutService {
     if (!cart) throw new NotFoundException('Active cart not found');
     if (!cart.items?.length) throw new BadRequestException('Cart is empty');
 
-    // If user is authenticated, ensure the cart belongs to them
     if (userId && cart.user && (cart.user as any).id !== userId) {
       throw new ForbiddenException('Cart does not belong to this user');
     }
 
-    // Return existing in-progress session for this cart if one exists
     const existing = await this.sessionRepo.findOne({
       where: { cart: { id: cart.id }, status: CheckoutSessionStatus.IN_PROGRESS },
     });
     if (existing) {
-      // Refresh expiry and return
       existing.expiresAt = new Date(Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
       return this.sessionRepo.save(existing);
     }
+
+    const requestedCurrency = this.currencyService.normalize(dto.currency ?? SupportedCurrency.USD);
+    const rates = await this.currencyService.getRates();
+    const exchangeRate = requestedCurrency === SupportedCurrency.EUR ? rates.USD_EUR : 1;
 
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + SESSION_EXPIRY_HOURS);
@@ -88,6 +92,8 @@ export class ClientCheckoutService {
       user: userId ? ({ id: userId } as any) : null,
       currentStep: CheckoutStep.CONTACT,
       status: CheckoutSessionStatus.IN_PROGRESS,
+      currency: requestedCurrency,
+      exchangeRate,
       contactSnapshot: null,
       shippingSnapshot: null,
       couponCode: null,
@@ -139,12 +145,13 @@ export class ClientCheckoutService {
       if (!method) throw new NotFoundException('Shipping method not found');
     }
 
+    // Shipping fees are stored in USD; snapshot records the USD fee.
+    // withTotals will convert to the session currency at display time.
     session.shippingSnapshot = {
       shippingMethodId: method?.id ?? null,
       shippingMethodName: method?.name ?? null,
       carrier: method?.carrier ?? null,
       shippingFee: method ? Number(method.fee) : 0,
-      currency: method?.currency ?? 'EUR',
       recipientName: dto.recipientName,
       street: dto.street,
       city: dto.city,
@@ -179,7 +186,6 @@ export class ClientCheckoutService {
       throw new BadRequestException('Coupon usage limit reached');
     }
 
-    // Whitelist: if any entries exist, only those users may use this coupon
     if (coupon.whitelist.length > 0) {
       const userId = (session.user as any)?.id;
       if (!userId) {
@@ -193,7 +199,6 @@ export class ClientCheckoutService {
       }
     }
 
-    // Per-user usage limit
     const userId = (session.user as any)?.id;
     if (userId && coupon.maxUsesPerUser > 0) {
       const usageCount = await this.couponUsageRepo.count({
@@ -206,23 +211,23 @@ export class ClientCheckoutService {
       }
     }
 
-    const subtotal = await this.calculateSubtotal(session);
+    // Coupon thresholds are always evaluated against the USD subtotal
+    const subtotalUSD = await this.calculateSubtotalUSD(session);
 
-    if (subtotal < Number(coupon.minOrderAmount)) {
+    if (subtotalUSD < Number(coupon.minOrderAmount)) {
       throw new BadRequestException(
-        `Minimum order amount of €${Number(coupon.minOrderAmount).toFixed(2)} required for this coupon`,
+        `Minimum order amount of $${Number(coupon.minOrderAmount).toFixed(2)} USD required for this coupon`,
       );
     }
 
-    // Restriction enforcement
     for (const restriction of coupon.restrictions) {
       await this.enforceRestriction(restriction, session);
     }
 
-    const discountAmount = this.computeDiscount(coupon, subtotal);
+    const discountAmountUSD = this.computeDiscount(coupon, subtotalUSD);
 
     session.couponCode = coupon.code;
-    session.discountAmount = discountAmount;
+    session.discountAmount = discountAmountUSD;
 
     const saved = await this.sessionRepo.save(session);
     return this.withTotals(saved);
@@ -238,9 +243,9 @@ export class ClientCheckoutService {
     return this.withTotals(saved);
   }
 
-  // Returns the order created by the payment webhook for a given checkout session.
-  // Returns null (not 404) when not yet created — callers poll this.
-  async getSessionOrder(sessionId: string): Promise<{ id: string; status: string; total: number; currency: string } | null> {
+  async getSessionOrder(
+    sessionId: string,
+  ): Promise<{ id: string; status: string; total: number; currency: string } | null> {
     const order = await this.orderRepo.findOne({
       where: { checkoutSession: { id: sessionId } },
       select: ['id', 'status', 'total', 'currency'],
@@ -287,10 +292,7 @@ export class ClientCheckoutService {
         const userId = (session.user as any)?.id;
         if (userId) {
           const pastOrders = await this.orderRepo.count({
-            where: {
-              user: { id: userId },
-              status: Not(OrderStatus.CANCELLED),
-            },
+            where: { user: { id: userId }, status: Not(OrderStatus.CANCELLED) },
           });
           if (pastOrders > 0) {
             throw new BadRequestException('This coupon is for new customers only');
@@ -337,17 +339,15 @@ export class ClientCheckoutService {
       }
 
       case CouponRestrictionType.CATEGORY:
-        // Category association is not stored on variants; skip without error
         break;
     }
   }
 
-  private async calculateSubtotal(session: CheckoutSessionEntity): Promise<number> {
+  private async calculateSubtotalUSD(session: CheckoutSessionEntity): Promise<number> {
     const cart = await this.cartRepo.findOne({
       where: { id: session.cart.id },
       relations: ['items', 'items.variant'],
     });
-
     return (
       cart?.items.reduce(
         (sum, item) => sum + Number(item.variant.computedPrice) * item.quantity,
@@ -356,47 +356,55 @@ export class ClientCheckoutService {
     );
   }
 
-  private computeDiscount(coupon: CouponEntity, subtotal: number): number {
+  private computeDiscount(coupon: CouponEntity, subtotalUSD: number): number {
     if (coupon.discountType === DiscountType.PERCENT) {
-      const discount = (subtotal * Number(coupon.discountValue)) / 100;
+      const discount = (subtotalUSD * Number(coupon.discountValue)) / 100;
       return coupon.maxDiscountAmount !== null
         ? Math.min(discount, Number(coupon.maxDiscountAmount))
         : discount;
     }
-
     if (coupon.discountType === DiscountType.FIXED) {
-      return Math.min(Number(coupon.discountValue), subtotal);
+      return Math.min(Number(coupon.discountValue), subtotalUSD);
     }
-
-    // FREE_SHIPPING — actual fee waiver is handled at payment time via shippingSnapshot
+    // FREE_SHIPPING — shipping waiver handled at payment time
     return 0;
   }
 
   private withTotals(session: CheckoutSessionEntity) {
     const items = session.cart?.items ?? [];
-    const subtotal = items.reduce(
+
+    // All DB amounts are in USD
+    const subtotalUSD = items.reduce(
       (sum, item) => sum + Number(item.variant?.computedPrice ?? 0) * item.quantity,
       0,
     );
-    const shippingFee = session.shippingSnapshot
+    const shippingFeeUSD = session.shippingSnapshot
       ? Number(session.shippingSnapshot['shippingFee'] ?? 0)
       : null;
-    const discountAmount = Number(session.discountAmount ?? 0);
+    const discountAmountUSD = Number(session.discountAmount ?? 0);
 
     const isFreeShipping =
-      session.couponCode !== null && session.discountAmount === 0 && shippingFee !== null;
+      session.couponCode !== null && session.discountAmount === 0 && shippingFeeUSD !== null;
+    const effectiveShippingUSD = isFreeShipping ? 0 : (shippingFeeUSD ?? 0);
 
-    const effectiveShipping = isFreeShipping ? 0 : (shippingFee ?? 0);
-    const total = shippingFee !== null ? subtotal - discountAmount + effectiveShipping : null;
+    const currency = (session.currency as string) || SupportedCurrency.USD;
+    const rate = Number(session.exchangeRate) || 1;
+
+    const convert = (usd: number) =>
+      currency === SupportedCurrency.USD ? usd : parseFloat((usd * rate).toFixed(2));
 
     return {
       ...session,
       totals: {
-        subtotal,
-        discountAmount,
-        shippingFee,
-        total,
-        currency: session.shippingSnapshot?.['currency'] ?? 'EUR',
+        subtotal: convert(subtotalUSD),
+        discountAmount: convert(discountAmountUSD),
+        shippingFee: shippingFeeUSD !== null ? convert(effectiveShippingUSD) : null,
+        total:
+          shippingFeeUSD !== null
+            ? convert(subtotalUSD - discountAmountUSD + effectiveShippingUSD)
+            : null,
+        currency,
+        exchangeRate: rate,
       },
     };
   }

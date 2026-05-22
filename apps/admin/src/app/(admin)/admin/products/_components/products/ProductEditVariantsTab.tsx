@@ -39,7 +39,7 @@ const VariantRow = memo(function VariantRow({
       </td>
       <td className="px-3 py-2.5 text-right">
         <span className="text-xs font-medium text-[#111827]">
-          €{Number(variant.computedPrice).toFixed(2)}
+          ${Number(variant.computedPrice).toFixed(2)}
         </span>
       </td>
       <td className="px-3 py-2.5 text-right">

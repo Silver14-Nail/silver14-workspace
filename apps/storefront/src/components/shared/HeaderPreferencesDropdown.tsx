@@ -6,7 +6,14 @@ import { useT } from 'next-i18next/client';
 import { ChevronDown } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { currencyActions } from '@/store/slices/currency.slice';
-import { CURRENCIES, type CurrencyCode } from '@/config/commerce.config';
+import {
+  SUPPORTED_CURRENCIES,
+  CURRENCY_META,
+  CURRENCY_COOKIE,
+  type CurrencyCode,
+} from '@/config/commerce.config';
+
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 1 year in seconds
 
 const shippingDestinations = [
   { code: 'unitedStates', fallback: 'United States' },
@@ -31,7 +38,7 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
-  const currentCurrencyCode = useAppSelector((s) => s.currency.current.code);
+  const currentCurrencyCode = useAppSelector((s) => s.currency.code) as CurrencyCode;
 
   const segments = pathname.split('/').filter(Boolean);
   const currentLanguage = segments[0] || 'en';
@@ -54,7 +61,10 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
   };
 
   const changeCurrency = (code: string) => {
-    dispatch(currencyActions.setCurrency(code as CurrencyCode));
+    const validated = code as CurrencyCode;
+    dispatch(currencyActions.setCurrency(validated));
+    // Persist to cookie so SSR reads the correct currency on next page load
+    document.cookie = `${CURRENCY_COOKIE}=${validated}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`;
   };
 
   return (
@@ -106,9 +116,9 @@ export function HeaderPreferencesDropdown({ align = 'right' }: HeaderPreferences
                 onChange={(e) => changeCurrency(e.target.value)}
                 className="w-full border border-[#E0E0E0] bg-white px-3 py-2 text-xs uppercase tracking-[0.08em] text-[#1A1A1A] outline-none"
               >
-                {CURRENCIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code} — {c.label}
+                {SUPPORTED_CURRENCIES.map((code) => (
+                  <option key={code} value={code}>
+                    {code} — {CURRENCY_META[code].label}
                   </option>
                 ))}
               </select>

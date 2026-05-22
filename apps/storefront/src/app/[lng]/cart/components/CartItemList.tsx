@@ -5,6 +5,7 @@ import { Minus, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useT } from 'next-i18next/client';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { useCurrency } from '@/hooks/useCurrency';
 import type { CartItemType } from '../types';
 
 interface CartItemListProps {
@@ -52,6 +53,7 @@ interface CartItemRowProps {
 
 function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
   const { t } = useT('cart');
+  const { format } = useCurrency();
   const isOnSale = item.salePrice !== null && item.salePrice < item.basePrice;
 
   return (
@@ -81,7 +83,7 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
             {item.sizeName} / {item.shapeName}
           </p>
           {isOnSale && <p className="text-[#C0392B] text-xs mt-0.5">Sale</p>}
-          <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">${item.lineTotal.toFixed(2)}</p>
+          <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">{format(item.lineTotal)}</p>
         </div>
       </div>
 
@@ -111,10 +113,10 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
 
       {/* Line total */}
       <div className="hidden sm:flex sm:flex-col sm:items-end gap-0.5">
-        <span className="text-[#1A1A1A] text-sm">${item.lineTotal.toFixed(2)}</span>
+        <span className="text-[#1A1A1A] text-sm">{format(item.lineTotal)}</span>
         {isOnSale && (
           <span className="text-[#9A9A9A] text-xs line-through">
-            ${(item.basePrice * item.quantity).toFixed(2)}
+            {format(item.basePrice * item.quantity)}
           </span>
         )}
       </div>

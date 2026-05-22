@@ -1,6 +1,7 @@
 'use client';
 
 import { useT } from 'next-i18next/client';
+import { useCurrency } from '@/hooks/useCurrency';
 import { FREE_SHIPPING_THRESHOLD } from '../types';
 
 interface FreeShippingBannerProps {
@@ -9,6 +10,7 @@ interface FreeShippingBannerProps {
 
 export function FreeShippingBanner({ subtotal }: FreeShippingBannerProps) {
   const { t } = useT('cart');
+  const { format } = useCurrency();
 
   const needs = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
   const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
@@ -19,7 +21,7 @@ export function FreeShippingBanner({ subtotal }: FreeShippingBannerProps) {
         <p
           className="text-[#5A5A5A] text-xs text-center"
           dangerouslySetInnerHTML={{
-            __html: t('shipping.progress', { amount: needs.toFixed(2) }),
+            __html: t('shipping.progress', { amount: format(needs) }),
           }}
         />
         <div className="mt-3 h-0.5 bg-[#E0E0E0] rounded-full overflow-hidden">

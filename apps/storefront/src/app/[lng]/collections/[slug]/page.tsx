@@ -10,6 +10,7 @@ import type {
   StorefrontCollectionProduct,
 } from '../../../../features/collections/collections.api';
 import { CollectionSortBar } from './CollectionSortBar';
+import { CollectionProductPrice } from './CollectionProductPrice';
 
 interface CollectionPageProps {
   params: Promise<{ lng: string; slug: string }>;
@@ -131,20 +132,11 @@ export default async function CollectionPage({ params, searchParams }: Collectio
                     {product.name}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
-                    {product.isOnSale && product.salePrice ? (
-                      <>
-                        <span className="text-xs text-[#C0392B]">
-                          {product.currency} {Number(product.salePrice).toFixed(2)}
-                        </span>
-                        <span className="text-xs text-[#9A9A9A] line-through">
-                          {product.currency} {Number(product.basePrice).toFixed(2)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-[#9A9A9A]">
-                        {product.currency} {Number(product.basePrice).toFixed(2)}
-                      </span>
-                    )}
+                    <CollectionProductPrice
+                      basePrice={Number(product.basePrice)}
+                      salePrice={product.salePrice != null ? Number(product.salePrice) : null}
+                      isOnSale={product.isOnSale && product.salePrice != null}
+                    />
                   </div>
                 </div>
               </Link>

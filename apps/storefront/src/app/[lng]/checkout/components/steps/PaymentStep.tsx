@@ -54,7 +54,7 @@ function StripeCardForm({
 
   const formattedAmount = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: currency || 'EUR',
+    currency: currency || 'USD',
   }).format(finalTotal);
 
   return (
@@ -198,7 +198,7 @@ export function PaymentStep({
         <PayPalScriptProvider
           options={{
             clientId: paypalClientId,
-            currency: currency || 'EUR',
+            currency: currency || 'USD',
             intent: 'capture',
           }}
         >

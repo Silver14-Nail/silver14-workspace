@@ -5,10 +5,9 @@ import type {
 } from '@/types/product';
 import type { ApiProductListItem, ApiProductDetail, ApiShape, ApiVariant } from './products.api';
 
-function shapeLabel(shape: ApiShape, priceOverride: string | null): string {
+function shapeLabel(shape: ApiShape): string {
   const cm = (shape.lengthMm / 10).toFixed(1);
-  const adj = parseFloat(priceOverride ?? shape.priceAdjustment ?? '0');
-  return `${shape.name} ${cm}cm${adj > 0 ? ` (+ $${adj.toFixed(0)})` : ''}`;
+  return `${shape.name} ${cm}cm`;
 }
 
 function sizeLabel(size: ApiVariant['size']): string {
@@ -38,7 +37,7 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
   const shapeAdjById = new Map<string, number>();
   for (const sp of detail.shapePricings) {
     if (sp.isEnabled && sp.shape?.isActive) {
-      shapeLabelById.set(sp.shape.id, shapeLabel(sp.shape, sp.priceOverride));
+      shapeLabelById.set(sp.shape.id, shapeLabel(sp.shape));
       const raw = parseFloat(sp.priceOverride ?? sp.shape.priceAdjustment ?? '0');
       shapeAdjById.set(sp.shape.id, isNaN(raw) ? 0 : raw);
     }
@@ -76,6 +75,13 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
     shapesWithStock.has(label),
   );
 
+  // Map shape label → USD price adjustment (for currency-aware display in components)
+  const shapeAdjustments: Record<string, number> = {};
+  for (const [shapeId, label] of shapeLabelById) {
+    const adj = shapeAdjById.get(shapeId) ?? 0;
+    if (adj > 0) shapeAdjustments[label] = adj;
+  }
+
   const inStock = detail.variants.some((v) => v.stockQty > 0 && v.isAvailable);
 
   const orderedImages = [...detail.images].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -96,6 +102,7 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
     images: orderedImages.map((img) => img.url),
     availableShapes,
     availableSizes,
+    shapeAdjustments,
     processingTime: '3-5 business days',
     variants,
   };

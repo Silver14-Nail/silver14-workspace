@@ -194,8 +194,8 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
           <StatCard
             label="Revenue this month"
-            value={`€${stats.revenue.thisMonth.toFixed(2)}`}
-            sub={`€${stats.revenue.today.toFixed(2)} today`}
+            value={`$${stats.revenue.thisMonth.toFixed(2)}`}
+            sub={`$${stats.revenue.today.toFixed(2)} today`}
           />
           <StatCard label="Pending" value={stats.counts.pending} />
           <StatCard label="Shipped" value={stats.counts.shipped} />
@@ -440,7 +440,7 @@ function OrderRow({ order, onView }: { order: OrderListItem; onView: () => void 
         )}
       </td>
       <td className="px-4 py-3 text-sm font-semibold text-[#111827]">
-        {order.currency === 'USD' ? '$' : '€'}
+        {order.currency === 'EUR' ? '€' : order.currency === 'GBP' ? '£' : '$'}
         {Number(order.total).toFixed(2)}
       </td>
       <td className="px-4 py-3 hidden lg:table-cell text-xs text-[#6B7280]">

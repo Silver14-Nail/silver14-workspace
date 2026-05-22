@@ -22,11 +22,7 @@ export default function OrderResult({ order }: { order: TrackedOrder }) {
       <div className="flex items-start justify-between mb-6">
         <div>
           <p className="text-[#9A9A9A] text-xs uppercase tracking-widest mb-1">{t('order')}</p>
-          <p
-            className="text-[#1A1A1A] text-xl"
-          >
-            {order.id}
-          </p>
+          <p className="text-[#1A1A1A] text-xl">{order.id}</p>
           <p className="text-[#9A9A9A] text-xs mt-1">
             {t('placedOn')}{' '}
             {new Date(order.createdAt).toLocaleDateString('en-GB', {

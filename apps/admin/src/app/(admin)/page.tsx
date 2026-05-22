@@ -43,7 +43,7 @@ import {
 const kpis = [
   {
     label: 'Total Revenue',
-    value: '€28,100',
+    value: '$28,100',
     change: '+18.4%',
     up: true,
     icon: Euro,
@@ -70,7 +70,7 @@ const kpis = [
   },
   {
     label: 'Wholesale Revenue',
-    value: '€6,960',
+    value: '$6,960',
     change: '+24.3%',
     up: true,
     icon: Building2,
@@ -232,7 +232,7 @@ export default function AdminDashboardPage() {
                 tick={{ fontSize: 11, fill: '#9CA3AF' }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v) => `€${(v / 1000).toFixed(0)}k`}
+                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
               />
               <Tooltip
                 contentStyle={{
@@ -242,7 +242,7 @@ export default function AdminDashboardPage() {
                   fontSize: 12,
                 }}
                 formatter={(value: number, name: string) => [
-                  `€${value.toLocaleString()}`,
+                  `$${value.toLocaleString()}`,
                   name === 'revenue' ? 'Revenue' : 'Wholesale',
                 ]}
               />
@@ -397,7 +397,7 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center gap-3">
                   <StatusBadge status={order.orderStatus} />
                   <span className="text-xs font-semibold text-[#111827]">
-                    €{order.total.toFixed(2)}
+                    ${order.total.toFixed(2)}
                   </span>
                   <Link
                     href={`/admin/orders/${order.id}`}
@@ -442,7 +442,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold text-[#111827]">{product.sales} sold</p>
-                  <p className="text-xs text-[#6B7280]">€{product.basePrice}</p>
+                  <p className="text-xs text-[#6B7280]">${product.basePrice}</p>
                 </div>
               </div>
             ))}

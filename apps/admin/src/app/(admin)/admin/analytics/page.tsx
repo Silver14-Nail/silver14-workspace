@@ -152,9 +152,9 @@ export default function AdminAnalyticsPage() {
       {activeTab === 'Revenue' && (
         <>
           <div className="grid grid-cols-4 gap-4">
-            <MetricCard label="Total Revenue" value="€28,100" change="+18.4%" up={true} />
-            <MetricCard label="Avg. Order Value" value="€74.93" change="+5.2%" up={true} />
-            <MetricCard label="Net Revenue" value="€22,480" change="+20.1%" up={true} />
+            <MetricCard label="Total Revenue" value="$28,100" change="+18.4%" up={true} />
+            <MetricCard label="Avg. Order Value" value="$74.93" change="+5.2%" up={true} />
+            <MetricCard label="Net Revenue" value="$22,480" change="+20.1%" up={true} />
             <MetricCard label="Refund Rate" value="2.1%" change="-0.4%" up={true} />
           </div>
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
@@ -178,7 +178,7 @@ export default function AdminAnalyticsPage() {
                   tick={{ fontSize: 11, fill: '#9CA3AF' }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v) => `€${(v / 1000).toFixed(0)}k`}
+                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
                   contentStyle={{
@@ -187,7 +187,7 @@ export default function AdminAnalyticsPage() {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  formatter={(v: number) => [`€${v.toLocaleString()}`, 'Revenue']}
+                  formatter={(v: number) => [`$${v.toLocaleString()}`, 'Revenue']}
                 />
                 <Area
                   type="monotone"
@@ -217,7 +217,7 @@ export default function AdminAnalyticsPage() {
                     tick={{ fontSize: 11, fill: '#9CA3AF' }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(v) => `€${v}`}
+                    tickFormatter={(v) => `$${v}`}
                   />
                   <Tooltip
                     contentStyle={{
@@ -239,7 +239,7 @@ export default function AdminAnalyticsPage() {
                     <div className="flex justify-between mb-1">
                       <span className="text-xs text-[#374151]">{c.country}</span>
                       <span className="text-xs font-semibold text-[#111827]">
-                        €{c.revenue.toLocaleString()}
+                        ${c.revenue.toLocaleString()}
                       </span>
                     </div>
                     <div className="h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
@@ -265,7 +265,7 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-4 gap-4">
             <MetricCard label="Total Units Sold" value="1,325" change="+22.3%" up={true} />
             <MetricCard label="Top Product" value="Pearl Blanc" change="+321 units" up={true} />
-            <MetricCard label="Avg. Product Revenue" value="€6,674" change="+14.2%" up={true} />
+            <MetricCard label="Avg. Product Revenue" value="$6,674" change="+14.2%" up={true} />
             <MetricCard label="Out of Stock" value="1" change="+1" up={false} />
           </div>
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
@@ -308,7 +308,7 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-4 gap-4">
             <MetricCard label="Total Customers" value="284" change="+31 this month" up={true} />
             <MetricCard label="Returning Rate" value="28.4%" change="+3.2%" up={true} />
-            <MetricCard label="Avg. LTV" value="€98.95" change="+8.7%" up={true} />
+            <MetricCard label="Avg. LTV" value="$98.95" change="+8.7%" up={true} />
             <MetricCard label="Churn Rate" value="4.2%" change="-1.1%" up={true} />
           </div>
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
@@ -346,9 +346,9 @@ export default function AdminAnalyticsPage() {
       {activeTab === 'Wholesale' && (
         <>
           <div className="grid grid-cols-4 gap-4">
-            <MetricCard label="Wholesale Revenue" value="€6,960" change="+24.3%" up={true} />
+            <MetricCard label="Wholesale Revenue" value="$6,960" change="+24.3%" up={true} />
             <MetricCard label="Active Accounts" value="3" change="+2 this quarter" up={true} />
-            <MetricCard label="Avg. Order Value" value="€312" change="+18.5%" up={true} />
+            <MetricCard label="Avg. Order Value" value="$312" change="+18.5%" up={true} />
             <MetricCard label="Pending Enquiries" value="2" change="+2 this week" up={false} />
           </div>
           <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
@@ -372,7 +372,7 @@ export default function AdminAnalyticsPage() {
                   tick={{ fontSize: 11, fill: '#9CA3AF' }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(v) => `€${v}`}
+                  tickFormatter={(v) => `$${v}`}
                 />
                 <Tooltip
                   contentStyle={{
@@ -401,7 +401,7 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-4 gap-4">
             <MetricCard label="Success Rate" value="96.2%" change="+1.3%" up={true} />
             <MetricCard label="Failed Payments" value="2" change="-3 vs last month" up={true} />
-            <MetricCard label="Avg. Transaction" value="€74.93" change="+5.1%" up={true} />
+            <MetricCard label="Avg. Transaction" value="$74.93" change="+5.1%" up={true} />
             <MetricCard label="Refund Rate" value="2.1%" change="-0.4%" up={true} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -477,7 +477,7 @@ export default function AdminAnalyticsPage() {
         <>
           <div className="grid grid-cols-4 gap-4">
             <MetricCard label="Abandonment Rate" value="79.2%" change="-2.3%" up={true} />
-            <MetricCard label="Recovered Revenue" value="€1,240" change="+34.1%" up={true} />
+            <MetricCard label="Recovered Revenue" value="$1,240" change="+34.1%" up={true} />
             <MetricCard label="Abandoned Carts" value="271" change="-18" up={true} />
             <MetricCard label="Recovery Rate" value="20.8%" change="+2.3%" up={true} />
           </div>

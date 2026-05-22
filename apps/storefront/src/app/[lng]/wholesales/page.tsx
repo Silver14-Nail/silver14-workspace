@@ -7,6 +7,7 @@ import { Check, ArrowRight, Globe, Package, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useWholesaleEnquiry } from '@/features/wholesale/hooks/useWholesaleEnquiry';
 import { useWholesaleTiers } from '@/features/wholesale/hooks/useWholesaleTiers';
+import { useCurrency } from '@/hooks/useCurrency';
 
 const PRODUCT_INTERESTS = [
   'French & Classic',
@@ -90,6 +91,7 @@ export default function WholesalePage() {
 
   const { submit, isSubmitting, error } = useWholesaleEnquiry();
   const { data: tiers = [] } = useWholesaleTiers();
+  const { format } = useCurrency();
 
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
@@ -252,7 +254,7 @@ export default function WholesalePage() {
                     {Number(tier.minOrderAmount) > 0 && (
                       <li className="flex items-center gap-2">
                         <Check className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
-                        Min. order €{Number(tier.minOrderAmount).toFixed(0)}
+                        Min. order {format(Number(tier.minOrderAmount))}
                       </li>
                     )}
                     {tier.freeShipping && (
@@ -264,7 +266,7 @@ export default function WholesalePage() {
                     {tier.maxDiscountAmount && (
                       <li className="flex items-center gap-2">
                         <Check className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
-                        Up to €{Number(tier.maxDiscountAmount).toFixed(0)} savings/order
+                        Up to {format(Number(tier.maxDiscountAmount))} savings/order
                       </li>
                     )}
                   </ul>

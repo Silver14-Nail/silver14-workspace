@@ -30,13 +30,13 @@ const DISCOUNT_TYPE_STYLES: Record<DiscountType, string> = {
 
 const DISCOUNT_TYPE_LABELS: Record<DiscountType, string> = {
   percent: '% Percent',
-  fixed: '€ Fixed',
+  fixed: '$ Fixed',
   free_shipping: 'Free Shipping',
 };
 
 function formatDiscount(item: CouponListItem) {
   if (item.discountType === 'percent') return `${item.discountValue}%`;
-  if (item.discountType === 'fixed') return `€${item.discountValue}`;
+  if (item.discountType === 'fixed') return `$${item.discountValue}`;
   return 'Free Ship';
 }
 
@@ -149,7 +149,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
             { label: 'Active', value: stats.activeCoupons },
             { label: 'Total Uses', value: stats.totalUsages.toLocaleString() },
             { label: 'Expiring Soon', value: stats.expiringSoon },
-            { label: 'Discount Granted', value: `€${stats.totalDiscountGranted.toFixed(2)}` },
+            { label: 'Discount Granted', value: `$${stats.totalDiscountGranted.toFixed(2)}` },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-[#E5E7EB] px-4 py-3">
               <p className="text-xl font-bold text-[#111827]">{s.value}</p>
@@ -313,7 +313,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell text-xs text-[#6B7280]">
-                      {coupon.minOrderAmount > 0 ? `€${coupon.minOrderAmount}` : '–'}
+                      {coupon.minOrderAmount > 0 ? `$${coupon.minOrderAmount}` : '–'}
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-xs text-[#6B7280]">
                       {coupon.expiresAt ? (
