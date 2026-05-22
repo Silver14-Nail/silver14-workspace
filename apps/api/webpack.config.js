@@ -7,6 +7,7 @@ module.exports = {
   output: {
     path: join(__dirname, 'api'),
     filename: 'index.js',
+    library: { type: 'commonjs2' },
     clean: true,
   },
 
