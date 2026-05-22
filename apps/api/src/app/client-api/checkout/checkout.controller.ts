@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -39,6 +40,12 @@ export class ClientCheckoutController {
   @ApiOkResponse({ description: 'List of active shipping methods' })
   listShippingMethods() {
     return this.checkoutService.listShippingMethods();
+  }
+
+  @Get('shipping-fee')
+  @ApiOkResponse({ description: 'Zone-based shipping fee for a given country (ISO code or name)' })
+  getShippingFee(@Query('country') country: string) {
+    return this.checkoutService.getShippingFeeByCountry(country ?? '');
   }
 
   @Post()

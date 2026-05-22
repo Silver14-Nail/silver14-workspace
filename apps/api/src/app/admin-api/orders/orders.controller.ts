@@ -13,6 +13,7 @@ import { OrderListQueryDto } from './dto/order-list-query.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UpdatePaymentStatusDto } from './dto/update-payment-status.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
+import { UpdateShippingFeeDto } from './dto/update-shipping-fee.dto';
 import { CancelOrderDto } from './dto/cancel-order.dto';
 
 @ApiTags('Admin - Orders')
@@ -60,6 +61,13 @@ export class OrdersController {
   @ApiNotFoundResponse({ description: 'Order not found' })
   updateShipping(@Param('id') id: string, @Body() dto: UpdateShippingDto) {
     return this.ordersService.updateShipping(id, dto);
+  }
+
+  @Patch(':id/shipping-fee')
+  @ApiOkResponse({ description: 'Order with overridden shipping fee and recalculated total' })
+  @ApiNotFoundResponse({ description: 'Order not found' })
+  updateShippingFee(@Param('id') id: string, @Body() dto: UpdateShippingFeeDto) {
+    return this.ordersService.updateShippingFee(id, dto);
   }
 
   @Post(':id/cancel')

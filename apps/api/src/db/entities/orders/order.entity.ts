@@ -144,6 +144,31 @@ export class OrderEntity extends SoftDeleteAbstractEntity {
   carrier: string | null;
 
   @Column({
+    name: 'coupon_code',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  couponCode: string | null;
+
+  @Column({
+    name: 'coupon_discount_type',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
+  couponDiscountType: string | null;
+
+  @Column({
+    name: 'coupon_discount_value',
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  couponDiscountValue: number | null;
+
+  @Column({
     name: 'internal_notes',
     type: 'text',
     nullable: true,

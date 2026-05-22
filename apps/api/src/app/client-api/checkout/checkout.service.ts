@@ -25,6 +25,7 @@ import {
   SupportedCurrency,
 } from '@/common/enums/entity.enum';
 import { CurrencyService } from '@/shared/currency/currency.service';
+import { getShippingZone } from '@/shared/shipping/shipping-zones.constant';
 
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
@@ -51,10 +52,16 @@ export class ClientCheckoutService {
     private readonly currencyService: CurrencyService,
   ) {}
 
-  // ─── Shipping Methods ─────────────────────────────────────────────────────────
+  // ─── Shipping Methods & Zones ─────────────────────────────────────────────────
 
   listShippingMethods() {
     return this.shippingRepo.find({ where: { isActive: true } });
+  }
+
+  getShippingFeeByCountry(country: string) {
+    const zone = getShippingZone(country);
+    if (!zone) return { available: false, zone: null, fee: null, currency: null };
+    return { available: true, zone: zone.name, fee: zone.fee, currency: zone.currency };
   }
 
   // ─── Session ──────────────────────────────────────────────────────────────────
@@ -139,19 +146,24 @@ export class ClientCheckoutService {
       );
     }
 
+    // Auto-calculate fee from shipping zone based on destination country.
+    // Fees are stored in USD; withTotals converts to session currency at display time.
+    const zone = getShippingZone(dto.country);
+    const shippingFeeUSD = zone ? zone.fee : 0;
+
+    // shippingMethodId is kept for backward compat but fee is zone-driven.
     let method: ShippingMethodEntity | null = null;
     if (dto.shippingMethodId) {
       method = await this.shippingRepo.findOneBy({ id: dto.shippingMethodId, isActive: true });
       if (!method) throw new NotFoundException('Shipping method not found');
     }
 
-    // Shipping fees are stored in USD; snapshot records the USD fee.
-    // withTotals will convert to the session currency at display time.
     session.shippingSnapshot = {
       shippingMethodId: method?.id ?? null,
-      shippingMethodName: method?.name ?? null,
+      shippingMethodName: zone?.name ?? method?.name ?? null,
       carrier: method?.carrier ?? null,
-      shippingFee: method ? Number(method.fee) : 0,
+      shippingFee: shippingFeeUSD,
+      shippingZone: zone?.name ?? null,
       recipientName: dto.recipientName,
       street: dto.street,
       city: dto.city,

@@ -58,6 +58,15 @@ export async function cancelOrder(id: string, payload: { reason?: string }): Pro
   return data;
 }
 
+export async function updateShippingFee(
+  id: string,
+  payload: { shippingFee: number },
+): Promise<OrderDetail> {
+  const client = await createApiClient();
+  const { data } = await client.patch<OrderDetail>(`/admin-api/orders/${id}/shipping-fee`, payload);
+  return data;
+}
+
 export async function deleteOrder(id: string): Promise<void> {
   const client = await createApiClient();
   await client.delete(`/admin-api/orders/${id}`);
