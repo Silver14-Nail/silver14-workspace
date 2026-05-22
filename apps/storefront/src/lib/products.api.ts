@@ -40,7 +40,7 @@ export interface ApiVariant {
   stockQty: number;
   computedPrice: string;
   isAvailable: boolean;
-  shape: Pick<ApiShape, 'id' | 'name'>;
+  shape: Pick<ApiShape, 'id' | 'name' | 'lengthMm' | 'priceAdjustment' | 'isActive'>;
   size: ApiSize;
 }
 

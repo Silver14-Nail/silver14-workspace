@@ -95,7 +95,9 @@
       "PowerShell($env:PATH = \"C:\\\\Program Files\\\\nodejs;$env:PATH\"; cd \"C:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\"; & \".\\\\node_modules\\\\.bin\\\\tsc.cmd\" --project \"apps\\\\api\\\\tsconfig.app.json\" --noEmit 2>&1 | Select-Object -First 20)",
       "Bash(Remove-Item -Force apps/api/dist/tsconfig.app.tsbuildinfo -ErrorAction SilentlyContinue)",
       "Bash(grep -E \"\\\\.tsx$\")",
-      "Bash(xargs basename -a)"
+      "Bash(xargs basename -a)",
+      "Bash(dir /s \"c:\\\\Users\\\\Administrator\\\\Desktop\\\\codes\\\\silver14-workspace\\\\apps\\\\api\\\\src\")",
+      "Bash(findstr /i \"r2\")"
     ]
   }
 }

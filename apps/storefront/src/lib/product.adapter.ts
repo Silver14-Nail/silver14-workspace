@@ -5,7 +5,7 @@ import type {
 } from '@/types/product';
 import type { ApiProductListItem, ApiProductDetail, ApiShape, ApiVariant } from './products.api';
 
-function shapeLabel(shape: ApiShape): string {
+function shapeLabel(shape: Pick<ApiShape, 'name' | 'lengthMm'>): string {
   const cm = (shape.lengthMm / 10).toFixed(1);
   return `${shape.name} ${cm}cm`;
 }
@@ -32,14 +32,23 @@ export function adaptListItem(item: ApiProductListItem): StorefrontProduct {
 export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
   const base = parseFloat(detail.basePrice);
 
-  // Build shape label map and price-adjustment map simultaneously
+  // Collect all unique active shapes from variants (always populated)
   const shapeLabelById = new Map<string, string>();
   const shapeAdjById = new Map<string, number>();
-  for (const sp of detail.shapePricings) {
-    if (sp.isEnabled && sp.shape?.isActive) {
-      shapeLabelById.set(sp.shape.id, shapeLabel(sp.shape));
-      const raw = parseFloat(sp.priceOverride ?? sp.shape.priceAdjustment ?? '0');
-      shapeAdjById.set(sp.shape.id, isNaN(raw) ? 0 : raw);
+  for (const v of detail.variants) {
+    const s = v.shape;
+    if (!s || shapeLabelById.has(s.id)) continue;
+    if (s.isActive === false) continue;
+    shapeLabelById.set(s.id, shapeLabel(s));
+    const raw = parseFloat(s.priceAdjustment ?? '0');
+    shapeAdjById.set(s.id, isNaN(raw) ? 0 : raw);
+  }
+
+  // shapePricings can override the price adjustment per product if configured
+  for (const sp of detail.shapePricings ?? []) {
+    if (sp.isEnabled && sp.shape?.isActive && sp.priceOverride != null) {
+      const raw = parseFloat(sp.priceOverride);
+      if (!isNaN(raw)) shapeAdjById.set(sp.shape.id, raw);
     }
   }
   // Build size label map: sizeId → display label (from available variants only)

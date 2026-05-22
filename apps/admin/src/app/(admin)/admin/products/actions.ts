@@ -12,8 +12,7 @@ import {
   updateNailSize,
   deleteNailSize,
   getProductDetail,
-  getPresignedUploadUrl,
-  addProductImage,
+  uploadProductImage,
   deleteProductImage,
   reorderProductImages,
   setMainProductImage,
@@ -34,8 +33,6 @@ import type {
   ApiProductDetail,
   ApiProductImage,
   ApiProductVariant,
-  PresignedUrlResponse,
-  AddImagePayload,
   ReorderImagesPayload,
   CreateVariantPayload,
   UpdateVariantPayload,
@@ -177,29 +174,17 @@ export async function getProductDetailAction(id: string): Promise<ActionResult<A
 
 // ─── Product Images ────────────────────────────────────────────────────────────
 
-export async function getPresignedUrlAction(
+export async function uploadProductImageAction(
   productId: string,
-  payload: { filename: string; contentType: string },
-): Promise<ActionResult<PresignedUrlResponse>> {
-  try {
-    const result = await getPresignedUploadUrl(productId, payload);
-    return { success: true, data: result };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to get upload URL';
-    return { success: false, error: message };
-  }
-}
-
-export async function addProductImageAction(
-  productId: string,
-  payload: AddImagePayload,
+  formData: FormData,
 ): Promise<ActionResult<ApiProductImage>> {
   try {
-    const image = await addProductImage(productId, payload);
+    const file = formData.get('file') as File;
+    const image = await uploadProductImage(productId, file);
     revalidatePath('/admin/products');
     return { success: true, data: image };
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to add image';
+    const message = err instanceof Error ? err.message : 'Failed to upload image';
     return { success: false, error: message };
   }
 }

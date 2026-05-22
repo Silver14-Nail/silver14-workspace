@@ -13,7 +13,6 @@ import type {
   ApiProductDetail,
   ApiProductImage,
   ApiProductVariant,
-  PresignedUrlResponse,
   AddImagePayload,
   ReorderImagesPayload,
   CreateVariantPayload,
@@ -120,14 +119,17 @@ export async function getProductDetail(id: string): Promise<ApiProductDetail> {
 
 // ─── Product Images ────────────────────────────────────────────────────────────
 
-export async function getPresignedUploadUrl(
+export async function uploadProductImage(
   productId: string,
-  payload: { filename: string; contentType: string },
-): Promise<PresignedUrlResponse> {
+  file: File,
+): Promise<ApiProductImage> {
   const client = await createApiClient();
-  const { data } = await client.post<PresignedUrlResponse>(
-    `/admin-api/products/${productId}/images/presign`,
-    payload,
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await client.post<ApiProductImage>(
+    `/admin-api/products/${productId}/images/upload`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
   );
   return data;
 }

@@ -9,8 +9,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { ProductsService } from './products.service';
 import { ProductListQueryDto } from './dto/product-list-query.dto';
@@ -24,7 +27,6 @@ import { CreateVariantDto } from './dto/create-variant.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
 import { AddImageDto } from './dto/add-image.dto';
 import { ReorderImagesDto } from './dto/reorder-images.dto';
-import { GetPresignedUrlDto } from './dto/get-presigned-url.dto';
 
 @ApiTags('Admin - Products')
 @ApiBearerAuth()
@@ -135,10 +137,15 @@ export class NailSizesController {
 export class ProductImagesController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post('presign')
-  @HttpCode(HttpStatus.OK)
-  getPresignedUrl(@Param('productId') productId: string, @Body() dto: GetPresignedUrlDto) {
-    return this.productsService.getPresignedUploadUrl(productId, dto);
+  @Post('upload')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  uploadImage(
+    @Param('productId') productId: string,
+    @UploadedFile() file: { buffer: Buffer; mimetype: string; originalname: string; size: number },
+  ) {
+    return this.productsService.uploadProductImage(productId, file);
   }
 
   @Post()
