@@ -101,7 +101,17 @@
       "Bash(grep -E \"\\\\.js$|^total\")",
       "Bash(grep -E \"\\\\.json$|^d\")",
       "PowerShell(Get-Command node, pnpm, tsc -ErrorAction SilentlyContinue)",
-      "PowerShell($env:PATH)"
+      "PowerShell($env:PATH)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\" -Force)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\" -Directory | ForEach-Object { $_.Name })",
+      "Bash(powershell -command \"Get-Content 'C:\\\\Users\\\\Admin\\\\.claude\\\\projects\\\\c--Users-Admin-Desktop-Silver14Nail-silver14-workspace\\\\15a81104-952c-43c8-aadb-c8ba9532642f\\\\tool-results\\\\toolu_01LZey8VH1Bh55mWPWczSKGY.json' | ConvertFrom-Json | Select-Object -ExpandProperty text\")",
+      "Bash(Out-String)",
+      "PowerShell($json = Get-Content 'C:\\\\Users\\\\Admin\\\\.claude\\\\projects\\\\c--Users-Admin-Desktop-Silver14Nail-silver14-workspace\\\\15a81104-952c-43c8-aadb-c8ba9532642f\\\\tool-results\\\\toolu_01LZey8VH1Bh55mWPWczSKGY.json' -Raw | ConvertFrom-Json; $json[0].text)",
+      "Bash(mkdir \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\.claude\\\\specs\")",
+      "Bash(Move-Item \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\.spec.md\" \"c:\\\\Users\\\\Admin\\\\Desktop\\\\Silver14Nail\\\\silver14-workspace\\\\.claude\\\\specs\\\\project.spec.md\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Admin\\Desktop\\Silver14Nail\\silver14-workspace\\.claude"
     ]
   }
 }

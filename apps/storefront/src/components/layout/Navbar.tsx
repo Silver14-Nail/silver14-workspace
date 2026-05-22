@@ -23,6 +23,7 @@ import type { StorefrontCollection } from '../../features/collections/collection
 const navLinks = [
   { labelKey: 'shop', href: '/products' },
   { labelKey: 'collections', href: '/products', hasDropdown: true },
+  { labelKey: 'supplies', href: '/supplies' },
   { labelKey: 'sizeguide', href: '/size-guide' },
   { labelKey: 'wholesale', href: '/wholesales' },
   { labelKey: 'trackOrder', href: '/order/tracking' },
@@ -303,16 +304,16 @@ export function Navbar({ initialCollections = [] }: NavbarProps) {
                 {navLinks.map((link) => {
                   if (link.hasDropdown) {
                     return (
-                      <div key={link.labelKey} className="space-y-3">
+                      <div key={link.labelKey}>
                         <button
                           type="button"
                           onClick={() => setMobileCollectionsOpen((prev) => !prev)}
-                          className="flex w-full items-center justify-between text-sm font-semibold uppercase tracking-[0.15em] text-[#1A1A1A]"
+                          className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.15em] text-[#1A1A1A]"
                         >
                           <span>{t(link.labelKey)}</span>
 
                           <ChevronDown
-                            className={`size-4 transition-transform ${
+                            className={`size-3.5 text-[#8A8A8A] transition-transform duration-200 ${
                               mobileCollectionsOpen ? 'rotate-180' : ''
                             }`}
                           />
@@ -323,15 +324,18 @@ export function Navbar({ initialCollections = [] }: NavbarProps) {
                             mobileCollectionsOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                           }`}
                         >
-                          <div className="space-y-3 pl-3 pt-2">
-                            <LinkBase href="/collections" className="block text-sm text-[#1A1A1A]">
+                          <div className="ml-0.5 mt-3 space-y-3 border-l-2 border-[#E8E8E8] pl-4">
+                            <LinkBase
+                              href="/collections"
+                              className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#5A5A5A] transition hover:text-[#1A1A1A]"
+                            >
                               All Collections
                             </LinkBase>
                             {initialCollections.map((collection) => (
                               <LinkBase
                                 key={collection.id}
                                 href={`/collections/${collection.slug}`}
-                                className="block text-sm text-[#1A1A1A]"
+                                className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#5A5A5A] transition hover:text-[#1A1A1A]"
                               >
                                 {collection.name}
                               </LinkBase>
