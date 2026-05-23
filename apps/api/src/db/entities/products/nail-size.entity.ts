@@ -30,6 +30,13 @@ export class NailSizeEntity extends AbstractEntity {
   })
   measurements: string | null;
 
+  @Column({
+    name: 'sort_order',
+    type: 'int',
+    default: 0,
+  })
+  sortOrder: number;
+
   @OneToMany(() => ProductVariantEntity, (v) => v.size)
   variants: ProductVariantEntity[];
 }

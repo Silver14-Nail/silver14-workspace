@@ -183,8 +183,8 @@ export class ProductsService {
     if (productType === ProductType.NAIL) {
       // Auto-create shape pricings + variants for ALL active shapes × ALL sizes
       const [shapes, sizes] = await Promise.all([
-        this.nailShapeRepo.find({ where: { isActive: true }, order: { name: 'ASC' } }),
-        this.nailSizeRepo.find({ order: { label: 'ASC' } }),
+        this.nailShapeRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } }),
+        this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } }),
       ]);
 
       await this.productShapePricingRepo.save(
@@ -332,7 +332,7 @@ export class ProductsService {
   async listNailShapes(isActive?: boolean) {
     return this.nailShapeRepo.find({
       where: isActive !== undefined ? { isActive } : {},
-      order: { name: 'ASC' },
+      order: { sortOrder: 'ASC' },
     });
   }
 
@@ -391,7 +391,7 @@ export class ProductsService {
   // ─── Nail Sizes ─────────────────────────────────────────────────────────────
 
   async listNailSizes() {
-    return this.nailSizeRepo.find({ order: { label: 'ASC' } });
+    return this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } });
   }
 
   async getNailSize(id: string) {

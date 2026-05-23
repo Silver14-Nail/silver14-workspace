@@ -268919,7 +268919,11 @@ let ProductsService = class ProductsService {
             product.type = dto.type;
         const saved = await this.productRepo.save(product);
         // Sync default variant for non-NAIL products when SKU or stock is provided
-        if (saved.type !== entity_enum_1.ProductType.NAIL && (dto.sku !== undefined || dto.stockQty !== undefined || dto.salePrice !== undefined || dto.basePrice !== undefined)) {
+        if (saved.type !== entity_enum_1.ProductType.NAIL &&
+            (dto.sku !== undefined ||
+                dto.stockQty !== undefined ||
+                dto.salePrice !== undefined ||
+                dto.basePrice !== undefined)) {
             const defaultVariant = await this.productVariantRepo.findOne({
                 where: { product: { id: saved.id } },
                 order: { createdAt: 'ASC' },
@@ -268929,7 +268933,8 @@ let ProductsService = class ProductsService {
                     defaultVariant.sku = dto.sku ?? null;
                 if (dto.stockQty !== undefined)
                     defaultVariant.stockQty = dto.stockQty;
-                const newBase = dto.basePrice ?? (typeof saved.basePrice === 'string' ? parseFloat(saved.basePrice) : saved.basePrice);
+                const newBase = dto.basePrice ??
+                    (typeof saved.basePrice === 'string' ? parseFloat(saved.basePrice) : saved.basePrice);
                 const newSale = dto.salePrice !== undefined ? dto.salePrice : saved.salePrice;
                 defaultVariant.computedPrice = (newSale != null ? newSale : newBase);
                 await this.productVariantRepo.save(defaultVariant);

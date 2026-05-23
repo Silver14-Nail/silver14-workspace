@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import {
   ShoppingBag,
@@ -20,7 +21,8 @@ import { SupplyNotFound, ImageGallery } from './components';
 export default function SupplyDetailPage() {
   const { t } = useT('supplies');
   const { format } = useCurrency();
-  const sd = useSupplyDetail();
+  const { lng } = useParams<{ lng?: string }>();
+  const sd = useSupplyDetail(lng ?? 'en');
 
   const decrement = useCallback(() => sd.setQuantity(Math.max(1, sd.quantity - 1)), [sd]);
   const increment = useCallback(() => sd.setQuantity(sd.quantity + 1), [sd]);

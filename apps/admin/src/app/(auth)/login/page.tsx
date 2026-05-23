@@ -18,7 +18,7 @@ export default function LoginPage() {
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, user, isInitialized } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,18 +26,24 @@ function LoginContent() {
   const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
 
+  const destination = searchParams.get('from') || '/';
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isInitialized && user) {
+      router.replace(destination);
+    }
+  }, [isInitialized, user, router, destination]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError('');
 
     const result = await login(email.trim(), password);
-    if (result.ok) {
-      router.push(searchParams.get('from') || '/');
-    } else {
+    if (!result.ok) {
       setError(result.error ?? 'Invalid credentials');
     }
   }
