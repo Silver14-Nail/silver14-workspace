@@ -29,6 +29,7 @@ import {
   Store,
   Loader2,
   Layers,
+  Megaphone,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -45,7 +46,9 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/', enabled: true },
   { label: 'Users', icon: Users, path: '/admin/users', enabled: true },
   { label: 'Products', icon: Package, path: '/admin/products', enabled: true },
+  { label: 'Supplies', icon: ShoppingCart, path: '/admin/supplies', enabled: true },
   { label: 'Collections', icon: Layers, path: '/admin/collections', enabled: true },
+  { label: 'Campaigns', icon: Megaphone, path: '/admin/campaigns', enabled: true },
   { label: 'Inventory', icon: Boxes, path: '/admin/inventory', enabled: false },
   { label: 'Orders', icon: ShoppingBag, path: '/admin/orders', enabled: true },
   { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts', enabled: true },

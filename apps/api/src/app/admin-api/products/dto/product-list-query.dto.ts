@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { ProductType } from '../../../../common/enums/entity.enum';
 
 export class ProductListQueryDto {
   @ApiPropertyOptional({ default: 1 })
@@ -32,4 +33,9 @@ export class ProductListQueryDto {
   })
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiPropertyOptional({ enum: ProductType, description: 'Filter by product type' })
+  @IsOptional()
+  @IsEnum(ProductType)
+  type?: ProductType;
 }

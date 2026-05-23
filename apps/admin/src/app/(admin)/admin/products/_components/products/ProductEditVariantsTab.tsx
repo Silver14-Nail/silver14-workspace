@@ -2,12 +2,13 @@
 
 import { useState, memo } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import type { ApiProductVariant, ApiNailShape, ApiNailSize } from '../../types';
+import type { ApiProductVariant, ApiNailShape, ApiNailSize, ProductType } from '../../types';
 import { deleteVariantAction } from '../../actions';
 import VariantFormDrawer from './VariantFormDrawer';
 
 interface VariantRowProps {
   variant: ApiProductVariant;
+  productType: ProductType;
   onEdit: (v: ApiProductVariant) => void;
   onDelete: (v: ApiProductVariant) => void;
   isDeleting: boolean;
@@ -15,20 +16,51 @@ interface VariantRowProps {
 
 const VariantRow = memo(function VariantRow({
   variant,
+  productType,
   onEdit,
   onDelete,
   isDeleting,
 }: VariantRowProps) {
+  const isNail = productType === 'nail';
+
   return (
     <tr className={`transition-colors hover:bg-[#F9FAFB] ${isDeleting ? 'opacity-40' : ''}`}>
       <td className="px-3 py-2.5">
-        <span className="text-xs font-medium text-[#111827]">{variant.shape.name}</span>
-        <span className="text-xs text-[#9CA3AF] ml-1">({variant.shape.sizeTier})</span>
+        {isNail ? (
+          variant.shape ? (
+            <>
+              <span className="text-xs font-medium text-[#111827]">{variant.shape.name}</span>
+              <span className="text-xs text-[#9CA3AF] ml-1">({variant.shape.sizeTier})</span>
+            </>
+          ) : (
+            <span className="text-xs text-[#9CA3AF]">—</span>
+          )
+        ) : variant.colorName ? (
+          <div className="flex items-center gap-2">
+            {variant.colorHex && (
+              <span
+                className="w-4 h-4 rounded-full border border-[#E5E7EB] flex-shrink-0"
+                style={{ backgroundColor: variant.colorHex }}
+              />
+            )}
+            <span className="text-xs font-medium text-[#111827]">{variant.colorName}</span>
+          </div>
+        ) : (
+          <span className="text-xs text-[#9CA3AF]">Default</span>
+        )}
       </td>
       <td className="px-3 py-2.5">
-        <span className="text-xs text-[#374151]">
-          {variant.size.label} — {variant.size.sizeCode}
-        </span>
+        {isNail ? (
+          variant.size ? (
+            <span className="text-xs text-[#374151]">
+              {variant.size.label} — {variant.size.sizeCode}
+            </span>
+          ) : (
+            <span className="text-xs text-[#9CA3AF]">—</span>
+          )
+        ) : (
+          <span className="text-xs text-[#9CA3AF]">—</span>
+        )}
       </td>
       <td className="px-3 py-2.5">
         {variant.sku ? (
@@ -93,6 +125,7 @@ const VariantRow = memo(function VariantRow({
 
 interface ProductEditVariantsTabProps {
   productId: string;
+  productType: ProductType;
   variants: ApiProductVariant[];
   shapes: ApiNailShape[];
   sizes: ApiNailSize[];
@@ -101,6 +134,7 @@ interface ProductEditVariantsTabProps {
 
 export default function ProductEditVariantsTab({
   productId,
+  productType,
   variants,
   shapes,
   sizes,
@@ -110,9 +144,13 @@ export default function ProductEditVariantsTab({
   const [editVariant, setEditVariant] = useState<ApiProductVariant | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const isNail = productType === 'nail';
+
   const handleDelete = async (v: ApiProductVariant) => {
-    if (!confirm(`Delete variant (${v.shape.name} / ${v.size.label})? This cannot be undone.`))
-      return;
+    const label = isNail
+      ? `${v.shape?.name ?? '?'} / ${v.size?.label ?? '?'}`
+      : (v.colorName ?? 'Default variant');
+    if (!confirm(`Delete variant (${label})? This cannot be undone.`)) return;
     setDeletingId(v.id);
     const result = await deleteVariantAction(productId, v.id);
     setDeletingId(null);
@@ -174,8 +212,8 @@ export default function ProductEditVariantsTab({
             <thead>
               <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
                 {[
-                  { label: 'Shape', cls: 'text-left' },
-                  { label: 'Size', cls: 'text-left' },
+                  { label: isNail ? 'Shape' : 'Color', cls: 'text-left' },
+                  { label: isNail ? 'Size' : '', cls: 'text-left' },
                   { label: 'SKU', cls: 'text-left' },
                   { label: 'Price', cls: 'text-right' },
                   { label: 'Stock', cls: 'text-right' },
@@ -196,6 +234,7 @@ export default function ProductEditVariantsTab({
                 <VariantRow
                   key={v.id}
                   variant={v}
+                  productType={productType}
                   onEdit={openEdit}
                   onDelete={handleDelete}
                   isDeleting={deletingId === v.id}
@@ -209,6 +248,7 @@ export default function ProductEditVariantsTab({
       {showForm && (
         <VariantFormDrawer
           productId={productId}
+          productType={productType}
           variant={editVariant ?? undefined}
           shapes={shapes}
           sizes={sizes}

@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 
 import { AbstractEntity } from '../../../common/entities';
+import { ProductType } from '../../../common/enums/entity.enum';
 import { OrderEntity } from './order.entity';
 import { ProductVariantEntity } from '../products/product-variants.entity';
 import { CustomSizeRequestEntity } from './custom-size-request.entity';
@@ -55,18 +56,31 @@ export class OrderItemEntity extends AbstractEntity {
   itemDiscount: number;
 
   @Column({
+    name: 'product_type',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    default: null,
+  })
+  productType: ProductType | null;
+
+  @Column({
     name: 'shape_name',
     type: 'varchar',
     length: 100,
+    nullable: true,
+    default: null,
   })
-  shapeName: string;
+  shapeName: string | null;
 
   @Column({
     name: 'size_label',
     type: 'varchar',
     length: 20,
+    nullable: true,
+    default: null,
   })
-  sizeLabel: string;
+  sizeLabel: string | null;
 
   @Column({
     name: 'is_custom_size',

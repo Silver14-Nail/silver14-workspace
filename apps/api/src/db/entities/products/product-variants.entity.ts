@@ -18,15 +18,17 @@ export class ProductVariantEntity extends SoftDeleteAbstractEntity {
 
   @ManyToOne(() => NailShapeEntity, (s) => s.variants, {
     onDelete: 'RESTRICT',
+    nullable: true,
   })
   @JoinColumn({ name: 'shape_id' })
-  shape: NailShapeEntity;
+  shape: NailShapeEntity | null;
 
   @ManyToOne(() => NailSizeEntity, (s) => s.variants, {
     onDelete: 'RESTRICT',
+    nullable: true,
   })
   @JoinColumn({ name: 'size_id' })
-  size: NailSizeEntity;
+  size: NailSizeEntity | null;
 
   @Column({
     name: 'stock_qty',
@@ -58,4 +60,28 @@ export class ProductVariantEntity extends SoftDeleteAbstractEntity {
     default: 1,
   })
   isAvailable: boolean;
+
+  @Column({
+    name: 'color_name',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  colorName: string | null;
+
+  @Column({
+    name: 'color_hex',
+    type: 'varchar',
+    length: 7,
+    nullable: true,
+  })
+  colorHex: string | null;
+
+  @Column({
+    name: 'variant_image_url',
+    type: 'varchar',
+    length: 2048,
+    nullable: true,
+  })
+  variantImageUrl: string | null;
 }

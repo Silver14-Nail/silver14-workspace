@@ -10,6 +10,7 @@
     "description": "Description",
     "usageGuide": "Usage Guide",
     "features": "Features",
+    "color": "Color",
     "quantity": "Quantity",
     "addToCart": "Add to Cart",
     "outOfStock": "Out of Stock",

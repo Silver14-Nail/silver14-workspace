@@ -12,9 +12,13 @@ import { CouponsModule } from './coupons/coupons.module';
 import { PaymentsModule } from './payments/payments.module';
 import { CheckoutsModule } from './checkouts/checkouts.module';
 import { AdminCollectionsModule } from './collections/collections.module';
+import { AdminSuppliesModule } from './supplies/supplies.module';
+import { AdminMarketingModule } from './marketing/marketing.module';
 
 const adminModules = [
   ProductsModule,
+  AdminSuppliesModule,
+  AdminMarketingModule,
   AdminAuthModule,
   AdminUsersModule,
   WholesalesModule,

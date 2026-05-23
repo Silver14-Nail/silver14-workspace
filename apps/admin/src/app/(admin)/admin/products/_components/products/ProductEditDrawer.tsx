@@ -360,6 +360,7 @@ export default function ProductEditDrawer({
             {tab === 'variants' && product && (
               <ProductEditVariantsTab
                 productId={productId}
+                productType={product.type}
                 variants={product.variants}
                 shapes={shapes}
                 sizes={sizes}

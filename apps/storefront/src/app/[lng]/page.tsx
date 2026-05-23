@@ -1,5 +1,6 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useT } from 'next-i18next/client';
@@ -8,11 +9,7 @@ import { ProductCard } from '@/components/shared/ProductCard';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { useProducts } from '@/hooks/useProducts';
-
-const heroImages = {
-  desktop: '/images/home/main-banner_desktop.svg',
-  mobile: '/images/home/main-banner_mobile.JPG',
-};
+import { useCampaign } from '@/hooks/useCampaign';
 
 const SectionTitle = ({
   eyebrow,
@@ -54,6 +51,11 @@ function ProductSectionSkeleton() {
 
 export default function HomePage() {
   const { t } = useT('home');
+  const params = useParams<{ lng: string }>();
+  const locale = params?.lng ?? 'en';
+
+  const { campaign: heroCampaign, translation: heroTranslation } =
+    useCampaign('homepage_hero', locale);
 
   const { products: newArrivals, loading: loadingNew } = useProducts({
     filterBy: 'new',
@@ -65,13 +67,27 @@ export default function HomePage() {
     limit: 4,
   });
 
+  // Hero image sources — prefer campaign images, fall back to static assets
+  const desktopSrc = heroCampaign?.desktopImageUrl ?? '/images/home/main-banner_desktop.svg';
+  const mobileSrc = heroCampaign?.mobileImageUrl ?? '/images/home/main-banner_mobile.JPG';
+
+  // Hero text — prefer campaign translations, fall back to i18n keys
+  const eyebrow = heroTranslation?.eyebrow ?? t('hero.eyebrow');
+  const heroTitle = heroTranslation?.title ?? t('hero.title');
+  const heroSubtitle = heroTranslation?.subtitle ?? null;
+  const ctaLabel = heroTranslation?.ctaLabel ?? t('hero.shopNow');
+  const ctaUrl = heroCampaign?.ctaUrl ?? '/products';
+  const secondaryLabel = heroTranslation?.secondaryCtaLabel ?? t('hero.wholesale');
+  const secondaryUrl = heroTranslation?.secondaryCtaUrl ?? '/wholesales';
+  const overlayOpacity = heroCampaign?.overlayOpacity ?? 0.35;
+
   return (
     <>
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Desktop Image */}
         <ImageWithFallback
-          src={heroImages.desktop}
+          src={desktopSrc}
           alt="Silver14 Nail Hero"
           className="
             absolute inset-0
@@ -83,7 +99,7 @@ export default function HomePage() {
 
         {/* Mobile Image */}
         <ImageWithFallback
-          src={heroImages.mobile}
+          src={mobileSrc}
           alt="Silver14 Nail Hero Mobile"
           className="
             absolute inset-0
@@ -93,8 +109,8 @@ export default function HomePage() {
           "
         />
 
-        {/* Softer overlay */}
-        <div className="absolute inset-0 bg-black/35" />
+        {/* Overlay */}
+        <div className="absolute inset-0" style={{ backgroundColor: `rgba(0,0,0,${overlayOpacity})` }} />
 
         {/* Content */}
         <motion.div
@@ -105,7 +121,7 @@ export default function HomePage() {
         >
           {/* Eyebrow */}
           <p className="text-white/80 uppercase tracking-[0.35em] text-[11px] md:text-xs mb-6">
-            {t('hero.eyebrow')}
+            {eyebrow}
           </p>
 
           {/* Title */}
@@ -118,55 +134,62 @@ export default function HomePage() {
               letterSpacing: '-0.02em',
             }}
           >
-            {t('hero.title')}
+            {heroTitle}
           </h1>
 
           {/* Description */}
-          <div className="space-y-5 mb-10">
-            <p className="text-white font-semibold text-[18px] md:text-[22px] leading-snug">
-              {t('hero.descriptionLine1')}
-            </p>
-
-            <p className="text-white/85 text-[15px] md:text-[18px] leading-relaxed max-w-[640px] mx-auto">
-              {t('hero.descriptionLine2')}
-            </p>
-          </div>
+          {heroSubtitle ? (
+            <div className="mb-10">
+              <p className="text-white/85 text-[15px] md:text-[18px] leading-relaxed max-w-[640px] mx-auto">
+                {heroSubtitle}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-5 mb-10">
+              <p className="text-white font-semibold text-[18px] md:text-[22px] leading-snug">
+                {t('hero.descriptionLine1')}
+              </p>
+              <p className="text-white/85 text-[15px] md:text-[18px] leading-relaxed max-w-[640px] mx-auto">
+                {t('hero.descriptionLine2')}
+              </p>
+            </div>
+          )}
 
           {/* Buttons */}
           <div className="flex flex-col gap-4 w-full max-w-[520px] mx-auto">
             <LinkBase
-              href="/products"
+              href={ctaUrl}
               className="
-          h-[64px]
-          bg-white
-          text-black
-          uppercase
-          tracking-[0.25em]
-          text-[13px]
-          flex items-center justify-center gap-3
-          transition-all duration-300
-          hover:bg-neutral-100
-        "
+                h-[64px]
+                bg-white
+                text-black
+                uppercase
+                tracking-[0.25em]
+                text-[13px]
+                flex items-center justify-center gap-3
+                transition-all duration-300
+                hover:bg-neutral-100
+              "
             >
-              {t('hero.shopNow')}
+              {ctaLabel}
               <ArrowRight className="size-4" />
             </LinkBase>
 
             <LinkBase
-              href="/wholesales"
+              href={secondaryUrl}
               className="
-          h-[64px]
-          border border-white/70
-          text-white
-          uppercase
-          tracking-[0.25em]
-          text-[13px]
-          flex items-center justify-center
-          transition-all duration-300
-          hover:bg-white/10
-        "
+                h-[64px]
+                border border-white/70
+                text-white
+                uppercase
+                tracking-[0.25em]
+                text-[13px]
+                flex items-center justify-center
+                transition-all duration-300
+                hover:bg-white/10
+              "
             >
-              {t('hero.wholesale')}
+              {secondaryLabel}
             </LinkBase>
           </div>
         </motion.div>

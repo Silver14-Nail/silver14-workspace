@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString, Length, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNumber, IsOptional, IsString, Length, Min } from 'class-validator';
+import { ProductType } from '../../../../common/enums/entity.enum';
 
 export class UpdateProductDto {
   @ApiPropertyOptional()
@@ -47,4 +48,21 @@ export class UpdateProductDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   salePrice?: number | null;
+
+  @ApiPropertyOptional({ enum: ProductType })
+  @IsOptional()
+  @IsEnum(ProductType)
+  type?: ProductType;
+
+  @ApiPropertyOptional({ description: 'Update SKU of the default variant (non-NAIL types)' })
+  @IsOptional()
+  @IsString()
+  @Length(1, 100)
+  sku?: string;
+
+  @ApiPropertyOptional({ description: 'Update stock quantity of the default variant (non-NAIL types)' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  stockQty?: number;
 }

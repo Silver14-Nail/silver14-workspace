@@ -17,6 +17,8 @@ import {
   ProductVariantsController,
   ProductTranslationsController,
 } from './products.controller';
+import { NailVariantStrategy } from './strategies/nail-variant.strategy';
+import { ColorVariantStrategy } from './strategies/color-variant.strategy';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import {
     ProductVariantsController,
     ProductTranslationsController,
   ],
-  providers: [ProductsService],
+  providers: [ProductsService, NailVariantStrategy, ColorVariantStrategy],
+  exports: [ProductsService],
 })
 export class ProductsModule {}

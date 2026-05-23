@@ -40,8 +40,11 @@ export interface ApiVariant {
   stockQty: number;
   computedPrice: string;
   isAvailable: boolean;
-  shape: Pick<ApiShape, 'id' | 'name' | 'lengthMm' | 'priceAdjustment' | 'isActive'>;
-  size: ApiSize;
+  shape: Pick<ApiShape, 'id' | 'name' | 'lengthMm' | 'priceAdjustment' | 'isActive'> | null;
+  size: ApiSize | null;
+  colorName: string | null;
+  colorHex: string | null;
+  variantImageUrl: string | null;
 }
 
 export interface ApiProductListItem {
@@ -146,4 +149,37 @@ export function fetchShapes(): Promise<ApiShape[]> {
 
 export function fetchSizes(): Promise<ApiSize[]> {
   return get<ApiSize[]>('/client-api/products/sizes');
+}
+
+// ─── Supplies ─────────────────────────────────────────────────────────────────
+
+export interface SupplyQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  collection?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  locale?: string;
+}
+
+export function fetchSupplies(params?: SupplyQueryParams): Promise<ApiProductListResponse> {
+  const qs = new URLSearchParams();
+  if (params?.page !== undefined) qs.set('page', String(params.page));
+  if (params?.limit !== undefined) qs.set('limit', String(params.limit));
+  if (params?.search) qs.set('search', params.search);
+  if (params?.collection) qs.set('collection', params.collection);
+  if (params?.minPrice !== undefined) qs.set('minPrice', String(params.minPrice));
+  if (params?.maxPrice !== undefined) qs.set('maxPrice', String(params.maxPrice));
+  if (params?.sortBy) qs.set('sortBy', params.sortBy);
+  const query = qs.toString();
+  return get<ApiProductListResponse>(
+    `/client-api/supplies${query ? `?${query}` : ''}`,
+    params?.locale,
+  );
+}
+
+export function fetchSupplyBySlug(slug: string, locale?: string): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/supplies/${slug}`, locale);
 }

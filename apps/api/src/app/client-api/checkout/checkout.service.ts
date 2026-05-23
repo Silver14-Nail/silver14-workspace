@@ -352,6 +352,19 @@ export class ClientCheckoutService {
 
       case CouponRestrictionType.CATEGORY:
         break;
+
+      case CouponRestrictionType.PRODUCT_TYPE: {
+        if (!restriction.refId) break;
+        const hasType = items.some(
+          (item) => (item.variant as any).product?.type === restriction.refId,
+        );
+        if (!hasType) {
+          throw new BadRequestException(
+            `This coupon is only valid for ${restriction.refLabel ?? restriction.refId} products`,
+          );
+        }
+        break;
+      }
     }
   }
 

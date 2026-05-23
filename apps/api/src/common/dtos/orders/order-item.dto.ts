@@ -47,13 +47,15 @@ export class OrderItemDto extends AbstractDTO {
   @Min(0)
   itemDiscount: number;
 
+  @IsOptional()
   @IsString()
   @Length(1, 100)
-  shapeName: string;
+  shapeName: string | null;
 
+  @IsOptional()
   @IsString()
   @Length(1, 20)
-  sizeLabel: string;
+  sizeLabel: string | null;
 
   @IsBoolean()
   isCustomSize: boolean;

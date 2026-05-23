@@ -4,6 +4,8 @@ export interface ProductImage {
   isMain: boolean;
 }
 
+export type ProductType = 'nail' | 'supply' | 'accessory' | 'tool';
+
 export interface Product {
   id: string;
   name: string;
@@ -14,6 +16,7 @@ export interface Product {
   isActive: boolean;
   isNew: boolean;
   isBestSeller: boolean;
+  type: ProductType;
   createdAt: string;
   updatedAt: string;
   images: ProductImage[];
@@ -41,6 +44,9 @@ export interface CreateProductPayload {
   isActive?: boolean;
   isNew?: boolean;
   isBestSeller?: boolean;
+  type?: ProductType;
+  sku?: string;
+  stockQty?: number;
 }
 
 export interface UpdateProductPayload {
@@ -52,6 +58,9 @@ export interface UpdateProductPayload {
   isActive?: boolean;
   isNew?: boolean;
   isBestSeller?: boolean;
+  type?: ProductType;
+  sku?: string;
+  stockQty?: number;
 }
 
 // ─── Nail Shapes ─────────────────────────────────────────────────────────────
@@ -128,8 +137,11 @@ export interface ApiProductVariant {
   isAvailable: boolean;
   createdAt: string;
   updatedAt: string;
-  shape: { id: string; name: string; sizeTier: string };
-  size: { id: string; label: string; sizeCode: string };
+  shape: { id: string; name: string; sizeTier: string } | null;
+  size: { id: string; label: string; sizeCode: string } | null;
+  colorName: string | null;
+  colorHex: string | null;
+  variantImageUrl: string | null;
 }
 
 // ─── Product Detail (full, with variants + images) ───────────────────────────
@@ -144,6 +156,7 @@ export interface ApiProductDetail {
   isActive: boolean;
   isNew: boolean;
   isBestSeller: boolean;
+  type: ProductType;
   createdAt: string;
   updatedAt: string;
   images: ApiProductImage[];
@@ -172,12 +185,15 @@ export interface ReorderImagesPayload {
 // ─── Variant Payloads ─────────────────────────────────────────────────────────
 
 export interface CreateVariantPayload {
-  shapeId: string;
-  sizeId: string;
+  shapeId?: string;
+  sizeId?: string;
   sku?: string;
   stockQty: number;
   computedPrice: number;
   isAvailable?: boolean;
+  colorName?: string | null;
+  colorHex?: string | null;
+  variantImageUrl?: string | null;
 }
 
 export interface UpdateVariantPayload {
@@ -187,6 +203,9 @@ export interface UpdateVariantPayload {
   stockQty?: number;
   computedPrice?: number;
   isAvailable?: boolean;
+  colorName?: string | null;
+  colorHex?: string | null;
+  variantImageUrl?: string | null;
 }
 
 // ─── Product Translations ─────────────────────────────────────────────────────

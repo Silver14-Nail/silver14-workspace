@@ -24,6 +24,13 @@ export enum LoginMethod {
 
 // ─── PRODUCTS ───────────────────────────────────────────────────────────────
 
+export enum ProductType {
+  NAIL = 'nail',
+  SUPPLY = 'supply',
+  ACCESSORY = 'accessory',
+  TOOL = 'tool',
+}
+
 export enum ShapeSizeTier {
   STANDARD = 'standard',
   MEDIUM = 'medium',
@@ -60,6 +67,7 @@ export enum CouponRestrictionType {
   CATEGORY = 'category',
   MIN_QTY = 'min_qty',
   NEW_USER = 'new_user',
+  PRODUCT_TYPE = 'product_type',
 }
 
 // ─── CARTS & CHECKOUT ───────────────────────────────────────────────────────
@@ -171,4 +179,37 @@ export enum NewsletterSource {
   CHECKOUT = 'checkout',
   POPUP = 'popup',
   WHOLESALE_PAGE = 'wholesale_page',
+}
+
+// ─── MARKETING CAMPAIGNS ─────────────────────────────────────────────────────
+
+export enum CampaignType {
+  HERO = 'hero',
+  PROMOTION = 'promotion',
+  SEASONAL = 'seasonal',
+  COLLECTION = 'collection',
+  SUPPLY = 'supply',
+  WHOLESALE = 'wholesale',
+  ANNOUNCEMENT = 'announcement',
+  LANDING_PAGE = 'landing_page',
+}
+
+export enum CampaignPlacement {
+  HOMEPAGE_HERO = 'homepage_hero',
+  HOMEPAGE_TOP = 'homepage_top',
+  HOMEPAGE_MIDDLE = 'homepage_middle',
+  HOMEPAGE_BOTTOM = 'homepage_bottom',
+  COLLECTION_PAGE = 'collection_page',
+  PRODUCT_PAGE = 'product_page',
+  SUPPLY_PAGE = 'supply_page',
+  WHOLESALE_PAGE = 'wholesale_page',
+  GLOBAL = 'global',
+}
+
+export enum CampaignStatus {
+  DRAFT = 'draft',
+  ACTIVE = 'active',
+  SCHEDULED = 'scheduled',
+  EXPIRED = 'expired',
+  ARCHIVED = 'archived',
 }

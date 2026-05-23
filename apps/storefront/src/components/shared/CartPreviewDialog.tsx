@@ -47,8 +47,9 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-[#1A1A1A] text-sm mb-1 truncate">{addedItem.productName}</h3>
-            {(addedItem.sizeName || addedItem.shapeName) && (
+            {(addedItem.sizeName || addedItem.shapeName || addedItem.colorName) && (
               <div className="flex flex-wrap gap-2 text-xs text-[#5A5A5A]">
+                {addedItem.colorName && <span>Color: {addedItem.colorName}</span>}
                 {addedItem.sizeName && <span>Size: {addedItem.sizeName}</span>}
                 {addedItem.sizeName && addedItem.shapeName && <span>/</span>}
                 {addedItem.shapeName && <span>Shape: {addedItem.shapeName}</span>}

@@ -21,10 +21,12 @@ export default function OrderSummary({
         {items.slice(0, 3).map((item, i) => (
           <p key={i} className="text-[#5A5A5A]">
             {item.quantity}× {item.productName}
-            <span className="text-[#9A9A9A] text-xs">
-              {' '}
-              ({item.sizeName}, {item.shapeName})
-            </span>
+            {(item.sizeName || item.shapeName) && (
+              <span className="text-[#9A9A9A] text-xs">
+                {' '}
+                ({[item.sizeName, item.shapeName].filter(Boolean).join(', ')})
+              </span>
+            )}
           </p>
         ))}
         {items.length > 3 && (
