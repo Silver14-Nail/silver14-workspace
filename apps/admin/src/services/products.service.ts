@@ -55,6 +55,40 @@ export async function deleteProduct(id: string): Promise<void> {
   await client.delete(`/admin-api/products/${id}`);
 }
 
+// ─── Supplies ────────────────────────────────────────────────────────────────
+
+export interface SupplyListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+}
+
+export async function listSupplies(query?: SupplyListQuery): Promise<ProductListResponse> {
+  const client = await createApiClient();
+  const { data } = await client.get<ProductListResponse>('/admin-api/supplies', {
+    params: query,
+  });
+  return data;
+}
+
+export async function createSupply(payload: CreateProductPayload): Promise<Product> {
+  const client = await createApiClient();
+  const { data } = await client.post<Product>('/admin-api/supplies', payload);
+  return data;
+}
+
+export async function updateSupply(id: string, payload: UpdateProductPayload): Promise<Product> {
+  const client = await createApiClient();
+  const { data } = await client.patch<Product>(`/admin-api/supplies/${id}`, payload);
+  return data;
+}
+
+export async function deleteSupply(id: string): Promise<void> {
+  const client = await createApiClient();
+  await client.delete(`/admin-api/supplies/${id}`);
+}
+
 // ─── Nail Shapes ──────────────────────────────────────────────────────────────
 
 export async function listNailShapes(): Promise<ApiNailShape[]> {

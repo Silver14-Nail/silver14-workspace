@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, Index } from 'typeorm';
 import { SoftDeleteAbstractEntity } from '../../../common/entities';
+import { ProductType } from '../../../common/enums/entity.enum';
 
 import { ProductImageEntity } from './product-image.entity';
 import { ProductShapePricingEntity } from './product-shape-pricing.entity';
@@ -56,6 +57,14 @@ export class ProductEntity extends SoftDeleteAbstractEntity {
     default: 'USD',
   })
   currency: string;
+
+  @Index()
+  @Column({
+    type: 'enum',
+    enum: ProductType,
+    default: ProductType.NAIL,
+  })
+  type: ProductType;
 
   @Column({
     name: 'is_active',

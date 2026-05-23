@@ -11,6 +11,7 @@ function shapeLabel(shape: Pick<ApiShape, 'name' | 'lengthMm'>): string {
 }
 
 function sizeLabel(size: ApiVariant['size']): string {
+  if (!size) return '';
   return size.measurements ? `${size.label} (${size.measurements})` : size.label;
 }
 
@@ -54,7 +55,7 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
   // Build size label map: sizeId → display label (from available variants only)
   const sizeLabelById = new Map<string, string>();
   for (const v of detail.variants) {
-    if (v.isAvailable && !sizeLabelById.has(v.size.id)) {
+    if (v.isAvailable && v.size && !sizeLabelById.has(v.size.id)) {
       sizeLabelById.set(v.size.id, sizeLabel(v.size));
     }
   }
@@ -65,13 +66,13 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
   // Compute variant price from basePrice + shape adjustment (not the stored computedPrice
   // which may be stale if the shape adjustment was changed after variants were created)
   const variants: StorefrontVariant[] = detail.variants
-    .filter((v) => v.isAvailable && shapeLabelById.has(v.shape.id))
+    .filter((v) => v.isAvailable && v.shape && v.size && shapeLabelById.has(v.shape.id))
     .map((v) => ({
       id: v.id,
-      shapeLabel: shapeLabelById.get(v.shape.id)!,
-      sizeLabel: sizeLabelById.get(v.size.id) ?? sizeLabel(v.size),
+      shapeLabel: shapeLabelById.get(v.shape!.id)!,
+      sizeLabel: sizeLabelById.get(v.size!.id) ?? sizeLabel(v.size),
       stockQty: v.stockQty,
-      computedPrice: base + (shapeAdjById.get(v.shape.id) ?? 0),
+      computedPrice: base + (shapeAdjById.get(v.shape!.id) ?? 0),
       isAvailable: v.isAvailable,
     }));
 

@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import type { ApiNailShape, ApiNailSize, ApiProductVariant } from '../../types';
+import type { ApiNailShape, ApiNailSize, ApiProductVariant, ProductType } from '../../types';
 import { createVariantAction, updateVariantAction } from '../../actions';
 
 interface VariantFormDrawerProps {
   productId: string;
+  productType: ProductType;
   variant?: ApiProductVariant;
   shapes: ApiNailShape[];
   sizes: ApiNailSize[];
@@ -16,6 +17,7 @@ interface VariantFormDrawerProps {
 
 export default function VariantFormDrawer({
   productId,
+  productType,
   variant,
   shapes,
   sizes,
@@ -23,41 +25,60 @@ export default function VariantFormDrawer({
   onSuccess,
 }: VariantFormDrawerProps) {
   const isEdit = variant !== undefined;
+  const isNail = productType === 'nail';
 
-  const [shapeId, setShapeId] = useState(variant?.shape.id ?? '');
-  const [sizeId, setSizeId] = useState(variant?.size.id ?? '');
+  // NAIL fields
+  const [shapeId, setShapeId] = useState(variant?.shape?.id ?? '');
+  const [sizeId, setSizeId] = useState(variant?.size?.id ?? '');
+
+  // Non-NAIL color fields
+  const [colorName, setColorName] = useState(variant?.colorName ?? '');
+  const [colorHex, setColorHex] = useState(variant?.colorHex ?? '');
+
+  // Common fields
   const [sku, setSku] = useState(variant?.sku ?? '');
   const [price, setPrice] = useState(variant ? Number(variant.computedPrice).toFixed(2) : '');
   const [stock, setStock] = useState(variant ? String(variant.stockQty) : '0');
   const [isAvailable, setIsAvailable] = useState(variant?.isAvailable ?? true);
 
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  const activeShapes = shapes.filter((s) => s.isActive);
   const selectedSize = sizes.find((s) => s.id === sizeId);
   const isCustomSizeSelected = selectedSize?.label === 'Custom';
 
   const handleSizeChange = (id: string) => {
     setSizeId(id);
-    const s = sizes.find((sz) => sz.id === id);
-    if (s?.label === 'Custom') setStock('9999');
+    if (sizes.find((sz) => sz.id === id)?.label === 'Custom') setStock('9999');
   };
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
 
-  const activeShapes = shapes.filter((s) => s.isActive);
-  const canSubmit = shapeId !== '' && sizeId !== '' && price !== '' && parseFloat(price) >= 0;
+  const canSubmit = isNail
+    ? shapeId !== '' && sizeId !== '' && price !== '' && parseFloat(price) >= 0
+    : price !== '' && parseFloat(price) >= 0;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setSaving(true);
     setError('');
 
-    const payload = {
-      shapeId,
-      sizeId,
-      sku: sku.trim() || undefined,
-      computedPrice: parseFloat(price),
-      stockQty: Math.max(0, parseInt(stock, 10) || 0),
-      isAvailable,
-    };
+    const payload = isNail
+      ? {
+          shapeId,
+          sizeId,
+          sku: sku.trim() || undefined,
+          computedPrice: parseFloat(price),
+          stockQty: Math.max(0, parseInt(stock, 10) || 0),
+          isAvailable,
+        }
+      : {
+          sku: sku.trim() || undefined,
+          computedPrice: parseFloat(price),
+          stockQty: Math.max(0, parseInt(stock, 10) || 0),
+          isAvailable,
+          colorName: colorName.trim() || null,
+          colorHex: colorHex.trim() || null,
+        };
 
     const result = isEdit
       ? await updateVariantAction(productId, variant.id, payload)
@@ -97,51 +118,92 @@ export default function VariantFormDrawer({
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-              Nail Shape *
-            </label>
-            <select
-              value={shapeId}
-              onChange={(e) => setShapeId(e.target.value)}
-              className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
-            >
-              <option value="">Select a shape...</option>
-              {activeShapes.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} ({s.sizeTier})
-                </option>
-              ))}
-            </select>
-            {shapes.length > activeShapes.length && (
-              <p className="text-xs text-[#9CA3AF] mt-1">
-                {shapes.length - activeShapes.length} inactive shapes hidden
-              </p>
-            )}
-          </div>
+          {isNail ? (
+            <>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                  Nail Shape *
+                </label>
+                <select
+                  value={shapeId}
+                  onChange={(e) => setShapeId(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
+                >
+                  <option value="">Select a shape...</option>
+                  {activeShapes.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.sizeTier})
+                    </option>
+                  ))}
+                </select>
+                {shapes.length > activeShapes.length && (
+                  <p className="text-xs text-[#9CA3AF] mt-1">
+                    {shapes.length - activeShapes.length} inactive shapes hidden
+                  </p>
+                )}
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">Nail Size *</label>
-            <select
-              value={sizeId}
-              onChange={(e) => handleSizeChange(e.target.value)}
-              className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
-            >
-              <option value="">Select a size...</option>
-              {sizes.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label} — {s.sizeCode}
-                  {s.measurements ? ` (${s.measurements})` : ''}
-                  {s.label === 'Custom' ? ' (made-to-order)' : ''}
-                </option>
-              ))}
-            </select>
-            {isCustomSizeSelected && (
-              <p className="text-xs text-amber-600 mt-1.5 bg-amber-50 px-2.5 py-1.5 rounded-md border border-amber-100">
-                Custom size is made-to-order. Stock is set to 9999 (unlimited). Price should include any custom work surcharge.
-              </p>
-            )}
-          </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                  Nail Size *
+                </label>
+                <select
+                  value={sizeId}
+                  onChange={(e) => handleSizeChange(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
+                >
+                  <option value="">Select a size...</option>
+                  {sizes.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label} — {s.sizeCode}
+                      {s.measurements ? ` (${s.measurements})` : ''}
+                      {s.label === 'Custom' ? ' (made-to-order)' : ''}
+                    </option>
+                  ))}
+                </select>
+                {isCustomSizeSelected && (
+                  <p className="text-xs text-amber-600 mt-1.5 bg-amber-50 px-2.5 py-1.5 rounded-md border border-amber-100">
+                    Custom size is made-to-order. Stock is set to 9999 (unlimited).
+                  </p>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                  Color Name <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                </label>
+                <input
+                  value={colorName}
+                  onChange={(e) => setColorName(e.target.value)}
+                  placeholder="e.g. Clear, Bn01, Pink"
+                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                  Color Hex <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    value={colorHex}
+                    onChange={(e) => setColorHex(e.target.value)}
+                    placeholder="#RRGGBB"
+                    maxLength={7}
+                    className="flex-1 px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors font-mono"
+                  />
+                  {colorHex && /^#[0-9A-Fa-f]{6}$/.test(colorHex) && (
+                    <span
+                      className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex-shrink-0"
+                      style={{ backgroundColor: colorHex }}
+                    />
+                  )}
+                </div>
+              </div>
+            </>
+          )}
 
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
@@ -150,7 +212,7 @@ export default function VariantFormDrawer({
             <input
               value={sku}
               onChange={(e) => setSku(e.target.value)}
-              placeholder="e.g. SHAPE-SIZE-001"
+              placeholder={isNail ? 'e.g. SHAPE-SIZE-001' : 'e.g. SUP-GEL-CLEAR'}
               className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors font-mono"
             />
           </div>
@@ -172,17 +234,20 @@ export default function VariantFormDrawer({
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Stock Qty{isCustomSizeSelected && <span className="ml-1 font-normal text-[#9CA3AF]">(unlimited)</span>}
+                Stock Qty
+                {isNail && isCustomSizeSelected && (
+                  <span className="ml-1 font-normal text-[#9CA3AF]">(unlimited)</span>
+                )}
               </label>
               <input
                 value={stock}
-                onChange={(e) => !isCustomSizeSelected && setStock(e.target.value)}
-                readOnly={isCustomSizeSelected}
+                onChange={(e) => !(isNail && isCustomSizeSelected) && setStock(e.target.value)}
+                readOnly={isNail && isCustomSizeSelected}
                 type="number"
                 min="0"
                 step="1"
                 className={`w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none transition-colors ${
-                  isCustomSizeSelected
+                  isNail && isCustomSizeSelected
                     ? 'bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed'
                     : 'text-[#111827] focus:border-[#111827]'
                 }`}

@@ -104,9 +104,11 @@ export function CheckoutSidebar({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[#1A1A1A] text-xs truncate">{item.productName}</p>
-              <p className="text-[#9A9A9A] text-[10px]">
-                {item.sizeName} / {item.shapeName}
-              </p>
+              {(item.sizeName || item.shapeName) && (
+                <p className="text-[#9A9A9A] text-[10px]">
+                  {[item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
+                </p>
+              )}
             </div>
             <p className="text-[#1A1A1A] text-xs flex-shrink-0">{fmt(item.lineTotal)}</p>
           </li>

@@ -33,6 +33,9 @@ import { PaymentEntity } from './payments/payment.entity';
 import { PaypalDetailEntity } from './payments/paypal-detail.entity';
 import { CardDetailEntity } from './payments/card-detail.entity';
 
+import { MarketingCampaignEntity } from './marketing/marketing-campaign.entity';
+import { MarketingCampaignTranslationEntity } from './marketing/marketing-campaign-translation.entity';
+
 import { NewsletterSubscriberEntity } from './wholesales/newsletter-subscribers.entity';
 import { WholesaleEnquiryEntity } from './wholesales/wholesale-enquiry.entity';
 import { WholesaleAccountEntity } from './wholesales/wholesale-account.entity';
@@ -76,6 +79,8 @@ export {
   WholesaleTierEntity,
   WholesaleProductPricingEntity,
   WholesaleOrderEntity,
+  MarketingCampaignEntity,
+  MarketingCampaignTranslationEntity,
 };
 
 export const AUTH_ENTITIES = [
@@ -126,6 +131,11 @@ export const WHOLESALE_ENTITIES = [
 
 export const PAYMENT_ENTITIES = [PaymentEntity, PaypalDetailEntity, CardDetailEntity];
 
+export const MARKETING_ENTITIES = [
+  MarketingCampaignEntity,
+  MarketingCampaignTranslationEntity,
+];
+
 export const ENTITIES = [
   ...AUTH_ENTITIES,
   ...PRODUCT_ENTITIES,
@@ -134,4 +144,5 @@ export const ENTITIES = [
   ...COUPON_ENTITIES,
   ...WHOLESALE_ENTITIES,
   ...PAYMENT_ENTITIES,
+  ...MARKETING_ENTITIES,
 ];

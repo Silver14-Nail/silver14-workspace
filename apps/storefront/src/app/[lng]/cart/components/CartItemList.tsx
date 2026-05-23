@@ -79,9 +79,11 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
           >
             {item.productName}
           </Link>
-          <p className="text-[#9A9A9A] text-xs mt-1">
-            {item.sizeName} / {item.shapeName}
-          </p>
+          {(item.sizeName || item.shapeName) && (
+            <p className="text-[#9A9A9A] text-xs mt-1">
+              {[item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
+            </p>
+          )}
           {isOnSale && <p className="text-[#C0392B] text-xs mt-0.5">Sale</p>}
           <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">{format(item.lineTotal)}</p>
         </div>

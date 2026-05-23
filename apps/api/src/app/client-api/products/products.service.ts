@@ -120,6 +120,10 @@ export class ClientProductsService {
       qb.andWhere('product.isBestSeller = true');
     }
 
+    if (query.type !== undefined) {
+      qb.andWhere('product.type = :productType', { productType: query.type });
+    }
+
     switch (query.sortBy) {
       case ProductSortBy.PRICE_ASC:
         qb.orderBy('product.basePrice', 'ASC');

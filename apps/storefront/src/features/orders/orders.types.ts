@@ -13,8 +13,8 @@ export interface CustomerOrderSummary {
 
 export interface CustomerOrderItem {
   productName: string;
-  sizeName: string;
-  shapeName: string;
+  sizeName: string | null;
+  shapeName: string | null;
   quantity: number;
   price: number;
   lineTotal: number;

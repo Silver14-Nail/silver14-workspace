@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import { ProductType } from '../../../../common/enums/entity.enum';
 
 export enum ProductSortBy {
   NEWEST = 'newest',
@@ -76,4 +77,9 @@ export class ProductQueryDto {
   @IsOptional()
   @IsEnum(ProductFilterBy)
   filterBy?: ProductFilterBy;
+
+  @ApiPropertyOptional({ enum: ProductType, description: 'Filter by product type' })
+  @IsOptional()
+  @IsEnum(ProductType)
+  type?: ProductType;
 }

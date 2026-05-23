@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import type { ProductVariantStrategy } from './strategies/product-variant.strategy';
+import { NailVariantStrategy } from './strategies/nail-variant.strategy';
+import { ColorVariantStrategy } from './strategies/color-variant.strategy';
 
 interface UploadedFile {
   buffer: Buffer;
@@ -30,6 +33,7 @@ import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
 import { ProductImageEntity } from '@/db/entities/products/product-image.entity';
 import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
+import { ProductType } from '@/common/enums/entity.enum';
 
 import { PaginationDTO } from '@/common/dtos/pagination';
 
@@ -49,6 +53,8 @@ import { TranslationService } from '@/shared/translation/translation.service';
 
 @Injectable()
 export class ProductsService {
+  private readonly variantStrategies: Map<ProductType, ProductVariantStrategy>;
+
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
@@ -62,7 +68,22 @@ export class ProductsService {
     private readonly productVariantRepo: Repository<ProductVariantEntity>,
     private readonly r2: R2Service,
     private readonly translationService: TranslationService,
-  ) {}
+    private readonly nailVariantStrategy: NailVariantStrategy,
+    private readonly colorVariantStrategy: ColorVariantStrategy,
+  ) {
+    this.variantStrategies = new Map([
+      [ProductType.NAIL, nailVariantStrategy],
+      [ProductType.SUPPLY, colorVariantStrategy],
+      [ProductType.ACCESSORY, colorVariantStrategy],
+      [ProductType.TOOL, colorVariantStrategy],
+    ]);
+  }
+
+  private getVariantStrategy(type: ProductType): ProductVariantStrategy {
+    const strategy = this.variantStrategies.get(type);
+    if (!strategy) throw new BadRequestException(`No variant strategy for product type: ${type}`);
+    return strategy;
+  }
 
   // ─── Products ───────────────────────────────────────────────────────────────
 
@@ -86,6 +107,10 @@ export class ProductsService {
 
     if (query.isActive !== undefined) {
       qb.andWhere('product.isActive = :isActive', { isActive: query.isActive });
+    }
+
+    if (query.type !== undefined) {
+      qb.andWhere('product.type = :type', { type: query.type });
     }
 
     const [items, totalItems] = await qb.getManyAndCount();
@@ -135,6 +160,8 @@ export class ProductsService {
       throw new BadRequestException('Sale price must be less than base price');
     }
 
+    const productType = dto.type ?? ProductType.NAIL;
+
     const product = this.productRepo.create({
       name: dto.name,
       slug,
@@ -145,9 +172,25 @@ export class ProductsService {
       isActive: dto.isActive ?? true,
       isNew: dto.isNew ?? false,
       isBestSeller: dto.isBestSeller ?? false,
+      type: productType,
     });
 
     const saved = await this.productRepo.save(product);
+
+    // Auto-create a single default variant for non-NAIL products (supply, accessory, tool)
+    if (productType !== ProductType.NAIL) {
+      const defaultVariant = this.productVariantRepo.create({
+        product: saved,
+        shape: null,
+        size: null,
+        computedPrice: dto.salePrice ?? dto.basePrice,
+        sku: dto.sku ?? null,
+        stockQty: dto.stockQty ?? 0,
+        isAvailable: true,
+      });
+      await this.productVariantRepo.save(defaultVariant);
+    }
+
     // Fire-and-forget: generate translations asynchronously
     this.translationService.generateForProduct(saved).catch(() => undefined);
     return saved;
@@ -191,7 +234,26 @@ export class ProductsService {
       product.salePrice = dto.salePrice;
     }
 
+    if (dto.type !== undefined) product.type = dto.type;
+
     const saved = await this.productRepo.save(product);
+
+    // Sync default variant for non-NAIL products when SKU or stock is provided
+    if (saved.type !== ProductType.NAIL && (dto.sku !== undefined || dto.stockQty !== undefined || dto.salePrice !== undefined || dto.basePrice !== undefined)) {
+      const defaultVariant = await this.productVariantRepo.findOne({
+        where: { product: { id: saved.id } },
+        order: { createdAt: 'ASC' },
+      });
+      if (defaultVariant) {
+        if (dto.sku !== undefined) defaultVariant.sku = dto.sku ?? null;
+        if (dto.stockQty !== undefined) defaultVariant.stockQty = dto.stockQty;
+        const newBase = dto.basePrice ?? (typeof saved.basePrice === 'string' ? parseFloat(saved.basePrice) : saved.basePrice);
+        const newSale = dto.salePrice !== undefined ? dto.salePrice : saved.salePrice;
+        defaultVariant.computedPrice = (newSale != null ? newSale : newBase) as number;
+        await this.productVariantRepo.save(defaultVariant);
+      }
+    }
+
     // Regenerate translations only if translatable fields changed
     const needsRegen =
       dto.name !== undefined || dto.description !== undefined;
@@ -429,21 +491,20 @@ export class ProductsService {
     const product = await this.productRepo.findOneBy({ id: productId });
     if (!product) throw new NotFoundException(`Product #${productId} not found`);
 
-    const shape = await this.nailShapeRepo.findOneBy({ id: dto.shapeId });
-    if (!shape) throw new NotFoundException(`Nail shape #${dto.shapeId} not found`);
-
-    const size = await this.nailSizeRepo.findOneBy({ id: dto.sizeId });
-    if (!size) throw new NotFoundException(`Nail size #${dto.sizeId} not found`);
-
     if (dto.sku) {
-      const existing = await this.productVariantRepo.findOne({ where: { sku: dto.sku } });
+      const existing = await this.productVariantRepo.findOne({
+        where: { sku: dto.sku },
+        withDeleted: true,
+      });
       if (existing) throw new ConflictException(`SKU "${dto.sku}" is already in use`);
     }
 
+    const strategy = this.getVariantStrategy(product.type);
+    const typeFields = await strategy.buildCreateFields(dto);
+
     const variant = this.productVariantRepo.create({
       product,
-      shape,
-      size,
+      ...typeFields,
       sku: dto.sku ?? null,
       stockQty: dto.stockQty,
       computedPrice: dto.computedPrice,
@@ -456,25 +517,19 @@ export class ProductsService {
   async updateProductVariant(productId: string, variantId: string, dto: UpdateVariantDto) {
     const variant = await this.productVariantRepo.findOne({
       where: { id: variantId, product: { id: productId } },
-      relations: ['shape', 'size'],
+      relations: ['shape', 'size', 'product'],
     });
     if (!variant) throw new NotFoundException(`Variant #${variantId} not found`);
 
-    if (dto.shapeId !== undefined) {
-      const shape = await this.nailShapeRepo.findOneBy({ id: dto.shapeId });
-      if (!shape) throw new NotFoundException(`Nail shape #${dto.shapeId} not found`);
-      variant.shape = shape;
-    }
-
-    if (dto.sizeId !== undefined) {
-      const size = await this.nailSizeRepo.findOneBy({ id: dto.sizeId });
-      if (!size) throw new NotFoundException(`Nail size #${dto.sizeId} not found`);
-      variant.size = size;
-    }
+    const strategy = this.getVariantStrategy(variant.product.type);
+    await strategy.applyUpdateFields(variant, dto);
 
     if (dto.sku !== undefined) {
       if (dto.sku) {
-        const existing = await this.productVariantRepo.findOne({ where: { sku: dto.sku } });
+        const existing = await this.productVariantRepo.findOne({
+          where: { sku: dto.sku },
+          withDeleted: true,
+        });
         if (existing && existing.id !== variantId)
           throw new ConflictException(`SKU "${dto.sku}" is already in use`);
       }

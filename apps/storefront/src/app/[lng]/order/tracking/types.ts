@@ -2,8 +2,8 @@ export type OrderTrackingStatus = 'Processing' | 'Crafting' | 'Shipped' | 'Deliv
 
 export interface TrackedOrderItem {
   productName: string;
-  sizeName: string;
-  shapeName: string;
+  sizeName: string | null;
+  shapeName: string | null;
   quantity: number;
   price: number;
   lineTotal: number;

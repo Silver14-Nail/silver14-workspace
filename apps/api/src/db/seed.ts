@@ -4,6 +4,7 @@ import { AppDataSource } from './ormconfig';
 import {
   NailSizeLabel,
   PriceAdjustmentType,
+  ProductType,
   ShapeSizeTier,
   UserRole,
 } from '../common/enums/entity.enum';
@@ -30,15 +31,6 @@ function skip(entity: string, identifier: string) {
 
 function created(entity: string, identifier: string) {
   log(`✓  ${entity} created (${identifier})`);
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 // ─── Seed definitions ─────────────────────────────────────────────────────────
@@ -175,13 +167,55 @@ const PRODUCTS: ProductInput[] = [
       { shapeName: 'Stiletto', priceOverride: 50.0, priceAdjustment: null, adjustmentType: null },
     ],
     variants: [
-      { shapeName: 'Almond', sizeCode: 'XS', sku: 'S14-CA-ALM-XS', stockQty: 24, computedPrice: 38.0 },
-      { shapeName: 'Almond', sizeCode: 'S', sku: 'S14-CA-ALM-S', stockQty: 32, computedPrice: 38.0 },
-      { shapeName: 'Almond', sizeCode: 'M', sku: 'S14-CA-ALM-M', stockQty: 18, computedPrice: 38.0 },
-      { shapeName: 'Coffin', sizeCode: 'S', sku: 'S14-CA-COF-S', stockQty: 15, computedPrice: 40.0 },
-      { shapeName: 'Coffin', sizeCode: 'M', sku: 'S14-CA-COF-M', stockQty: 22, computedPrice: 40.0 },
-      { shapeName: 'Stiletto', sizeCode: 'L', sku: 'S14-CA-STL-L', stockQty: 8, computedPrice: 50.0 },
-      { shapeName: 'Stiletto', sizeCode: 'XL', sku: 'S14-CA-STL-XL', stockQty: 0, computedPrice: 50.0 },
+      {
+        shapeName: 'Almond',
+        sizeCode: 'XS',
+        sku: 'S14-CA-ALM-XS',
+        stockQty: 24,
+        computedPrice: 38.0,
+      },
+      {
+        shapeName: 'Almond',
+        sizeCode: 'S',
+        sku: 'S14-CA-ALM-S',
+        stockQty: 32,
+        computedPrice: 38.0,
+      },
+      {
+        shapeName: 'Almond',
+        sizeCode: 'M',
+        sku: 'S14-CA-ALM-M',
+        stockQty: 18,
+        computedPrice: 38.0,
+      },
+      {
+        shapeName: 'Coffin',
+        sizeCode: 'S',
+        sku: 'S14-CA-COF-S',
+        stockQty: 15,
+        computedPrice: 40.0,
+      },
+      {
+        shapeName: 'Coffin',
+        sizeCode: 'M',
+        sku: 'S14-CA-COF-M',
+        stockQty: 22,
+        computedPrice: 40.0,
+      },
+      {
+        shapeName: 'Stiletto',
+        sizeCode: 'L',
+        sku: 'S14-CA-STL-L',
+        stockQty: 8,
+        computedPrice: 50.0,
+      },
+      {
+        shapeName: 'Stiletto',
+        sizeCode: 'XL',
+        sku: 'S14-CA-STL-XL',
+        stockQty: 0,
+        computedPrice: 50.0,
+      },
     ],
     translations: [
       {
@@ -189,14 +223,16 @@ const PRODUCTS: ProductInput[] = [
         name: 'Crystal Aurora Set',
         description: 'Shimmering translucent gel nails with aurora effect',
         seoTitle: 'Crystal Aurora Nail Set — Silver14',
-        seoDescription: 'Shop Crystal Aurora press-on nails with shimmering translucent aurora effect. Available in Almond, Coffin, Square, and Stiletto shapes.',
+        seoDescription:
+          'Shop Crystal Aurora press-on nails with shimmering translucent aurora effect. Available in Almond, Coffin, Square, and Stiletto shapes.',
       },
       {
         locale: 'vi',
         name: 'Bộ Móng Crystal Aurora',
         description: 'Móng gel trong suốt lấp lánh với hiệu ứng cực quang',
         seoTitle: 'Bộ Móng Crystal Aurora — Silver14',
-        seoDescription: 'Mua móng giả Crystal Aurora với hiệu ứng cực quang lấp lánh. Có các hình dạng Almond, Coffin, Square và Stiletto.',
+        seoDescription:
+          'Mua móng giả Crystal Aurora với hiệu ứng cực quang lấp lánh. Có các hình dạng Almond, Coffin, Square và Stiletto.',
       },
     ],
   },
@@ -221,10 +257,34 @@ const PRODUCTS: ProductInput[] = [
       },
     ],
     variants: [
-      { shapeName: 'Almond', sizeCode: 'S', sku: 'S14-MV-ALM-S', stockQty: 30, computedPrice: 35.0 },
-      { shapeName: 'Almond', sizeCode: 'M', sku: 'S14-MV-ALM-M', stockQty: 25, computedPrice: 35.0 },
-      { shapeName: 'Square', sizeCode: 'XS', sku: 'S14-MV-SQR-XS', stockQty: 12, computedPrice: 35.0 },
-      { shapeName: 'Ballerina', sizeCode: 'L', sku: 'S14-MV-BAL-L', stockQty: 18, computedPrice: 38.0 },
+      {
+        shapeName: 'Almond',
+        sizeCode: 'S',
+        sku: 'S14-MV-ALM-S',
+        stockQty: 30,
+        computedPrice: 35.0,
+      },
+      {
+        shapeName: 'Almond',
+        sizeCode: 'M',
+        sku: 'S14-MV-ALM-M',
+        stockQty: 25,
+        computedPrice: 35.0,
+      },
+      {
+        shapeName: 'Square',
+        sizeCode: 'XS',
+        sku: 'S14-MV-SQR-XS',
+        stockQty: 12,
+        computedPrice: 35.0,
+      },
+      {
+        shapeName: 'Ballerina',
+        sizeCode: 'L',
+        sku: 'S14-MV-BAL-L',
+        stockQty: 18,
+        computedPrice: 38.0,
+      },
     ],
     translations: [
       {
@@ -232,14 +292,16 @@ const PRODUCTS: ProductInput[] = [
         name: 'Midnight Velvet',
         description: 'Deep black matte finish with velvet texture',
         seoTitle: 'Midnight Velvet Nail Set — Silver14',
-        seoDescription: 'Shop Midnight Velvet press-on nails. Deep black matte finish with luxurious velvet texture.',
+        seoDescription:
+          'Shop Midnight Velvet press-on nails. Deep black matte finish with luxurious velvet texture.',
       },
       {
         locale: 'vi',
         name: 'Midnight Velvet',
         description: 'Lớp hoàn thiện matte đen sâu với kết cấu nhung',
         seoTitle: 'Bộ Móng Midnight Velvet — Silver14',
-        seoDescription: 'Mua móng giả Midnight Velvet. Lớp hoàn thiện matte đen sâu với kết cấu nhung sang trọng.',
+        seoDescription:
+          'Mua móng giả Midnight Velvet. Lớp hoàn thiện matte đen sâu với kết cấu nhung sang trọng.',
       },
     ],
   },
@@ -271,7 +333,13 @@ const PRODUCTS: ProductInput[] = [
       { shapeName: 'Coffin', sizeCode: 'S', sku: 'S14-RQ-COF-S', stockQty: 8, computedPrice: 44.0 },
       { shapeName: 'Coffin', sizeCode: 'M', sku: 'S14-RQ-COF-M', stockQty: 4, computedPrice: 44.0 },
       { shapeName: 'Oval', sizeCode: 'M', sku: 'S14-RQ-OVL-M', stockQty: 0, computedPrice: 42.0 },
-      { shapeName: 'XXL Stiletto', sizeCode: 'XL', sku: 'S14-RQ-XXL-XL', stockQty: 0, computedPrice: 60.0 },
+      {
+        shapeName: 'XXL Stiletto',
+        sizeCode: 'XL',
+        sku: 'S14-RQ-XXL-XL',
+        stockQty: 0,
+        computedPrice: 60.0,
+      },
     ],
     translations: [
       {
@@ -279,14 +347,348 @@ const PRODUCTS: ProductInput[] = [
         name: 'Rose Quartz Luxe',
         description: 'Elegant pink gradient with gold accents',
         seoTitle: 'Rose Quartz Luxe Nail Set — Silver14',
-        seoDescription: 'Shop Rose Quartz Luxe press-on nails. Elegant pink gradient with gold accents, perfect for weddings and special occasions.',
+        seoDescription:
+          'Shop Rose Quartz Luxe press-on nails. Elegant pink gradient with gold accents, perfect for weddings and special occasions.',
       },
       {
         locale: 'vi',
         name: 'Rose Quartz Luxe',
         description: 'Gradient hồng thanh lịch với điểm nhấn vàng',
         seoTitle: 'Bộ Móng Rose Quartz Luxe — Silver14',
-        seoDescription: 'Mua móng giả Rose Quartz Luxe. Gradient hồng thanh lịch với điểm nhấn vàng, hoàn hảo cho đám cưới và các dịp đặc biệt.',
+        seoDescription:
+          'Mua móng giả Rose Quartz Luxe. Gradient hồng thanh lịch với điểm nhấn vàng, hoàn hảo cho đám cưới và các dịp đặc biệt.',
+      },
+    ],
+  },
+];
+
+// ─── Supplies ─────────────────────────────────────────────────────────────────
+
+type SupplyVariant = {
+  sku: string;
+  colorName?: string | null;
+  colorHex?: string | null;
+  variantImageUrl?: string | null;
+  stockQty: number;
+  computedPrice: number;
+};
+
+type SupplyInput = {
+  name: string;
+  slug: string;
+  description: string;
+  basePrice: number;
+  salePrice?: number | null;
+  isNew?: boolean;
+  isBestSeller?: boolean;
+  images: string[];
+  // Single-variant (no color): provide sku + stockQty at top level
+  sku?: string;
+  stockQty?: number;
+  // Multi-variant (color options): provide variants array
+  variants?: SupplyVariant[];
+  translations: LocaleTranslation[];
+};
+
+const SUPPLIES: SupplyInput[] = [
+  {
+    name: 'Nail Glue Pro',
+    slug: 'nail-glue-pro',
+    description: 'Extra-strength professional nail glue for long-lasting hold. 3g precision-tip bottle.',
+    basePrice: 6.9,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: true,
+    images: ['https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400'],
+    sku: 'S14-SUP-GLUE-PRO',
+    stockQty: 150,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Nail Glue Pro',
+        description: 'Extra-strength professional nail glue for long-lasting hold. 3g precision-tip bottle.',
+        seoTitle: 'Nail Glue Pro — Silver14',
+        seoDescription: 'Professional extra-strength nail glue for press-on nails. Long-lasting hold with precision tip.',
+      },
+      {
+        locale: 'vi',
+        name: 'Keo Móng Chuyên Nghiệp',
+        description: 'Keo móng chuyên nghiệp độ bền cao cho độ bám dài lâu. Chai 3g đầu kim chính xác.',
+        seoTitle: 'Keo Móng Chuyên Nghiệp — Silver14',
+        seoDescription: 'Keo móng chuyên nghiệp độ bền cao cho móng giả. Độ bám lâu dài với đầu kim chính xác.',
+      },
+    ],
+  },
+  {
+    name: 'Builder Gel',
+    slug: 'builder-gel',
+    description: 'Professional builder gel for nail extensions and overlays. Available in clear, nude, pink and specialty shades. Soak-off formula.',
+    basePrice: 12.9,
+    salePrice: null,
+    isNew: true,
+    isBestSeller: true,
+    images: ['https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400'],
+    variants: [
+      { sku: 'S14-GEL-CLEAR-60', colorName: 'Clear', colorHex: '#F5F5F5', stockQty: 80, computedPrice: 12.9 },
+      { sku: 'S14-GEL-PINK-8', colorName: 'Pink', colorHex: '#FFB6C1', stockQty: 60, computedPrice: 9.9 },
+      { sku: 'S14-GEL-NUDE-8', colorName: 'Nude', colorHex: '#D4A574', stockQty: 55, computedPrice: 9.9 },
+      { sku: 'S14-GEL-JG01-7', colorName: 'JG01', colorHex: '#C8A882', stockQty: 40, computedPrice: 10.9 },
+      { sku: 'S14-GEL-JG02-7', colorName: 'JG02', colorHex: '#F2C4CE', stockQty: 40, computedPrice: 10.9 },
+    ],
+    translations: [
+      {
+        locale: 'en',
+        name: 'Builder Gel',
+        description: 'Professional builder gel for nail extensions and overlays. Available in clear, nude, pink and specialty shades. Soak-off formula.',
+        seoTitle: 'Builder Gel — Silver14',
+        seoDescription: 'Professional builder gel for nail extensions in clear, nude, pink and specialty shades. Soak-off formula.',
+      },
+      {
+        locale: 'vi',
+        name: 'Gel Nối Móng',
+        description: 'Gel nối móng chuyên nghiệp dùng cho nối và phủ móng. Có nhiều màu: trong suốt, nude, hồng và các màu đặc biệt. Công thức soak-off.',
+        seoTitle: 'Gel Nối Móng — Silver14',
+        seoDescription: 'Gel nối móng chuyên nghiệp màu trong suốt, nude, hồng và các màu đặc biệt. Công thức soak-off dễ tháo.',
+      },
+    ],
+  },
+  {
+    name: 'Chrome Powder (Bột Tráng Gương)',
+    slug: 'chrome-powder',
+    description: 'Ultra-fine chrome nail powder for mirror-effect nails. Simply rub onto cured gel for instant chrome finish. Available in 10 color codes.',
+    basePrice: 5.9,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: true,
+    images: ['https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400'],
+    variants: [
+      { sku: 'S14-CHROME-BN01', colorName: 'Bn01', colorHex: '#C0C0C0', stockQty: 70, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN02', colorName: 'Bn02', colorHex: '#FFD700', stockQty: 65, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN03', colorName: 'Bn03', colorHex: '#B76E79', stockQty: 60, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN04', colorName: 'Bn04', colorHex: '#4169E1', stockQty: 55, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN05', colorName: 'Bn05', colorHex: '#8A2BE2', stockQty: 50, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN06', colorName: 'Bn06', colorHex: '#2E8B57', stockQty: 45, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN07', colorName: 'Bn07', colorHex: '#FF6347', stockQty: 40, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN08', colorName: 'Bn08', colorHex: '#20B2AA', stockQty: 35, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN10', colorName: 'Bn10', colorHex: '#FF1493', stockQty: 30, computedPrice: 5.9 },
+      { sku: 'S14-CHROME-BN12', colorName: 'Bn12', colorHex: '#1C1C2E', stockQty: 25, computedPrice: 5.9 },
+    ],
+    translations: [
+      {
+        locale: 'en',
+        name: 'Chrome Powder',
+        description: 'Ultra-fine chrome nail powder for mirror-effect nails. Simply rub onto cured gel for instant chrome finish. 10 color codes available.',
+        seoTitle: 'Chrome Powder — Silver14',
+        seoDescription: 'Ultra-fine chrome nail powder for mirror-finish nails. 10 color codes for every style.',
+      },
+      {
+        locale: 'vi',
+        name: 'Bột Tráng Gương',
+        description: 'Bột chrome siêu mịn tạo hiệu ứng gương cho móng. Chỉ cần chà lên gel đã đóng rắn để có lớp chrome tức thì. Có 10 mã màu.',
+        seoTitle: 'Bột Tráng Gương — Silver14',
+        seoDescription: 'Bột chrome siêu mịn tạo hiệu ứng gương cho móng tay. 10 mã màu đa dạng.',
+      },
+    ],
+  },
+  {
+    name: 'Crystal Gems (Đá Cực Quang)',
+    slug: 'crystal-gems',
+    description: 'Aurora crystal nail gems with dazzling multi-color shimmer. Sold individually by color. Perfect for nail art accents.',
+    basePrice: 4.9,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: false,
+    images: ['https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400'],
+    variants: [
+      { sku: 'S14-GEM-01', colorName: '01 Crystal Clear', colorHex: '#F0F8FF', stockQty: 80, computedPrice: 4.9 },
+      { sku: 'S14-GEM-02', colorName: '02 Pink Aurora', colorHex: '#FF69B4', stockQty: 75, computedPrice: 4.9 },
+      { sku: 'S14-GEM-03', colorName: '03 Sky Blue', colorHex: '#87CEEB', stockQty: 70, computedPrice: 4.9 },
+      { sku: 'S14-GEM-04', colorName: '04 Lavender', colorHex: '#9370DB', stockQty: 65, computedPrice: 4.9 },
+      { sku: 'S14-GEM-05', colorName: '05 Gold Shimmer', colorHex: '#FFD700', stockQty: 60, computedPrice: 4.9 },
+      { sku: 'S14-GEM-06', colorName: '06 Emerald', colorHex: '#50C878', stockQty: 55, computedPrice: 4.9 },
+    ],
+    translations: [
+      {
+        locale: 'en',
+        name: 'Crystal Gems',
+        description: 'Aurora crystal nail gems with dazzling multi-color shimmer. Sold individually by color. Perfect for nail art accents.',
+        seoTitle: 'Crystal Gems — Silver14',
+        seoDescription: 'Aurora crystal nail gems in 6 shimmer colors for stunning nail art accents.',
+      },
+      {
+        locale: 'vi',
+        name: 'Đá Cực Quang',
+        description: 'Đá cực quang cho móng tay với hiệu ứng ánh sáng đa màu. Bán lẻ từng màu. Hoàn hảo để trang trí nail art.',
+        seoTitle: 'Đá Cực Quang — Silver14',
+        seoDescription: 'Đá cực quang móng tay 6 màu ánh sáng cho nail art độc đáo.',
+      },
+    ],
+  },
+  {
+    name: 'Cuticle Oil Pen',
+    slug: 'cuticle-oil-pen',
+    description: 'Nourishing cuticle oil pen with jojoba & vitamin E. Promotes healthy nail growth.',
+    basePrice: 8.5,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: false,
+    images: ['https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400'],
+    sku: 'S14-SUP-CUTICLE-PEN',
+    stockQty: 60,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Cuticle Oil Pen',
+        description: 'Nourishing cuticle oil pen with jojoba & vitamin E. Promotes healthy nail growth.',
+        seoTitle: 'Cuticle Oil Pen — Silver14',
+        seoDescription: 'Nourishing cuticle oil pen with jojoba and vitamin E for healthy nail growth and hydration.',
+      },
+      {
+        locale: 'vi',
+        name: 'Bút Dưỡng Da Cuticle',
+        description: 'Bút dầu dưỡng cuticle với jojoba & vitamin E. Thúc đẩy móng tay phát triển khỏe mạnh.',
+        seoTitle: 'Bút Dưỡng Da Cuticle — Silver14',
+        seoDescription: 'Bút dầu dưỡng cuticle với jojoba và vitamin E giúp móng tay khỏe mạnh và giữ ẩm.',
+      },
+    ],
+  },
+  {
+    name: 'Mini Nail File Set',
+    slug: 'mini-nail-file-set',
+    description: 'Set of 5 professional-grade nail files: 100/180 grit for shaping and smoothing.',
+    basePrice: 4.9,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: true,
+    images: ['https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400'],
+    sku: 'S14-SUP-FILE-SET5',
+    stockQty: 200,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Mini Nail File Set',
+        description: 'Set of 5 professional-grade nail files: 100/180 grit for shaping and smoothing.',
+        seoTitle: 'Mini Nail File Set — Silver14',
+        seoDescription: 'Set of 5 professional nail files for shaping and smoothing press-on nails. 100/180 grit.',
+      },
+      {
+        locale: 'vi',
+        name: 'Bộ Dũa Móng Mini',
+        description: 'Bộ 5 dũa móng chuyên nghiệp: độ nhám 100/180 để tạo hình và làm mịn.',
+        seoTitle: 'Bộ Dũa Móng Mini — Silver14',
+        seoDescription: 'Bộ 5 dũa móng chuyên nghiệp để tạo hình và làm mịn móng giả. Độ nhám 100/180.',
+      },
+    ],
+  },
+  {
+    name: 'Nail Tabs Adhesive (60pcs)',
+    slug: 'nail-tabs-adhesive-60',
+    description: 'Double-sided adhesive nail tabs for damage-free press-on nails. 60 tabs in 10 sizes.',
+    basePrice: 5.5,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: true,
+    images: ['https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400'],
+    sku: 'S14-SUP-TABS-60',
+    stockQty: 300,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Nail Tabs Adhesive (60pcs)',
+        description: 'Double-sided adhesive nail tabs for damage-free press-on nails. 60 tabs in 10 sizes.',
+        seoTitle: 'Nail Adhesive Tabs 60pcs — Silver14',
+        seoDescription: 'Double-sided nail adhesive tabs for damage-free application. 60 pieces in 10 sizes for all nail shapes.',
+      },
+      {
+        locale: 'vi',
+        name: 'Miếng Dán Móng (60 miếng)',
+        description: 'Miếng dán hai mặt cho móng giả không gây hại. 60 miếng trong 10 kích cỡ.',
+        seoTitle: 'Miếng Dán Móng 60 Miếng — Silver14',
+        seoDescription: 'Miếng dán hai mặt cho móng giả, không gây hại. 60 miếng trong 10 kích cỡ phù hợp mọi hình dạng móng.',
+      },
+    ],
+  },
+  {
+    name: 'Glossy Top Coat',
+    slug: 'glossy-top-coat',
+    description: 'High-shine gel-effect top coat for press-on nails. Extends wear and adds glass-like gloss. 10ml.',
+    basePrice: 9.9,
+    salePrice: 7.9,
+    isNew: true,
+    isBestSeller: false,
+    images: ['https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400'],
+    sku: 'S14-SUP-TOPCOAT-GLOSS',
+    stockQty: 90,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Glossy Top Coat',
+        description: 'High-shine gel-effect top coat for press-on nails. Extends wear and adds glass-like gloss. 10ml.',
+        seoTitle: 'Glossy Top Coat — Silver14',
+        seoDescription: 'High-shine gel-effect top coat for press-on nails. Extends wear time and provides a glass-like finish.',
+      },
+      {
+        locale: 'vi',
+        name: 'Top Coat Bóng Cao Cấp',
+        description: 'Top coat hiệu ứng gel bóng cao cho móng giả. Kéo dài thời gian dùng và tạo độ bóng như kính. 10ml.',
+        seoTitle: 'Top Coat Bóng Cao Cấp — Silver14',
+        seoDescription: 'Top coat hiệu ứng gel bóng cao cho móng giả. Kéo dài thời gian dùng và tạo lớp hoàn thiện như kính.',
+      },
+    ],
+  },
+  {
+    name: 'Nail Remover Wraps (20pcs)',
+    slug: 'nail-remover-wraps-20',
+    description: 'Acetone-soaked foil wraps for gentle press-on nail removal. 20 wraps with wooden cuticle stick.',
+    basePrice: 3.9,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: false,
+    images: ['https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400'],
+    sku: 'S14-SUP-REMOVER-20',
+    stockQty: 180,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Nail Remover Wraps (20pcs)',
+        description: 'Acetone-soaked foil wraps for gentle press-on nail removal. 20 wraps with wooden cuticle stick.',
+        seoTitle: 'Nail Remover Wraps 20pcs — Silver14',
+        seoDescription: 'Acetone foil nail remover wraps for gentle and easy press-on nail removal. Pack of 20 with cuticle stick.',
+      },
+      {
+        locale: 'vi',
+        name: 'Giấy Tẩy Móng (20 miếng)',
+        description: 'Giấy bạc ngâm acetone để tháo móng giả nhẹ nhàng. 20 miếng kèm que gỗ đẩy cuticle.',
+        seoTitle: 'Giấy Tẩy Móng 20 Miếng — Silver14',
+        seoDescription: 'Giấy tẩy móng acetone để tháo móng giả nhẹ nhàng và dễ dàng. Gói 20 miếng kèm que gỗ.',
+      },
+    ],
+  },
+  {
+    name: 'Buffer Block 4-Way',
+    slug: 'buffer-block-4-way',
+    description: '4-way nail buffer block: file, buff, smooth and shine in one tool. Professional grade.',
+    basePrice: 3.5,
+    salePrice: null,
+    isNew: false,
+    isBestSeller: false,
+    images: ['https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400'],
+    sku: 'S14-SUP-BUFFER-4W',
+    stockQty: 120,
+    translations: [
+      {
+        locale: 'en',
+        name: 'Buffer Block 4-Way',
+        description: '4-way nail buffer block: file, buff, smooth and shine in one tool. Professional grade.',
+        seoTitle: '4-Way Nail Buffer Block — Silver14',
+        seoDescription: 'Professional 4-way nail buffer block for filing, buffing, smoothing and shining nails in one tool.',
+      },
+      {
+        locale: 'vi',
+        name: 'Khối Đánh Bóng 4 Mặt',
+        description: 'Khối đánh bóng móng 4 mặt: dũa, đánh bóng, làm mịn và tạo độ bóng trong một công cụ. Chuyên nghiệp.',
+        seoTitle: 'Khối Đánh Bóng Móng 4 Mặt — Silver14',
+        seoDescription: 'Khối đánh bóng móng 4 mặt chuyên nghiệp để dũa, đánh bóng, làm mịn và tạo độ bóng trong một công cụ.',
       },
     ],
   },
@@ -333,15 +735,18 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'New Arrivals',
         shortDescription: 'The latest styles fresh from our studio',
-        description: 'Discover the newest nail art designs added to our collection. Fresh styles, trending shapes, and vibrant colours arrive every week.',
+        description:
+          'Discover the newest nail art designs added to our collection. Fresh styles, trending shapes, and vibrant colours arrive every week.',
         seoTitle: 'New Arrivals — Silver14 Nail',
-        seoDescription: 'Shop the latest press-on nail sets from Silver14. New designs added weekly.',
+        seoDescription:
+          'Shop the latest press-on nail sets from Silver14. New designs added weekly.',
       },
       {
         locale: 'vi',
         name: 'Hàng Mới Về',
         shortDescription: 'Các mẫu mới nhất từ xưởng của chúng tôi',
-        description: 'Khám phá những mẫu nail art mới nhất trong bộ sưu tập của chúng tôi. Các kiểu mới, hình dạng thịnh hành và màu sắc rực rỡ cập nhật hàng tuần.',
+        description:
+          'Khám phá những mẫu nail art mới nhất trong bộ sưu tập của chúng tôi. Các kiểu mới, hình dạng thịnh hành và màu sắc rực rỡ cập nhật hàng tuần.',
         seoTitle: 'Hàng Mới Về — Silver14 Nail',
         seoDescription: 'Mua bộ móng giả mới nhất từ Silver14. Mẫu mới cập nhật hàng tuần.',
       },
@@ -363,17 +768,21 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Best Sellers',
         shortDescription: 'Our most loved nail sets',
-        description: 'The nail sets our customers keep coming back to. Tried, tested, and loved by thousands of happy customers worldwide.',
+        description:
+          'The nail sets our customers keep coming back to. Tried, tested, and loved by thousands of happy customers worldwide.',
         seoTitle: 'Best Sellers — Silver14 Nail',
-        seoDescription: "Shop Silver14's bestselling press-on nail sets loved by customers worldwide.",
+        seoDescription:
+          "Shop Silver14's bestselling press-on nail sets loved by customers worldwide.",
       },
       {
         locale: 'vi',
         name: 'Bán Chạy Nhất',
         shortDescription: 'Những bộ móng được yêu thích nhất',
-        description: 'Những bộ móng mà khách hàng của chúng tôi không ngừng quay lại. Đã được thử nghiệm và yêu thích bởi hàng nghìn khách hàng hài lòng trên toàn thế giới.',
+        description:
+          'Những bộ móng mà khách hàng của chúng tôi không ngừng quay lại. Đã được thử nghiệm và yêu thích bởi hàng nghìn khách hàng hài lòng trên toàn thế giới.',
         seoTitle: 'Bán Chạy Nhất — Silver14 Nail',
-        seoDescription: 'Mua bộ móng giả bán chạy nhất của Silver14 được khách hàng toàn cầu yêu thích.',
+        seoDescription:
+          'Mua bộ móng giả bán chạy nhất của Silver14 được khách hàng toàn cầu yêu thích.',
       },
     ],
   },
@@ -394,17 +803,21 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Luxury Collection',
         shortDescription: 'Premium nail art for special occasions',
-        description: 'Our finest nail art sets crafted with premium materials. Designed for those moments when only the best will do.',
+        description:
+          'Our finest nail art sets crafted with premium materials. Designed for those moments when only the best will do.',
         seoTitle: 'Luxury Collection — Silver14 Nail',
-        seoDescription: "Explore Silver14's luxury press-on nail sets for weddings, galas, and special events.",
+        seoDescription:
+          "Explore Silver14's luxury press-on nail sets for weddings, galas, and special events.",
       },
       {
         locale: 'vi',
         name: 'Bộ Sưu Tập Cao Cấp',
         shortDescription: 'Nghệ thuật móng tay hạng sang cho các dịp đặc biệt',
-        description: 'Những bộ nail art tinh tế nhất của chúng tôi được chế tác từ nguyên liệu cao cấp. Dành cho những khoảnh khắc chỉ có điều tốt nhất mới đủ.',
+        description:
+          'Những bộ nail art tinh tế nhất của chúng tôi được chế tác từ nguyên liệu cao cấp. Dành cho những khoảnh khắc chỉ có điều tốt nhất mới đủ.',
         seoTitle: 'Bộ Sưu Tập Cao Cấp — Silver14 Nail',
-        seoDescription: 'Khám phá bộ móng giả cao cấp của Silver14 cho đám cưới, dạ tiệc và sự kiện đặc biệt.',
+        seoDescription:
+          'Khám phá bộ móng giả cao cấp của Silver14 cho đám cưới, dạ tiệc và sự kiện đặc biệt.',
       },
     ],
   },
@@ -424,7 +837,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'French Collection',
         shortDescription: 'Classic French tips reimagined',
-        description: 'Timeless French manicure styles elevated with modern twists. From clean classic whites to coloured and glitter tips.',
+        description:
+          'Timeless French manicure styles elevated with modern twists. From clean classic whites to coloured and glitter tips.',
         seoTitle: 'French Collection — Silver14 Nail',
         seoDescription: 'Classic and modern French tip press-on nails from Silver14.',
       },
@@ -432,7 +846,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'vi',
         name: 'Bộ Sưu Tập French',
         shortDescription: 'Đầu móng French cổ điển được tái hiện',
-        description: 'Những kiểu manicure French vượt thời gian được nâng tầm với những cách tân hiện đại. Từ đầu móng trắng cổ điển đến đầu móng màu sắc và glitter.',
+        description:
+          'Những kiểu manicure French vượt thời gian được nâng tầm với những cách tân hiện đại. Từ đầu móng trắng cổ điển đến đầu móng màu sắc và glitter.',
         seoTitle: 'Bộ Sưu Tập French — Silver14 Nail',
         seoDescription: 'Móng giả đầu French cổ điển và hiện đại từ Silver14.',
       },
@@ -454,7 +869,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Nude Collection',
         shortDescription: 'Understated elegance in every shade',
-        description: 'Sophisticated nude and neutral tones that complement every skin tone and outfit. Perfect for the office or a night out.',
+        description:
+          'Sophisticated nude and neutral tones that complement every skin tone and outfit. Perfect for the office or a night out.',
         seoTitle: 'Nude Collection — Silver14 Nail',
         seoDescription: "Shop Silver14's nude and neutral press-on nail sets for every skin tone.",
       },
@@ -462,7 +878,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'vi',
         name: 'Bộ Sưu Tập Nude',
         shortDescription: 'Sự thanh lịch tinh tế trong từng tông màu',
-        description: 'Tông màu nude và trung tính tinh tế phù hợp với mọi tông da và trang phục. Hoàn hảo cho văn phòng hay buổi tối ra ngoài.',
+        description:
+          'Tông màu nude và trung tính tinh tế phù hợp với mọi tông da và trang phục. Hoàn hảo cho văn phòng hay buổi tối ra ngoài.',
         seoTitle: 'Bộ Sưu Tập Nude — Silver14 Nail',
         seoDescription: 'Mua bộ móng giả nude và trung tính của Silver14 phù hợp cho mọi tông da.',
       },
@@ -485,15 +902,18 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Wedding Collection',
         shortDescription: 'Beautiful nails for your big day',
-        description: 'Bridal-inspired nail sets designed to complement wedding looks. Elegant, romantic, and unforgettable for brides and bridal parties.',
+        description:
+          'Bridal-inspired nail sets designed to complement wedding looks. Elegant, romantic, and unforgettable for brides and bridal parties.',
         seoTitle: 'Wedding Collection — Silver14 Nail',
-        seoDescription: 'Bridal and wedding press-on nail sets from Silver14. Perfect for your big day.',
+        seoDescription:
+          'Bridal and wedding press-on nail sets from Silver14. Perfect for your big day.',
       },
       {
         locale: 'vi',
         name: 'Bộ Sưu Tập Cưới',
         shortDescription: 'Móng tay đẹp cho ngày trọng đại của bạn',
-        description: 'Bộ móng lấy cảm hứng từ cô dâu được thiết kế để hoàn thiện vẻ đẹp đám cưới. Thanh lịch, lãng mạn và không thể quên cho cô dâu và phù dâu.',
+        description:
+          'Bộ móng lấy cảm hứng từ cô dâu được thiết kế để hoàn thiện vẻ đẹp đám cưới. Thanh lịch, lãng mạn và không thể quên cho cô dâu và phù dâu.',
         seoTitle: 'Bộ Sưu Tập Cưới — Silver14 Nail',
         seoDescription: 'Bộ móng giả cưới từ Silver14. Hoàn hảo cho ngày trọng đại của bạn.',
       },
@@ -515,7 +935,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Spring Collection',
         shortDescription: 'Fresh florals and pastel tones',
-        description: 'Celebrate the season with pastel shades, floral designs, and light-catching finishes that capture the energy of spring.',
+        description:
+          'Celebrate the season with pastel shades, floral designs, and light-catching finishes that capture the energy of spring.',
         seoTitle: 'Spring Collection — Silver14 Nail',
         seoDescription: 'Spring-inspired press-on nails with pastels and florals from Silver14.',
       },
@@ -523,7 +944,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'vi',
         name: 'Bộ Sưu Tập Mùa Xuân',
         shortDescription: 'Hoa tươi và tông màu pastel',
-        description: 'Chào đón mùa với các sắc pastel, thiết kế hoa và lớp hoàn thiện bắt sáng thể hiện năng lượng mùa xuân.',
+        description:
+          'Chào đón mùa với các sắc pastel, thiết kế hoa và lớp hoàn thiện bắt sáng thể hiện năng lượng mùa xuân.',
         seoTitle: 'Bộ Sưu Tập Mùa Xuân — Silver14 Nail',
         seoDescription: 'Móng giả lấy cảm hứng từ mùa xuân với pastel và hoa từ Silver14.',
       },
@@ -546,15 +968,18 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Summer Collection',
         shortDescription: 'Bold colours for sun-soaked days',
-        description: 'Vibrant shades and playful designs made for summer adventures. From beach days to rooftop parties.',
+        description:
+          'Vibrant shades and playful designs made for summer adventures. From beach days to rooftop parties.',
         seoTitle: 'Summer Collection — Silver14 Nail',
-        seoDescription: 'Summer press-on nail sets with bold colours and playful designs from Silver14.',
+        seoDescription:
+          'Summer press-on nail sets with bold colours and playful designs from Silver14.',
       },
       {
         locale: 'vi',
         name: 'Bộ Sưu Tập Mùa Hè',
         shortDescription: 'Màu sắc táo bạo cho những ngày nắng',
-        description: 'Màu sắc rực rỡ và thiết kế vui tươi dành cho những chuyến phiêu lưu mùa hè. Từ ngày ở bãi biển đến tiệc trên sân thượng.',
+        description:
+          'Màu sắc rực rỡ và thiết kế vui tươi dành cho những chuyến phiêu lưu mùa hè. Từ ngày ở bãi biển đến tiệc trên sân thượng.',
         seoTitle: 'Bộ Sưu Tập Mùa Hè — Silver14 Nail',
         seoDescription: 'Bộ móng giả mùa hè với màu sắc táo bạo và thiết kế vui tươi từ Silver14.',
       },
@@ -577,15 +1002,18 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Holiday Collection',
         shortDescription: 'Festive nails for every celebration',
-        description: 'Glittery, sparkly, and festive nail sets for holiday parties, Christmas gatherings, and New Year celebrations.',
+        description:
+          'Glittery, sparkly, and festive nail sets for holiday parties, Christmas gatherings, and New Year celebrations.',
         seoTitle: 'Holiday Collection — Silver14 Nail',
-        seoDescription: 'Festive and holiday press-on nail sets from Silver14. Perfect for Christmas and New Year.',
+        seoDescription:
+          'Festive and holiday press-on nail sets from Silver14. Perfect for Christmas and New Year.',
       },
       {
         locale: 'vi',
         name: 'Bộ Sưu Tập Lễ Hội',
         shortDescription: 'Móng tay lễ hội cho mọi dịp kỷ niệm',
-        description: 'Bộ móng lấp lánh, tỏa sáng và lễ hội cho các buổi tiệc, lễ Giáng Sinh và kỷ niệm Năm Mới.',
+        description:
+          'Bộ móng lấp lánh, tỏa sáng và lễ hội cho các buổi tiệc, lễ Giáng Sinh và kỷ niệm Năm Mới.',
         seoTitle: 'Bộ Sưu Tập Lễ Hội — Silver14 Nail',
         seoDescription: 'Bộ móng giả lễ hội từ Silver14. Hoàn hảo cho Giáng Sinh và Năm Mới.',
       },
@@ -607,7 +1035,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'en',
         name: 'Trending Now',
         shortDescription: 'What everyone is wearing this season',
-        description: 'Our curated selection of the most-searched and talked-about nail styles right now. Stay ahead of the trend.',
+        description:
+          'Our curated selection of the most-searched and talked-about nail styles right now. Stay ahead of the trend.',
         seoTitle: 'Trending Now — Silver14 Nail',
         seoDescription: 'Shop trending press-on nail designs from Silver14. Updated regularly.',
       },
@@ -615,7 +1044,8 @@ const COLLECTIONS: CollectionInput[] = [
         locale: 'vi',
         name: 'Xu Hướng Hiện Tại',
         shortDescription: 'Những gì mọi người đang dùng mùa này',
-        description: 'Tuyển chọn những kiểu móng được tìm kiếm và bàn luận nhiều nhất hiện nay. Luôn đi đầu xu hướng.',
+        description:
+          'Tuyển chọn những kiểu móng được tìm kiếm và bàn luận nhiều nhất hiện nay. Luôn đi đầu xu hướng.',
         seoTitle: 'Xu Hướng Hiện Tại — Silver14 Nail',
         seoDescription: 'Mua mẫu móng giả đang thịnh hành từ Silver14. Cập nhật thường xuyên.',
       },
@@ -814,6 +1244,99 @@ async function seedProducts(
   return result;
 }
 
+async function seedSupplies() {
+  const productRepo = AppDataSource.getRepository(ProductEntity);
+  const imageRepo = AppDataSource.getRepository(ProductImageEntity);
+  const variantRepo = AppDataSource.getRepository(ProductVariantEntity);
+  const translationRepo = AppDataSource.getRepository(ProductTranslationEntity);
+
+  for (const s of SUPPLIES) {
+    let product = await productRepo.findOne({ where: { slug: s.slug } });
+    if (product) {
+      skip('Supply', s.name);
+      continue;
+    }
+
+    product = await productRepo.save(
+      productRepo.create({
+        name: s.name,
+        slug: s.slug,
+        description: s.description,
+        basePrice: s.basePrice,
+        salePrice: s.salePrice ?? null,
+        currency: 'EUR',
+        isActive: true,
+        isNew: s.isNew ?? false,
+        isBestSeller: s.isBestSeller ?? false,
+        type: ProductType.SUPPLY,
+      }),
+    );
+
+    // Images
+    await imageRepo.save(
+      s.images.map((url, idx) =>
+        imageRepo.create({ url, sortOrder: idx, isMain: idx === 0, product }),
+      ),
+    );
+
+    // Variants — either multi-color variants or a single default variant
+    if (s.variants?.length) {
+      for (const v of s.variants) {
+        await variantRepo.save(
+          variantRepo.create({
+            product,
+            shape: null,
+            size: null,
+            sku: v.sku,
+            stockQty: v.stockQty,
+            computedPrice: v.computedPrice,
+            isAvailable: v.stockQty > 0,
+            colorName: v.colorName ?? null,
+            colorHex: v.colorHex ?? null,
+            variantImageUrl: v.variantImageUrl ?? null,
+          }),
+        );
+      }
+    } else {
+      await variantRepo.save(
+        variantRepo.create({
+          product,
+          shape: null,
+          size: null,
+          sku: s.sku ?? null,
+          stockQty: s.stockQty ?? 0,
+          computedPrice: s.salePrice ?? s.basePrice,
+          isAvailable: (s.stockQty ?? 0) > 0,
+          colorName: null,
+          colorHex: null,
+          variantImageUrl: null,
+        }),
+      );
+    }
+
+    // Translations
+    for (const tr of s.translations) {
+      await translationRepo.save(
+        translationRepo.create({
+          productId: product.id,
+          locale: tr.locale,
+          name: tr.name,
+          description: tr.description,
+          seoTitle: tr.seoTitle,
+          seoDescription: tr.seoDescription,
+          isAutoGenerated: false,
+        }),
+      );
+    }
+
+    const variantCount = s.variants?.length ?? 1;
+    created(
+      'Supply',
+      `${s.name} | ${variantCount} variant(s) | ${s.translations.length} translations`,
+    );
+  }
+}
+
 async function seedCollections(productsByName: Map<string, ProductEntity>) {
   const collectionRepo = AppDataSource.getRepository(CollectionEntity);
   const translationRepo = AppDataSource.getRepository(CollectionTranslationEntity);
@@ -867,7 +1390,10 @@ async function seedCollections(productsByName: Map<string, ProductEntity>) {
       }
     }
 
-    created('Collection', `${c.name} (${products.length} products, ${c.translations.length} translations)`);
+    created(
+      'Collection',
+      `${c.name} (${products.length} products, ${c.translations.length} translations)`,
+    );
   }
 }
 
@@ -883,6 +1409,7 @@ async function seed() {
     const shapesByName = await seedNailShapes();
     const sizesByCode = await seedNailSizes();
     const productsByName = await seedProducts(shapesByName, sizesByCode);
+    await seedSupplies();
     await seedCollections(productsByName);
 
     console.log('\n✅  Seed completed successfully.\n');

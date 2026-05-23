@@ -285,7 +285,8 @@ export default function OrderDetailPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-[#1A1A1A] text-sm truncate">{item.productName}</p>
                       <p className="text-[#9A9A9A] text-xs mt-0.5">
-                        {item.shapeName} · {item.sizeName} · ×{item.quantity}
+                        {[item.shapeName, item.sizeName].filter(Boolean).join(' · ')}
+                        {(item.shapeName || item.sizeName) ? ' · ' : ''}×{item.quantity}
                       </p>
                     </div>
                     <p className="text-[#1A1A1A] text-sm whitespace-nowrap">{fmt(item.lineTotal)}</p>

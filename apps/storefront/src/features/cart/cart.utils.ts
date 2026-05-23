@@ -23,7 +23,11 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
       ? computedPrice * (salePrice / basePrice)
       : computedPrice;
 
-  const sizeName = size.measurements ? `${size.label} (${size.measurements})` : size.label;
+  const sizeName = size
+    ? size.measurements
+      ? `${size.label} (${size.measurements})`
+      : size.label
+    : '';
 
   return {
     id: item.id,
@@ -32,7 +36,7 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
     productName: product.name,
     productSlug: product.slug ?? product.id,
     thumbnail: pickThumbnail(product.images),
-    shapeName: shape.name,
+    shapeName: shape?.name ?? '',
     sizeName,
     price: effectivePrice,
     basePrice,

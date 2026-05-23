@@ -20,5 +20,6 @@ import { ClientProductsController } from './products.controller';
   ],
   providers: [ClientProductsService],
   controllers: [ClientProductsController],
+  exports: [ClientProductsService],
 })
 export class ClientProductsModule {}
