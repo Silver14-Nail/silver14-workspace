@@ -88,6 +88,8 @@
     "couponPlaceholder": "Nhập mã",
     "couponApply": "Áp dụng",
     "couponRemove": "Xóa",
-    "couponApplied": "Đã áp dụng {{code}}"
+    "couponApplied": "Đã áp dụng {{code}}",
+    "productSavings": "Tiết kiệm",
+    "shapeAdjustment": "phụ phí hình dạng"
   }
 }

@@ -58,6 +58,8 @@ export interface CartDisplayItem {
   price: number;
   basePrice: number;
   salePrice: number | null;
+  /** Shape/size surcharge above basePrice: computedPrice - basePrice. Zero if no adjustment. */
+  adjustment: number;
   quantity: number;
   lineTotal: number;
   stockQty: number;

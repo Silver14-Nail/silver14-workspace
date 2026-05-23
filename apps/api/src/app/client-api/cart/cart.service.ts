@@ -52,9 +52,13 @@ export class ClientCartService {
 
     const cart = await this.findOrCreateCart(userId, cartId);
 
-    const existing = await this.cartItemRepo.findOne({
-      where: { cart: { id: cart.id }, variant: { id: dto.variantId } },
-    });
+    // Custom-size items are always unique orders (different measurements per set).
+    // Only merge standard-size items that share the same variantId.
+    const existing = dto.isCustomSize
+      ? null
+      : await this.cartItemRepo.findOne({
+          where: { cart: { id: cart.id }, variant: { id: dto.variantId }, isCustomSize: false },
+        });
 
     if (existing) {
       const newQty = existing.quantity + dto.quantity;
@@ -62,10 +66,6 @@ export class ClientCartService {
         throw new BadRequestException('Insufficient stock for requested quantity');
       }
       existing.quantity = newQty;
-      if (dto.isCustomSize !== undefined) existing.isCustomSize = dto.isCustomSize;
-      if (dto.customMeasurements !== undefined) {
-        existing.customMeasurements = dto.customMeasurements ?? null;
-      }
       await this.cartItemRepo.save(existing);
     } else {
       const item = this.cartItemRepo.create({
@@ -150,9 +150,15 @@ export class ClientCartService {
     }
 
     for (const guestItem of guestCart.items) {
-      const existing = await this.cartItemRepo.findOne({
-        where: { cart: { id: userCart.id }, variant: { id: guestItem.variant.id } },
-      });
+      const existing = guestItem.isCustomSize
+        ? null
+        : await this.cartItemRepo.findOne({
+            where: {
+              cart: { id: userCart.id },
+              variant: { id: guestItem.variant.id },
+              isCustomSize: false,
+            },
+          });
 
       if (existing) {
         const merged = Math.min(existing.quantity + guestItem.quantity, guestItem.variant.stockQty);

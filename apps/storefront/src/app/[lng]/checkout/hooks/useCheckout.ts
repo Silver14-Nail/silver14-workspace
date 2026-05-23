@@ -300,7 +300,8 @@ export function useCheckout() {
   // Use session currency (authoritative — set from Redux at session creation time).
   // Fall back to 'USD' before a session exists so SSR and the first client render match.
   const currency = totals?.currency ?? 'USD';
-  // Prefer session-authoritative subtotal so sidebar subtotal + shipping = total.
+  // Prefer session-authoritative subtotal (now correctly applies sale ratio server-side).
+  // Fall back to cartSubtotal before a session is created.
   const subtotal = totals?.subtotal ?? cartSubtotal;
   const finalTotal = totals?.total ?? cartSubtotal + (shippingCost ?? 0);
 

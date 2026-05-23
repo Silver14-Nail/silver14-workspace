@@ -87,32 +87,53 @@ export function CheckoutSidebar({
       </h3>
 
       <ul className="space-y-4 mb-5" aria-label={t('sidebar.itemsAriaLabel')}>
-        {items.map((item) => (
-          <li key={item.id} className="flex gap-3 items-center">
-            <div className="relative size-14 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
-              <ImageWithFallback
-                src={item.thumbnail ?? ''}
-                alt={item.productName}
-                className="w-full h-full object-cover"
-              />
-              <span
-                className="absolute -top-1.5 -right-1.5 size-5 bg-[#6A6A6A] text-white text-[9px] rounded-full flex items-center justify-center"
-                aria-label={t('sidebar.quantityAriaLabel', { count: item.quantity })}
-              >
-                {item.quantity}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[#1A1A1A] text-xs truncate">{item.productName}</p>
-              {(item.sizeName || item.shapeName) && (
-                <p className="text-[#9A9A9A] text-[10px]">
-                  {[item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
-                </p>
-              )}
-            </div>
-            <p className="text-[#1A1A1A] text-xs flex-shrink-0">{fmt(item.lineTotal)}</p>
-          </li>
-        ))}
+        {items.map((item) => {
+          const isOnSale =
+            item.salePrice !== null &&
+            item.salePrice < item.basePrice &&
+            item.salePrice > 0;
+          const computedPrice = item.basePrice + item.adjustment;
+          const originalLineTotal = isOnSale
+            ? computedPrice * item.quantity
+            : item.lineTotal;
+
+          return (
+            <li key={item.id} className="flex gap-3 items-center">
+              <div className="relative size-14 flex-shrink-0 bg-[#F5F5F5] overflow-hidden">
+                <ImageWithFallback
+                  src={item.thumbnail ?? ''}
+                  alt={item.productName}
+                  className="w-full h-full object-cover"
+                />
+                <span
+                  className="absolute -top-1.5 -right-1.5 size-5 bg-[#6A6A6A] text-white text-[9px] rounded-full flex items-center justify-center"
+                  aria-label={t('sidebar.quantityAriaLabel', { count: item.quantity })}
+                >
+                  {item.quantity}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[#1A1A1A] text-xs truncate">{item.productName}</p>
+                {(item.sizeName || item.shapeName) && (
+                  <p className="text-[#9A9A9A] text-[10px]">
+                    {[item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
+                  </p>
+                )}
+                {item.adjustment > 0 && (
+                  <p className="text-[#8A7A6A] text-[10px]">
+                    +{fmt(item.adjustment)} {t('sidebar.shapeAdjustment')}
+                  </p>
+                )}
+              </div>
+              <div className="flex-shrink-0 text-right">
+                {isOnSale && (
+                  <p className="text-[#9A9A9A] text-[10px] line-through">{fmt(originalLineTotal)}</p>
+                )}
+                <p className="text-[#1A1A1A] text-xs">{fmt(item.lineTotal)}</p>
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       {/* Coupon input */}
@@ -169,6 +190,24 @@ export function CheckoutSidebar({
 
       <div className="border-t border-[#F0F0F0] pt-4 space-y-2">
         <SidebarRow label={t('sidebar.subtotal')} value={fmt(subtotal)} />
+        {(() => {
+          const productSavings = items.reduce((sum, item) => {
+            const isItemOnSale =
+              item.salePrice !== null && item.salePrice < item.basePrice && item.salePrice > 0;
+            if (isItemOnSale) {
+              const computedPriceForItem = item.basePrice + item.adjustment;
+              return sum + (computedPriceForItem - item.price) * item.quantity;
+            }
+            return sum;
+          }, 0);
+          return productSavings > 0 ? (
+            <SidebarRow
+              label={t('sidebar.productSavings')}
+              value={`-${fmt(productSavings)}`}
+              valueClass="text-[#4A7A5A]"
+            />
+          ) : null;
+        })()}
         {discountAmount > 0 && (
           <SidebarRow
             label={t('sidebar.discount')}

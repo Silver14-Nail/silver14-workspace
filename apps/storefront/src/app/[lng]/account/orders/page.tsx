@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { Package, ArrowRight, ChevronLeft, User } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { useAppSelector } from '@/store/hooks';
@@ -32,8 +30,6 @@ function StatusBadge({ status, label }: { status: string; label: string }) {
 }
 
 export default function AccountOrdersPage() {
-  const params = useParams<{ lng?: string }>();
-  const lng = params.lng ?? 'en';
   const { t } = useT('account');
   const [page, setPage] = useState(1);
 
@@ -65,13 +61,12 @@ export default function AccountOrdersPage() {
             {t('signInTitle')}
           </h1>
           <p className="text-[#6A6A6A] text-sm mb-6">{t('guestDescription')}</p>
-          <Link
-            href={`/${lng}/account`}
-            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.12em' }}
+          <LinkBase
+            href="/account"
+            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#333] transition-colors"
           >
             {t('signIn')} <ArrowRight className="size-3.5" />
-          </Link>
+          </LinkBase>
         </div>
       </div>
     );
@@ -191,12 +186,12 @@ export default function AccountOrdersPage() {
                           <StatusBadge status={order.status} label={statusLabel(order.status)} />
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <Link
-                            href={`/${lng}/account/orders/${order.id}`}
+                          <LinkBase
+                            href={`/account/orders/${order.id}`}
                             className="text-[#1A1A1A] text-xs hover:underline inline-flex items-center gap-1"
                           >
                             View <ArrowRight className="size-3" />
-                          </Link>
+                          </LinkBase>
                         </td>
                       </tr>
                     ))}
@@ -207,9 +202,9 @@ export default function AccountOrdersPage() {
               {/* Mobile cards */}
               <div className="md:hidden divide-y divide-[#F0F0F0]">
                 {ordersData.items.map((order) => (
-                  <Link
+                  <LinkBase
                     key={order.id}
-                    href={`/${lng}/account/orders/${order.id}`}
+                    href={`/account/orders/${order.id}`}
                     className="block p-4 hover:bg-[#FAFAFA] transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
@@ -229,7 +224,7 @@ export default function AccountOrdersPage() {
                         {order.itemCount} {t('orders.itemCount').toLowerCase()}
                       </span>
                     </div>
-                  </Link>
+                  </LinkBase>
                 ))}
               </div>
 

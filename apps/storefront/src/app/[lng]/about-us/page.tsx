@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { Heart, Sparkles, Users, Award } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 
@@ -188,21 +188,19 @@ export default function AboutPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
+          <LinkBase
             href="/products"
-            className="inline-flex items-center justify-center bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.15em' }}
+            className="inline-flex items-center justify-center bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors"
           >
             {t('contact.shopButton')}
-          </Link>
+          </LinkBase>
 
-          <Link
+          <LinkBase
             href="/contact"
-            className="inline-flex items-center justify-center border border-[#E0E0E0] text-[#1A1A1A] px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#F5F5F5] transition-colors"
-            style={{ letterSpacing: '0.15em' }}
+            className="inline-flex items-center justify-center border border-[#E0E0E0] text-[#1A1A1A] px-8 py-3.5 text-xs uppercase tracking-[0.15em] hover:bg-[#F5F5F5] transition-colors"
           >
             {t('contact.contactButton')}
-          </Link>
+          </LinkBase>
         </div>
       </section>
     </div>

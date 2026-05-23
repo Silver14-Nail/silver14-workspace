@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 
@@ -19,13 +19,12 @@ export function EmptyCart() {
           {t('empty.heading')}
         </h1>
         <p className="text-[#8A8A8A] text-sm mb-8">{t('empty.description')}</p>
-        <Link
+        <LinkBase
           href="/products"
-          className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-          style={{ letterSpacing: '0.15em' }}
+          className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors"
         >
           {t('empty.cta')} <ArrowRight className="size-3.5" />
-        </Link>
+        </LinkBase>
       </div>
     </div>
   );

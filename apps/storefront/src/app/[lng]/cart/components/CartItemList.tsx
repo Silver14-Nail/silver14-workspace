@@ -84,6 +84,11 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
               {[item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
             </p>
           )}
+          {item.adjustment > 0 && (
+            <p className="text-[#8A7A6A] text-xs mt-0.5">
+              +{format(item.adjustment)} {t('item.shapeAdjustment')}
+            </p>
+          )}
           {isOnSale && <p className="text-[#C0392B] text-xs mt-0.5">Sale</p>}
           <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">{format(item.lineTotal)}</p>
         </div>
@@ -118,7 +123,7 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
         <span className="text-[#1A1A1A] text-sm">{format(item.lineTotal)}</span>
         {isOnSale && (
           <span className="text-[#9A9A9A] text-xs line-through">
-            {format(item.basePrice * item.quantity)}
+            {format((item.basePrice + item.adjustment) * item.quantity)}
           </span>
         )}
       </div>

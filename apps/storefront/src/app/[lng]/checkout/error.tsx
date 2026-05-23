@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { logger } from '../../../lib/logger';
 
 export default function CheckoutError({
@@ -31,12 +31,12 @@ export default function CheckoutError({
         >
           Try again
         </button>
-        <Link
+        <LinkBase
           href="/cart"
           className="px-5 py-2 border border-gray-300 text-sm rounded hover:bg-gray-50 transition-colors"
         >
           Back to cart
-        </Link>
+        </LinkBase>
       </div>
     </div>
   );

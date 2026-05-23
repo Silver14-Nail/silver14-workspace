@@ -119,7 +119,7 @@ export class ClientCheckoutService {
     });
 
     if (!session) throw new NotFoundException('Checkout session not found');
-    return this.withTotals(session);
+    return await this.withTotals(session);
   }
 
   async updateContact(sessionId: string, dto: UpdateContactDto) {
@@ -243,7 +243,7 @@ export class ClientCheckoutService {
     session.discountAmount = discountAmountUSD;
 
     const saved = await this.sessionRepo.save(session);
-    return this.withTotals(saved);
+    return await this.withTotals(saved);
   }
 
   async removeCoupon(sessionId: string) {
@@ -253,7 +253,7 @@ export class ClientCheckoutService {
     session.discountAmount = 0;
 
     const saved = await this.sessionRepo.save(session);
-    return this.withTotals(saved);
+    return await this.withTotals(saved);
   }
 
   async getSessionOrder(
@@ -370,16 +370,29 @@ export class ClientCheckoutService {
   }
 
   private async calculateSubtotalUSD(session: CheckoutSessionEntity): Promise<number> {
-    const cart = await this.cartRepo.findOne({
-      where: { id: session.cart.id },
-      relations: ['items', 'items.variant'],
-    });
-    return (
-      cart?.items.reduce(
-        (sum, item) => sum + Number(item.variant.computedPrice) * item.quantity,
-        0,
-      ) ?? 0
+    return (await this.loadCartItemsWithProduct(session.cart.id)).reduce(
+      (sum, item) => sum + this.effectiveUnitPrice(item.variant) * item.quantity,
+      0,
     );
+  }
+
+  private async loadCartItemsWithProduct(cartId: string) {
+    const cart = await this.cartRepo.findOne({
+      where: { id: cartId },
+      relations: ['items', 'items.variant', 'items.variant.product'],
+    });
+    return cart?.items ?? [];
+  }
+
+  /** Apply sale ratio to computedPrice — mirrors the frontend adaptCartItem logic. */
+  private effectiveUnitPrice(variant: { computedPrice: number | string; product?: { basePrice: number | string; salePrice: number | string | null } | null }): number {
+    const computed = Number(variant.computedPrice);
+    const base = Number(variant.product?.basePrice ?? 0);
+    const sale = variant.product?.salePrice != null ? Number(variant.product.salePrice) : null;
+    if (sale !== null && sale < base && base > 0) {
+      return computed * (sale / base);
+    }
+    return computed;
   }
 
   private computeDiscount(coupon: CouponEntity, subtotalUSD: number): number {
@@ -396,12 +409,16 @@ export class ClientCheckoutService {
     return 0;
   }
 
-  private withTotals(session: CheckoutSessionEntity) {
-    const items = session.cart?.items ?? [];
+  private async withTotals(session: CheckoutSessionEntity) {
+    // Explicitly reload cart items with product relations.
+    // TypeORM does not reliably populate variant.product when traversing 4+ levels deep
+    // on a @OneToOne relation, causing effectiveUnitPrice to fall back to computedPrice.
+    const cartId = session.cart?.id;
+    const loadedItems = cartId ? await this.loadCartItemsWithProduct(cartId) : [];
 
-    // All DB amounts are in USD
-    const subtotalUSD = items.reduce(
-      (sum, item) => sum + Number(item.variant?.computedPrice ?? 0) * item.quantity,
+    // All DB amounts are in USD; apply sale ratio so computedPrice reflects actual charge
+    const subtotalUSD = loadedItems.reduce(
+      (sum, item) => sum + this.effectiveUnitPrice(item.variant) * item.quantity,
       0,
     );
     const shippingFeeUSD = session.shippingSnapshot

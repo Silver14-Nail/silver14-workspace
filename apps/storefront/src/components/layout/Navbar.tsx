@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LinkBase, Link } from '@/components/shared/LinkBase';
-import { usePathname } from 'next/navigation';
+import { LinkBase } from '@/components/shared/LinkBase';
+import { usePathname, useRouter } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import {
   ChevronDown,
@@ -52,6 +52,7 @@ export function Navbar({ initialCollections = [] }: NavbarProps) {
   const { status, user } = useCustomerAuth();
 
   const pathname = usePathname();
+  const router = useRouter();
 
   const announcementsResult = t('promotions', { returnObjects: true });
   const announcements = Array.isArray(announcementsResult) ? announcementsResult : [];
@@ -78,7 +79,8 @@ export function Navbar({ initialCollections = [] }: NavbarProps) {
     event.preventDefault();
 
     if (searchQuery.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`;
+      const lng = pathname.split('/')[1] ?? 'en';
+      router.push(`/${lng}/products?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -135,18 +137,12 @@ export function Navbar({ initialCollections = [] }: NavbarProps) {
           </div>
 
           {/* Logo */}
-          <Link
+          <LinkBase
             href="/"
-            className="text-center text-[#1A1A1A]"
-            style={{
-              fontSize: '1.6rem',
-              fontWeight: 400,
-              letterSpacing: '0.02em',
-              lineHeight: 1,
-            }}
+            className="text-center text-[#1A1A1A] text-[1.6rem] font-normal tracking-[0.02em] leading-none"
           >
             Silver14 Nail
-          </Link>
+          </LinkBase>
 
           {/* Right */}
           <div className="flex items-center justify-end gap-2 md:gap-4">

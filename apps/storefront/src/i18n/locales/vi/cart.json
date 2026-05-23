@@ -12,7 +12,8 @@
     "total": "Tổng"
   },
   "item": {
-    "remove": "Xóa sản phẩm"
+    "remove": "Xóa sản phẩm",
+    "shapeAdjustment": "phụ phí hình dạng"
   },
   "quantity": {
     "decrease": "Giảm số lượng",

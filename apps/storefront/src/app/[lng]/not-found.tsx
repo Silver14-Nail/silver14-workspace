@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 
 // Triggered by notFound() calls or unmatched routes within a locale segment.
 export default function LocaleNotFound() {
@@ -9,12 +9,12 @@ export default function LocaleNotFound() {
       <p className="text-gray-500 text-sm mb-8">
         The page you are looking for does not exist or has been moved.
       </p>
-      <Link
+      <LinkBase
         href="/"
         className="px-6 py-2 bg-black text-white text-sm rounded hover:bg-gray-800 transition-colors"
       >
         Back to home
-      </Link>
+      </LinkBase>
     </main>
   );
 }

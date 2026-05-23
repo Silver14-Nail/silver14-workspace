@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useT } from 'next-i18next/client';
@@ -79,20 +79,18 @@ export function ConfirmationStep({ orderId, firstName, email, phone }: Confirmat
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link
+          <LinkBase
             href="/order/tracking"
-            className="inline-flex items-center justify-center gap-2 border border-[#1A1A1A] text-[#1A1A1A] px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#1A1A1A] hover:text-white transition-all"
-            style={{ letterSpacing: '0.12em' }}
+            className="inline-flex items-center justify-center gap-2 border border-[#1A1A1A] text-[#1A1A1A] px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#1A1A1A] hover:text-white transition-all"
           >
             {t('confirmation.trackOrder')}
-          </Link>
-          <Link
+          </LinkBase>
+          <LinkBase
             href="/products"
-            className="inline-flex items-center justify-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.12em' }}
+            className="inline-flex items-center justify-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#333] transition-colors"
           >
             {t('confirmation.continueShopping')}
-          </Link>
+          </LinkBase>
         </div>
       </div>
     </motion.div>

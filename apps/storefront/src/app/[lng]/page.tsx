@@ -44,7 +44,6 @@ export default async function HomePage({ params }: { params: Promise<{ lng: stri
       newArrivals={newArrivals}
       bestSellers={bestSellers}
       strings={strings}
-      lng={lng}
     />
   );
 }

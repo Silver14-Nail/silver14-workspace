@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { LinkBase } from './LinkBase';
 import { ShoppingBag, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@source/ui';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
@@ -82,15 +82,14 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
         </div>
 
         <div className="flex flex-col gap-3">
-          <Link
+          <LinkBase
             href="/cart"
             onClick={() => onOpenChange(false)}
-            className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-3 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.15em' }}
+            className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-3 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors"
           >
             <ShoppingBag className="size-4" />
             View Bag & Checkout
-          </Link>
+          </LinkBase>
           <button
             onClick={() => onOpenChange(false)}
             className="w-full border border-[#E0E0E0] text-[#1A1A1A] py-3 text-xs uppercase tracking-widest hover:bg-[#F5F5F5] transition-colors"

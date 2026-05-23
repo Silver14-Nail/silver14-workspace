@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { Building2, Star, CreditCard, ArrowRight, Package, ChevronLeft } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
 import {
@@ -57,8 +56,6 @@ function TierBadge({ name }: { name: string }) {
 }
 
 export default function WholesaleAccountPage() {
-  const params = useParams<{ lng?: string }>();
-  const lng = params.lng ?? 'en';
   const [page, setPage] = useState(1);
 
   const { status: authStatus } = useAppSelector((s) => s.auth);
@@ -96,13 +93,12 @@ export default function WholesaleAccountPage() {
           <p className="text-[#6A6A6A] text-sm mb-6">
             Please sign in to access your wholesale account dashboard.
           </p>
-          <Link
-            href={`/${lng}/auth/login`}
-            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.12em' }}
+          <LinkBase
+            href="/auth/login"
+            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#333] transition-colors"
           >
             Sign In <ArrowRight className="size-3.5" />
-          </Link>
+          </LinkBase>
         </div>
       </div>
     );
@@ -137,13 +133,12 @@ export default function WholesaleAccountPage() {
             You don't have an active wholesale account. Submit an enquiry to start your B2B
             partnership with Silver14 Nail.
           </p>
-          <Link
-            href={`/${lng}/wholesales`}
-            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.12em' }}
+          <LinkBase
+            href="/wholesales"
+            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#333] transition-colors"
           >
             Apply Now <ArrowRight className="size-3.5" />
-          </Link>
+          </LinkBase>
         </div>
       </div>
     );
@@ -158,13 +153,13 @@ export default function WholesaleAccountPage() {
     <div className="min-h-screen pt-16 md:pt-20 bg-[#FAFAFA]">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Back link */}
-        <Link
-          href={`/${lng}/wholesales`}
+        <LinkBase
+          href="/wholesales"
           className="inline-flex items-center gap-1.5 text-[#9A9A9A] text-xs mb-8 hover:text-[#1A1A1A] transition-colors"
         >
           <ChevronLeft className="size-3.5" aria-hidden />
           Wholesale Programme
-        </Link>
+        </LinkBase>
 
         <h1
           className="text-[#1A1A1A] mb-8"
@@ -312,12 +307,12 @@ export default function WholesaleAccountPage() {
           ) : !ordersData?.items.length ? (
             <div className="p-12 text-center">
               <p className="text-[#9A9A9A] text-sm">No orders yet.</p>
-              <Link
-                href={`/${lng}/products`}
+              <LinkBase
+                href="/products"
                 className="inline-flex items-center gap-1.5 text-[#1A1A1A] text-xs mt-4 hover:underline"
               >
                 Browse collections <ArrowRight className="size-3.5" />
-              </Link>
+              </LinkBase>
             </div>
           ) : (
             <>

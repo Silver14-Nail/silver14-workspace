@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { AnimatePresence, motion } from 'motion/react';
 import { useT } from 'next-i18next/client';
 import { useCheckout } from './hooks/useCheckout';
@@ -59,18 +59,12 @@ export default function CheckoutPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Brand */}
         <div className="text-center mb-8">
-          <Link
+          <LinkBase
             href="/"
-            className="text-[#1A1A1A]"
-            style={{
-              fontWeight: 400,
-              fontSize: '1.9rem',
-              letterSpacing: '0.02em',
-              lineHeight: 1,
-            }}
+            className="text-[#1A1A1A] font-normal text-[1.9rem] tracking-[0.02em] leading-none"
           >
             {t('brand')}
-          </Link>
+          </LinkBase>
         </div>
 
         <StepIndicator current={step} />

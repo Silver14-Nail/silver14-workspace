@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { ChevronRight, Package } from 'lucide-react';
 import {
   getCollectionBySlug,
@@ -18,7 +18,7 @@ interface CollectionPageProps {
 }
 
 export default async function CollectionPage({ params, searchParams }: CollectionPageProps) {
-  const { lng, slug } = await params;
+  const { slug } = await params;
   const { page: pageStr, sortBy } = await searchParams;
   const page = pageStr ? parseInt(pageStr, 10) : 1;
   const currentSort = sortBy ?? 'newest';
@@ -61,9 +61,9 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         <div className="bg-[#F8F8F8] py-10 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <nav className="flex items-center gap-1.5 text-xs text-[#9A9A9A] mb-4">
-              <Link href={`/${lng}`} className="hover:text-[#1A1A1A] transition">Home</Link>
+              <LinkBase href="/" className="hover:text-[#1A1A1A] transition">Home</LinkBase>
               <ChevronRight className="size-3" />
-              <Link href={`/${lng}/collections`} className="hover:text-[#1A1A1A] transition">Collections</Link>
+              <LinkBase href="/collections" className="hover:text-[#1A1A1A] transition">Collections</LinkBase>
               <ChevronRight className="size-3" />
               <span className="text-[#1A1A1A]">{collection.name}</span>
             </nav>
@@ -80,9 +80,9 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         {collection.bannerImage && (
           <div className="mb-6">
             <nav className="flex items-center gap-1.5 text-xs text-[#9A9A9A] mb-3">
-              <Link href={`/${lng}`} className="hover:text-[#1A1A1A] transition">Home</Link>
+              <LinkBase href="/" className="hover:text-[#1A1A1A] transition">Home</LinkBase>
               <ChevronRight className="size-3" />
-              <Link href={`/${lng}/collections`} className="hover:text-[#1A1A1A] transition">Collections</Link>
+              <LinkBase href="/collections" className="hover:text-[#1A1A1A] transition">Collections</LinkBase>
               <ChevronRight className="size-3" />
               <span className="text-[#1A1A1A]">{collection.name}</span>
             </nav>
@@ -104,9 +104,9 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {products.map((product) => (
-              <Link
+              <LinkBase
                 key={product.id}
-                href={`/${lng}/products/${product.slug || product.id}`}
+                href={`/products/${product.slug || product.id}`}
                 className="group block"
               >
                 <div className="aspect-square overflow-hidden bg-[#F8F8F8] relative">
@@ -139,7 +139,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
                     />
                   </div>
                 </div>
-              </Link>
+              </LinkBase>
             ))}
           </div>
         )}
@@ -148,17 +148,17 @@ export default async function CollectionPage({ params, searchParams }: Collectio
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-12">
             {page > 1 && (
-              <Link
-                href={`/${lng}/collections/${slug}?page=${page - 1}&sortBy=${currentSort}`}
+              <LinkBase
+                href={`/collections/${slug}?page=${page - 1}&sortBy=${currentSort}`}
                 className="px-4 py-2 border border-[#E5E5E5] text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#1A1A1A] transition"
               >
                 Previous
-              </Link>
+              </LinkBase>
             )}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <Link
+              <LinkBase
                 key={p}
-                href={`/${lng}/collections/${slug}?page=${p}&sortBy=${currentSort}`}
+                href={`/collections/${slug}?page=${p}&sortBy=${currentSort}`}
                 className={`px-4 py-2 text-xs font-semibold uppercase tracking-[0.1em] border transition ${
                   p === page
                     ? 'border-[#1A1A1A] bg-[#1A1A1A] text-white'
@@ -166,15 +166,15 @@ export default async function CollectionPage({ params, searchParams }: Collectio
                 }`}
               >
                 {p}
-              </Link>
+              </LinkBase>
             ))}
             {page < totalPages && (
-              <Link
-                href={`/${lng}/collections/${slug}?page=${page + 1}&sortBy=${currentSort}`}
+              <LinkBase
+                href={`/collections/${slug}?page=${page + 1}&sortBy=${currentSort}`}
                 className="px-4 py-2 border border-[#E5E5E5] text-xs font-semibold uppercase tracking-[0.1em] hover:border-[#1A1A1A] transition"
               >
                 Next
-              </Link>
+              </LinkBase>
             )}
           </div>
         )}

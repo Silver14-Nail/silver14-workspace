@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { useT } from 'next-i18next/client';
 import { useCart } from '@/hooks/useCart';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -12,7 +12,6 @@ import { DiscountInput } from './DiscountInput';
 
 export function OrderSummary() {
   const { t } = useT('cart');
-  const router = useRouter();
   const { cartId, subtotal } = useCart();
   const { format } = useCurrency();
 
@@ -79,13 +78,12 @@ export function OrderSummary() {
         </div>
       </div>
 
-      <button
-        onClick={() => router.push('/checkout')}
-        className="w-full bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors flex items-center justify-center gap-2"
-        style={{ letterSpacing: '0.15em' }}
+      <LinkBase
+        href="/checkout"
+        className="w-full bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors flex items-center justify-center gap-2"
       >
         {t('checkout.cta')} <ArrowRight className="size-4" />
-      </button>
+      </LinkBase>
 
       <p className="text-[#9A9A9A] text-xs text-center mt-4">{t('checkout.secure')}</p>
 
