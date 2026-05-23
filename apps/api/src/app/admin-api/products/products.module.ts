@@ -7,6 +7,7 @@ import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
 import { ProductImageEntity } from '@/db/entities/products/product-image.entity';
 import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
+import { ProductShapePricingEntity } from '@/db/entities/products/product-shape-pricing.entity';
 
 import { ProductsService } from './products.service';
 import {
@@ -29,6 +30,7 @@ import { ColorVariantStrategy } from './strategies/color-variant.strategy';
       NailSizeEntity,
       ProductImageEntity,
       ProductVariantEntity,
+      ProductShapePricingEntity,
     ]),
   ],
   controllers: [

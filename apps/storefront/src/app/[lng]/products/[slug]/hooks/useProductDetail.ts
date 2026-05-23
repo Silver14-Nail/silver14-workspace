@@ -51,13 +51,6 @@ export function useProductDetail() {
     setSelections({ shape: '', size: '', customization: '', quantity: 1 });
   }, [slug]);
 
-  // Auto-select if only one shape available
-  useEffect(() => {
-    if (product?.availableShapes.length === 1) {
-      setSelections((prev) => ({ ...prev, shape: product.availableShapes[0] }));
-    }
-  }, [product]);
-
   // Reset size when shape changes — prevent stale shape+size combos with no variant
   const updateSelection = useCallback(
     <K extends keyof ProductSelections>(key: K, value: ProductSelections[K]) => {
@@ -76,19 +69,7 @@ export function useProductDetail() {
 
   const isCustomSize = selections.size === 'Custom';
 
-  // Sizes available for the currently selected shape.
-  // Regular sizes require in-stock variants; "Custom" is always appended last.
-  const availableSizesForShape = useMemo(() => {
-    if (!product) return [];
-    if (!selections.shape) return product.availableSizes; // includes 'Custom' always
-    const validSizes = new Set(
-      product.variants
-        .filter((v) => v.shapeLabel === selections.shape && v.isAvailable && v.stockQty > 0)
-        .map((v) => v.sizeLabel),
-    );
-    const regular = product.availableSizes.filter((s) => s !== 'Custom' && validSizes.has(s));
-    return [...regular, 'Custom']; // Custom always last
-  }, [product, selections.shape]);
+  const availableSizesForShape = useMemo(() => product?.availableSizes ?? [], [product]);
 
   // Exact variant match for regular sizes; for Custom, fall back to any in-stock
   // variant of the selected shape so the price and variantId are always available.
@@ -99,7 +80,7 @@ export function useProductDetail() {
         product.variants.find(
           (v) => v.shapeLabel === selections.shape && v.sizeLabel === 'Custom',
         ) ??
-        product.variants.find((v) => v.shapeLabel === selections.shape && v.stockQty > 0) ??
+        product.variants.find((v) => v.shapeLabel === selections.shape) ??
         null
       );
     }

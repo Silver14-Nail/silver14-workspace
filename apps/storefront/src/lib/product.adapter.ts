@@ -52,21 +52,19 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
       if (!isNaN(raw)) shapeAdjById.set(sp.shape.id, raw);
     }
   }
-  // Build size label map: sizeId → display label (from available variants only)
+  // Build size label map: sizeId → display label (from all variants)
   const sizeLabelById = new Map<string, string>();
   for (const v of detail.variants) {
-    if (v.isAvailable && v.size && !sizeLabelById.has(v.size.id)) {
+    if (v.size && !sizeLabelById.has(v.size.id)) {
       sizeLabelById.set(v.size.id, sizeLabel(v.size));
     }
   }
-  // "Custom" is always offered (made-to-order) — append if not already present from variants
-  const sizeValues = [...sizeLabelById.values()].filter((s) => s !== 'Custom');
-  const availableSizes = [...sizeValues, 'Custom'];
+  // "Custom" is always offered last (made-to-order)
+  const availableSizes = [...sizeLabelById.values(), 'Custom'];
 
-  // Compute variant price from basePrice + shape adjustment (not the stored computedPrice
-  // which may be stale if the shape adjustment was changed after variants were created)
+  // All variants with a shape and size
   const variants: StorefrontVariant[] = detail.variants
-    .filter((v) => v.isAvailable && v.shape && v.size && shapeLabelById.has(v.shape.id))
+    .filter((v) => v.shape && v.size && shapeLabelById.has(v.shape.id))
     .map((v) => ({
       id: v.id,
       shapeLabel: shapeLabelById.get(v.shape!.id)!,
@@ -76,14 +74,8 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
       isAvailable: v.isAvailable,
     }));
 
-  // Only list shapes that have at least one in-stock regular variant.
-  // Custom is always shown as an extra option for every visible shape.
-  const shapesWithStock = new Set(
-    variants.filter((v) => v.stockQty > 0).map((v) => v.shapeLabel),
-  );
-  const availableShapes = [...shapeLabelById.values()].filter((label) =>
-    shapesWithStock.has(label),
-  );
+  // All active shapes — no stock filter
+  const availableShapes = [...shapeLabelById.values()];
 
   // Map shape label → USD price adjustment (for currency-aware display in components)
   const shapeAdjustments: Record<string, number> = {};

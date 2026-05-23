@@ -33,7 +33,8 @@ import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
 import { ProductImageEntity } from '@/db/entities/products/product-image.entity';
 import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
-import { ProductType } from '@/common/enums/entity.enum';
+import { ProductShapePricingEntity } from '@/db/entities/products/product-shape-pricing.entity';
+import { PriceAdjustmentType, ProductType } from '@/common/enums/entity.enum';
 
 import { PaginationDTO } from '@/common/dtos/pagination';
 
@@ -66,6 +67,8 @@ export class ProductsService {
     private readonly productImageRepo: Repository<ProductImageEntity>,
     @InjectRepository(ProductVariantEntity)
     private readonly productVariantRepo: Repository<ProductVariantEntity>,
+    @InjectRepository(ProductShapePricingEntity)
+    private readonly productShapePricingRepo: Repository<ProductShapePricingEntity>,
     private readonly r2: R2Service,
     private readonly translationService: TranslationService,
     private readonly nailVariantStrategy: NailVariantStrategy,
@@ -177,18 +180,60 @@ export class ProductsService {
 
     const saved = await this.productRepo.save(product);
 
-    // Auto-create a single default variant for non-NAIL products (supply, accessory, tool)
-    if (productType !== ProductType.NAIL) {
-      const defaultVariant = this.productVariantRepo.create({
-        product: saved,
-        shape: null,
-        size: null,
-        computedPrice: dto.salePrice ?? dto.basePrice,
-        sku: dto.sku ?? null,
-        stockQty: dto.stockQty ?? 0,
-        isAvailable: true,
-      });
-      await this.productVariantRepo.save(defaultVariant);
+    if (productType === ProductType.NAIL) {
+      // Auto-create shape pricings + variants for ALL active shapes × ALL sizes
+      const [shapes, sizes] = await Promise.all([
+        this.nailShapeRepo.find({ where: { isActive: true }, order: { name: 'ASC' } }),
+        this.nailSizeRepo.find({ order: { label: 'ASC' } }),
+      ]);
+
+      await this.productShapePricingRepo.save(
+        shapes.map((shape) =>
+          this.productShapePricingRepo.create({
+            product: saved,
+            shape,
+            priceOverride: null,
+            priceAdjustment: null,
+            adjustmentType: null,
+            isEnabled: true,
+          }),
+        ),
+      );
+
+      const basePrice = Number(saved.basePrice);
+      await this.productVariantRepo.save(
+        shapes.flatMap((shape) => {
+          const adjustment =
+            shape.adjustmentType === PriceAdjustmentType.PERCENT
+              ? basePrice * (Number(shape.priceAdjustment) / 100)
+              : Number(shape.priceAdjustment) || 0;
+          const computedPrice = basePrice + adjustment;
+          return sizes.map((size) =>
+            this.productVariantRepo.create({
+              product: saved,
+              shape,
+              size,
+              sku: null,
+              stockQty: 0,
+              computedPrice,
+              isAvailable: false,
+            }),
+          );
+        }),
+      );
+    } else {
+      // Non-NAIL products get a single default variant
+      await this.productVariantRepo.save(
+        this.productVariantRepo.create({
+          product: saved,
+          shape: null,
+          size: null,
+          computedPrice: dto.salePrice ?? dto.basePrice,
+          sku: dto.sku ?? null,
+          stockQty: dto.stockQty ?? 0,
+          isAvailable: (dto.stockQty ?? 0) > 0,
+        }),
+      );
     }
 
     // Fire-and-forget: generate translations asynchronously
@@ -239,7 +284,13 @@ export class ProductsService {
     const saved = await this.productRepo.save(product);
 
     // Sync default variant for non-NAIL products when SKU or stock is provided
-    if (saved.type !== ProductType.NAIL && (dto.sku !== undefined || dto.stockQty !== undefined || dto.salePrice !== undefined || dto.basePrice !== undefined)) {
+    if (
+      saved.type !== ProductType.NAIL &&
+      (dto.sku !== undefined ||
+        dto.stockQty !== undefined ||
+        dto.salePrice !== undefined ||
+        dto.basePrice !== undefined)
+    ) {
       const defaultVariant = await this.productVariantRepo.findOne({
         where: { product: { id: saved.id } },
         order: { createdAt: 'ASC' },
@@ -247,7 +298,9 @@ export class ProductsService {
       if (defaultVariant) {
         if (dto.sku !== undefined) defaultVariant.sku = dto.sku ?? null;
         if (dto.stockQty !== undefined) defaultVariant.stockQty = dto.stockQty;
-        const newBase = dto.basePrice ?? (typeof saved.basePrice === 'string' ? parseFloat(saved.basePrice) : saved.basePrice);
+        const newBase =
+          dto.basePrice ??
+          (typeof saved.basePrice === 'string' ? parseFloat(saved.basePrice) : saved.basePrice);
         const newSale = dto.salePrice !== undefined ? dto.salePrice : saved.salePrice;
         defaultVariant.computedPrice = (newSale != null ? newSale : newBase) as number;
         await this.productVariantRepo.save(defaultVariant);
@@ -255,8 +308,7 @@ export class ProductsService {
     }
 
     // Regenerate translations only if translatable fields changed
-    const needsRegen =
-      dto.name !== undefined || dto.description !== undefined;
+    const needsRegen = dto.name !== undefined || dto.description !== undefined;
     if (needsRegen) {
       this.translationService.generateForProduct(saved).catch(() => undefined);
     }

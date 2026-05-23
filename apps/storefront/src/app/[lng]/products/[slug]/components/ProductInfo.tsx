@@ -143,29 +143,18 @@ export const ProductInfo = memo(function ProductInfo({
 
       {/* Shape selector */}
       <SelectorField label={t('selectors.shape.label')} required>
-        {product.availableShapes.length === 1 ? (
-          <div className="flex gap-2">
-            <button
-              className="px-4 py-2.5 text-xs border border-[#1A1A1A] bg-[#1A1A1A] text-white"
-              aria-pressed
-            >
-              {shapeOptionLabel(product.availableShapes[0], product.shapeAdjustments, format)}
-            </button>
-          </div>
-        ) : (
-          <select
-            value={selections.shape}
-            onChange={(e) => onUpdateSelection('shape', e.target.value)}
-            className="w-full border border-[#E0E0E0] px-4 py-2.5 text-sm text-[#1A1A1A] bg-white outline-none focus:border-[#1A1A1A] transition-colors"
-          >
-            <option value="">{t('selectors.shape.placeholder')}</option>
-            {product.availableShapes.map((s) => (
-              <option key={s} value={s}>
-                {shapeOptionLabel(s, product.shapeAdjustments, format)}
-              </option>
-            ))}
-          </select>
-        )}
+        <select
+          value={selections.shape}
+          onChange={(e) => onUpdateSelection('shape', e.target.value)}
+          className="w-full border border-[#E0E0E0] px-4 py-2.5 text-sm text-[#1A1A1A] bg-white outline-none focus:border-[#1A1A1A] transition-colors"
+        >
+          <option value="">{t('selectors.shape.placeholder')}</option>
+          {product.availableShapes.map((s) => (
+            <option key={s} value={s}>
+              {shapeOptionLabel(s, product.shapeAdjustments, format)}
+            </option>
+          ))}
+        </select>
       </SelectorField>
 
       {/* Size selector */}
