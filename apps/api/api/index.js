@@ -207627,6 +207627,14 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:type", Boolean)
 ], NailShapeEntity.prototype, "isActive", void 0);
 tslib_1.__decorate([
+    (0, typeorm_1.Column)({
+        name: 'sort_order',
+        type: 'int',
+        default: 0,
+    }),
+    tslib_1.__metadata("design:type", Number)
+], NailShapeEntity.prototype, "sortOrder", void 0);
+tslib_1.__decorate([
     (0, typeorm_1.OneToMany)(() => product_shape_pricing_entity_1.ProductShapePricingEntity, (p) => p.shape),
     tslib_1.__metadata("design:type", Array)
 ], NailShapeEntity.prototype, "productPricings", void 0);
@@ -207796,6 +207804,14 @@ tslib_1.__decorate([
     }),
     tslib_1.__metadata("design:type", String)
 ], NailSizeEntity.prototype, "measurements", void 0);
+tslib_1.__decorate([
+    (0, typeorm_1.Column)({
+        name: 'sort_order',
+        type: 'int',
+        default: 0,
+    }),
+    tslib_1.__metadata("design:type", Number)
+], NailSizeEntity.prototype, "sortOrder", void 0);
 tslib_1.__decorate([
     (0, typeorm_1.OneToMany)(() => product_variants_entity_1.ProductVariantEntity, (v) => v.size),
     tslib_1.__metadata("design:type", Array)
@@ -268831,8 +268847,8 @@ let ProductsService = class ProductsService {
         if (productType === entity_enum_1.ProductType.NAIL) {
             // Auto-create shape pricings + variants for ALL active shapes × ALL sizes
             const [shapes, sizes] = await Promise.all([
-                this.nailShapeRepo.find({ where: { isActive: true }, order: { name: 'ASC' } }),
-                this.nailSizeRepo.find({ order: { label: 'ASC' } }),
+                this.nailShapeRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } }),
+                this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } }),
             ]);
             await this.productShapePricingRepo.save(shapes.map((shape) => this.productShapePricingRepo.create({
                 product: saved,
@@ -268959,7 +268975,7 @@ let ProductsService = class ProductsService {
     async listNailShapes(isActive) {
         return this.nailShapeRepo.find({
             where: isActive !== undefined ? { isActive } : {},
-            order: { name: 'ASC' },
+            order: { sortOrder: 'ASC' },
         });
     }
     async getNailShape(id) {
@@ -269009,7 +269025,7 @@ let ProductsService = class ProductsService {
     }
     // ─── Nail Sizes ─────────────────────────────────────────────────────────────
     async listNailSizes() {
-        return this.nailSizeRepo.find({ order: { label: 'ASC' } });
+        return this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } });
     }
     async getNailSize(id) {
         const size = await this.nailSizeRepo.findOneBy({ id });
@@ -297581,6 +297597,15 @@ const nail_shape_entity_1 = __webpack_require__(1745);
 const nail_size_entity_1 = __webpack_require__(1747);
 const translation_constants_1 = __webpack_require__(2105);
 const product_query_dto_1 = __webpack_require__(2393);
+const entity_enum_1 = __webpack_require__(1731);
+function sortVariants(variants) {
+    return [...variants].sort((a, b) => {
+        const shapeDiff = (a.shape?.sortOrder ?? 0) - (b.shape?.sortOrder ?? 0);
+        if (shapeDiff !== 0)
+            return shapeDiff;
+        return (a.size?.sortOrder ?? 0) - (b.size?.sortOrder ?? 0);
+    });
+}
 function applyTranslation(entity, translation) {
     if (!translation)
         return entity;
@@ -297648,9 +297673,8 @@ let ClientProductsService = class ClientProductsService {
         else if (query.filterBy === product_query_dto_1.ProductFilterBy.BEST_SELLER) {
             qb.andWhere('product.isBestSeller = true');
         }
-        if (query.type !== undefined) {
-            qb.andWhere('product.type = :productType', { productType: query.type });
-        }
+        // Default to nail — this endpoint is storefront-facing; supply has its own route
+        qb.andWhere('product.type = :productType', { productType: query.type ?? entity_enum_1.ProductType.NAIL });
         switch (query.sortBy) {
             case product_query_dto_1.ProductSortBy.PRICE_ASC:
                 qb.orderBy('product.basePrice', 'ASC');
@@ -297703,15 +297727,19 @@ let ClientProductsService = class ClientProductsService {
             .where('product.id = :id', { id })
             .andWhere('product.isActive = true')
             .orderBy('images.sortOrder', 'ASC')
-            .addOrderBy('variants.stockQty', 'DESC')
+            .addOrderBy('variantShape.sortOrder', 'ASC')
+            .addOrderBy('variantSize.sortOrder', 'ASC')
             .getOne();
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
         }
         product.shapePricings = product.shapePricings.filter((sp) => sp.isEnabled && sp.shape?.isActive);
-        product.variants = product.variants.filter((v) => !v.deletedAt);
+        product.variants = sortVariants(product.variants.filter((v) => !v.deletedAt));
         const translation = await this.loadTranslation(product.id, locale);
-        return { ...applyTranslation(product, translation), ...computePricing(product.basePrice, product.salePrice) };
+        return {
+            ...applyTranslation(product, translation),
+            ...computePricing(product.basePrice, product.salePrice),
+        };
     }
     async getProductBySlug(slug, locale = translation_constants_1.FALLBACK_LOCALE) {
         const qb = () => this.productRepo
@@ -297723,27 +297751,29 @@ let ClientProductsService = class ClientProductsService {
             .leftJoinAndSelect('variants.shape', 'variantShape')
             .leftJoinAndSelect('variants.size', 'variantSize')
             .andWhere('product.isActive = true')
-            .orderBy('images.sortOrder', 'ASC')
-            .addOrderBy('variants.stockQty', 'DESC');
+            .orderBy('images.sortOrder', 'ASC');
         const product = (await qb().where('product.slug = :slug', { slug }).getOne()) ??
             (await qb().where('product.id = :slug', { slug }).getOne());
         if (!product) {
             throw new common_1.NotFoundException('Product not found');
         }
         product.shapePricings = product.shapePricings.filter((sp) => sp.isEnabled && sp.shape?.isActive);
-        product.variants = product.variants.filter((v) => !v.deletedAt);
+        product.variants = sortVariants(product.variants.filter((v) => !v.deletedAt));
         const translation = await this.loadTranslation(product.id, locale);
-        return { ...applyTranslation(product, translation), ...computePricing(product.basePrice, product.salePrice) };
+        return {
+            ...applyTranslation(product, translation),
+            ...computePricing(product.basePrice, product.salePrice),
+        };
     }
     getShapes() {
         return this.shapeRepo.find({
             where: { isActive: true },
-            order: { name: 'ASC' },
+            order: { sortOrder: 'ASC' },
         });
     }
     getSizes() {
         return this.sizeRepo.find({
-            order: { label: 'ASC' },
+            order: { sortOrder: 'ASC' },
         });
     }
     // ─── Private helpers ──────────────────────────────────────────────────────────

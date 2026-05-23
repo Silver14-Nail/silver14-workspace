@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
+import { getProductDetailAction } from '../products/actions';
 import type { Product, CreateProductPayload, UpdateProductPayload } from '../products/types';
 
 interface SupplyFormDrawerProps {
@@ -37,19 +38,35 @@ export default function SupplyFormDrawer({
   const [isBestSeller, setIsBestSeller] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
+    if (!open) return;
+    setError('');
+
     if (supply) {
       setName(supply.name);
       setDescription(supply.description ?? '');
-      setBasePrice(String(supply.basePrice));
-      setSalePrice(supply.salePrice != null ? String(supply.salePrice) : '');
+      setBasePrice(Number(supply.basePrice).toFixed(2));
+      setSalePrice(supply.salePrice != null ? Number(supply.salePrice).toFixed(2) : '');
       setIsActive(supply.isActive);
       setIsNew(supply.isNew);
       setIsBestSeller(supply.isBestSeller);
-      // Default variant data not on Product, but we can leave blank for edit
       setSku('');
       setStockQty('0');
+
+      // Load full detail to get the default variant's SKU + stock
+      setDetailLoading(true);
+      getProductDetailAction(supply.id).then((result) => {
+        if (result.success) {
+          const variant = result.data.variants[0];
+          if (variant) {
+            setSku(variant.sku ?? '');
+            setStockQty(String(variant.stockQty ?? 0));
+          }
+        }
+        setDetailLoading(false);
+      });
     } else {
       setName('');
       setDescription('');
@@ -61,7 +78,6 @@ export default function SupplyFormDrawer({
       setIsNew(false);
       setIsBestSeller(false);
     }
-    setError('');
   }, [supply, open]);
 
   if (!open) return null;
@@ -87,6 +103,7 @@ export default function SupplyFormDrawer({
       description: description.trim() || undefined,
       basePrice: basePriceNum,
       salePrice: salePriceNum ?? null,
+      currency: 'USD',
       isActive,
       isNew,
       isBestSeller,
@@ -164,52 +181,72 @@ export default function SupplyFormDrawer({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>{t('form.basePrice')} *</label>
-              <input
-                required
-                type="number"
-                step="0.01"
-                min="0"
-                value={basePrice}
-                onChange={(e) => setBasePrice(e.target.value)}
-                placeholder="0.00"
-                className={inputCls}
-              />
+              <label className={labelCls}>{t('form.basePrice')} (USD) *</label>
+              <div className="relative">
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>$</span>
+                <input
+                  required
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={basePrice}
+                  onChange={(e) => setBasePrice(e.target.value)}
+                  placeholder="0.00"
+                  className={inputCls.replace('px-3', 'pl-7 pr-3')}
+                />
+              </div>
             </div>
             <div>
               <label className={labelCls}>{t('form.salePrice')}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={salePrice}
-                onChange={(e) => setSalePrice(e.target.value)}
-                placeholder={t('form.salePricePlaceholder')}
-                className={inputCls}
-              />
+              <div className="relative">
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={salePrice}
+                  onChange={(e) => setSalePrice(e.target.value)}
+                  placeholder={t('form.salePricePlaceholder')}
+                  className={inputCls.replace('px-3', 'pl-7 pr-3')}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>{t('form.sku')}</label>
-              <input
-                value={sku}
-                onChange={(e) => setSku(e.target.value)}
-                placeholder="e.g. SUP-001"
-                className={inputCls}
-              />
+              {detailLoading ? (
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${isDark ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-[#F9FAFB] border-[#E5E7EB] text-[#9CA3AF]'}`}>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <input
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  placeholder="e.g. SUP-001"
+                  className={inputCls}
+                />
+              )}
             </div>
             <div>
               <label className={labelCls}>{t('form.stockQty')}</label>
-              <input
-                type="number"
-                min="0"
-                value={stockQty}
-                onChange={(e) => setStockQty(e.target.value)}
-                placeholder="0"
-                className={inputCls}
-              />
+              {detailLoading ? (
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm ${isDark ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-[#F9FAFB] border-[#E5E7EB] text-[#9CA3AF]'}`}>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <input
+                  type="number"
+                  min="0"
+                  value={stockQty}
+                  onChange={(e) => setStockQty(e.target.value)}
+                  placeholder="0"
+                  className={inputCls}
+                />
+              )}
             </div>
           </div>
 
@@ -244,7 +281,7 @@ export default function SupplyFormDrawer({
           </button>
           <button
             onClick={handleSubmit as any}
-            disabled={loading}
+            disabled={loading || detailLoading}
             className="flex-1 px-4 py-2.5 bg-[#111827] text-white rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}

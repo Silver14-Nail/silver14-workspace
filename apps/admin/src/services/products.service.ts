@@ -26,6 +26,7 @@ export interface ProductListQuery {
   limit?: number;
   search?: string;
   isActive?: boolean;
+  type?: string;
 }
 
 // ─── Products ─────────────────────────────────────────────────────────────────

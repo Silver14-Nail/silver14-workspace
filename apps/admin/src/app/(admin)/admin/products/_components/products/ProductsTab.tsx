@@ -8,6 +8,7 @@ import { CURRENCY_SYMBOLS } from '../../_constants';
 import type { Product, ProductListResponse, ApiNailShape, ApiNailSize } from '../../types';
 import ProductFormDrawer from './ProductFormDrawer';
 import ProductEditDrawer from './ProductEditDrawer';
+import Pagination from '../../../shared/Pagination';
 import { deleteProductAction } from '../../actions';
 
 interface ProductRowProps {
@@ -121,7 +122,7 @@ export default function ProductsTab({
 }: ProductsTabProps) {
   const router = useRouter();
   const { t } = useTranslation('products');
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [search, setSearch] = useState(currentSearch);
   const [showAddDrawer, setShowAddDrawer] = useState(false);
   const [editProductId, setEditProductId] = useState<string | null>(null);
@@ -279,32 +280,19 @@ export default function ProductsTab({
           </div>
         )}
 
-        <div className="px-5 py-3 border-t border-[#E5E7EB] flex items-center justify-between">
-          <p className="text-xs text-[#6B7280]">
-            {t('pagination.showing', { count: items.length, total: pagination.totalItems })}
-          </p>
-          {pagination.totalPages > 1 && (
-            <div className="flex items-center gap-2">
-              <button
-                disabled={currentPage <= 1 || isPending}
-                onClick={() => navigate({ page: currentPage - 1, search: currentSearch })}
-                className="px-3 py-1.5 text-xs rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {t('pagination.prev')}
-              </button>
-              <span className="text-xs text-[#6B7280]">
-                {currentPage} / {pagination.totalPages}
-              </span>
-              <button
-                disabled={currentPage >= pagination.totalPages || isPending}
-                onClick={() => navigate({ page: currentPage + 1, search: currentSearch })}
-                className="px-3 py-1.5 text-xs rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {t('pagination.next')}
-              </button>
-            </div>
-          )}
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalItems={pagination.totalItems}
+          itemsPerPage={currentLimit}
+          onPageChange={(page) => navigate({ page, search: currentSearch })}
+          onItemsPerPageChange={(limit) => {
+            const q = new URLSearchParams();
+            q.set('tab', 'products');
+            if (currentSearch) q.set('search', currentSearch);
+            q.set('limit', String(limit));
+            startTransition(() => router.push(`/admin/products?${q.toString()}`));
+          }}
+        />
       </div>
 
       {showAddDrawer && (
