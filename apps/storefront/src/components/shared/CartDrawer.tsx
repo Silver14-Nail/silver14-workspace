@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, ShoppingBag, Minus, Plus, ArrowRight } from 'lucide-react';
-import { Link } from './LinkBase';
+import { LinkBase } from './LinkBase';
 import { useCart } from '../../hooks/useCart';
 import { useCurrency } from '../../hooks/useCurrency';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
@@ -101,11 +101,16 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       </div>
 
                       {(item.sizeName || item.shapeName) && (
-                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#5A5A5A] mb-3">
+                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-[#5A5A5A] mb-1">
                           {item.sizeName && <span>Size: {item.sizeName}</span>}
                           {item.sizeName && item.shapeName && <span>·</span>}
                           {item.shapeName && <span>Shape: {item.shapeName}</span>}
                         </div>
+                      )}
+                      {item.adjustment > 0 && (
+                        <p className="text-[#8A7A6A] text-[10px] mb-3">
+                          +{format(item.adjustment)} shape surcharge
+                        </p>
                       )}
 
                       <div className="flex items-center justify-between">
@@ -166,15 +171,14 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
 
               <div className="space-y-3">
-                <Link
+                <LinkBase
                   href="/checkout"
                   onClick={onClose}
-                  className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-                  style={{ letterSpacing: '0.15em' }}
+                  className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-3.5 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors"
                 >
                   Checkout
                   <ArrowRight className="size-4" />
-                </Link>
+                </LinkBase>
                 <button
                   onClick={onClose}
                   className="w-full border border-[#E0E0E0] text-[#1A1A1A] py-3 text-xs uppercase tracking-widest hover:bg-[#F5F5F5] transition-colors"

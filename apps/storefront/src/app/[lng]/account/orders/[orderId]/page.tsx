@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
   Package,
@@ -120,8 +119,7 @@ function OrderTimeline({ status }: { status: string }) {
 }
 
 export default function OrderDetailPage() {
-  const params = useParams<{ lng?: string; orderId?: string }>();
-  const lng = params.lng ?? 'en';
+  const params = useParams<{ orderId?: string }>();
   const orderId = params.orderId ?? '';
   const { t } = useT('account');
 
@@ -141,13 +139,12 @@ export default function OrderDetailPage() {
       <div className="min-h-screen pt-16 md:pt-20 flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
           <p className="text-[#6A6A6A] text-sm mb-6">{t('guestDescription')}</p>
-          <Link
-            href={`/${lng}/account`}
-            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.12em' }}
+          <LinkBase
+            href="/account"
+            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#333] transition-colors"
           >
             {t('signIn')} <ArrowRight className="size-3.5" />
-          </Link>
+          </LinkBase>
         </div>
       </div>
     );
@@ -167,13 +164,12 @@ export default function OrderDetailPage() {
             {t('orders.detail.notFound')}
           </h1>
           <p className="text-[#6A6A6A] text-sm mb-6">{t('orders.detail.notFoundDesc')}</p>
-          <Link
-            href={`/${lng}/account/orders`}
-            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-            style={{ letterSpacing: '0.12em' }}
+          <LinkBase
+            href="/account/orders"
+            className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-3.5 text-xs uppercase tracking-[0.12em] hover:bg-[#333] transition-colors"
           >
             {t('orders.title')} <ArrowRight className="size-3.5" />
-          </Link>
+          </LinkBase>
         </div>
       </div>
     );

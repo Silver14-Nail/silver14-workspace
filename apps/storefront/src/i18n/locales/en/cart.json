@@ -15,7 +15,8 @@
   },
 
   "item": {
-    "remove": "Remove item"
+    "remove": "Remove item",
+    "shapeAdjustment": "shape surcharge"
   },
 
   "quantity": {

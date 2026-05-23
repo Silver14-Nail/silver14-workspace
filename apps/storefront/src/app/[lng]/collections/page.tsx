@@ -1,15 +1,9 @@
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { Package } from 'lucide-react';
 import { getCollections } from '../../../features/collections/collections.api';
 import type { StorefrontCollection } from '../../../features/collections/collections.api';
 
-interface CollectionsPageProps {
-  params: Promise<{ lng: string }>;
-}
-
-export default async function CollectionsPage({ params }: CollectionsPageProps) {
-  const { lng } = await params;
-
+export default async function CollectionsPage() {
   let collections: StorefrontCollection[] = [];
   try {
     const result = await getCollections({ limit: 50 });
@@ -36,9 +30,9 @@ export default async function CollectionsPage({ params }: CollectionsPageProps) 
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {collections.map((collection) => (
-              <Link
+              <LinkBase
                 key={collection.id}
-                href={`/${lng}/collections/${collection.slug}`}
+                href={`/collections/${collection.slug}`}
                 className="group block"
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-[#F8F8F8]">
@@ -72,7 +66,7 @@ export default async function CollectionsPage({ params }: CollectionsPageProps) 
                     {collection.productCount} {collection.productCount === 1 ? 'product' : 'products'}
                   </p>
                 </div>
-              </Link>
+              </LinkBase>
             ))}
           </div>
         )}

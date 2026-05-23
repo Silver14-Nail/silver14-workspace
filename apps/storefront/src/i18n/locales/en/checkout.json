@@ -95,6 +95,8 @@
     "couponPlaceholder": "Enter code",
     "couponApply": "Apply",
     "couponRemove": "Remove",
-    "couponApplied": "{{code}} applied"
+    "couponApplied": "{{code}} applied",
+    "productSavings": "Product savings",
+    "shapeAdjustment": "shape surcharge"
   }
 }

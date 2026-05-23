@@ -57,7 +57,7 @@ export default async function RootLayout({
   params: Promise<{ lng: string }>;
 }) {
   const { lng } = await params;
-  const { i18n } = await getT();
+  const { i18n } = await getT('translation', { lng });
   const resources = getResources(i18n);
 
   const cookieStore = await cookies();

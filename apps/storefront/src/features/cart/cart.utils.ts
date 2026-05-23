@@ -15,6 +15,7 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
   const computedPrice = parseFloat(variant.computedPrice);
   const basePrice = parseFloat(product.basePrice);
   const salePrice = product.salePrice != null ? parseFloat(product.salePrice) : null;
+  const adjustment = Math.max(0, computedPrice - basePrice);
 
   // If the product is on sale, apply the discount ratio to the variant's computedPrice
   // computedPrice = basePrice + shape/size adjustments; preserve the same ratio for salePrice
@@ -41,6 +42,7 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
     price: effectivePrice,
     basePrice,
     salePrice,
+    adjustment,
     quantity: item.quantity,
     lineTotal: effectivePrice * item.quantity,
     stockQty: variant.stockQty,

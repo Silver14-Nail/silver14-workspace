@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Check, ArrowRight, Globe, Package, Star } from 'lucide-react';
-import Link from 'next/link';
+import { LinkBase } from '@/components/shared/LinkBase';
 import { useWholesaleEnquiry } from '@/features/wholesale/hooks/useWholesaleEnquiry';
 import { useWholesaleTiers } from '@/features/wholesale/hooks/useWholesaleTiers';
 import { useCurrency } from '@/hooks/useCurrency';
@@ -86,9 +85,6 @@ function InputField({
 }
 
 export default function WholesalePage() {
-  const params = useParams<{ lng?: string }>();
-  const lng = params.lng ?? 'en';
-
   const { submit, isSubmitting, error } = useWholesaleEnquiry();
   const { data: tiers = [] } = useWholesaleTiers();
   const { format } = useCurrency();
@@ -308,13 +304,12 @@ export default function WholesalePage() {
               We've received your wholesale enquiry and will review your request within 2–3 business
               days. Our partnership team will contact you at <strong>{form.email}</strong>.
             </p>
-            <Link
-              href={`/${lng}/products`}
-              className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors"
-              style={{ letterSpacing: '0.15em' }}
+            <LinkBase
+              href="/products"
+              className="inline-flex items-center gap-2 bg-[#1A1A1A] text-white px-8 py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors"
             >
               Browse Our Collections <ArrowRight className="size-3.5" />
-            </Link>
+            </LinkBase>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-8">

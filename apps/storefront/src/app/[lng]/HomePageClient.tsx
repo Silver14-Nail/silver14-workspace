@@ -31,7 +31,6 @@ interface HomePageClientProps {
   newArrivals: StorefrontProduct[];
   bestSellers: StorefrontProduct[];
   strings: HomeStrings;
-  lng: string;
 }
 
 function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
@@ -68,7 +67,6 @@ export function HomePageClient({
   newArrivals,
   bestSellers,
   strings,
-  lng,
 }: HomePageClientProps) {
   const desktopSrc = heroCampaign?.desktopImageUrl ?? '/images/home/main-banner_desktop.svg';
   const mobileSrc = heroCampaign?.mobileImageUrl ?? '/images/home/main-banner_mobile.JPG';
@@ -163,7 +161,7 @@ export function HomePageClient({
       <section className="py-20 max-w-7xl mx-auto px-4">
         <div className="flex justify-between mb-12">
           <SectionTitle eyebrow={strings.newArrivalsEyebrow} title={strings.newArrivalsTitle} />
-          <LinkBase href={`/${lng}/products?filter=new`} className="text-xs uppercase">
+          <LinkBase href="/products?filter=new" className="text-xs uppercase">
             {strings.viewAll}
           </LinkBase>
         </div>
@@ -182,7 +180,7 @@ export function HomePageClient({
       <section className="py-20 max-w-7xl mx-auto px-4">
         <div className="flex justify-between mb-12">
           <SectionTitle eyebrow={strings.bestSellersEyebrow} title={strings.bestSellersTitle} />
-          <LinkBase href={`/${lng}/products?filter=bestseller`} className="text-xs uppercase">
+          <LinkBase href="/products?filter=bestseller" className="text-xs uppercase">
             {strings.viewAll}
           </LinkBase>
         </div>

@@ -41,12 +41,17 @@ export function proxy(request: NextRequest) {
   );
 
   if (pathnameHasLocale) {
-    return NextResponse.next();
+    const detectedLng = pathname.split('/')[1] ?? defaultLocale;
+    const response = NextResponse.next();
+    response.headers.set('x-i18next-current-language', detectedLng);
+    return response;
   }
 
   const url = request.nextUrl.clone();
   url.pathname = `/${defaultLocale}${pathname}`;
-  return NextResponse.rewrite(url);
+  const response = NextResponse.rewrite(url);
+  response.headers.set('x-i18next-current-language', defaultLocale);
+  return response;
 }
 
 export const config = {

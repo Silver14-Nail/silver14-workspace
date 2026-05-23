@@ -33,9 +33,10 @@ export function adaptListItem(item: ApiProductListItem): StorefrontProduct {
 export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
   const base = parseFloat(detail.basePrice);
 
-  // Collect all unique active shapes from variants (always populated)
+  // Collect all unique active shapes from variants, tracking sortOrder for sorting
   const shapeLabelById = new Map<string, string>();
   const shapeAdjById = new Map<string, number>();
+  const shapeSortById = new Map<string, number>();
   for (const v of detail.variants) {
     const s = v.shape;
     if (!s || shapeLabelById.has(s.id)) continue;
@@ -43,6 +44,7 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
     shapeLabelById.set(s.id, shapeLabel(s));
     const raw = parseFloat(s.priceAdjustment ?? '0');
     shapeAdjById.set(s.id, isNaN(raw) ? 0 : raw);
+    shapeSortById.set(s.id, s.sortOrder ?? 999);
   }
 
   // shapePricings can override the price adjustment per product if configured
@@ -52,15 +54,24 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
       if (!isNaN(raw)) shapeAdjById.set(sp.shape.id, raw);
     }
   }
-  // Build size label map: sizeId → display label (from all variants)
-  const sizeLabelById = new Map<string, string>();
+
+  // Build size label map: sizeId → { label, sortOrder } (from all variants)
+  const sizeById = new Map<string, { label: string; sortOrder: number }>();
   for (const v of detail.variants) {
-    if (v.size && !sizeLabelById.has(v.size.id)) {
-      sizeLabelById.set(v.size.id, sizeLabel(v.size));
+    if (v.size && !sizeById.has(v.size.id)) {
+      sizeById.set(v.size.id, {
+        label: sizeLabel(v.size),
+        sortOrder: v.size.sortOrder ?? 999,
+      });
     }
   }
-  // "Custom" is always offered last (made-to-order)
-  const availableSizes = [...sizeLabelById.values(), 'Custom'];
+  const sizeLabelById = new Map<string, string>(
+    [...sizeById.entries()].map(([id, s]) => [id, s.label]),
+  );
+
+  // Sizes sorted by sortOrder; "Custom" is always last (made-to-order)
+  const sortedSizes = [...sizeById.values()].sort((a, b) => a.sortOrder - b.sortOrder);
+  const availableSizes = [...sortedSizes.map((s) => s.label), 'Custom'];
 
   // All variants with a shape and size
   const variants: StorefrontVariant[] = detail.variants
@@ -74,8 +85,10 @@ export function adaptDetail(detail: ApiProductDetail): StorefrontProductDetail {
       isAvailable: v.isAvailable,
     }));
 
-  // All active shapes — no stock filter
-  const availableShapes = [...shapeLabelById.values()];
+  // All active shapes sorted by sortOrder
+  const availableShapes = [...shapeLabelById.entries()]
+    .sort(([aId], [bId]) => (shapeSortById.get(aId) ?? 999) - (shapeSortById.get(bId) ?? 999))
+    .map(([, label]) => label);
 
   // Map shape label → USD price adjustment (for currency-aware display in components)
   const shapeAdjustments: Record<string, number> = {};

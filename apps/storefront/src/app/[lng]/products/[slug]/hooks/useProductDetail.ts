@@ -64,11 +64,22 @@ export function useProductDetail(
 
   const isCustomSize = selections.size === 'Custom';
 
-  const availableSizesForShape = useMemo(() => product?.availableSizes ?? [], [product]);
+  const availableSizesForShape = useMemo(() => {
+    if (!product) return [];
+    if (!selections.shape) return product.availableSizes;
+    const shapeSizeLabels = new Set(
+      product.variants
+        .filter((v) => v.shapeLabel === selections.shape)
+        .map((v) => v.sizeLabel),
+    );
+    return product.availableSizes.filter((s) => s === 'Custom' || shapeSizeLabels.has(s));
+  }, [product, selections.shape]);
 
   const selectedVariant = useMemo(() => {
     if (!product || !selections.shape) return null;
     if (isCustomSize) {
+      // Prefer a dedicated CUSTOM variant; fall back to the first standard variant for
+      // pricing display only — the backend creates a fresh item because isCustomSize=true.
       return (
         product.variants.find(
           (v) => v.shapeLabel === selections.shape && v.sizeLabel === 'Custom',

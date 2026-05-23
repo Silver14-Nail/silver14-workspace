@@ -17,6 +17,7 @@ export interface ApiShape {
   priceAdjustment: string;
   adjustmentType: 'FIXED' | 'PERCENTAGE' | null;
   isActive: boolean;
+  sortOrder?: number;
 }
 
 export interface ApiSize {
@@ -24,6 +25,7 @@ export interface ApiSize {
   label: 'XS' | 'S' | 'M' | 'L' | 'CUSTOM';
   sizeCode: string;
   measurements: string | null;
+  sortOrder?: number;
 }
 
 export interface ApiShapePricing {
@@ -40,7 +42,7 @@ export interface ApiVariant {
   stockQty: number;
   computedPrice: string;
   isAvailable: boolean;
-  shape: Pick<ApiShape, 'id' | 'name' | 'lengthMm' | 'priceAdjustment' | 'isActive'> | null;
+  shape: Pick<ApiShape, 'id' | 'name' | 'lengthMm' | 'priceAdjustment' | 'isActive' | 'sortOrder'> | null;
   size: ApiSize | null;
   colorName: string | null;
   colorHex: string | null;
