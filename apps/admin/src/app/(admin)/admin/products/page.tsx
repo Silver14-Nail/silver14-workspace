@@ -25,7 +25,7 @@ export default async function AdminProductsPage({
   const tab: PageTab = VALID_TABS.has(params.tab ?? '') ? (params.tab as PageTab) : 'products';
 
   const [productsResult, shapesResult, sizesResult] = await Promise.allSettled([
-    listProducts({ page, limit, search: search || undefined }),
+    listProducts({ page, limit, search: search || undefined, type: 'nail' }),
     listNailShapes(),
     listNailSizes(),
   ]);

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Gem, Package } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { Product, ProductType } from '../../types';
+import type { Product } from '../../types';
 import { createProductAction, updateProductAction } from '../../actions';
 
 interface ProductFormDrawerProps {
@@ -11,23 +11,6 @@ interface ProductFormDrawerProps {
   onClose: () => void;
   onSuccess?: () => void;
 }
-
-const CURRENCIES = ['EUR', 'USD', 'GBP'];
-
-const TYPE_OPTIONS: { value: ProductType; icon: React.ReactNode; labelKey: string; descKey: string }[] = [
-  {
-    value: 'nail',
-    icon: <Gem className="w-5 h-5" />,
-    labelKey: 'form.types.nail',
-    descKey: 'form.types.nailDesc',
-  },
-  {
-    value: 'supply',
-    icon: <Package className="w-5 h-5" />,
-    labelKey: 'form.types.supply',
-    descKey: 'form.types.supplyDesc',
-  },
-];
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
@@ -49,23 +32,18 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
   const { t } = useTranslation('products');
   const isEdit = product !== undefined;
 
-  const [productType, setProductType] = useState<ProductType | null>(product?.type ?? null);
   const [name, setName] = useState(product?.name ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [basePrice, setBasePrice] = useState(product ? Number(product.basePrice).toFixed(2) : '');
   const [salePrice, setSalePrice] = useState(
     product?.salePrice != null ? Number(product.salePrice).toFixed(2) : '',
   );
-  const [currency, setCurrency] = useState(product?.currency ?? 'USD');
-  const [sku, setSku] = useState('');
-  const [stockQty, setStockQty] = useState('0');
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
   const [isNew, setIsNew] = useState(product?.isNew ?? false);
   const [isBestSeller, setIsBestSeller] = useState(product?.isBestSeller ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const isSupply = productType === 'supply';
   const salePriceNum = salePrice !== '' ? parseFloat(salePrice) : null;
   const basePriceNum = basePrice !== '' ? parseFloat(basePrice) : 0;
   const salePriceValid =
@@ -76,12 +54,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
       : null;
 
   const canSubmit =
-    (isEdit || productType !== null) &&
-    name.trim() !== '' &&
-    basePrice !== '' &&
-    basePriceNum >= 0 &&
-    salePriceValid &&
-    (!isSupply || stockQty !== '');
+    name.trim() !== '' && basePrice !== '' && basePriceNum >= 0 && salePriceValid;
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -93,12 +66,11 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
       description: description.trim() || undefined,
       basePrice: parseFloat(basePrice),
       salePrice: salePrice !== '' ? parseFloat(salePrice) : null,
-      currency,
+      currency: 'USD',
       isActive,
       isNew,
       isBestSeller,
-      ...(!isEdit && productType ? { type: productType } : {}),
-      ...(isSupply && !isEdit ? { sku: sku.trim() || undefined, stockQty: parseInt(stockQty, 10) } : {}),
+      ...(!isEdit ? { type: 'nail' as const } : {}),
     };
 
     const result = isEdit
@@ -136,49 +108,6 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
             </div>
           )}
 
-          {/* Type selector — create mode only */}
-          {!isEdit && (
-            <div>
-              <label className="block text-xs font-semibold mb-2 text-[#374151]">
-                {t('form.typeLabel')}
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {TYPE_OPTIONS.map((opt) => {
-                  const selected = productType === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setProductType(opt.value)}
-                      className={`flex flex-col gap-1.5 p-4 rounded-xl border-2 text-left transition-all ${
-                        selected
-                          ? 'border-[#111827] bg-[#111827] text-white'
-                          : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#9CA3AF]'
-                      }`}
-                    >
-                      <span className={selected ? 'text-white' : 'text-[#6B7280]'}>{opt.icon}</span>
-                      <span className="text-sm font-semibold">{t(opt.labelKey)}</span>
-                      <span className={`text-xs leading-snug ${selected ? 'text-[#D1D5DB]' : 'text-[#9CA3AF]'}`}>
-                        {t(opt.descKey)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Edit mode: show current type as readonly badge */}
-          {isEdit && product?.type && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#6B7280]">Type:</span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F3F4F6] text-[#374151]">
-                {product.type === 'nail' ? <Gem className="w-3 h-3" /> : <Package className="w-3 h-3" />}
-                {t(`form.types.${product.type}`)}
-              </span>
-            </div>
-          )}
-
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-[#374151]">{t('form.name')}</label>
             <input
@@ -205,89 +134,49 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                {t('form.basePrice')}
+                {t('form.basePrice')} *
               </label>
-              <input
-                value={basePrice}
-                onChange={(e) => setBasePrice(e.target.value)}
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6B7280]">$</span>
+                <input
+                  value={basePrice}
+                  onChange={(e) => setBasePrice(e.target.value)}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  className="w-full pl-7 pr-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                {t('form.currency')}
+                {t('form.salePrice')}
               </label>
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-              {t('form.salePrice')}
-            </label>
-            <input
-              value={salePrice}
-              onChange={(e) => setSalePrice(e.target.value)}
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder={t('form.salePriceHint')}
-              className={`w-full px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
-                !salePriceValid
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#E5E7EB] focus:border-[#111827]'
-              }`}
-            />
-            {!salePriceValid && (
-              <p className="mt-1 text-xs text-red-500">{t('form.salePriceError')}</p>
-            )}
-            {discountPreview != null && (
-              <p className="mt-1 text-xs text-emerald-600 font-medium">{discountPreview}{t('form.off')}</p>
-            )}
-          </div>
-
-          {/* Supply-only fields: SKU + Stock */}
-          {isSupply && !isEdit && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                  {t('form.sku')}
-                </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6B7280]">$</span>
                 <input
-                  value={sku}
-                  onChange={(e) => setSku(e.target.value)}
-                  placeholder={t('form.skuPlaceholder')}
-                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                  {t('form.stockQty')}
-                </label>
-                <input
-                  value={stockQty}
-                  onChange={(e) => setStockQty(e.target.value)}
+                  value={salePrice}
+                  onChange={(e) => setSalePrice(e.target.value)}
                   type="number"
                   min="0"
-                  step="1"
-                  placeholder="0"
-                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                  step="0.01"
+                  placeholder={t('form.salePriceHint')}
+                  className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
+                    !salePriceValid
+                      ? 'border-red-400 focus:border-red-500'
+                      : 'border-[#E5E7EB] focus:border-[#111827]'
+                  }`}
                 />
               </div>
+              {!salePriceValid && (
+                <p className="mt-1 text-xs text-red-500">{t('form.salePriceError')}</p>
+              )}
+              {discountPreview != null && (
+                <p className="mt-1 text-xs text-emerald-600 font-medium">{discountPreview}{t('form.off')}</p>
+              )}
             </div>
-          )}
+          </div>
 
           <div className="rounded-lg bg-[#F9FAFB] divide-y divide-[#E5E7EB]">
             <div className="flex items-center justify-between p-4">
@@ -313,7 +202,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
             </div>
           </div>
 
-          {!isEdit && productType === 'nail' && (
+          {!isEdit && (
             <p className="text-xs text-[#6B7280] bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg px-3 py-2.5">
               ✦ {t('form.nailVariantHint')}
             </p>

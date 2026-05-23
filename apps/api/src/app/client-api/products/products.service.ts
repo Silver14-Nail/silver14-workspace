@@ -23,15 +23,30 @@ import { ProductTranslationEntity } from '@/db/entities/products/product-transla
 import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
-import { FALLBACK_LOCALE, SUPPORTED_LOCALES } from '@/shared/translation/translation.constants';
+import { FALLBACK_LOCALE } from '@/shared/translation/translation.constants';
 import type { SupportedLocale } from '@/shared/translation/translation.constants';
 
 import { ProductFilterBy, ProductQueryDto, ProductSortBy } from './dto/product-query.dto';
+import { ProductType } from '@/common/enums/entity.enum';
+import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
+
+function sortVariants(variants: ProductVariantEntity[]): ProductVariantEntity[] {
+  return [...variants].sort((a, b) => {
+    const shapeDiff = (a.shape?.sortOrder ?? 0) - (b.shape?.sortOrder ?? 0);
+    if (shapeDiff !== 0) return shapeDiff;
+    return (a.size?.sortOrder ?? 0) - (b.size?.sortOrder ?? 0);
+  });
+}
 
 function applyTranslation<T extends { name: string; description?: string | null }>(
   entity: T,
   translation: ProductTranslationEntity | null,
-): T & { name: string; description?: string | null; seoTitle?: string | null; seoDescription?: string | null } {
+): T & {
+  name: string;
+  description?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+} {
   if (!translation) return entity as any;
   return {
     ...entity,
@@ -120,9 +135,8 @@ export class ClientProductsService {
       qb.andWhere('product.isBestSeller = true');
     }
 
-    if (query.type !== undefined) {
-      qb.andWhere('product.type = :productType', { productType: query.type });
-    }
+    // Default to nail — this endpoint is storefront-facing; supply has its own route
+    qb.andWhere('product.type = :productType', { productType: query.type ?? ProductType.NAIL });
 
     switch (query.sortBy) {
       case ProductSortBy.PRICE_ASC:
@@ -181,7 +195,8 @@ export class ClientProductsService {
       .where('product.id = :id', { id })
       .andWhere('product.isActive = true')
       .orderBy('images.sortOrder', 'ASC')
-      .addOrderBy('variants.stockQty', 'DESC')
+      .addOrderBy('variantShape.sortOrder', 'ASC')
+      .addOrderBy('variantSize.sortOrder', 'ASC')
       .getOne();
 
     if (!product) {
@@ -191,10 +206,13 @@ export class ClientProductsService {
     product.shapePricings = product.shapePricings.filter(
       (sp) => sp.isEnabled && sp.shape?.isActive,
     );
-    product.variants = product.variants.filter((v) => !v.deletedAt);
+    product.variants = sortVariants(product.variants.filter((v) => !v.deletedAt));
 
     const translation = await this.loadTranslation(product.id, locale);
-    return { ...applyTranslation(product, translation), ...computePricing(product.basePrice, product.salePrice) };
+    return {
+      ...applyTranslation(product, translation),
+      ...computePricing(product.basePrice, product.salePrice),
+    };
   }
 
   async getProductBySlug(slug: string, locale: SupportedLocale = FALLBACK_LOCALE) {
@@ -208,8 +226,7 @@ export class ClientProductsService {
         .leftJoinAndSelect('variants.shape', 'variantShape')
         .leftJoinAndSelect('variants.size', 'variantSize')
         .andWhere('product.isActive = true')
-        .orderBy('images.sortOrder', 'ASC')
-        .addOrderBy('variants.stockQty', 'DESC');
+        .orderBy('images.sortOrder', 'ASC');
 
     const product =
       (await qb().where('product.slug = :slug', { slug }).getOne()) ??
@@ -222,10 +239,13 @@ export class ClientProductsService {
     product.shapePricings = product.shapePricings.filter(
       (sp) => sp.isEnabled && sp.shape?.isActive,
     );
-    product.variants = product.variants.filter((v) => !v.deletedAt);
+    product.variants = sortVariants(product.variants.filter((v) => !v.deletedAt));
 
     const translation = await this.loadTranslation(product.id, locale);
-    return { ...applyTranslation(product, translation), ...computePricing(product.basePrice, product.salePrice) };
+    return {
+      ...applyTranslation(product, translation),
+      ...computePricing(product.basePrice, product.salePrice),
+    };
   }
 
   getShapes() {

@@ -32,6 +32,7 @@ import {
   Layers,
   Megaphone,
   Languages,
+  LayoutTemplate,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -47,6 +48,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: 'dashboard', icon: LayoutDashboard, path: '/', enabled: true },
+  { key: 'homepage', icon: LayoutTemplate, path: '/admin/homepage', enabled: true },
   { key: 'users', icon: Users, path: '/admin/users', enabled: true },
   { key: 'products', icon: Package, path: '/admin/products', enabled: true },
   { key: 'supplies', icon: ShoppingCart, path: '/admin/supplies', enabled: true },

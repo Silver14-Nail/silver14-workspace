@@ -19,8 +19,6 @@ interface ProductEditDrawerProps {
   onSuccess: () => void;
 }
 
-const CURRENCIES = ['EUR', 'USD', 'GBP'];
-
 export default function ProductEditDrawer({
   productId,
   shapes,
@@ -39,7 +37,6 @@ export default function ProductEditDrawer({
   const [description, setDescription] = useState('');
   const [basePrice, setBasePrice] = useState('');
   const [salePrice, setSalePrice] = useState('');
-  const [currency, setCurrency] = useState('EUR');
   const [isActive, setIsActive] = useState(true);
   const [isNew, setIsNew] = useState(false);
   const [isBestSeller, setIsBestSeller] = useState(false);
@@ -55,7 +52,6 @@ export default function ProductEditDrawer({
       setDescription(p.description ?? '');
       setBasePrice(Number(p.basePrice).toFixed(2));
       setSalePrice(p.salePrice != null ? Number(p.salePrice).toFixed(2) : '');
-      setCurrency(p.currency);
       setIsActive(p.isActive);
       setIsNew(p.isNew ?? false);
       setIsBestSeller(p.isBestSeller ?? false);
@@ -83,7 +79,7 @@ export default function ProductEditDrawer({
       description: description.trim() || undefined,
       basePrice: parseFloat(basePrice),
       salePrice: salePrice !== '' ? parseFloat(salePrice) : null,
-      currency,
+      currency: 'USD',
       isActive,
       isNew,
       isBestSeller,
@@ -199,11 +195,12 @@ export default function ProductEditDrawer({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                      {t('form.basePrice')}
-                    </label>
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                    {t('form.basePrice')} (USD)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6B7280]">$</span>
                     <input
                       value={basePrice}
                       onChange={(e) => setBasePrice(e.target.value)}
@@ -211,24 +208,8 @@ export default function ProductEditDrawer({
                       min="0"
                       step="0.01"
                       placeholder="0.00"
-                      className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                      className="w-full pl-7 pr-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                      {t('form.currency')}
-                    </label>
-                    <select
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
-                    >
-                      {CURRENCIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
                   </div>
                 </div>
 
@@ -236,19 +217,22 @@ export default function ProductEditDrawer({
                   <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
                     {t('form.salePrice')}
                   </label>
-                  <input
-                    value={salePrice}
-                    onChange={(e) => setSalePrice(e.target.value)}
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder={t('form.salePriceHint')}
-                    className={`w-full px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
-                      !salePriceValid
-                        ? 'border-red-400 focus:border-red-500'
-                        : 'border-[#E5E7EB] focus:border-[#111827]'
-                    }`}
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6B7280]">$</span>
+                    <input
+                      value={salePrice}
+                      onChange={(e) => setSalePrice(e.target.value)}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder={t('form.salePriceHint')}
+                      className={`w-full pl-7 pr-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
+                        !salePriceValid
+                          ? 'border-red-400 focus:border-red-500'
+                          : 'border-[#E5E7EB] focus:border-[#111827]'
+                      }`}
+                    />
+                  </div>
                   {!salePriceValid && (
                     <p className="mt-1 text-xs text-red-500">{t('form.salePriceError')}</p>
                   )}
