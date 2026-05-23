@@ -122,6 +122,8 @@ export function useProductDetail() {
       sizeName: selections.size,
       price: effectivePrice,
       quantity: selections.quantity,
+      previewCartCount: cartCount + selections.quantity,
+      previewSubtotal: subtotal + effectivePrice * selections.quantity,
     };
     setLastAddedItem(preview);
     setShowCartPreview(true);

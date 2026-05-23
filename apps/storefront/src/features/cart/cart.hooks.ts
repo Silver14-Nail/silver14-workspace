@@ -41,8 +41,11 @@ export function useCart() {
       const { accessToken, guestCartId } = getCredentials();
       return cartApi.getCart(accessToken, guestCartId);
     },
-    enabled: authStatus !== 'checking',
+    enabled: typeof window !== 'undefined',
     staleTime: 30_000,
+    // Keep previous data while queryKey changes (e.g. auth resolves → userId changes)
+    // so the cart doesn't flash empty between guest and authenticated states.
+    placeholderData: (prev: ApiCart | null | undefined) => prev,
     select: (data) => (data ? adaptCart(data) : null),
   });
 

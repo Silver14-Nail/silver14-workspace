@@ -73,4 +73,8 @@ export interface CartPreviewItem {
   colorName?: string | null;
   price: number;
   quantity: number;
+  /** Optimistic post-add cart count (computed before mutation resolves) */
+  previewCartCount: number;
+  /** Optimistic post-add subtotal (computed before mutation resolves) */
+  previewSubtotal: number;
 }
