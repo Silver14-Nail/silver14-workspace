@@ -119,6 +119,7 @@ async function get<T>(path: string, locale?: string): Promise<T> {
 
 export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductListResponse> {
   const qs = new URLSearchParams();
+  qs.set('type', 'nail');
   if (params?.page !== undefined) qs.set('page', String(params.page));
   if (params?.limit !== undefined) qs.set('limit', String(params.limit));
   if (params?.search) qs.set('search', params.search);
@@ -130,7 +131,7 @@ export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductLi
   if (params?.filterBy) qs.set('filterBy', params.filterBy);
   const query = qs.toString();
   return get<ApiProductListResponse>(
-    `/client-api/products${query ? `?${query}` : ''}`,
+    `/client-api/products?${query}`,
     params?.locale,
   );
 }

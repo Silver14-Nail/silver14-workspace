@@ -3,7 +3,6 @@ import { ShoppingBag, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@source/ui';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useCurrency } from '../../hooks/useCurrency';
-import { useCart } from '../../hooks/useCart';
 import type { CartPreviewItem } from '../../hooks/useCart';
 
 interface CartPreviewDialogProps {
@@ -14,7 +13,6 @@ interface CartPreviewDialogProps {
 
 export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreviewDialogProps) {
   const { format } = useCurrency();
-  const { cartCount, subtotal } = useCart();
 
   if (!addedItem) return null;
 
@@ -69,7 +67,7 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
         <div className="border-t border-[#F0F0F0] pt-4 pb-4">
           <div className="flex items-center justify-between text-sm mb-1">
             <span className="text-[#5A5A5A]">
-              Cart Total ({cartCount} {cartCount === 1 ? 'item' : 'items'})
+              Cart Total ({addedItem.previewCartCount} {addedItem.previewCartCount === 1 ? 'item' : 'items'})
             </span>
             <span
               className="text-[#1A1A1A]"
@@ -77,7 +75,7 @@ export function CartPreviewDialog({ open, onOpenChange, addedItem }: CartPreview
                 fontSize: '1.1rem',
               }}
             >
-              {format(subtotal)}
+              {format(addedItem.previewSubtotal)}
             </span>
           </div>
           <p className="text-[#9A9A9A] text-xs">Shipping calculated at checkout</p>

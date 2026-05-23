@@ -37,7 +37,7 @@ export function useSupplyDetail(locale?: string): UseSupplyDetailResult {
   const [lastAddedItem, setLastAddedItem] = useState<CartPreviewItem | null>(null);
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
-  const { addItem } = useCart();
+  const { addItem, cartCount, subtotal } = useCart();
 
   useEffect(() => {
     if (!slug) return undefined;
@@ -80,20 +80,24 @@ export function useSupplyDetail(locale?: string): UseSupplyDetailResult {
 
     const thumbnail = supply.images?.find((img) => img.isMain)?.url ?? supply.images?.[0]?.url ?? null;
 
+    const price = parseFloat(selectedVariant.computedPrice);
+    setLastAddedItem({
+      productName: supply.name,
+      thumbnail,
+      shapeName: '',
+      sizeName: '',
+      colorName: selectedVariant.colorName ?? null,
+      price,
+      quantity,
+      previewCartCount: cartCount + quantity,
+      previewSubtotal: subtotal + price * quantity,
+    });
+    setShowCartPreview(true);
+
     try {
       await addItem({ variantId: selectedVariant.id, quantity });
-      setLastAddedItem({
-        productName: supply.name,
-        thumbnail,
-        shapeName: '',
-        sizeName: '',
-        colorName: selectedVariant.colorName ?? null,
-        price: parseFloat(selectedVariant.computedPrice),
-        quantity,
-      });
-      setShowCartPreview(true);
     } catch {
-      // cart hook already surfaces errors via its own state
+      setShowCartPreview(false);
     }
   }, [supply, selectedVariant, inStock, quantity, addItem]);
 

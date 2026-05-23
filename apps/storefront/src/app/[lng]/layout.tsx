@@ -1,5 +1,5 @@
 import { dir } from 'i18next';
-import { Nunito, Noto_Sans_JP } from 'next/font/google';
+import { Unna, Noto_Sans_JP } from 'next/font/google';
 import { cookies } from 'next/headers';
 import Script from 'next/script';
 import {
@@ -22,9 +22,9 @@ import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo'
 import { getCollections } from '../../features/collections/collections.api';
 import '../../styles/index.css';
 
-const nunito = Nunito({
-  subsets: ['latin', 'vietnamese'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+const unna = Unna({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '700'],
   style: ['normal', 'italic'],
   variable: '--font-primary',
   display: 'swap',
@@ -77,7 +77,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={lng} dir={dir(lng)} className={`${nunito.variable} ${notoSansJP.variable}`}>
+    <html lang={lng} dir={dir(lng)} className={`${unna.variable} ${notoSansJP.variable}`}>
       <head />
       <body>
         <script
