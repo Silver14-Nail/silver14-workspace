@@ -1,62 +1,64 @@
-'use client';
+import { fetchProducts } from '@/lib/products.api';
+import { adaptListItem } from '@/lib/product.adapter';
+import { getCollections } from '@/features/collections/collections.api';
+import { ProductsPageClient } from './ProductsPageClient';
+import type { CollectionFilter } from './hooks/useProductFilters';
 
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useT } from 'next-i18next/client';
-import { ProductsHeader, ProductsFilters, ProductsGrid } from './components';
-import { useProductFilters } from './hooks/useProductFilters';
+const REVALIDATE = { next: { revalidate: 60 } } satisfies RequestInit;
+const ALL_COLLECTION: CollectionFilter = { id: 'all', slug: 'all', label: 'All' };
 
-export default function ProductsPage() {
-  const router = useRouter();
-  const routeParams = useParams<{ lng?: string }>();
-  const searchParams = useSearchParams();
-  const { t } = useT('product');
+function mapSortToApiParams(sort: string | null, filter: string | null) {
+  if (filter === 'new') return { filterBy: 'new' };
+  if (filter === 'bestseller') return { filterBy: 'bestseller' };
+  if (sort === 'price-asc') return { sortBy: 'price_asc' };
+  if (sort === 'price-desc') return { sortBy: 'price_desc' };
+  if (sort === 'newest') return { sortBy: 'newest' };
+  if (sort === 'bestseller') return { filterBy: 'bestseller' };
+  return {};
+}
 
-  const lng = routeParams.lng ?? 'en';
+export default async function ProductsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ lng: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { lng } = await params;
+  const sp = await searchParams;
 
-  const {
-    searchQuery,
-    activeCollection,
-    activeCollectionLabel,
-    sortBy,
-    sortOpen,
-    filteredProducts,
-    loading,
-    error,
-    collections,
-    handleCollectionChange,
-    handleSearchChange,
-    handleSortChange,
-    toggleSort,
-    clearFilters,
-  } = useProductFilters({ searchParams, router, lng });
+  const search = typeof sp.search === 'string' ? sp.search : undefined;
+  const collection = typeof sp.collection === 'string' ? sp.collection : undefined;
+  const sort = typeof sp.sort === 'string' ? sp.sort : null;
+  const filter = typeof sp.filter === 'string' ? sp.filter : null;
+
+  const apiSort = mapSortToApiParams(sort, filter);
+
+  const [productsData, collectionsData] = await Promise.all([
+    fetchProducts(
+      {
+        search: search || undefined,
+        collection: collection !== 'all' ? collection : undefined,
+        limit: 100,
+        locale: lng,
+        ...apiSort,
+      },
+      REVALIDATE,
+    ).catch(() => null),
+    getCollections({ limit: 50, locale: lng }).catch(() => null),
+  ]);
+
+  const initialProducts = (productsData?.items ?? []).map(adaptListItem);
+  const initialCollections: CollectionFilter[] = [
+    ALL_COLLECTION,
+    ...(collectionsData?.data ?? []).map((c) => ({ id: c.id, slug: c.slug, label: c.name })),
+  ];
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24">
-      <ProductsHeader activeCollectionLabel={activeCollectionLabel} t={t} />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ProductsFilters
-          COLLECTIONS={collections}
-          activeCollection={activeCollection}
-          onCollectionChange={handleCollectionChange}
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          sortBy={sortBy}
-          sortOpen={sortOpen}
-          onSortToggle={toggleSort}
-          onSortChange={handleSortChange}
-          productCount={filteredProducts.length}
-          t={t}
-        />
-
-        <ProductsGrid
-          products={filteredProducts}
-          loading={loading}
-          error={error}
-          onClearFilters={clearFilters}
-          t={t}
-        />
-      </div>
-    </div>
+    <ProductsPageClient
+      lng={lng}
+      initialProducts={initialProducts}
+      initialCollections={initialCollections}
+    />
   );
 }

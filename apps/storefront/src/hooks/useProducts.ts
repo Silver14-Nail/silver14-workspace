@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { StorefrontProduct } from '@/types/product';
 import { fetchProducts, type ProductQueryParams, type ApiPagination } from '@/lib/products.api';
 import { adaptListItem } from '@/lib/product.adapter';
+
+export interface UseProductsParams extends ProductQueryParams {
+  initialData?: StorefrontProduct[];
+}
 
 export interface UseProductsResult {
   products: StorefrontProduct[];
@@ -10,15 +14,22 @@ export interface UseProductsResult {
   pagination: ApiPagination | null;
 }
 
-export function useProducts(params?: ProductQueryParams): UseProductsResult {
-  const { page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy, locale } = params ?? {};
+export function useProducts(params?: UseProductsParams): UseProductsResult {
+  const { page, limit, search, shapeId, collection, minPrice, maxPrice, sortBy, filterBy, locale, initialData } = params ?? {};
 
-  const [products, setProducts] = useState<StorefrontProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<StorefrontProduct[]>(initialData ?? []);
+  const [loading, setLoading] = useState<boolean>(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<ApiPagination | null>(null);
 
+  const skipFirst = useRef(!!initialData);
+
   useEffect(() => {
+    if (skipFirst.current) {
+      skipFirst.current = false;
+      return undefined;
+    }
+
     let cancelled = false;
     setLoading(true);
     setError(null);

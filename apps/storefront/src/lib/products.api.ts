@@ -109,15 +109,15 @@ export interface ProductQueryParams {
 
 // ─── Fetch helpers ────────────────────────────────────────────────────────────
 
-async function get<T>(path: string, locale?: string): Promise<T> {
+async function get<T>(path: string, locale?: string, init?: RequestInit): Promise<T> {
   const headers: HeadersInit = {};
   if (locale) headers['X-Locale'] = locale;
-  const res = await fetch(`${getBase()}${path}`, { headers });
+  const res = await fetch(`${getBase()}${path}`, { headers, ...init });
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText} — ${path}`);
   return res.json() as Promise<T>;
 }
 
-export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductListResponse> {
+export function fetchProducts(params?: ProductQueryParams, init?: RequestInit): Promise<ApiProductListResponse> {
   const qs = new URLSearchParams();
   qs.set('type', 'nail');
   if (params?.page !== undefined) qs.set('page', String(params.page));
@@ -133,15 +133,16 @@ export function fetchProducts(params?: ProductQueryParams): Promise<ApiProductLi
   return get<ApiProductListResponse>(
     `/client-api/products?${query}`,
     params?.locale,
+    init,
   );
 }
 
-export function fetchProduct(id: string, locale?: string): Promise<ApiProductDetail> {
-  return get<ApiProductDetail>(`/client-api/products/${id}`, locale);
+export function fetchProduct(id: string, locale?: string, init?: RequestInit): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/products/${id}`, locale, init);
 }
 
-export function fetchProductBySlug(slug: string, locale?: string): Promise<ApiProductDetail> {
-  return get<ApiProductDetail>(`/client-api/products/slug/${slug}`, locale);
+export function fetchProductBySlug(slug: string, locale?: string, init?: RequestInit): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/products/slug/${slug}`, locale, init);
 }
 
 export function fetchShapes(): Promise<ApiShape[]> {
@@ -165,7 +166,7 @@ export interface SupplyQueryParams {
   locale?: string;
 }
 
-export function fetchSupplies(params?: SupplyQueryParams): Promise<ApiProductListResponse> {
+export function fetchSupplies(params?: SupplyQueryParams, init?: RequestInit): Promise<ApiProductListResponse> {
   const qs = new URLSearchParams();
   if (params?.page !== undefined) qs.set('page', String(params.page));
   if (params?.limit !== undefined) qs.set('limit', String(params.limit));
@@ -178,9 +179,10 @@ export function fetchSupplies(params?: SupplyQueryParams): Promise<ApiProductLis
   return get<ApiProductListResponse>(
     `/client-api/supplies${query ? `?${query}` : ''}`,
     params?.locale,
+    init,
   );
 }
 
-export function fetchSupplyBySlug(slug: string, locale?: string): Promise<ApiProductDetail> {
-  return get<ApiProductDetail>(`/client-api/supplies/${slug}`, locale);
+export function fetchSupplyBySlug(slug: string, locale?: string, init?: RequestInit): Promise<ApiProductDetail> {
+  return get<ApiProductDetail>(`/client-api/supplies/${slug}`, locale, init);
 }
