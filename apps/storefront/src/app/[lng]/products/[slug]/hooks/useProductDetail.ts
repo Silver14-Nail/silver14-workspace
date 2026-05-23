@@ -18,14 +18,15 @@ function computeEffectivePrice(
 }
 
 export function useProductDetail() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, lng } = useParams<{ slug: string; lng?: string }>();
+  const locale = lng ?? 'en';
   const router = useRouter();
   const { cartCount, subtotal, addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const { product, loading, error } = useProduct(slug ?? '');
+  const { product, loading, error } = useProduct(slug ?? '', locale);
 
-  const { products: allProducts } = useProducts({ limit: 8 });
+  const { products: allProducts } = useProducts({ limit: 8, locale });
   const related = allProducts.filter((p) => p.id !== product?.id).slice(0, 4);
 
   // Gallery

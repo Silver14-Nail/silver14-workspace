@@ -26,7 +26,6 @@ export function middleware(request: NextRequest) {
 
   // ── Public routes ─────────────────────────────────────────────────────────
   if (PUBLIC_PATHS.includes(pathname)) {
-    if (token) return NextResponse.redirect(new URL('/', request.url));
     return NextResponse.next();
   }
 

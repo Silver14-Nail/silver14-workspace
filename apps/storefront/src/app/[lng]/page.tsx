@@ -60,11 +60,13 @@ export default function HomePage() {
   const { products: newArrivals, loading: loadingNew } = useProducts({
     filterBy: 'new',
     limit: 4,
+    locale,
   });
 
   const { products: bestSellers, loading: loadingBest } = useProducts({
     filterBy: 'bestseller',
     limit: 4,
+    locale,
   });
 
   // Hero image sources — prefer campaign images, fall back to static assets

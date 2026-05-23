@@ -17,7 +17,10 @@ export default function AppInitializer({ children }: { children: React.ReactNode
 
   useEffect(() => {
     if (isInitialized && !user) {
-      router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+      // Clear stale cookies (fire-and-forget) then redirect to login
+      fetch('/api/auth/logout', { method: 'POST' }).finally(() => {
+        router.replace(`/login?from=${encodeURIComponent(pathname)}`);
+      });
     }
   }, [isInitialized, user, pathname, router]);
 

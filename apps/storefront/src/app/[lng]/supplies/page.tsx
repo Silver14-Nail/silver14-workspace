@@ -1,12 +1,14 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import { SuppliesHeader, SuppliesGrid } from './components';
 import { useSupplies } from './hooks/useSupplies';
 
 export default function SuppliesPage() {
   const { t } = useT('supplies');
-  const { supplies, loading, pagination } = useSupplies({ limit: 40 });
+  const { lng } = useParams<{ lng?: string }>();
+  const { supplies, loading, pagination } = useSupplies({ limit: 40, locale: lng ?? 'en' });
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">

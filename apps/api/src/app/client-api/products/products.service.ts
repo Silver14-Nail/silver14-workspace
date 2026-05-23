@@ -231,13 +231,13 @@ export class ClientProductsService {
   getShapes() {
     return this.shapeRepo.find({
       where: { isActive: true },
-      order: { name: 'ASC' },
+      order: { sortOrder: 'ASC' },
     });
   }
 
   getSizes() {
     return this.sizeRepo.find({
-      order: { label: 'ASC' },
+      order: { sortOrder: 'ASC' },
     });
   }
 

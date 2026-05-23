@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Gem, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { Product } from '../../types';
+import type { Product, ProductType } from '../../types';
 import { createProductAction, updateProductAction } from '../../actions';
 
 interface ProductFormDrawerProps {
@@ -14,10 +14,42 @@ interface ProductFormDrawerProps {
 
 const CURRENCIES = ['EUR', 'USD', 'GBP'];
 
+const TYPE_OPTIONS: { value: ProductType; icon: React.ReactNode; labelKey: string; descKey: string }[] = [
+  {
+    value: 'nail',
+    icon: <Gem className="w-5 h-5" />,
+    labelKey: 'form.types.nail',
+    descKey: 'form.types.nailDesc',
+  },
+  {
+    value: 'supply',
+    icon: <Package className="w-5 h-5" />,
+    labelKey: 'form.types.supply',
+    descKey: 'form.types.supplyDesc',
+  },
+];
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      className={`relative w-11 h-6 rounded-full transition-colors ${checked ? 'bg-[#111827]' : 'bg-[#D1D5DB]'}`}
+    >
+      <span
+        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+          checked ? 'translate-x-5' : 'translate-x-0.5'
+        }`}
+      />
+    </button>
+  );
+}
+
 export default function ProductFormDrawer({ product, onClose, onSuccess }: ProductFormDrawerProps) {
   const { t } = useTranslation('products');
   const isEdit = product !== undefined;
 
+  const [productType, setProductType] = useState<ProductType | null>(product?.type ?? null);
   const [name, setName] = useState(product?.name ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [basePrice, setBasePrice] = useState(product ? Number(product.basePrice).toFixed(2) : '');
@@ -25,12 +57,15 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
     product?.salePrice != null ? Number(product.salePrice).toFixed(2) : '',
   );
   const [currency, setCurrency] = useState(product?.currency ?? 'USD');
+  const [sku, setSku] = useState('');
+  const [stockQty, setStockQty] = useState('0');
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
   const [isNew, setIsNew] = useState(product?.isNew ?? false);
   const [isBestSeller, setIsBestSeller] = useState(product?.isBestSeller ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const isSupply = productType === 'supply';
   const salePriceNum = salePrice !== '' ? parseFloat(salePrice) : null;
   const basePriceNum = basePrice !== '' ? parseFloat(basePrice) : 0;
   const salePriceValid =
@@ -40,7 +75,13 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
       ? Math.round((1 - salePriceNum / basePriceNum) * 100)
       : null;
 
-  const canSubmit = name.trim() !== '' && basePrice !== '' && basePriceNum >= 0 && salePriceValid;
+  const canSubmit =
+    (isEdit || productType !== null) &&
+    name.trim() !== '' &&
+    basePrice !== '' &&
+    basePriceNum >= 0 &&
+    salePriceValid &&
+    (!isSupply || stockQty !== '');
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -56,6 +97,8 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
       isActive,
       isNew,
       isBestSeller,
+      ...(!isEdit && productType ? { type: productType } : {}),
+      ...(isSupply && !isEdit ? { sku: sku.trim() || undefined, stockQty: parseInt(stockQty, 10) } : {}),
     };
 
     const result = isEdit
@@ -80,10 +123,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
           <h2 className="text-sm font-semibold text-[#111827]">
             {isEdit ? t('form.editTitle') : t('form.addTitle')}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors"
-          >
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors">
             <X className="w-4 h-4 text-[#6B7280]" />
           </button>
         </div>
@@ -93,6 +133,49 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
           {error && (
             <div className="px-3 py-2.5 rounded-lg bg-red-50 text-xs text-red-600 border border-red-100">
               {error}
+            </div>
+          )}
+
+          {/* Type selector — create mode only */}
+          {!isEdit && (
+            <div>
+              <label className="block text-xs font-semibold mb-2 text-[#374151]">
+                {t('form.typeLabel')}
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {TYPE_OPTIONS.map((opt) => {
+                  const selected = productType === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setProductType(opt.value)}
+                      className={`flex flex-col gap-1.5 p-4 rounded-xl border-2 text-left transition-all ${
+                        selected
+                          ? 'border-[#111827] bg-[#111827] text-white'
+                          : 'border-[#E5E7EB] bg-white text-[#374151] hover:border-[#9CA3AF]'
+                      }`}
+                    >
+                      <span className={selected ? 'text-white' : 'text-[#6B7280]'}>{opt.icon}</span>
+                      <span className="text-sm font-semibold">{t(opt.labelKey)}</span>
+                      <span className={`text-xs leading-snug ${selected ? 'text-[#D1D5DB]' : 'text-[#9CA3AF]'}`}>
+                        {t(opt.descKey)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Edit mode: show current type as readonly badge */}
+          {isEdit && product?.type && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#6B7280]">Type:</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#F3F4F6] text-[#374151]">
+                {product.type === 'nail' ? <Gem className="w-3 h-3" /> : <Package className="w-3 h-3" />}
+                {t(`form.types.${product.type}`)}
+              </span>
             </div>
           )}
 
@@ -144,9 +227,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
                 className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
               >
                 {CURRENCIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
+                  <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>
@@ -177,71 +258,64 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
             )}
           </div>
 
+          {/* Supply-only fields: SKU + Stock */}
+          {isSupply && !isEdit && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                  {t('form.sku')}
+                </label>
+                <input
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  placeholder={t('form.skuPlaceholder')}
+                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
+                  {t('form.stockQty')}
+                </label>
+                <input
+                  value={stockQty}
+                  onChange={(e) => setStockQty(e.target.value)}
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                  className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="rounded-lg bg-[#F9FAFB] divide-y divide-[#E5E7EB]">
             <div className="flex items-center justify-between p-4">
               <div>
                 <p className="text-sm font-medium text-[#374151]">{t('form.active')}</p>
                 <p className="text-xs text-[#9CA3AF]">{t('form.activeHint')}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsActive((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
-                  isActive ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                    isActive ? 'translate-x-5' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Toggle checked={isActive} onChange={() => setIsActive((v) => !v)} />
             </div>
-
             <div className="flex items-center justify-between p-4">
               <div>
                 <p className="text-sm font-medium text-[#374151]">{t('form.isNew')}</p>
                 <p className="text-xs text-[#9CA3AF]">{t('form.isNewHint')}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsNew((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
-                  isNew ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                    isNew ? 'translate-x-5' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Toggle checked={isNew} onChange={() => setIsNew((v) => !v)} />
             </div>
-
             <div className="flex items-center justify-between p-4">
               <div>
                 <p className="text-sm font-medium text-[#374151]">{t('form.isBestSeller')}</p>
                 <p className="text-xs text-[#9CA3AF]">{t('form.isBestSellerHint')}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsBestSeller((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${
-                  isBestSeller ? 'bg-[#111827]' : 'bg-[#D1D5DB]'
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                    isBestSeller ? 'translate-x-5' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Toggle checked={isBestSeller} onChange={() => setIsBestSeller((v) => !v)} />
             </div>
           </div>
 
-          {!isEdit && (
-            <p className="text-xs text-[#9CA3AF] bg-[#F9FAFB] rounded-lg px-3 py-2.5">
-              {t('form.variantHint')}
+          {!isEdit && productType === 'nail' && (
+            <p className="text-xs text-[#6B7280] bg-[#F0FDF4] border border-[#BBF7D0] rounded-lg px-3 py-2.5">
+              ✦ {t('form.nailVariantHint')}
             </p>
           )}
         </div>

@@ -64,6 +64,7 @@ const NAIL_SHAPES: {
   sizeTier: ShapeSizeTier;
   priceAdjustment: number;
   adjustmentType: PriceAdjustmentType;
+  sortOrder: number;
 }[] = [
   // ── Short (2.0 cm) ──────────────────────────────────────────────────────────
   {
@@ -72,6 +73,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.STANDARD,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 1,
   },
   {
     name: 'Short Almond',
@@ -79,6 +81,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.STANDARD,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 2,
   },
   {
     name: 'Short Square',
@@ -86,6 +89,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.STANDARD,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 3,
   },
   // ── Medium (2.5 cm) ─────────────────────────────────────────────────────────
   {
@@ -94,6 +98,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.MEDIUM,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 4,
   },
   {
     name: 'Medium Square',
@@ -101,6 +106,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.MEDIUM,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 5,
   },
   {
     name: 'Medium Coffin',
@@ -108,6 +114,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.MEDIUM,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 6,
   },
   // ── Long (2.8 – 3.2 cm) ─────────────────────────────────────────────────────
   {
@@ -116,6 +123,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.LARGE,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 7,
   },
   {
     name: 'Long Coffin',
@@ -123,6 +131,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.LARGE,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 8,
   },
   {
     name: 'Long Square',
@@ -130,6 +139,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.LARGE,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 9,
   },
   {
     name: 'Stiletto',
@@ -137,6 +147,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.LARGE,
     priceAdjustment: 0,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 10,
   },
   // ── XXL (+$10) ───────────────────────────────────────────────────────────────
   {
@@ -145,6 +156,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.XL,
     priceAdjustment: 10,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 11,
   },
   {
     name: 'XXL Coffin',
@@ -152,6 +164,7 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.XL,
     priceAdjustment: 10,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 12,
   },
   {
     name: 'XXL Square',
@@ -159,30 +172,40 @@ const NAIL_SHAPES: {
     sizeTier: ShapeSizeTier.XL,
     priceAdjustment: 10,
     adjustmentType: PriceAdjustmentType.FIXED,
+    sortOrder: 13,
   },
 ];
 
 // Widths per finger: thumb · index · middle · ring · pinky
-const NAIL_SIZES: { label: NailSizeLabel; sizeCode: string; measurements: string }[] = [
+const NAIL_SIZES: {
+  label: NailSizeLabel;
+  sizeCode: string;
+  measurements: string;
+  sortOrder: number;
+}[] = [
   {
     label: NailSizeLabel.XS,
     sizeCode: 'XS',
     measurements: 'thumb: 14mm | index: 10mm | middle: 11mm | ring: 10mm | pinky: 8mm',
+    sortOrder: 1,
   },
   {
     label: NailSizeLabel.S,
     sizeCode: 'S',
     measurements: 'thumb: 15mm | index: 11mm | middle: 12mm | ring: 11mm | pinky: 9mm',
+    sortOrder: 2,
   },
   {
     label: NailSizeLabel.M,
     sizeCode: 'M',
     measurements: 'thumb: 16mm | index: 12mm | middle: 13mm | ring: 12mm | pinky: 10mm',
+    sortOrder: 3,
   },
   {
     label: NailSizeLabel.L,
     sizeCode: 'L',
     measurements: 'thumb: 17mm | index: 13mm | middle: 14mm | ring: 13mm | pinky: 11mm',
+    sortOrder: 4,
   },
 ];
 
@@ -1210,6 +1233,7 @@ async function seedNailShapes(): Promise<Map<string, NailShapeEntity>> {
           priceAdjustment: shape.priceAdjustment,
           adjustmentType: shape.adjustmentType,
           isActive: true,
+          sortOrder: shape.sortOrder,
         }),
       );
       created('NailShape', shape.name);
@@ -1234,6 +1258,7 @@ async function seedNailSizes(): Promise<Map<string, NailSizeEntity>> {
           label: size.label,
           sizeCode: size.sizeCode,
           measurements: size.measurements,
+          sortOrder: size.sortOrder,
         }),
       );
       created('NailSize', size.sizeCode);

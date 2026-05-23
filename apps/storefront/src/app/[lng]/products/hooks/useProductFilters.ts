@@ -70,6 +70,7 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
     limit: 100,
     sortBy: apiSort.sortBy,
     filterBy: legacyFilterBy ?? apiSort.filterBy,
+    locale: lng,
   });
 
   const activeCollectionLabel =

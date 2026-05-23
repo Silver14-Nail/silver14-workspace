@@ -54,6 +54,13 @@ export class NailShapeEntity extends SoftDeleteAbstractEntity {
   })
   isActive: boolean;
 
+  @Column({
+    name: 'sort_order',
+    type: 'int',
+    default: 0,
+  })
+  sortOrder: number;
+
   @OneToMany(() => ProductShapePricingEntity, (p) => p.shape)
   productPricings: ProductShapePricingEntity[];
 
