@@ -1,13 +1,16 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SortOption, getSortFromParams } from '../constants';
 import { useProducts } from '@/hooks/useProducts';
 import { getCollections, type StorefrontCollection } from '@/features/collections/collections.api';
+import type { StorefrontProduct } from '@/types/product';
 
 type Props = {
   searchParams: ReturnType<typeof useSearchParams>;
   router: any;
   lng: string;
+  initialProducts?: StorefrontProduct[];
+  initialCollections?: CollectionFilter[];
 };
 
 export interface CollectionFilter {
@@ -33,17 +36,25 @@ function mapSortToApiParams(sortBy: SortOption): { sortBy?: string; filterBy?: s
   }
 }
 
-export function useProductFilters({ searchParams, router, lng }: Props) {
+export function useProductFilters({ searchParams, router, lng, initialProducts, initialCollections }: Props) {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [activeSlug, setActiveSlug] = useState(searchParams.get('collection') || 'all');
   const [sortBy, setSortBy] = useState<SortOption>(() => getSortFromParams(searchParams));
   const [sortOpen, setSortOpen] = useState(false);
-  const [collections, setCollections] = useState<CollectionFilter[]>([ALL_COLLECTION]);
+  const [collections, setCollections] = useState<CollectionFilter[]>(
+    initialCollections ?? [ALL_COLLECTION],
+  );
 
   const legacyFilter = searchParams.get('filter');
   const legacyFilterBy = legacyFilter === 'new' ? 'new' : undefined;
 
+  const skipCollectionFetch = useRef(!!initialCollections);
+
   useEffect(() => {
+    if (skipCollectionFetch.current) {
+      skipCollectionFetch.current = false;
+      return;
+    }
     getCollections({ limit: 50 })
       .then((res: { data: StorefrontCollection[] }) =>
         setCollections([
@@ -71,6 +82,7 @@ export function useProductFilters({ searchParams, router, lng }: Props) {
     sortBy: apiSort.sortBy,
     filterBy: legacyFilterBy ?? apiSort.filterBy,
     locale: lng,
+    initialData: initialProducts,
   });
 
   const activeCollectionLabel =

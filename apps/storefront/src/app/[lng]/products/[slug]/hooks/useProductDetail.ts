@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useProduct } from '@/hooks/useProduct';
-import { useProducts } from '@/hooks/useProducts';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/useCart';
 import { useWishlist } from '@/hooks/useWishlist';
+import type { StorefrontProductDetail, StorefrontProduct } from '@/types/product';
 import type { AccordionKey, ProductSelections, CartPreviewItem } from '../types';
 
 function computeEffectivePrice(
@@ -17,17 +16,13 @@ function computeEffectivePrice(
   return computedPrice;
 }
 
-export function useProductDetail() {
-  const { slug, lng } = useParams<{ slug: string; lng?: string }>();
-  const locale = lng ?? 'en';
+export function useProductDetail(
+  product: StorefrontProductDetail | null,
+  related: StorefrontProduct[],
+) {
   const router = useRouter();
   const { cartCount, subtotal, addItem } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
-
-  const { product, loading, error } = useProduct(slug ?? '', locale);
-
-  const { products: allProducts } = useProducts({ limit: 8, locale });
-  const related = allProducts.filter((p) => p.id !== product?.id).slice(0, 4);
 
   // Gallery
   const [selectedImage, setSelectedImage] = useState(0);
@@ -46,13 +41,12 @@ export function useProductDetail() {
   const [lastAddedItem, setLastAddedItem] = useState<CartPreviewItem | null>(null);
   const [addToCartError, setAddToCartError] = useState<string | null>(null);
 
-  // Reset selections when product changes
+  // Reset selections when product changes (navigating between product pages)
   useEffect(() => {
     setSelectedImage(0);
     setSelections({ shape: '', size: '', customization: '', quantity: 1 });
-  }, [slug]);
+  }, [product?.id]);
 
-  // Reset size when shape changes — prevent stale shape+size combos with no variant
   const updateSelection = useCallback(
     <K extends keyof ProductSelections>(key: K, value: ProductSelections[K]) => {
       setSelections((prev) => ({
@@ -72,8 +66,6 @@ export function useProductDetail() {
 
   const availableSizesForShape = useMemo(() => product?.availableSizes ?? [], [product]);
 
-  // Exact variant match for regular sizes; for Custom, fall back to any in-stock
-  // variant of the selected shape so the price and variantId are always available.
   const selectedVariant = useMemo(() => {
     if (!product || !selections.shape) return null;
     if (isCustomSize) {
@@ -92,13 +84,11 @@ export function useProductDetail() {
     );
   }, [product, selections.shape, selections.size, isCustomSize]);
 
-  // Effective display price — variant computed price with sale ratio applied
   const selectedEffectivePrice = useMemo(() => {
     if (!selectedVariant || !product) return null;
     return computeEffectivePrice(selectedVariant.computedPrice, product.price, product.salePrice);
   }, [selectedVariant, product]);
 
-  // Custom is always purchasable when a shape is selected (made-to-order).
   const canAddToCart = Boolean(
     selectedVariant &&
       selectedVariant.isAvailable &&
@@ -151,16 +141,11 @@ export function useProductDetail() {
   }, [product, toggleWishlist]);
 
   return {
-    // Data
     product,
-    loading,
-    error,
     related,
     inWishlist: product ? isInWishlist(product.id) : false,
-    // Gallery
     selectedImage,
     setSelectedImage,
-    // Selections
     selections,
     updateSelection,
     availableSizesForShape,
@@ -168,17 +153,14 @@ export function useProductDetail() {
     selectedEffectivePrice,
     canAddToCart,
     isCustomSize,
-    // UI
     openSection,
     toggleSection,
     showCartPreview,
     setShowCartPreview,
     lastAddedItem,
     addToCartError,
-    // Cart
     cartCount,
     subtotal,
-    // Handlers
     handleAddToCart,
     handleWishlist,
     router,
