@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import {
   LayoutDashboard,
@@ -30,34 +31,36 @@ import {
   Loader2,
   Layers,
   Megaphone,
+  Languages,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
+import { LOCALE_COOKIE } from '@/i18n/config';
 
 interface NavItem {
-  label: string;
+  key: string;
   icon: React.ElementType;
   path: string;
   enabled: boolean;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/', enabled: true },
-  { label: 'Users', icon: Users, path: '/admin/users', enabled: true },
-  { label: 'Products', icon: Package, path: '/admin/products', enabled: true },
-  { label: 'Supplies', icon: ShoppingCart, path: '/admin/supplies', enabled: true },
-  { label: 'Collections', icon: Layers, path: '/admin/collections', enabled: true },
-  { label: 'Campaigns', icon: Megaphone, path: '/admin/campaigns', enabled: true },
-  { label: 'Inventory', icon: Boxes, path: '/admin/inventory', enabled: false },
-  { label: 'Orders', icon: ShoppingBag, path: '/admin/orders', enabled: true },
-  { label: 'Checkout & Carts', icon: ShoppingCart, path: '/admin/checkouts', enabled: true },
-  { label: 'Payments', icon: CreditCard, path: '/admin/payments', enabled: false },
-  { label: 'Coupons', icon: Tag, path: '/admin/coupons', enabled: true },
-  { label: 'Wholesale', icon: Building2, path: '/admin/wholesales', enabled: false },
-  { label: 'Newsletter', icon: Mail, path: '/admin/newsletters', enabled: false },
-  { label: 'Analytics', icon: BarChart3, path: '/admin/analytics', enabled: false },
-  { label: 'Settings', icon: Settings, path: '/admin/settings', enabled: false },
+  { key: 'dashboard', icon: LayoutDashboard, path: '/', enabled: true },
+  { key: 'users', icon: Users, path: '/admin/users', enabled: true },
+  { key: 'products', icon: Package, path: '/admin/products', enabled: true },
+  { key: 'supplies', icon: ShoppingCart, path: '/admin/supplies', enabled: true },
+  { key: 'collections', icon: Layers, path: '/admin/collections', enabled: true },
+  { key: 'campaigns', icon: Megaphone, path: '/admin/campaigns', enabled: true },
+  { key: 'inventory', icon: Boxes, path: '/admin/inventory', enabled: false },
+  { key: 'orders', icon: ShoppingBag, path: '/admin/orders', enabled: true },
+  { key: 'checkouts', icon: ShoppingCart, path: '/admin/checkouts', enabled: true },
+  { key: 'payments', icon: CreditCard, path: '/admin/payments', enabled: false },
+  { key: 'coupons', icon: Tag, path: '/admin/coupons', enabled: true },
+  { key: 'wholesale', icon: Building2, path: '/admin/wholesales', enabled: false },
+  { key: 'newsletter', icon: Mail, path: '/admin/newsletters', enabled: false },
+  { key: 'analytics', icon: BarChart3, path: '/admin/analytics', enabled: false },
+  { key: 'settings', icon: Settings, path: '/admin/settings', enabled: false },
 ];
 
 const notifications = [
@@ -70,6 +73,7 @@ const notifications = [
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation('common');
 
   const { theme, toggleTheme } = useAdminTheme();
   const [collapsed, setCollapsed] = useState(false);
@@ -81,6 +85,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const displayName = user?.fullName || 'Admin';
   const displayEmail = user?.email || '';
   const avatarLetter = displayName.charAt(0).toUpperCase();
+  const currentLang = i18n.language.startsWith('vi') ? 'vi' : 'en';
 
   const isActive = (path: string) =>
     pathname === path || (path !== '/' && pathname.startsWith(path));
@@ -91,6 +96,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     startLogout(async () => {
       await logout();
     });
+  }
+
+  function switchLang() {
+    const next = currentLang === 'en' ? 'vi' : 'en';
+    i18n.changeLanguage(next);
+    document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
+    document.documentElement.lang = next;
   }
 
   return (
@@ -153,19 +165,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <nav className="flex-1 overflow-y-auto py-3 px-2">
           {navItems.map((item) => {
             const active = item.enabled && isActive(item.path);
+            const label = t(`nav.${item.key}`);
             const baseClasses = `flex items-center gap-3 px-2.5 py-2 rounded-lg mb-0.5 transition-all duration-150 group relative${collapsed ? ' justify-center' : ''}`;
 
             if (!item.enabled) {
               return (
                 <div
                   key={item.path}
-                  title="Coming soon"
+                  title={t('shell.comingSoon')}
                   className={`${baseClasses} cursor-not-allowed select-none opacity-40 ${
                     theme === 'dark' ? 'text-gray-400' : 'text-[#6B7280]'
                   }`}
                 >
                   <item.icon className={`flex-shrink-0 ${collapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-                  {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+                  {!collapsed && <span className="text-sm font-medium truncate">{label}</span>}
                 </div>
               );
             }
@@ -175,7 +188,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 key={item.path}
                 href={item.path}
                 onClick={() => setMobileOpen(false)}
-                title={collapsed ? item.label : undefined}
+                title={collapsed ? label : undefined}
                 className={`
                   ${baseClasses}
                   ${
@@ -190,14 +203,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 `}
               >
                 <item.icon className={`flex-shrink-0 ${collapsed ? 'w-5 h-5' : 'w-4 h-4'}`} />
-                {!collapsed && <span className="text-sm font-medium truncate">{item.label}</span>}
+                {!collapsed && <span className="text-sm font-medium truncate">{label}</span>}
                 {collapsed && (
                   <div
                     className={`absolute left-full ml-2 px-2 py-1 rounded text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 ${
                       theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-[#1A1A1A] text-white'
                     }`}
                   >
-                    {item.label}
+                    {label}
                   </div>
                 )}
               </Link>
@@ -218,7 +231,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             } ${collapsed ? 'justify-center' : ''}`}
           >
             <Store className="w-4 h-4 flex-shrink-0" />
-            {!collapsed && <span className="text-sm font-medium">View Store</span>}
+            {!collapsed && <span className="text-sm font-medium">{t('shell.viewStore')}</span>}
           </Link>
 
           <button
@@ -230,7 +243,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             } ${collapsed ? 'justify-center' : ''}`}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            {!collapsed && <span className="text-sm font-medium">Collapse</span>}
+            {!collapsed && <span className="text-sm font-medium">{t('shell.collapse')}</span>}
           </button>
         </div>
       </aside>
@@ -298,7 +311,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={t('shell.search')}
               className={`flex-1 bg-transparent text-sm outline-none ${
                 theme === 'dark'
                   ? 'text-white placeholder:text-gray-600'
@@ -331,6 +344,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               }`}
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Language */}
+            <button
+              onClick={switchLang}
+              title={t('lang.switchLabel')}
+              className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                theme === 'dark'
+                  ? 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1A1A]'
+              }`}
+            >
+              <Languages className="w-3.5 h-3.5" />
+              <span>{currentLang.toUpperCase()}</span>
             </button>
 
             {/* Notifications */}
@@ -366,11 +393,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         theme === 'dark' ? 'text-white' : 'text-[#1A1A1A]'
                       }`}
                     >
-                      Notifications
+                      {t('shell.notifications')}
                     </span>
 
                     <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">
-                      3 new
+                      {t('shell.newCount', { count: 3 })}
                     </span>
                   </div>
 
@@ -480,7 +507,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         : 'text-[#374151] hover:bg-[#F9FAFB]'
                     }`}
                   >
-                    Profile Settings
+                    {t('shell.profileSettings')}
                   </Link>
 
                   <Link
@@ -491,7 +518,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         : 'text-[#374151] hover:bg-[#F9FAFB]'
                     }`}
                   >
-                    View Store
+                    {t('shell.viewStore')}
                   </Link>
 
                   <div
@@ -511,7 +538,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                       ) : (
                         <LogOut className="w-4 h-4" />
                       )}
-                      {isLoggingOut ? 'Signing out…' : 'Sign out'}
+                      {isLoggingOut ? t('shell.signingOut') : t('shell.signOut')}
                     </button>
                   </div>
                 </div>

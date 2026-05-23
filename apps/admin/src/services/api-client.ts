@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 import { cookies } from 'next/headers';
 
-const SERVER_API_BASE = `${process.env.API_URL || 'http://localhost:3000'}/api`;
+const SERVER_API_BASE = `${process.env.API_URL || 'https://silver14-workspace-api.vercel.app'}/api`;
 
 /**
  * Authenticated axios instance for Server Components and Server Actions.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import {
   Search,
@@ -32,6 +33,7 @@ export function SuppliesClient({
 }: SuppliesClientProps) {
   const router = useRouter();
   const { theme } = useAdminTheme();
+  const { t } = useTranslation('supplies');
   const [search, setSearch] = useState(currentSearch);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingSupply, setEditingSupply] = useState<Product | null>(null);
@@ -54,7 +56,7 @@ export function SuppliesClient({
 
   const handleDelete = useCallback(
     (id: string) => {
-      if (!confirm('Delete this supply? This cannot be undone.')) return;
+      if (!confirm(t('deleteConfirm'))) return;
       setDeletingId(id);
       startTransition(async () => {
         await deleteSupplyAction(id);
@@ -73,10 +75,10 @@ export function SuppliesClient({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#111827]'}`}>
-            Supplies
+            {t('title')}
           </h1>
           <p className={`text-sm mt-0.5 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
-            {pagination.totalItems} total supplies
+            {t('subtitle', { count: pagination.totalItems })}
           </p>
         </div>
         <button
@@ -84,7 +86,7 @@ export function SuppliesClient({
           className="flex items-center gap-2 bg-[#111827] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Supply
+          {t('addSupply')}
         </button>
       </div>
 
@@ -99,7 +101,7 @@ export function SuppliesClient({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search supplies..."
+            placeholder={t('search')}
             className="bg-transparent outline-none flex-1 text-sm"
           />
           {search && (
@@ -112,7 +114,7 @@ export function SuppliesClient({
           type="submit"
           className="px-3 py-2 bg-[#111827] text-white rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors"
         >
-          Search
+          {t('searchBtn')}
         </button>
       </form>
 
@@ -121,7 +123,7 @@ export function SuppliesClient({
         <table className="w-full text-sm">
           <thead>
             <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
-              {['Supply', 'SKU', 'Price', 'Stock', 'Status', ''].map((h) => (
+              {[t('table.supply'), t('table.sku'), t('table.price'), t('table.stock'), t('table.status'), ''].map((h) => (
                 <th
                   key={h}
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}
@@ -137,7 +139,7 @@ export function SuppliesClient({
                 <td colSpan={6} className="px-4 py-12 text-center">
                   <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-[#D1D5DB]" />
                   <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-[#9CA3AF]'}`}>
-                    No supplies found. Add your first supply.
+                    {t('empty')}
                   </p>
                 </td>
               </tr>
@@ -184,7 +186,7 @@ export function SuppliesClient({
                         {stockQty}
                       </span>
                       {stockQty <= 5 && stockQty > 0 && (
-                        <span className="ml-1 text-xs text-amber-500">low</span>
+                        <span className="ml-1 text-xs text-amber-500">{t('badge.low')}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -193,7 +195,7 @@ export function SuppliesClient({
                           ? isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'
                           : isDark ? 'bg-gray-700 text-gray-400' : 'bg-[#F3F4F6] text-[#6B7280]'
                       }`}>
-                        {supply.isActive ? 'Active' : 'Inactive'}
+                        {supply.isActive ? t('badge.active') : t('badge.inactive')}
                       </span>
                     </td>
                     <td className="px-4 py-3">

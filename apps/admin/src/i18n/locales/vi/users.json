@@ -1,0 +1,48 @@
+{
+  "title": "Người dùng",
+  "subtitle": "{{count}} người dùng đã đăng ký",
+  "addUser": "Thêm người dùng",
+  "search": "Tìm người dùng...",
+  "filter": {
+    "allRoles": "Tất cả vai trò",
+    "admin": "Quản trị viên",
+    "customer": "Khách hàng",
+    "wholesale": "Bán sỉ",
+    "allStatus": "Tất cả trạng thái",
+    "active": "Đang hoạt động",
+    "inactive": "Tắt"
+  },
+  "bulk": {
+    "selected": "Đã chọn {{count}}",
+    "delete": "Xóa đã chọn",
+    "clear": "Bỏ chọn"
+  },
+  "table": {
+    "user": "Người dùng",
+    "role": "Vai trò",
+    "status": "Trạng thái",
+    "lastLogin": "Đăng nhập cuối",
+    "joined": "Ngày tham gia",
+    "actions": "Thao tác"
+  },
+  "badge": {
+    "unverified": "chưa xác thực",
+    "active": "Đang hoạt động",
+    "inactive": "Tắt"
+  },
+  "empty": "Không tìm thấy người dùng",
+  "pagination": "Hiển thị {{start}}–{{end}} / {{total}} người dùng",
+  "drawer": {
+    "title": "Chi tiết người dùng",
+    "accountInfo": "Thông tin tài khoản",
+    "emailVerified": "Email đã xác thực",
+    "verified": "✓ Đã xác thực",
+    "unverified": "✗ Chưa xác thực",
+    "memberSince": "Thành viên từ",
+    "lastLogin": "Đăng nhập cuối",
+    "userId": "Mã người dùng",
+    "resetPassword": "Đặt lại mật khẩu",
+    "deactivate": "Tắt tài khoản",
+    "activate": "Kích hoạt tài khoản"
+  }
+}

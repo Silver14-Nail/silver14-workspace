@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   X,
   Loader2,
@@ -34,13 +35,13 @@ import {
 type ErrResult = { success: false; error: string };
 const getErr = (r: unknown) => (r as ErrResult).error ?? 'Unknown error';
 
-const RESTRICTION_TYPE_LABELS: Record<CouponRestrictionType, string> = {
-  product: 'Specific Product',
-  shape: 'Nail Shape',
-  category: 'Category',
-  min_qty: 'Min. Quantity',
-  new_user: 'New Users Only',
-};
+const RESTRICTION_TYPE_KEYS: CouponRestrictionType[] = [
+  'product',
+  'shape',
+  'category',
+  'min_qty',
+  'new_user',
+];
 
 interface CouponDetailDrawerProps {
   couponId: string;
@@ -57,6 +58,7 @@ export function CouponDetailDrawer({
   onEdit,
   onDeleted,
 }: CouponDetailDrawerProps) {
+  const { t } = useTranslation('coupons');
   const [coupon, setCoupon] = useState<CouponDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -137,7 +139,7 @@ export function CouponDetailDrawer({
     setRestrictionError(null);
     const needsRef = ['product', 'shape', 'category', 'min_qty'].includes(restrictionType);
     if (needsRef && !restrictionRefId.trim()) {
-      setRestrictionError('Reference ID is required for this restriction type');
+      setRestrictionError(t('detail.refIdRequired'));
       return;
     }
     startTransition(async () => {
@@ -172,7 +174,7 @@ export function CouponDetailDrawer({
   function handleAddToWhitelist() {
     setWhitelistError(null);
     if (!whitelistUserId.trim()) {
-      setWhitelistError('User ID is required');
+      setWhitelistError(t('detail.userIdRequired'));
       return;
     }
     startTransition(async () => {
@@ -199,18 +201,18 @@ export function CouponDetailDrawer({
   }
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'info', label: 'Info', icon: <BarChart2 className="w-3.5 h-3.5" /> },
+    { id: 'info', label: t('detail.tabInfo'), icon: <BarChart2 className="w-3.5 h-3.5" /> },
     {
       id: 'restrictions',
-      label: `Restrictions ${coupon ? `(${coupon.restrictions.length})` : ''}`,
+      label: `${t('detail.tabRestrictions')} ${coupon ? `(${coupon.restrictions.length})` : ''}`,
       icon: <ShieldCheck className="w-3.5 h-3.5" />,
     },
     {
       id: 'whitelist',
-      label: `Whitelist ${coupon ? `(${coupon.whitelist.length})` : ''}`,
+      label: `${t('detail.tabWhitelist')} ${coupon ? `(${coupon.whitelist.length})` : ''}`,
       icon: <Users className="w-3.5 h-3.5" />,
     },
-    { id: 'usages', label: 'Usages', icon: <BarChart2 className="w-3.5 h-3.5" /> },
+    { id: 'usages', label: t('detail.tabUsages'), icon: <BarChart2 className="w-3.5 h-3.5" /> },
   ];
 
   return (
@@ -221,11 +223,11 @@ export function CouponDetailDrawer({
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] shrink-0">
           <div>
             <h2 className="text-sm font-semibold text-[#111827]">
-              {loading ? 'Loading…' : coupon ? coupon.code : 'Coupon Detail'}
+              {loading ? t('detail.loading') : coupon ? coupon.code : t('detail.couponDetail')}
             </h2>
             {coupon && (
               <p className="text-xs text-[#9CA3AF] mt-0.5">
-                {coupon.description ?? 'No description'}
+                {coupon.description ?? t('detail.noDescription')}
               </p>
             )}
           </div>
@@ -241,31 +243,31 @@ export function CouponDetailDrawer({
               onClick={() => onEdit(couponId)}
               className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-xs font-medium text-[#374151] hover:bg-white transition-colors"
             >
-              Edit
+              {t('detail.edit')}
             </button>
             <button
               onClick={handleToggleActive}
               disabled={isPending}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${coupon.isActive ? 'border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100' : 'border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100'}`}
             >
-              {coupon.isActive ? 'Deactivate' : 'Activate'}
+              {coupon.isActive ? t('detail.deactivate') : t('detail.activate')}
             </button>
             <div className="flex-1" />
             {confirmDelete ? (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-red-600">Confirm delete?</span>
+                <span className="text-xs text-red-600">{t('detail.confirmDeletePrompt')}</span>
                 <button
                   onClick={handleDelete}
                   disabled={isPending}
                   className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700"
                 >
-                  Yes, Delete
+                  {t('detail.yesDelete')}
                 </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
                   className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-xs text-[#374151] hover:bg-white"
                 >
-                  Cancel
+                  {t('detail.cancel')}
                 </button>
               </div>
             ) : (
@@ -362,6 +364,7 @@ export function CouponDetailDrawer({
 // ─── Info Tab ────────────────────────────────────────────────────────────────
 
 function InfoTab({ coupon }: { coupon: CouponDetail }) {
+  const { t } = useTranslation('coupons');
   const isExpired = coupon.expiresAt ? new Date(coupon.expiresAt) < new Date() : false;
 
   function fmt(val: string | null | undefined) {
@@ -377,7 +380,7 @@ function InfoTab({ coupon }: { coupon: CouponDetail }) {
 
   const rows: { label: string; value: React.ReactNode }[] = [
     {
-      label: 'Status',
+      label: t('detail.status'),
       value: (
         <span
           className={`inline-flex items-center gap-1 text-xs font-medium ${coupon.isActive ? 'text-emerald-600' : 'text-[#9CA3AF]'}`}
@@ -385,47 +388,47 @@ function InfoTab({ coupon }: { coupon: CouponDetail }) {
           <span
             className={`w-1.5 h-1.5 rounded-full ${coupon.isActive ? 'bg-emerald-400' : 'bg-[#D1D5DB]'}`}
           />
-          {coupon.isActive ? 'Active' : 'Inactive'}
+          {coupon.isActive ? t('detail.active') : t('detail.inactive')}
         </span>
       ),
     },
-    { label: 'Discount Type', value: coupon.discountType.replace(/_/g, ' ') },
+    { label: t('detail.discountType'), value: coupon.discountType.replace(/_/g, ' ') },
     {
-      label: 'Discount Value',
+      label: t('detail.discountValue'),
       value:
         coupon.discountType === 'percent'
           ? `${coupon.discountValue}%`
           : coupon.discountType === 'fixed'
             ? `$${coupon.discountValue}`
-            : 'Free Shipping',
+            : t('detail.freeShipping'),
     },
     {
-      label: 'Max Discount Cap',
+      label: t('detail.maxDiscountCap'),
       value: coupon.maxDiscountAmount != null ? `$${coupon.maxDiscountAmount}` : '–',
     },
     {
-      label: 'Min Order Amount',
+      label: t('detail.minOrderAmount'),
       value: coupon.minOrderAmount > 0 ? `$${coupon.minOrderAmount}` : '–',
     },
     {
-      label: 'Max Uses (Total)',
-      value: coupon.maxUsesTotal != null ? String(coupon.maxUsesTotal) : 'Unlimited',
+      label: t('detail.maxUsesTotal'),
+      value: coupon.maxUsesTotal != null ? String(coupon.maxUsesTotal) : t('detail.unlimited'),
     },
-    { label: 'Max Uses per User', value: String(coupon.maxUsesPerUser) },
-    { label: 'Used Count', value: String(coupon.usedCount) },
-    { label: 'Starts At', value: fmt(coupon.startsAt) },
+    { label: t('detail.maxUsesPerUser'), value: String(coupon.maxUsesPerUser) },
+    { label: t('detail.usedCount'), value: String(coupon.usedCount) },
+    { label: t('detail.startsAt'), value: fmt(coupon.startsAt) },
     {
-      label: 'Expires At',
+      label: t('detail.expiresAt'),
       value: coupon.expiresAt ? (
         <span className={isExpired ? 'text-red-500' : ''}>
           {fmt(coupon.expiresAt)}
-          {isExpired ? ' (expired)' : ''}
+          {isExpired ? ` ${t('detail.expired')}` : ''}
         </span>
       ) : (
         '–'
       ),
     },
-    { label: 'Created', value: fmt(coupon.createdAt) },
+    { label: t('detail.created'), value: fmt(coupon.createdAt) },
   ];
 
   return (
@@ -477,20 +480,21 @@ function RestrictionsTab({
   onAdd,
   onRemove,
 }: RestrictionsTabProps) {
+  const { t } = useTranslation('coupons');
   const needsRef = ['product', 'shape', 'category', 'min_qty'].includes(restrictionType);
 
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[#374151]">
-          Restrictions ({coupon.restrictions.length})
+          {t('detail.restrictions', { count: coupon.restrictions.length })}
         </p>
         {!showForm && (
           <button
             onClick={onShowForm}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-xs text-[#374151] hover:bg-[#F3F4F6]"
           >
-            <Plus className="w-3.5 h-3.5" /> Add
+            <Plus className="w-3.5 h-3.5" /> {t('detail.add')}
           </button>
         )}
       </div>
@@ -499,26 +503,24 @@ function RestrictionsTab({
         <div className="p-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] space-y-3">
           {formError && <p className="text-xs text-red-600">{formError}</p>}
           <div>
-            <label className="block text-xs font-semibold text-[#374151] mb-1.5">Type</label>
+            <label className="block text-xs font-semibold text-[#374151] mb-1.5">{t('detail.type')}</label>
             <select
               value={restrictionType}
               onChange={(e) => onTypeChange(e.target.value as CouponRestrictionType)}
               className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827] bg-white"
             >
-              {(Object.entries(RESTRICTION_TYPE_LABELS) as [CouponRestrictionType, string][]).map(
-                ([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ),
-              )}
+              {RESTRICTION_TYPE_KEYS.map((k) => (
+                <option key={k} value={k}>
+                  {t(`detail.restrictionTypes.${k}`)}
+                </option>
+              ))}
             </select>
           </div>
           {needsRef && (
             <>
               <div>
                 <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                  Reference ID
+                  {t('detail.referenceId')}
                 </label>
                 <input
                   value={refId}
@@ -529,7 +531,7 @@ function RestrictionsTab({
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                  Reference Label
+                  {t('detail.referenceLabel')}
                 </label>
                 <input
                   value={refLabel}
@@ -547,13 +549,13 @@ function RestrictionsTab({
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] disabled:opacity-60"
             >
               {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Add Restriction
+              {t('detail.addRestriction')}
             </button>
             <button
               onClick={onHideForm}
               className="px-3 py-2 rounded-lg border border-[#E5E7EB] text-xs text-[#374151] hover:bg-white"
             >
-              Cancel
+              {t('detail.cancel')}
             </button>
           </div>
         </div>
@@ -561,7 +563,7 @@ function RestrictionsTab({
 
       {coupon.restrictions.length === 0 && !showForm && (
         <p className="text-sm text-[#9CA3AF] text-center py-8">
-          No restrictions — coupon applies to all orders
+          {t('detail.noRestrictions')}
         </p>
       )}
 
@@ -573,7 +575,7 @@ function RestrictionsTab({
           >
             <div>
               <p className="text-xs font-semibold text-[#374151]">
-                {RESTRICTION_TYPE_LABELS[r.restrictionType]}
+                {t(`detail.restrictionTypes.${r.restrictionType}`)}
               </p>
               {r.refLabel && <p className="text-xs text-[#6B7280] mt-0.5">{r.refLabel}</p>}
               {r.refId && <p className="font-mono text-xs text-[#9CA3AF]">{r.refId}</p>}
@@ -619,18 +621,20 @@ function WhitelistTab({
   onAdd,
   onRemove,
 }: WhitelistTabProps) {
+  const { t } = useTranslation('coupons');
+
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[#374151]">
-          Whitelisted Users ({coupon.whitelist.length})
+          {t('detail.whitelistedUsers', { count: coupon.whitelist.length })}
         </p>
         {!showForm && (
           <button
             onClick={onShowForm}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-xs text-[#374151] hover:bg-[#F3F4F6]"
           >
-            <Plus className="w-3.5 h-3.5" /> Add User
+            <Plus className="w-3.5 h-3.5" /> {t('detail.addUser')}
           </button>
         )}
       </div>
@@ -640,7 +644,7 @@ function WhitelistTab({
           {formError && <p className="text-xs text-red-600">{formError}</p>}
           <div>
             <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-              User ID (UUID)
+              {t('detail.userId')}
             </label>
             <input
               value={userId}
@@ -656,13 +660,13 @@ function WhitelistTab({
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] disabled:opacity-60"
             >
               {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Add to Whitelist
+              {t('detail.addToWhitelist')}
             </button>
             <button
               onClick={onHideForm}
               className="px-3 py-2 rounded-lg border border-[#E5E7EB] text-xs text-[#374151] hover:bg-white"
             >
-              Cancel
+              {t('detail.cancel')}
             </button>
           </div>
         </div>
@@ -670,7 +674,7 @@ function WhitelistTab({
 
       {coupon.whitelist.length === 0 && !showForm && (
         <p className="text-sm text-[#9CA3AF] text-center py-8">
-          No users whitelisted — coupon is available to everyone
+          {t('detail.noWhitelistedUsers')}
         </p>
       )}
 
@@ -711,6 +715,8 @@ function UsagesTab({
   page: number;
   onPageChange: (p: number) => void;
 }) {
+  const { t } = useTranslation('coupons');
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -720,20 +726,20 @@ function UsagesTab({
   }
 
   if (!data || data.items.length === 0) {
-    return <p className="text-sm text-[#9CA3AF] text-center py-16">No usage records yet</p>;
+    return <p className="text-sm text-[#9CA3AF] text-center py-16">{t('detail.noUsageRecords')}</p>;
   }
 
   return (
     <div className="p-6 space-y-3">
       <p className="text-xs font-semibold text-[#374151]">
-        Usage History ({data.pagination.totalItems} total)
+        {t('detail.usageHistory', { count: data.pagination.totalItems })}
       </p>
       <div className="space-y-2">
         {data.items.map((usage) => (
           <div key={usage.id} className="p-3 rounded-xl border border-[#E5E7EB] space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[#374151]">
-                {usage.user?.fullName ?? 'Guest'}
+                {usage.user?.fullName ?? t('detail.guest')}
               </span>
               <span className="text-xs font-bold text-emerald-600">
                 –${usage.discountApplied.toFixed(2)}
@@ -769,7 +775,7 @@ function UsagesTab({
       {data.pagination.totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-xs text-[#6B7280]">
-            Page {data.pagination.currentPage} of {data.pagination.totalPages}
+            {t('detail.page', { current: data.pagination.currentPage, total: data.pagination.totalPages })}
           </p>
           <div className="flex items-center gap-1">
             <button

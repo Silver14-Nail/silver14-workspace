@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "products": "Products",
+    "supplies": "Supplies",
+    "collections": "Collections",
+    "campaigns": "Campaigns",
+    "inventory": "Inventory",
+    "orders": "Orders",
+    "checkouts": "Checkout & Carts",
+    "payments": "Payments",
+    "coupons": "Coupons",
+    "wholesale": "Wholesale",
+    "newsletter": "Newsletter",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "shell": {
+    "search": "Search...",
+    "comingSoon": "Coming soon",
+    "viewStore": "View Store",
+    "collapse": "Collapse",
+    "notifications": "Notifications",
+    "newCount": "{{count}} new",
+    "profileSettings": "Profile Settings",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…"
+  },
+  "lang": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "switchLabel": "Switch language"
+  }
+}

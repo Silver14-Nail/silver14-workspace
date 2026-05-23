@@ -2,6 +2,7 @@
 
 import { useTransition, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Search,
@@ -72,6 +73,7 @@ interface CouponsClientProps {
 export function CouponsClient({ initialCoupons, initialStats, currentQuery }: CouponsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation('coupons');
   const [, startTransition] = useTransition();
 
   const [showFormDrawer, setShowFormDrawer] = useState(false);
@@ -124,11 +126,11 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Coupons & Promotions</h1>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
           <p className="text-sm text-[#6B7280] mt-0.5">
             {stats
-              ? `${stats.totalCoupons} coupons · ${stats.totalUsages.toLocaleString()} total uses`
-              : `${pagination.totalItems} coupons`}
+              ? t('subtitle', { coupons: stats.totalCoupons, uses: stats.totalUsages.toLocaleString() })
+              : t('countLabel', { count: pagination.totalItems })}
           </p>
         </div>
         <button
@@ -138,7 +140,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
           }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors"
         >
-          <Plus className="w-4 h-4" /> Create Coupon
+          <Plus className="w-4 h-4" /> {t('addCoupon')}
         </button>
       </div>
 
@@ -146,10 +148,10 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
           {[
-            { label: 'Active', value: stats.activeCoupons },
-            { label: 'Total Uses', value: stats.totalUsages.toLocaleString() },
-            { label: 'Expiring Soon', value: stats.expiringSoon },
-            { label: 'Discount Granted', value: `$${stats.totalDiscountGranted.toFixed(2)}` },
+            { label: t('stats.active'), value: stats.activeCoupons },
+            { label: t('stats.totalUses'), value: stats.totalUsages.toLocaleString() },
+            { label: t('stats.expiringSoon'), value: stats.expiringSoon },
+            { label: t('stats.discountGranted'), value: `$${stats.totalDiscountGranted.toFixed(2)}` },
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl border border-[#E5E7EB] px-4 py-3">
               <p className="text-xl font-bold text-[#111827]">{s.value}</p>
@@ -165,7 +167,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
           <Search className="w-4 h-4 text-[#9CA3AF]" />
           <input
             type="text"
-            placeholder="Search coupon codes..."
+            placeholder={t('filter.search')}
             defaultValue={currentQuery.search ?? ''}
             onKeyDown={(e) => {
               if (e.key === 'Enter') updateParams({ search: e.currentTarget.value });
@@ -181,19 +183,19 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
           onChange={(e) => updateParams({ isActive: e.target.value || undefined })}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none cursor-pointer"
         >
-          <option value="">All Status</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
+          <option value="">{t('filter.allStatus')}</option>
+          <option value="true">{t('filter.active')}</option>
+          <option value="false">{t('filter.inactive')}</option>
         </select>
         <select
           value={currentQuery.discountType ?? ''}
           onChange={(e) => updateParams({ discountType: e.target.value || undefined })}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none cursor-pointer"
         >
-          <option value="">All Types</option>
-          <option value="percent">Percent</option>
-          <option value="fixed">Fixed</option>
-          <option value="free_shipping">Free Shipping</option>
+          <option value="">{t('filter.allTypes')}</option>
+          <option value="percent">{t('filter.percent')}</option>
+          <option value="fixed">{t('filter.fixed')}</option>
+          <option value="free_shipping">{t('filter.freeShipping')}</option>
         </select>
         <select
           value={
@@ -206,9 +208,9 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
           onChange={(e) => updateParams({ isExpired: e.target.value || undefined })}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none cursor-pointer"
         >
-          <option value="">All Expiry</option>
-          <option value="false">Valid</option>
-          <option value="true">Expired</option>
+          <option value="">{t('filter.allExpiry')}</option>
+          <option value="false">{t('filter.valid')}</option>
+          <option value="true">{t('filter.expired')}</option>
         </select>
       </div>
 
@@ -223,18 +225,18 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
                     onClick={() => toggleSort('code')}
                     className="flex items-center gap-1 hover:text-[#111827]"
                   >
-                    Code <SortIcon field="code" />
+                    {t('table.code')} <SortIcon field="code" />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Type
+                  {t('table.type')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
                   <button
                     onClick={() => toggleSort('discountValue')}
                     className="flex items-center gap-1 hover:text-[#111827]"
                   >
-                    Discount <SortIcon field="discountValue" />
+                    {t('table.discount')} <SortIcon field="discountValue" />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
@@ -242,25 +244,25 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
                     onClick={() => toggleSort('usedCount')}
                     className="flex items-center gap-1 hover:text-[#111827]"
                   >
-                    Usage <SortIcon field="usedCount" />
+                    {t('table.usage')} <SortIcon field="usedCount" />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden md:table-cell">
-                  Min Order
+                  {t('table.minOrder')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden lg:table-cell">
                   <button
                     onClick={() => toggleSort('expiresAt')}
                     className="flex items-center gap-1 hover:text-[#111827]"
                   >
-                    Expires <SortIcon field="expiresAt" />
+                    {t('table.expires')} <SortIcon field="expiresAt" />
                   </button>
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Status
+                  {t('table.status')}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Actions
+                  {t('table.actions')}
                 </th>
               </tr>
             </thead>
@@ -308,7 +310,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
                             </div>
                           </>
                         ) : (
-                          <span className="text-xs text-[#9CA3AF]">unlimited</span>
+                          <span className="text-xs text-[#9CA3AF]">{t('unlimited')}</span>
                         )}
                       </div>
                     </td>
@@ -335,7 +337,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${coupon.isActive ? 'bg-emerald-400' : 'bg-[#D1D5DB]'}`}
                         />
-                        {coupon.isActive ? 'Active' : 'Inactive'}
+                        {coupon.isActive ? t('filter.active') : t('filter.inactive')}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
@@ -346,7 +348,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
                         }}
                         className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-xs text-[#374151] hover:bg-[#F3F4F6] transition-colors"
                       >
-                        Edit
+                        {t('edit')}
                       </button>
                     </td>
                   </tr>
@@ -358,7 +360,7 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
         {items.length === 0 && (
           <div className="py-16 text-center">
             <Tag className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
-            <p className="text-sm text-[#9CA3AF]">No coupons found</p>
+            <p className="text-sm text-[#9CA3AF]">{t('empty')}</p>
           </div>
         )}
 
@@ -366,8 +368,12 @@ export function CouponsClient({ initialCoupons, initialStats, currentQuery }: Co
         <div className="px-5 py-3 border-t border-[#E5E7EB] flex items-center justify-between">
           <p className="text-xs text-[#6B7280]">
             {pagination.totalItems > 0
-              ? `Showing ${(pagination.currentPage - 1) * pagination.itemsPerPage + 1}–${Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of ${pagination.totalItems}`
-              : 'No results'}
+              ? t('pagination', {
+                  start: (pagination.currentPage - 1) * pagination.itemsPerPage + 1,
+                  end: Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems),
+                  total: pagination.totalItems,
+                })
+              : t('noResults')}
           </p>
           {pagination.totalPages > 1 && (
             <div className="flex items-center gap-1">

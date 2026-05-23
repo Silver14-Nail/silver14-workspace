@@ -1,0 +1,49 @@
+{
+  "title": "Checkout & Carts",
+  "subtitle": "Monitor cart activity and checkout sessions",
+  "tabs": {
+    "abandoned": "Abandoned Carts",
+    "active": "Active Carts",
+    "sessions": "Checkout Sessions",
+    "guests": "Guest Checkouts"
+  },
+  "stats": {
+    "activeCarts": "Active Carts",
+    "abandonedToday": "Abandoned Today",
+    "sessions": "Checkout Sessions",
+    "recovery": "Recovery Potential"
+  },
+  "table": {
+    "customer": "Customer",
+    "items": "Items",
+    "value": "Value",
+    "abandonedAt": "Abandoned At Step",
+    "timeAgo": "Time Ago",
+    "actions": "Actions",
+    "sessionId": "Session ID",
+    "step": "Step",
+    "status": "Status",
+    "duration": "Duration",
+    "total": "Total",
+    "started": "Started",
+    "email": "Email",
+    "country": "Country",
+    "date": "Date",
+    "action": "Action"
+  },
+  "recover": "Recover",
+  "live": "Live",
+  "step": "Step: {{step}}",
+  "itemCount_one": "{{count}} item",
+  "itemCount_other": "{{count}} items",
+  "activeAgo": "Active {{time}}",
+  "stepContact": "Contact",
+  "stepShipping": "Shipping",
+  "stepPayment": "Payment",
+  "lastHours": "Last 24 hours",
+  "sessionStatus": {
+    "active": "Active",
+    "completed": "Completed",
+    "abandoned": "Abandoned"
+  }
+}

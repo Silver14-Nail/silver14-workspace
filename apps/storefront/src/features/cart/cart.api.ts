@@ -1,6 +1,5 @@
 import type { ApiCart, ApiAddItemResponse } from './cart.types';
-
-const getBase = () => process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+import { getBase } from '@/lib/api-base';
 
 function buildHeaders(
   accessToken: string | null,

@@ -1,0 +1,43 @@
+{
+  "title": "Supplies",
+  "subtitle": "{{count}} total supplies",
+  "addSupply": "Add Supply",
+  "search": "Search supplies...",
+  "table": {
+    "supply": "Supply",
+    "sku": "SKU",
+    "price": "Price",
+    "stock": "Stock",
+    "status": "Status"
+  },
+  "badge": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "low": "low"
+  },
+  "empty": "No supplies found. Add your first supply.",
+  "deleteConfirm": "Delete this supply? This cannot be undone.",
+  "searchBtn": "Search",
+  "form": {
+    "editTitle": "Edit Supply",
+    "createTitle": "Add Supply",
+    "name": "Name",
+    "namePlaceholder": "e.g. Premium Nail Glue",
+    "description": "Description",
+    "descriptionPlaceholder": "Product description...",
+    "basePrice": "Base Price (USD)",
+    "salePrice": "Sale Price",
+    "salePricePlaceholder": "Optional",
+    "sku": "SKU",
+    "stockQty": "Stock Quantity",
+    "active": "Active",
+    "newArrival": "New arrival",
+    "bestSeller": "Best seller",
+    "basePriceError": "Base price must be a valid number ≥ 0",
+    "salePriceError": "Sale price must be less than base price",
+    "error": "Something went wrong",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "create": "Create Supply"
+  }
+}

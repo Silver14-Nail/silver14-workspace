@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Search,
@@ -31,6 +32,7 @@ export function CollectionsClient({
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useTranslation('collections');
 
   const [collections, setCollections] = useState(initialCollections);
   const [stats, setStats] = useState(initialStats);
@@ -98,16 +100,16 @@ export function CollectionsClient({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Collections</h1>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
           <p className="text-sm text-[#6B7280] mt-0.5">
-            {stats.total} total · {stats.active} active · {stats.featured} featured
+            {t('subtitle', { total: stats.total, active: stats.active, featured: stats.featured })}
           </p>
         </div>
         <button
           onClick={() => setEditingCollection(null)}
           className="flex items-center gap-2 rounded bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-[#1F2937]"
         >
-          <Plus className="size-4" /> New Collection
+          <Plus className="size-4" /> {t('addCollection')}
         </button>
       </div>
 
@@ -118,7 +120,7 @@ export function CollectionsClient({
           <input
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search collections..."
+            placeholder={t('search')}
             className="w-full rounded border border-[#D1D5DB] pl-9 pr-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
           />
         </div>
@@ -131,19 +133,19 @@ export function CollectionsClient({
           <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
             <tr>
               <th className="text-left px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                Collection
+                {t('table.collection')}
               </th>
               <th className="text-left px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider hidden md:table-cell">
-                Slug
+                {t('table.slug')}
               </th>
               <th className="text-center px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                Products
+                {t('table.products')}
               </th>
               <th className="text-center px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider hidden sm:table-cell">
-                Featured
+                {t('table.featured')}
               </th>
               <th className="text-center px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">
-                Status
+                {t('table.status')}
               </th>
             </tr>
           </thead>
@@ -151,7 +153,7 @@ export function CollectionsClient({
             {data.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-12 text-center text-sm text-[#9CA3AF]">
-                  No collections found
+                  {t('empty')}
                 </td>
               </tr>
             ) : (
@@ -203,7 +205,7 @@ export function CollectionsClient({
                           : 'bg-[#F3F4F6] text-[#6B7280]'
                       }`}
                     >
-                      {c.isActive ? 'Active' : 'Inactive'}
+                      {c.isActive ? t('badge.active') : t('badge.inactive')}
                     </span>
                   </td>
                 </tr>
@@ -217,8 +219,11 @@ export function CollectionsClient({
       {meta.totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <p className="text-xs text-[#6B7280]">
-            {(meta.page - 1) * meta.limit + 1}–{Math.min(meta.page * meta.limit, meta.total)} of{' '}
-            {meta.total}
+            {t('pagination', {
+              start: (meta.page - 1) * meta.limit + 1,
+              end: Math.min(meta.page * meta.limit, meta.total),
+              total: meta.total,
+            })}
           </p>
           <div className="flex gap-1">
             <button

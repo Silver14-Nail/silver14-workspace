@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Eye, Loader2, MoreHorizontal, Plus, Search, Users } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { deleteUsersAction } from '../actions';
 import { UserDrawer } from './UserDrawer';
@@ -63,6 +64,7 @@ export function UsersClient({
   currentStatus,
   currentPage,
 }: UsersClientProps) {
+  const { t } = useTranslation('users');
   const router = useRouter();
   const pathname = usePathname();
 
@@ -131,12 +133,12 @@ export function UsersClient({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Users</h1>
-          <p className="text-sm text-[#6B7280] mt-0.5">{pagination.totalItems} registered users</p>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
+          <p className="text-sm text-[#6B7280] mt-0.5">{t('subtitle', { count: pagination.totalItems })}</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors">
           <Plus className="w-4 h-4" />
-          Add User
+          {t('addUser')}
         </button>
       </div>
 
@@ -146,7 +148,7 @@ export function UsersClient({
           <Search className="w-4 h-4 text-[#9CA3AF] flex-shrink-0" />
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder={t('search')}
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="flex-1 text-sm outline-none text-[#111827] placeholder:text-[#9CA3AF]"
@@ -161,10 +163,10 @@ export function UsersClient({
           onChange={(e) => pushUrl({ role: e.target.value })}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#374151] outline-none cursor-pointer bg-white"
         >
-          <option value="all">All Roles</option>
-          <option value="admin">Admin</option>
-          <option value="customer">Customer</option>
-          <option value="wholesale">Wholesale</option>
+          <option value="all">{t('filter.allRoles')}</option>
+          <option value="admin">{t('filter.admin')}</option>
+          <option value="customer">{t('filter.customer')}</option>
+          <option value="wholesale">{t('filter.wholesale')}</option>
         </select>
 
         <select
@@ -172,27 +174,27 @@ export function UsersClient({
           onChange={(e) => pushUrl({ status: e.target.value })}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#374151] outline-none cursor-pointer bg-white"
         >
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="all">{t('filter.allStatus')}</option>
+          <option value="active">{t('filter.active')}</option>
+          <option value="inactive">{t('filter.inactive')}</option>
         </select>
 
         {selected.length > 0 && (
           <div className="flex items-center gap-2 ml-auto">
-            <span className="text-sm text-[#6B7280]">{selected.length} selected</span>
+            <span className="text-sm text-[#6B7280]">{t('bulk.selected', { count: selected.length })}</span>
             <button
               onClick={handleBatchDelete}
               disabled={isDeleting}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-red-600 text-xs font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
             >
               {isDeleting && <Loader2 className="w-3 h-3 animate-spin" />}
-              Delete Selected
+              {t('bulk.delete')}
             </button>
             <button
               onClick={() => setSelected([])}
               className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] text-[#374151] text-xs font-medium hover:bg-[#F3F4F6] transition-colors"
             >
-              Clear
+              {t('bulk.clear')}
             </button>
           </div>
         )}
@@ -216,22 +218,22 @@ export function UsersClient({
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  User
+                  {t('table.user')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Role
+                  {t('table.role')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Status
+                  {t('table.status')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden lg:table-cell">
-                  Last Login
+                  {t('table.lastLogin')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden lg:table-cell">
-                  Joined
+                  {t('table.joined')}
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Actions
+                  {t('table.actions')}
                 </th>
               </tr>
             </thead>
@@ -257,7 +259,7 @@ export function UsersClient({
                       </div>
                       {!user.emailVerified && (
                         <span className="text-xs px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200 flex-shrink-0">
-                          unverified
+                          {t('badge.unverified')}
                         </span>
                       )}
                     </div>
@@ -280,7 +282,7 @@ export function UsersClient({
                           user.isActive ? 'bg-emerald-400' : 'bg-[#D1D5DB]'
                         }`}
                       />
-                      {user.isActive ? 'Active' : 'Inactive'}
+                      {user.isActive ? t('badge.active') : t('badge.inactive')}
                     </span>
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell text-xs text-[#6B7280]">
@@ -325,7 +327,7 @@ export function UsersClient({
         {items.length === 0 && (
           <div className="py-16 text-center">
             <Users className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
-            <p className="text-sm text-[#9CA3AF]">No users found</p>
+            <p className="text-sm text-[#9CA3AF]">{t('empty')}</p>
           </div>
         )}
 
@@ -334,11 +336,12 @@ export function UsersClient({
           <div className="px-5 py-3 border-t border-[#E5E7EB] flex items-center justify-between">
             <p className="text-xs text-[#6B7280]">
               {pagination.totalItems === 0
-                ? 'No users'
-                : `Showing ${(currentPage - 1) * pagination.itemsPerPage + 1}–${Math.min(
-                    currentPage * pagination.itemsPerPage,
-                    pagination.totalItems,
-                  )} of ${pagination.totalItems} users`}
+                ? t('empty')
+                : t('pagination', {
+                    start: (currentPage - 1) * pagination.itemsPerPage + 1,
+                    end: Math.min(currentPage * pagination.itemsPerPage, pagination.totalItems),
+                    total: pagination.totalItems,
+                  })}
             </p>
             <div className="flex items-center gap-1">
               {getPaginationRange(currentPage, pagination.totalPages).map((p) => (

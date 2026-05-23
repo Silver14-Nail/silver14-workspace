@@ -1,0 +1,48 @@
+{
+  "title": "Users",
+  "subtitle": "{{count}} registered users",
+  "addUser": "Add User",
+  "search": "Search users...",
+  "filter": {
+    "allRoles": "All Roles",
+    "admin": "Admin",
+    "customer": "Customer",
+    "wholesale": "Wholesale",
+    "allStatus": "All Status",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "bulk": {
+    "selected": "{{count}} selected",
+    "delete": "Delete Selected",
+    "clear": "Clear"
+  },
+  "table": {
+    "user": "User",
+    "role": "Role",
+    "status": "Status",
+    "lastLogin": "Last Login",
+    "joined": "Joined",
+    "actions": "Actions"
+  },
+  "badge": {
+    "unverified": "unverified",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "empty": "No users found",
+  "pagination": "Showing {{start}}–{{end}} of {{total}} users",
+  "drawer": {
+    "title": "User Details",
+    "accountInfo": "Account Info",
+    "emailVerified": "Email Verified",
+    "verified": "✓ Verified",
+    "unverified": "✗ Unverified",
+    "memberSince": "Member Since",
+    "lastLogin": "Last Login",
+    "userId": "User ID",
+    "resetPassword": "Reset Password",
+    "deactivate": "Deactivate user",
+    "activate": "Activate user"
+  }
+}

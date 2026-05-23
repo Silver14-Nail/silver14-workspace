@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   X,
   Truck,
@@ -95,6 +96,7 @@ interface OrderDrawerProps {
 }
 
 export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: OrderDrawerProps) {
+  const { t } = useTranslation('orders');
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,7 +178,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
       if (result.success) {
         setStatusReason('');
         setSelectedStatus('');
-        showFeedback('success', `Order status updated to ${newStatus}`);
+        showFeedback('success', t('drawer.successStatus', { status: newStatus }));
         const refreshed = await refreshAndSync();
         if (refreshed) onRefresh?.(refreshed);
       } else {
@@ -192,7 +194,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
         trackingNumber: trackingNumber || null,
       });
       if (result.success) {
-        showFeedback('success', 'Shipping info updated');
+        showFeedback('success', t('drawer.successShipping'));
         const refreshed = await refreshAndSync();
         if (refreshed) onRefresh?.(refreshed);
       } else {
@@ -204,7 +206,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
   const handleUpdateShippingFee = () => {
     const parsed = parseFloat(shippingFeeInput);
     if (isNaN(parsed) || parsed < 0) {
-      showFeedback('error', 'Invalid shipping fee value');
+      showFeedback('error', t('drawer.errorInvalidFee'));
       return;
     }
     startTransition(async () => {
@@ -212,7 +214,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
       if (result.success) {
         setOrder(result.data);
         setShippingFeeInput(Number(result.data.shippingFee).toFixed(2));
-        showFeedback('success', 'Shipping fee updated and total recalculated');
+        showFeedback('success', t('drawer.successShippingFee'));
         const refreshed = await refreshAndSync();
         if (refreshed) onRefresh?.(refreshed);
       } else {
@@ -231,7 +233,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
       if (result.success) {
         const refreshed = await refreshAndSync();
         setPaymentNote('');
-        showFeedback('success', `Payment status updated to ${paymentStatus}`);
+        showFeedback('success', t('drawer.successPayment', { status: paymentStatus }));
         if (refreshed) onClose(refreshed);
         else onClose();
       } else {
@@ -246,7 +248,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
       if (result.success) {
         setShowCancelConfirm(false);
         setCancelReason('');
-        showFeedback('success', 'Order cancelled');
+        showFeedback('success', t('drawer.successCancelled'));
         const refreshed = await refreshAndSync();
         if (refreshed) onRefresh?.(refreshed);
       } else {
@@ -339,7 +341,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
 
               {/* Customer & Address */}
               <CollapsibleSection
-                title="Customer & Shipping Address"
+                title={t('drawer.customerShipping')}
                 icon={User}
                 sectionKey="customer"
                 expanded={expandedSection}
@@ -378,7 +380,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
 
               {/* Order Items */}
               <CollapsibleSection
-                title={`Order Items (${order.items?.length ?? 0})`}
+                title={t('drawer.itemsCount', { count: order.items?.length ?? 0 })}
                 icon={Package}
                 sectionKey="items"
                 expanded={expandedSection}
@@ -421,13 +423,13 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                 </div>
                 <div className="mt-3 pt-3 border-t border-[#F3F4F6] space-y-1">
                   <div className="flex justify-between text-xs text-[#6B7280]">
-                    <span>Subtotal</span>
+                    <span>{t('drawer.subtotal')}</span>
                     <span>{currencySymbol}{Number(order.subtotal).toFixed(2)}</span>
                   </div>
                   {Number(order.discountAmount) > 0 && (
                     <div className="flex justify-between text-xs text-emerald-600">
                       <span className="flex items-center gap-1.5">
-                        Discount
+                        {t('drawer.discount')}
                         {order.couponCode && (
                           <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium font-mono">
                             {order.couponCode}
@@ -439,7 +441,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                   )}
                   <div className="flex justify-between text-xs text-[#6B7280]">
                     <span className="flex items-center gap-1.5">
-                      Shipping
+                      {t('drawer.shipping')}
                       {order.shippingSnapshot.shippingMethodName && (
                         <span className="px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] text-[10px] font-medium">
                           {order.shippingSnapshot.shippingMethodName}
@@ -449,7 +451,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                     <span>{currencySymbol}{Number(order.shippingFee).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-semibold text-[#111827] pt-1 border-t border-[#F3F4F6]">
-                    <span>Total</span>
+                    <span>{t('drawer.total')}</span>
                     <span>{currencySymbol}{Number(order.total).toFixed(2)}</span>
                   </div>
                 </div>
@@ -457,7 +459,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
 
               {/* Shipping Management */}
               <CollapsibleSection
-                title="Shipping Management"
+                title={t('drawer.shippingMgmt')}
                 icon={Truck}
                 sectionKey="shipping"
                 expanded={expandedSection}
@@ -465,7 +467,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
               >
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs font-medium text-[#374151] block mb-1">Carrier</label>
+                    <label className="text-xs font-medium text-[#374151] block mb-1">{t('drawer.carrier')}</label>
                     <div className="flex gap-2">
                       <select
                         value={CARRIERS.includes(carrier) ? carrier : '__custom__'}
@@ -474,7 +476,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                         }}
                         className="flex-1 px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none"
                       >
-                        <option value="">No carrier</option>
+                        <option value="">{t('drawer.noCarrier')}</option>
                         {CARRIERS.map((c) => (
                           <option key={c} value={c}>
                             {c}
@@ -487,7 +489,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                     </div>
                     <input
                       type="text"
-                      placeholder="Custom carrier name..."
+                      placeholder={t('drawer.carrierPlaceholder')}
                       value={carrier}
                       onChange={(e) => setCarrier(e.target.value)}
                       className="mt-2 w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
@@ -495,11 +497,11 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                   </div>
                   <div>
                     <label className="text-xs font-medium text-[#374151] block mb-1">
-                      Tracking Number
+                      {t('drawer.trackingNumber')}
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter tracking number..."
+                      placeholder={t('drawer.trackingPlaceholder')}
                       value={trackingNumber}
                       onChange={(e) => setTrackingNumber(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
@@ -511,12 +513,12 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                     className="w-full px-4 py-2 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] disabled:opacity-60 flex items-center justify-center gap-2"
                   >
                     {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                    Save Shipping Info
+                    {t('drawer.saveShipping')}
                   </button>
 
                   <div className="pt-3 border-t border-[#F3F4F6]">
                     <label className="text-xs font-medium text-[#374151] block mb-1">
-                      Override Shipping Fee ({order.currency})
+                      {t('drawer.shippingOverride', { currency: order.currency })}
                     </label>
                     <div className="flex gap-2">
                       <input
@@ -534,11 +536,11 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                         className="px-4 py-2 rounded-lg border border-[#111827] text-[#111827] text-xs font-medium hover:bg-[#F3F4F6] disabled:opacity-40 flex items-center gap-1.5"
                       >
                         {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                        Apply
+                        {t('drawer.applyFee')}
                       </button>
                     </div>
                     <p className="text-[10px] text-[#9CA3AF] mt-1">
-                      Recalculates order total. Auto-set from shipping zone at checkout.
+                      {t('drawer.shippingOverrideHint')}
                     </p>
                   </div>
                 </div>
@@ -547,7 +549,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
               {/* Payment Management */}
               {order.payment && (
                 <CollapsibleSection
-                  title="Payment"
+                  title={t('drawer.payment')}
                   icon={CreditCard}
                   sectionKey="payment"
                   expanded={expandedSection}
@@ -556,20 +558,20 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div>
-                        <span className="text-[#9CA3AF]">Gateway</span>
+                        <span className="text-[#9CA3AF]">{t('drawer.gateway')}</span>
                         <p className="font-medium text-[#111827] capitalize mt-0.5">
                           {order.payment.gateway}
                         </p>
                       </div>
                       <div>
-                        <span className="text-[#9CA3AF]">Amount</span>
+                        <span className="text-[#9CA3AF]">{t('drawer.amount')}</span>
                         <p className="font-medium text-[#111827] mt-0.5">
                           {currencySymbol}{Number(order.payment.amount).toFixed(2)}
                         </p>
                       </div>
                       {order.payment.gatewayTxnId && (
                         <div className="col-span-2">
-                          <span className="text-[#9CA3AF]">Transaction ID</span>
+                          <span className="text-[#9CA3AF]">{t('drawer.txnId')}</span>
                           <p className="font-mono text-xs text-[#111827] mt-0.5 truncate">
                             {order.payment.gatewayTxnId}
                           </p>
@@ -577,7 +579,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                       )}
                       {order.payment.paidAt && (
                         <div className="col-span-2">
-                          <span className="text-[#9CA3AF]">Paid at</span>
+                          <span className="text-[#9CA3AF]">{t('drawer.paidAt')}</span>
                           <p className="text-[#111827] mt-0.5">
                             {new Date(order.payment.paidAt).toLocaleString('en-GB')}
                           </p>
@@ -585,7 +587,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                       )}
                       {order.payment.paypalDetail && (
                         <div className="col-span-2">
-                          <span className="text-[#9CA3AF]">PayPal email</span>
+                          <span className="text-[#9CA3AF]">{t('drawer.paypalEmail')}</span>
                           <p className="text-[#111827] mt-0.5">
                             {order.payment.paypalDetail.payerEmail}
                           </p>
@@ -593,7 +595,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                       )}
                       {order.payment.cardDetail && (
                         <div className="col-span-2">
-                          <span className="text-[#9CA3AF]">Card</span>
+                          <span className="text-[#9CA3AF]">{t('drawer.card')}</span>
                           <p className="text-[#111827] mt-0.5 capitalize">
                             {order.payment.cardDetail.brand} ···· {order.payment.cardDetail.last4}
                           </p>
@@ -603,7 +605,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
 
                     <div className="pt-3 border-t border-[#F3F4F6]">
                       <label className="text-xs font-medium text-[#374151] block mb-1">
-                        Update Payment Status
+                        {t('drawer.updatePaymentStatus')}
                       </label>
                       <select
                         value={paymentStatus}
@@ -618,7 +620,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                       </select>
                       <input
                         type="text"
-                        placeholder="Admin note (optional)..."
+                        placeholder={t('drawer.adminNote')}
                         value={paymentNote}
                         onChange={(e) => setPaymentNote(e.target.value)}
                         className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827] mb-2"
@@ -629,7 +631,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                         className="w-full px-4 py-2 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] disabled:opacity-60 flex items-center justify-center gap-2"
                       >
                         {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                        Update Payment
+                        {t('drawer.updatePayment')}
                       </button>
                     </div>
                   </div>
@@ -639,14 +641,14 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
               {/* Status Workflow */}
               {order && (
                 <div className="px-6 py-4 border-t border-[#E5E7EB]">
-                  <SectionHeader icon={CheckCircle2} title="Update Order Status" />
+                  <SectionHeader icon={CheckCircle2} title={t('drawer.updateOrderStatus')} />
                   <div className="space-y-3">
                     <select
                       value={selectedStatus}
                       onChange={(e) => setSelectedStatus(e.target.value as OrderStatus | '')}
                       className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827] capitalize bg-white"
                     >
-                      <option value="">— Select new status —</option>
+                      <option value="">{t('drawer.selectStatus')}</option>
                       {availableStatuses.map((s) => (
                         <option key={s} value={s} className="capitalize">
                           {s}
@@ -655,7 +657,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                     </select>
                     <input
                       type="text"
-                      placeholder="Reason for change (optional)..."
+                      placeholder={t('drawer.changeReason')}
                       value={statusReason}
                       onChange={(e) => setStatusReason(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
@@ -674,7 +676,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                       ) : selectedStatus ? (
                         `→ ${selectedStatus}`
                       ) : (
-                        'Select a status'
+                        t('drawer.selectStatusHint')
                       )}
                     </button>
                   </div>
@@ -691,14 +693,14 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                         onClick={() => setShowCancelConfirm(true)}
                         className="w-full px-4 py-2.5 rounded-lg border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
                       >
-                        Cancel Order
+                        {t('drawer.cancelOrder')}
                       </button>
                     ) : (
                       <div className="space-y-2">
-                        <p className="text-xs font-semibold text-red-600">Confirm cancellation</p>
+                        <p className="text-xs font-semibold text-red-600">{t('drawer.confirmCancel')}</p>
                         <input
                           type="text"
-                          placeholder="Cancellation reason (optional)..."
+                          placeholder={t('drawer.cancelReason')}
                           value={cancelReason}
                           onChange={(e) => setCancelReason(e.target.value)}
                           className="w-full px-3 py-2 border border-red-200 rounded-lg text-sm outline-none focus:border-red-400"
@@ -710,13 +712,13 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                             className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 disabled:opacity-60 flex items-center justify-center gap-2"
                           >
                             {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                            Confirm Cancel
+                            {t('drawer.confirmCancelBtn')}
                           </button>
                           <button
                             onClick={() => setShowCancelConfirm(false)}
                             className="px-4 py-2 rounded-lg border border-[#E5E7EB] text-[#374151] text-xs font-medium hover:bg-[#F3F4F6]"
                           >
-                            Back
+                            {t('drawer.back')}
                           </button>
                         </div>
                       </div>
@@ -728,7 +730,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
               {order.internalNotes && (
                 <div className="px-6 py-4 border-t border-[#E5E7EB]">
                   <h3 className="text-xs font-semibold text-[#374151] uppercase tracking-wider mb-2">
-                    Internal Notes
+                    {t('drawer.notes')}
                   </h3>
                   <pre className="text-xs text-[#6B7280] whitespace-pre-wrap font-mono bg-[#F9FAFB] rounded-lg p-3 border border-[#E5E7EB]">
                     {order.internalNotes}

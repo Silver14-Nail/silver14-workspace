@@ -1,0 +1,43 @@
+{
+  "title": "Vật tư",
+  "subtitle": "{{count}} vật tư",
+  "addSupply": "Thêm vật tư",
+  "search": "Tìm vật tư...",
+  "table": {
+    "supply": "Vật tư",
+    "sku": "SKU",
+    "price": "Giá",
+    "stock": "Tồn kho",
+    "status": "Trạng thái"
+  },
+  "badge": {
+    "active": "Đang hoạt động",
+    "inactive": "Tắt",
+    "low": "thấp"
+  },
+  "empty": "Không tìm thấy vật tư. Hãy thêm vật tư đầu tiên.",
+  "deleteConfirm": "Xóa vật tư này? Không thể hoàn tác.",
+  "searchBtn": "Tìm",
+  "form": {
+    "editTitle": "Sửa vật tư",
+    "createTitle": "Thêm vật tư",
+    "name": "Tên",
+    "namePlaceholder": "vd. Keo dán móng cao cấp",
+    "description": "Mô tả",
+    "descriptionPlaceholder": "Mô tả sản phẩm...",
+    "basePrice": "Giá gốc (USD)",
+    "salePrice": "Giá khuyến mãi",
+    "salePricePlaceholder": "Không bắt buộc",
+    "sku": "SKU",
+    "stockQty": "Số lượng tồn kho",
+    "active": "Đang hoạt động",
+    "newArrival": "Hàng mới",
+    "bestSeller": "Bán chạy",
+    "basePriceError": "Giá gốc phải là số hợp lệ ≥ 0",
+    "salePriceError": "Giá khuyến mãi phải nhỏ hơn giá gốc",
+    "error": "Có lỗi xảy ra",
+    "cancel": "Hủy",
+    "saveChanges": "Lưu thay đổi",
+    "create": "Tạo vật tư"
+  }
+}

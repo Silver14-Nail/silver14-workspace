@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Product } from '../../types';
 import { createProductAction, updateProductAction } from '../../actions';
 
@@ -14,6 +15,7 @@ interface ProductFormDrawerProps {
 const CURRENCIES = ['EUR', 'USD', 'GBP'];
 
 export default function ProductFormDrawer({ product, onClose, onSuccess }: ProductFormDrawerProps) {
+  const { t } = useTranslation('products');
   const isEdit = product !== undefined;
 
   const [name, setName] = useState(product?.name ?? '');
@@ -76,7 +78,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
           <h2 className="text-sm font-semibold text-[#111827]">
-            {isEdit ? 'Edit Product' : 'Add Product'}
+            {isEdit ? t('form.editTitle') : t('form.addTitle')}
           </h2>
           <button
             onClick={onClose}
@@ -95,24 +97,24 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
           )}
 
           <div>
-            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">Name *</label>
+            <label className="block text-xs font-semibold mb-1.5 text-[#374151]">{t('form.name')}</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Crystal Aurora Set"
+              placeholder={t('form.namePlaceholder')}
               className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
             />
           </div>
 
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-              Description <span className="font-normal text-[#9CA3AF]">(optional)</span>
+              {t('form.description')}
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="Describe the product..."
+              placeholder={t('form.descriptionPlaceholder')}
               className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors resize-none"
             />
           </div>
@@ -120,7 +122,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Base Price *
+                {t('form.basePrice')}
               </label>
               <input
                 value={basePrice}
@@ -134,7 +136,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Currency *
+                {t('form.currency')}
               </label>
               <select
                 value={currency}
@@ -152,7 +154,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
 
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-              Sale Price <span className="font-normal text-[#9CA3AF]">(optional)</span>
+              {t('form.salePrice')}
             </label>
             <input
               value={salePrice}
@@ -160,7 +162,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
               type="number"
               min="0"
               step="0.01"
-              placeholder="Leave empty for no sale"
+              placeholder={t('form.salePriceHint')}
               className={`w-full px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
                 !salePriceValid
                   ? 'border-red-400 focus:border-red-500'
@@ -168,18 +170,18 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
               }`}
             />
             {!salePriceValid && (
-              <p className="mt-1 text-xs text-red-500">Sale price must be less than base price</p>
+              <p className="mt-1 text-xs text-red-500">{t('form.salePriceError')}</p>
             )}
             {discountPreview != null && (
-              <p className="mt-1 text-xs text-emerald-600 font-medium">{discountPreview}% off</p>
+              <p className="mt-1 text-xs text-emerald-600 font-medium">{discountPreview}{t('form.off')}</p>
             )}
           </div>
 
           <div className="rounded-lg bg-[#F9FAFB] divide-y divide-[#E5E7EB]">
             <div className="flex items-center justify-between p-4">
               <div>
-                <p className="text-sm font-medium text-[#374151]">Active</p>
-                <p className="text-xs text-[#9CA3AF]">Visible to customers</p>
+                <p className="text-sm font-medium text-[#374151]">{t('form.active')}</p>
+                <p className="text-xs text-[#9CA3AF]">{t('form.activeHint')}</p>
               </div>
               <button
                 type="button"
@@ -198,8 +200,8 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
 
             <div className="flex items-center justify-between p-4">
               <div>
-                <p className="text-sm font-medium text-[#374151]">New</p>
-                <p className="text-xs text-[#9CA3AF]">Show &ldquo;New&rdquo; badge</p>
+                <p className="text-sm font-medium text-[#374151]">{t('form.isNew')}</p>
+                <p className="text-xs text-[#9CA3AF]">{t('form.isNewHint')}</p>
               </div>
               <button
                 type="button"
@@ -218,8 +220,8 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
 
             <div className="flex items-center justify-between p-4">
               <div>
-                <p className="text-sm font-medium text-[#374151]">Best Seller</p>
-                <p className="text-xs text-[#9CA3AF]">Show &ldquo;Best Seller&rdquo; badge</p>
+                <p className="text-sm font-medium text-[#374151]">{t('form.isBestSeller')}</p>
+                <p className="text-xs text-[#9CA3AF]">{t('form.isBestSellerHint')}</p>
               </div>
               <button
                 type="button"
@@ -239,7 +241,7 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
 
           {!isEdit && (
             <p className="text-xs text-[#9CA3AF] bg-[#F9FAFB] rounded-lg px-3 py-2.5">
-              Shape pricing and variants can be configured after the product is created.
+              {t('form.variantHint')}
             </p>
           )}
         </div>
@@ -251,13 +253,13 @@ export default function ProductFormDrawer({ product, onClose, onSuccess }: Produ
             disabled={!canSubmit || saving}
             className="flex-1 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Product'}
+            {saving ? t('form.saving') : isEdit ? t('form.save') : t('form.create')}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-lg border border-[#E5E7EB] text-sm font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
           >
-            Cancel
+            {t('form.cancel')}
           </button>
         </div>
       </div>

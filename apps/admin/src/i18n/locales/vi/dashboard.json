@@ -1,0 +1,51 @@
+{
+  "title": "Bảng điều khiển",
+  "welcome": "Chào mừng trở lại, {{name}}. Đây là tình hình hôm nay.",
+  "kpi": {
+    "revenue": "Tổng doanh thu",
+    "orders": "Tổng đơn hàng",
+    "pendingOrders": "Đơn chờ xử lý",
+    "wholesaleRevenue": "Doanh thu bán sỉ",
+    "conversionRate": "Tỷ lệ chuyển đổi",
+    "activeCustomers": "Khách hàng đang hoạt động",
+    "lowStock": "Cảnh báo tồn kho thấp",
+    "failedPayments": "Thanh toán thất bại",
+    "actionNeeded": "Cần xử lý",
+    "minusOneWeek": "-1 tuần này"
+  },
+  "charts": {
+    "revenueOrders": "Doanh thu & Đơn hàng",
+    "revenueOrdersSubtitle": "Hiệu suất tháng này",
+    "revenueLabel": "Doanh thu",
+    "wholesaleLabel": "Bán sỉ",
+    "period7d": "7 ngày",
+    "period30d": "30 ngày",
+    "period6m": "6 tháng",
+    "paymentMethods": "Phương thức thanh toán",
+    "paymentMethodsSubtitle": "Phân phối tháng này",
+    "dailyOrders": "Đơn hàng theo ngày",
+    "dailyOrdersSubtitle": "Tuần này",
+    "funnel": "Phễu thanh toán",
+    "funnelSubtitle": "Tỷ lệ bỏ giỏ hàng tháng này"
+  },
+  "recentOrders": {
+    "title": "Đơn hàng gần đây",
+    "viewAll": "Xem tất cả"
+  },
+  "topProducts": {
+    "title": "Sản phẩm bán chạy",
+    "viewAll": "Xem tất cả",
+    "sold": "đã bán"
+  },
+  "lowStockAlerts": {
+    "title": "Cảnh báo tồn kho thấp",
+    "manage": "Quản lý",
+    "allInStock": "Tất cả sản phẩm còn hàng",
+    "left": "còn {{count}}"
+  },
+  "wholesale": {
+    "title": "Yêu cầu bán sỉ",
+    "viewAll": "Xem tất cả",
+    "noPending": "Không có yêu cầu đang chờ"
+  }
+}

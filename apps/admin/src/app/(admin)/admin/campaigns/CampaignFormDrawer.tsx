@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Loader2, Upload } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 import { uploadCampaignImageAction } from './actions';
 import type {
@@ -43,6 +44,7 @@ export default function CampaignFormDrawer({
   campaign,
   onSubmit,
 }: CampaignFormDrawerProps) {
+  const { t } = useTranslation('campaigns');
   const { theme } = useAdminTheme();
   const isDark = theme === 'dark';
   const isEdit = !!campaign;
@@ -147,7 +149,7 @@ export default function CampaignFormDrawer({
       formData.append('file', e.target.files[0]);
       const result = await uploadCampaignImageAction(campaign.id, 'desktop', formData);
       if (!result.success) {
-        setError((result as { error: string }).error ?? 'Failed to upload desktop image');
+        setError((result as { error: string }).error ?? t('form.uploadDesktopError'));
       } else {
         setDesktopImageUrl(result.data.desktopImageUrl ?? '');
       }
@@ -164,7 +166,7 @@ export default function CampaignFormDrawer({
       formData.append('file', e.target.files[0]);
       const result = await uploadCampaignImageAction(campaign.id, 'mobile', formData);
       if (!result.success) {
-        setError((result as { error: string }).error ?? 'Failed to upload mobile image');
+        setError((result as { error: string }).error ?? t('form.uploadMobileError'));
       } else {
         setMobileImageUrl(result.data.mobileImageUrl ?? '');
       }
@@ -178,7 +180,7 @@ export default function CampaignFormDrawer({
     setError('');
 
     if (!name.trim()) {
-      setError('Campaign name is required');
+      setError(t('form.nameRequired'));
       return;
     }
 
@@ -225,7 +227,7 @@ export default function CampaignFormDrawer({
     try {
       const result = await onSubmit(payload);
       if (!result.success) {
-        setError(result.error ?? 'Something went wrong');
+        setError(result.error ?? t('form.error'));
       }
     } finally {
       setLoading(false);
@@ -261,7 +263,7 @@ export default function CampaignFormDrawer({
           }`}
         >
           <h2 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-[#111827]'}`}>
-            {isEdit ? 'Edit Campaign' : 'New Campaign'}
+            {isEdit ? t('form.editTitle') : t('form.createTitle')}
           </h2>
           <button
             onClick={onClose}
@@ -278,7 +280,7 @@ export default function CampaignFormDrawer({
           className={`flex border-b ${isDark ? 'border-gray-800' : 'border-[#E5E7EB]'}`}
         >
           <button className={tabClass('general')} onClick={() => setActiveTab('general')}>
-            General
+            {t('form.tabGeneral')}
           </button>
           <button className={tabClass('en')} onClick={() => setActiveTab('en')}>
             EN
@@ -294,7 +296,7 @@ export default function CampaignFormDrawer({
             {activeTab === 'general' && (
               <>
                 <div>
-                  <label className={labelClass(isDark)}>Campaign Name *</label>
+                  <label className={labelClass(isDark)}>{t('form.name')} *</label>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -306,7 +308,7 @@ export default function CampaignFormDrawer({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClass(isDark)}>Type</label>
+                    <label className={labelClass(isDark)}>{t('form.type')}</label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value as CampaignType)}
@@ -320,7 +322,7 @@ export default function CampaignFormDrawer({
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass(isDark)}>Placement</label>
+                    <label className={labelClass(isDark)}>{t('form.placement')}</label>
                     <select
                       value={placement}
                       onChange={(e) => setPlacement(e.target.value as CampaignPlacement)}
@@ -337,7 +339,7 @@ export default function CampaignFormDrawer({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClass(isDark)}>Status</label>
+                    <label className={labelClass(isDark)}>{t('form.status')}</label>
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as CampaignStatus)}
@@ -351,7 +353,7 @@ export default function CampaignFormDrawer({
                     </select>
                   </div>
                   <div>
-                    <label className={labelClass(isDark)}>Priority</label>
+                    <label className={labelClass(isDark)}>{t('form.priority')}</label>
                     <input
                       type="number"
                       value={priority}
@@ -364,7 +366,7 @@ export default function CampaignFormDrawer({
                 </div>
 
                 <div>
-                  <label className={labelClass(isDark)}>CTA URL</label>
+                  <label className={labelClass(isDark)}>{t('form.ctaUrl')}</label>
                   <input
                     value={ctaUrl}
                     onChange={(e) => setCtaUrl(e.target.value)}
@@ -375,7 +377,7 @@ export default function CampaignFormDrawer({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelClass(isDark)}>Starts At</label>
+                    <label className={labelClass(isDark)}>{t('form.startsAt')}</label>
                     <input
                       type="datetime-local"
                       value={startsAt}
@@ -384,7 +386,7 @@ export default function CampaignFormDrawer({
                     />
                   </div>
                   <div>
-                    <label className={labelClass(isDark)}>Ends At</label>
+                    <label className={labelClass(isDark)}>{t('form.endsAt')}</label>
                     <input
                       type="datetime-local"
                       value={endsAt}
@@ -396,7 +398,7 @@ export default function CampaignFormDrawer({
 
                 <div>
                   <label className={labelClass(isDark)}>
-                    Overlay Opacity ({overlayOpacity})
+                    {t('form.overlayOpacity', { value: overlayOpacity })}
                   </label>
                   <input
                     type="range"
@@ -416,11 +418,11 @@ export default function CampaignFormDrawer({
                   }`}
                 >
                   <p className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
-                    Images
+                    {t('form.images')}
                   </p>
 
                   <div>
-                    <label className={labelClass(isDark)}>Desktop Image URL</label>
+                    <label className={labelClass(isDark)}>{t('form.desktopImageUrl')}</label>
                     <input
                       value={desktopImageUrl}
                       onChange={(e) => setDesktopImageUrl(e.target.value)}
@@ -441,7 +443,7 @@ export default function CampaignFormDrawer({
                         ) : (
                           <Upload className="w-3 h-3" />
                         )}
-                        Upload desktop image
+                        {t('form.uploadDesktop')}
                         <input
                           type="file"
                           accept="image/*"
@@ -454,7 +456,7 @@ export default function CampaignFormDrawer({
                   </div>
 
                   <div>
-                    <label className={labelClass(isDark)}>Mobile Image URL</label>
+                    <label className={labelClass(isDark)}>{t('form.mobileImageUrl')}</label>
                     <input
                       value={mobileImageUrl}
                       onChange={(e) => setMobileImageUrl(e.target.value)}
@@ -475,7 +477,7 @@ export default function CampaignFormDrawer({
                         ) : (
                           <Upload className="w-3 h-3" />
                         )}
-                        Upload mobile image
+                        {t('form.uploadMobile')}
                         <input
                           type="file"
                           accept="image/*"
@@ -526,7 +528,7 @@ export default function CampaignFormDrawer({
                   : 'border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]'
               }`}
             >
-              Cancel
+              {t('form.cancel')}
             </button>
             <button
               type="submit"
@@ -534,7 +536,7 @@ export default function CampaignFormDrawer({
               className="px-4 py-2 bg-[#111827] text-white text-sm rounded-lg font-medium hover:bg-[#1F2937] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isEdit ? 'Save Changes' : 'Create Campaign'}
+              {isEdit ? t('form.saveChanges') : t('form.create')}
             </button>
           </div>
         </form>
@@ -560,10 +562,11 @@ function TranslationFields({
   secondaryLabel: string; setSecondaryLabel: (v: string) => void;
   secondaryUrl: string; setSecondaryUrl: (v: string) => void;
 }) {
+  const { t } = useTranslation('campaigns');
   return (
     <div className="space-y-4">
       <div>
-        <label className={labelClass(isDark)}>Eyebrow Text</label>
+        <label className={labelClass(isDark)}>{t('form.eyebrow')}</label>
         <input
           value={eyebrow}
           onChange={(e) => setEyebrow(e.target.value)}
@@ -572,7 +575,7 @@ function TranslationFields({
         />
       </div>
       <div>
-        <label className={labelClass(isDark)}>Title</label>
+        <label className={labelClass(isDark)}>{t('form.translationTitle')}</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -581,7 +584,7 @@ function TranslationFields({
         />
       </div>
       <div>
-        <label className={labelClass(isDark)}>Subtitle</label>
+        <label className={labelClass(isDark)}>{t('form.subtitle')}</label>
         <textarea
           value={subtitle}
           onChange={(e) => setSubtitle(e.target.value)}
@@ -591,7 +594,7 @@ function TranslationFields({
         />
       </div>
       <div>
-        <label className={labelClass(isDark)}>CTA Button Label</label>
+        <label className={labelClass(isDark)}>{t('form.ctaLabel')}</label>
         <input
           value={ctaLabel}
           onChange={(e) => setCtaLabel(e.target.value)}
@@ -600,7 +603,7 @@ function TranslationFields({
         />
       </div>
       <div>
-        <label className={labelClass(isDark)}>Secondary CTA Label</label>
+        <label className={labelClass(isDark)}>{t('form.secondaryCtaLabel')}</label>
         <input
           value={secondaryLabel}
           onChange={(e) => setSecondaryLabel(e.target.value)}
@@ -609,7 +612,7 @@ function TranslationFields({
         />
       </div>
       <div>
-        <label className={labelClass(isDark)}>Secondary CTA URL</label>
+        <label className={labelClass(isDark)}>{t('form.secondaryCtaUrl')}</label>
         <input
           value={secondaryUrl}
           onChange={(e) => setSecondaryUrl(e.target.value)}

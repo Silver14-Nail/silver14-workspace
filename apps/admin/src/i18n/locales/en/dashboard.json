@@ -1,0 +1,51 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome back, {{name}}. Here's what's happening today.",
+  "kpi": {
+    "revenue": "Total Revenue",
+    "orders": "Total Orders",
+    "pendingOrders": "Pending Orders",
+    "wholesaleRevenue": "Wholesale Revenue",
+    "conversionRate": "Conversion Rate",
+    "activeCustomers": "Active Customers",
+    "lowStock": "Low Stock Alerts",
+    "failedPayments": "Failed Payments",
+    "actionNeeded": "Action needed",
+    "minusOneWeek": "-1 this week"
+  },
+  "charts": {
+    "revenueOrders": "Revenue & Orders",
+    "revenueOrdersSubtitle": "Monthly performance overview",
+    "revenueLabel": "Revenue",
+    "wholesaleLabel": "Wholesale",
+    "period7d": "7d",
+    "period30d": "30d",
+    "period6m": "6m",
+    "paymentMethods": "Payment Methods",
+    "paymentMethodsSubtitle": "Distribution this month",
+    "dailyOrders": "Daily Orders",
+    "dailyOrdersSubtitle": "This week",
+    "funnel": "Checkout Funnel",
+    "funnelSubtitle": "Cart abandonment this month"
+  },
+  "recentOrders": {
+    "title": "Recent Orders",
+    "viewAll": "View all"
+  },
+  "topProducts": {
+    "title": "Top Selling Products",
+    "viewAll": "View all",
+    "sold": "sold"
+  },
+  "lowStockAlerts": {
+    "title": "Low Stock Alerts",
+    "manage": "Manage",
+    "allInStock": "All products in stock",
+    "left": "{{count}} left"
+  },
+  "wholesale": {
+    "title": "Wholesale Enquiries",
+    "viewAll": "View all",
+    "noPending": "No pending enquiries"
+  }
+}

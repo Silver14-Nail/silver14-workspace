@@ -1,4 +1,4 @@
-const getBase = () => process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+import { getBase } from './api-base';
 
 export type CampaignType =
   | 'hero'

@@ -26,6 +26,8 @@ import { InitiateStripePaymentDto } from './dto/initiate-stripe-payment.dto';
 import { CreatePaypalOrderDto } from './dto/create-paypal-order.dto';
 import { CapturePaypalOrderDto } from './dto/capture-paypal-order.dto';
 
+const FREE_SHIPPING_THRESHOLD_USD = 100;
+
 interface SessionTotals {
   subtotal: number;
   discountAmount: number;
@@ -226,7 +228,9 @@ export class ClientPaymentsService {
     const exchangeRate = Number(session.exchangeRate) || 1;
 
     const isFreeShipping =
-      session.couponCode !== null && discountAmountUSD === 0 && rawShippingFeeUSD > 0;
+      rawShippingFeeUSD > 0 &&
+      (subtotalUSD >= FREE_SHIPPING_THRESHOLD_USD ||
+        (session.couponCode !== null && discountAmountUSD === 0));
     const effectiveShippingUSD = isFreeShipping ? 0 : rawShippingFeeUSD;
 
     const convert = (usd: number) =>

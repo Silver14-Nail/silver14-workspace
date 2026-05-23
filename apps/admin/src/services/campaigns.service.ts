@@ -35,7 +35,10 @@ export async function createCampaign(payload: CreateCampaignPayload): Promise<Ca
   return data;
 }
 
-export async function updateCampaign(id: string, payload: UpdateCampaignPayload): Promise<Campaign> {
+export async function updateCampaign(
+  id: string,
+  payload: UpdateCampaignPayload,
+): Promise<Campaign> {
   const client = await createApiClient();
   const { data } = await client.patch<Campaign>(`/admin-api/marketing/campaigns/${id}`, payload);
   return data;

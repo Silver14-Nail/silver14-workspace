@@ -1,17 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Eye, Send, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
 import { mockAbandonedCarts } from '../../../../MOCK_DATAS/mockData';
 
-const tabsConfig = [
-  { id: 'abandoned', label: 'Abandoned Carts', count: 5 },
-  { id: 'active', label: 'Active Carts', count: 3 },
-  { id: 'sessions', label: 'Checkout Sessions', count: 8 },
-  { id: 'guest', label: 'Guest Checkouts', count: 4 },
-] as const;
-
-type CartTab = (typeof tabsConfig)[number]['id'];
+type CartTab = 'abandoned' | 'active' | 'sessions' | 'guest';
 
 const activeCarts = [
   {
@@ -154,17 +148,26 @@ function timeAgo(dateStr: string) {
 }
 
 export default function AdminCheckoutPage() {
+  const { t } = useTranslation('checkouts');
   const [activeTab, setActiveTab] = useState<CartTab>('abandoned');
+
+  const tabsConfig = [
+    { id: 'abandoned' as const, label: t('tabs.abandoned'), count: 5 },
+    { id: 'active' as const, label: t('tabs.active'), count: 3 },
+    { id: 'sessions' as const, label: t('tabs.sessions'), count: 8 },
+    { id: 'guest' as const, label: t('tabs.guests'), count: 4 },
+  ];
+
+  const checkoutStepLabels = [t('stepContact'), t('stepShipping'), t('stepPayment')];
+  const checkoutStepKeys = ['Contact', 'Shipping', 'Payment'];
 
   return (
     <div className="p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Checkout & Carts</h1>
-          <p className="text-sm text-[#6B7280] mt-0.5">
-            Monitor cart activity and checkout sessions
-          </p>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
+          <p className="text-sm text-[#6B7280] mt-0.5">{t('subtitle')}</p>
         </div>
       </div>
 
@@ -172,28 +175,28 @@ export default function AdminCheckoutPage() {
       <div className="grid grid-cols-4 gap-4">
         {[
           {
-            label: 'Active Carts',
+            label: t('stats.activeCarts'),
             value: '3',
             icon: ShoppingCart,
             color: 'text-blue-600',
             bg: 'bg-blue-50',
           },
           {
-            label: 'Abandoned Today',
+            label: t('stats.abandonedToday'),
             value: '5',
             icon: AlertTriangle,
             color: 'text-amber-600',
             bg: 'bg-amber-50',
           },
           {
-            label: 'Checkout Sessions',
+            label: t('stats.sessions'),
             value: '8',
             icon: Clock,
             color: 'text-purple-600',
             bg: 'bg-purple-50',
           },
           {
-            label: 'Recovery Potential',
+            label: t('stats.recovery'),
             value: '$359',
             icon: RefreshCw,
             color: 'text-emerald-600',
@@ -229,23 +232,28 @@ export default function AdminCheckoutPage() {
       {activeTab === 'abandoned' && (
         <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#111827]">Abandoned Carts</h3>
-            <p className="text-xs text-[#6B7280]">Last 24 hours</p>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('tabs.abandoned')}</h3>
+            <p className="text-xs text-[#6B7280]">{t('lastHours')}</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                  {['Customer', 'Items', 'Value', 'Abandoned At Step', 'Time Ago', 'Actions'].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider"
-                      >
-                        {h}
-                      </th>
-                    ),
-                  )}
+                  {[
+                    t('table.customer'),
+                    t('table.items'),
+                    t('table.value'),
+                    t('table.abandonedAt'),
+                    t('table.timeAgo'),
+                    t('table.actions'),
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F3F4F6]">
@@ -271,7 +279,7 @@ export default function AdminCheckoutPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] transition-colors">
-                          <Send className="w-3 h-3" /> Recover
+                          <Send className="w-3 h-3" /> {t('recover')}
                         </button>
                         <button className="p-1.5 rounded-lg hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827]">
                           <Eye className="w-4 h-4" />
@@ -290,10 +298,10 @@ export default function AdminCheckoutPage() {
       {activeTab === 'active' && (
         <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#111827]">Active Carts</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('tabs.active')}</h3>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <p className="text-xs text-emerald-600 font-medium">Live</p>
+              <p className="text-xs text-emerald-600 font-medium">{t('live')}</p>
             </div>
           </div>
           <div className="divide-y divide-[#F3F4F6]">
@@ -313,7 +321,7 @@ export default function AdminCheckoutPage() {
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${stepColors[cart.step]}`}
                     >
-                      Step: {cart.step}
+                      {t('step', { step: cart.step })}
                     </span>
                     <span className="text-sm font-bold text-[#111827]">
                       ${cart.value.toFixed(2)}
@@ -321,20 +329,18 @@ export default function AdminCheckoutPage() {
                   </div>
                 </div>
                 <div className="mt-3 flex items-center gap-4 text-xs text-[#6B7280]">
-                  <span>
-                    {cart.items} item{cart.items !== 1 ? 's' : ''}
-                  </span>
+                  <span>{t('itemCount', { count: cart.items })}</span>
                   {cart.coupon && (
                     <span className="px-2 py-0.5 rounded bg-[#F3F4F6] font-mono">
                       {cart.coupon}
                     </span>
                   )}
-                  <span>Active {timeAgo(cart.updatedAt)}</span>
+                  <span>{t('activeAgo', { time: timeAgo(cart.updatedAt) })}</span>
                 </div>
                 {/* Progress bar for checkout steps */}
                 <div className="mt-3 flex items-center gap-1">
-                  {['Contact', 'Shipping', 'Payment'].map((step, i) => {
-                    const stepIndex = ['Contact', 'Shipping', 'Payment'].indexOf(cart.step);
+                  {checkoutStepKeys.map((step, i) => {
+                    const stepIndex = checkoutStepKeys.indexOf(cart.step);
                     return (
                       <div key={step} className="flex items-center gap-1 flex-1">
                         <div
@@ -350,7 +356,7 @@ export default function AdminCheckoutPage() {
                   })}
                 </div>
                 <div className="mt-1 flex justify-between text-xs text-[#9CA3AF]">
-                  {['Contact', 'Shipping', 'Payment'].map((s) => (
+                  {checkoutStepLabels.map((s) => (
                     <span key={s}>{s}</span>
                   ))}
                 </div>
@@ -364,22 +370,28 @@ export default function AdminCheckoutPage() {
       {activeTab === 'sessions' && (
         <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#E5E7EB]">
-            <h3 className="text-sm font-semibold text-[#111827]">Checkout Sessions</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('tabs.sessions')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                  {['Session ID', 'Customer', 'Step', 'Status', 'Duration', 'Total', 'Started'].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider"
-                      >
-                        {h}
-                      </th>
-                    ),
-                  )}
+                  {[
+                    t('table.sessionId'),
+                    t('table.customer'),
+                    t('table.step'),
+                    t('table.status'),
+                    t('table.duration'),
+                    t('table.total'),
+                    t('table.started'),
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F3F4F6]">
@@ -403,7 +415,7 @@ export default function AdminCheckoutPage() {
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${session.status === 'active' ? 'bg-emerald-400 animate-pulse' : session.status === 'completed' ? 'bg-blue-400' : 'bg-[#D1D5DB]'}`}
                         />
-                        {session.status}
+                        {t(`sessionStatus.${session.status}`)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-[#6B7280]">{session.duration}</td>
@@ -425,22 +437,29 @@ export default function AdminCheckoutPage() {
       {activeTab === 'guest' && (
         <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
           <div className="px-5 py-4 border-b border-[#E5E7EB]">
-            <h3 className="text-sm font-semibold text-[#111827]">Guest Checkouts</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('tabs.guests')}</h3>
+            <p className="text-xs text-[#6B7280] mt-0.5">{t('lastHours')}</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
-                  {['Email', 'Country', 'Items', 'Total', 'Step/Status', 'Date', 'Action'].map(
-                    (h) => (
-                      <th
-                        key={h}
-                        className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider"
-                      >
-                        {h}
-                      </th>
-                    ),
-                  )}
+                  {[
+                    t('table.email'),
+                    t('table.country'),
+                    t('table.items'),
+                    t('table.total'),
+                    t('table.step'),
+                    t('table.date'),
+                    t('table.action'),
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F3F4F6]">
@@ -470,7 +489,7 @@ export default function AdminCheckoutPage() {
                     <td className="px-4 py-3">
                       {gc.step !== 'Completed' && (
                         <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151]">
-                          <Send className="w-3 h-3" /> Recover
+                          <Send className="w-3 h-3" /> {t('recover')}
                         </button>
                       )}
                     </td>
