@@ -238349,6 +238349,7 @@ const nail_shape_entity_1 = __webpack_require__(1745);
 const nail_size_entity_1 = __webpack_require__(1747);
 const product_image_entity_1 = __webpack_require__(1743);
 const product_variants_entity_1 = __webpack_require__(1746);
+const product_shape_pricing_entity_1 = __webpack_require__(1744);
 const products_service_1 = __webpack_require__(2100);
 const products_controller_1 = __webpack_require__(2106);
 const nail_variant_strategy_1 = __webpack_require__(2101);
@@ -238366,6 +238367,7 @@ exports.ProductsModule = ProductsModule = tslib_1.__decorate([
                 nail_size_entity_1.NailSizeEntity,
                 product_image_entity_1.ProductImageEntity,
                 product_variants_entity_1.ProductVariantEntity,
+                product_shape_pricing_entity_1.ProductShapePricingEntity,
             ]),
         ],
         controllers: [
@@ -268698,7 +268700,7 @@ const getSignedUrl = async (client, command, options = {}) => {
 
 "use strict";
 
-var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductsService = void 0;
 const tslib_1 = __webpack_require__(1);
@@ -268722,16 +268724,18 @@ const nail_shape_entity_1 = __webpack_require__(1745);
 const nail_size_entity_1 = __webpack_require__(1747);
 const product_image_entity_1 = __webpack_require__(1743);
 const product_variants_entity_1 = __webpack_require__(1746);
+const product_shape_pricing_entity_1 = __webpack_require__(1744);
 const entity_enum_1 = __webpack_require__(1731);
 const r2_service_1 = __webpack_require__(1938);
 const translation_service_1 = __webpack_require__(2103);
 let ProductsService = class ProductsService {
-    constructor(productRepo, nailShapeRepo, nailSizeRepo, productImageRepo, productVariantRepo, r2, translationService, nailVariantStrategy, colorVariantStrategy) {
+    constructor(productRepo, nailShapeRepo, nailSizeRepo, productImageRepo, productVariantRepo, productShapePricingRepo, r2, translationService, nailVariantStrategy, colorVariantStrategy) {
         this.productRepo = productRepo;
         this.nailShapeRepo = nailShapeRepo;
         this.nailSizeRepo = nailSizeRepo;
         this.productImageRepo = productImageRepo;
         this.productVariantRepo = productVariantRepo;
+        this.productShapePricingRepo = productShapePricingRepo;
         this.r2 = r2;
         this.translationService = translationService;
         this.nailVariantStrategy = nailVariantStrategy;
@@ -268824,18 +268828,48 @@ let ProductsService = class ProductsService {
             type: productType,
         });
         const saved = await this.productRepo.save(product);
-        // Auto-create a single default variant for non-NAIL products (supply, accessory, tool)
-        if (productType !== entity_enum_1.ProductType.NAIL) {
-            const defaultVariant = this.productVariantRepo.create({
+        if (productType === entity_enum_1.ProductType.NAIL) {
+            // Auto-create shape pricings + variants for ALL active shapes × ALL sizes
+            const [shapes, sizes] = await Promise.all([
+                this.nailShapeRepo.find({ where: { isActive: true }, order: { name: 'ASC' } }),
+                this.nailSizeRepo.find({ order: { label: 'ASC' } }),
+            ]);
+            await this.productShapePricingRepo.save(shapes.map((shape) => this.productShapePricingRepo.create({
+                product: saved,
+                shape,
+                priceOverride: null,
+                priceAdjustment: null,
+                adjustmentType: null,
+                isEnabled: true,
+            })));
+            const basePrice = Number(saved.basePrice);
+            await this.productVariantRepo.save(shapes.flatMap((shape) => {
+                const adjustment = shape.adjustmentType === entity_enum_1.PriceAdjustmentType.PERCENT
+                    ? basePrice * (Number(shape.priceAdjustment) / 100)
+                    : Number(shape.priceAdjustment) || 0;
+                const computedPrice = basePrice + adjustment;
+                return sizes.map((size) => this.productVariantRepo.create({
+                    product: saved,
+                    shape,
+                    size,
+                    sku: null,
+                    stockQty: 0,
+                    computedPrice,
+                    isAvailable: false,
+                }));
+            }));
+        }
+        else {
+            // Non-NAIL products get a single default variant
+            await this.productVariantRepo.save(this.productVariantRepo.create({
                 product: saved,
                 shape: null,
                 size: null,
                 computedPrice: dto.salePrice ?? dto.basePrice,
                 sku: dto.sku ?? null,
                 stockQty: dto.stockQty ?? 0,
-                isAvailable: true,
-            });
-            await this.productVariantRepo.save(defaultVariant);
+                isAvailable: (dto.stockQty ?? 0) > 0,
+            }));
         }
         // Fire-and-forget: generate translations asynchronously
         this.translationService.generateForProduct(saved).catch(() => undefined);
@@ -269155,7 +269189,8 @@ exports.ProductsService = ProductsService = tslib_1.__decorate([
     tslib_1.__param(2, (0, typeorm_1.InjectRepository)(nail_size_entity_1.NailSizeEntity)),
     tslib_1.__param(3, (0, typeorm_1.InjectRepository)(product_image_entity_1.ProductImageEntity)),
     tslib_1.__param(4, (0, typeorm_1.InjectRepository)(product_variants_entity_1.ProductVariantEntity)),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof r2_service_1.R2Service !== "undefined" && r2_service_1.R2Service) === "function" ? _f : Object, typeof (_g = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _g : Object, typeof (_h = typeof nail_variant_strategy_1.NailVariantStrategy !== "undefined" && nail_variant_strategy_1.NailVariantStrategy) === "function" ? _h : Object, typeof (_j = typeof color_variant_strategy_1.ColorVariantStrategy !== "undefined" && color_variant_strategy_1.ColorVariantStrategy) === "function" ? _j : Object])
+    tslib_1.__param(5, (0, typeorm_1.InjectRepository)(product_shape_pricing_entity_1.ProductShapePricingEntity)),
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object, typeof (_g = typeof r2_service_1.R2Service !== "undefined" && r2_service_1.R2Service) === "function" ? _g : Object, typeof (_h = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _h : Object, typeof (_j = typeof nail_variant_strategy_1.NailVariantStrategy !== "undefined" && nail_variant_strategy_1.NailVariantStrategy) === "function" ? _j : Object, typeof (_k = typeof color_variant_strategy_1.ColorVariantStrategy !== "undefined" && color_variant_strategy_1.ColorVariantStrategy) === "function" ? _k : Object])
 ], ProductsService);
 
 

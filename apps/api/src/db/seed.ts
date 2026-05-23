@@ -33,6 +33,23 @@ function created(entity: string, identifier: string) {
   log(`✓  ${entity} created (${identifier})`);
 }
 
+function productCode(slug: string): string {
+  return slug
+    .split('-')
+    .map((w) => w[0].toUpperCase())
+    .join('');
+}
+
+function shapeCode(name: string): string {
+  const words = name.split(' ');
+  if (words.length === 1) return name.substring(0, 3).toUpperCase();
+  if (words[0] === 'XXL') return 'XXL' + words[1].substring(0, 2).toUpperCase();
+  return words
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+}
+
 // ─── Seed definitions ─────────────────────────────────────────────────────────
 
 const ADMIN = {
@@ -49,46 +66,125 @@ const NAIL_SHAPES: {
   adjustmentType: PriceAdjustmentType;
 }[] = [
   // ── Short (2.0 cm) ──────────────────────────────────────────────────────────
-  { name: 'Short Oval',   lengthMm: 20, sizeTier: ShapeSizeTier.STANDARD, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Short Almond', lengthMm: 20, sizeTier: ShapeSizeTier.STANDARD, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Short Square', lengthMm: 20, sizeTier: ShapeSizeTier.STANDARD, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  {
+    name: 'Short Oval',
+    lengthMm: 20,
+    sizeTier: ShapeSizeTier.STANDARD,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Short Almond',
+    lengthMm: 20,
+    sizeTier: ShapeSizeTier.STANDARD,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Short Square',
+    lengthMm: 20,
+    sizeTier: ShapeSizeTier.STANDARD,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
   // ── Medium (2.5 cm) ─────────────────────────────────────────────────────────
-  { name: 'Medium Almond', lengthMm: 25, sizeTier: ShapeSizeTier.MEDIUM, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Medium Square', lengthMm: 25, sizeTier: ShapeSizeTier.MEDIUM, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Medium Coffin', lengthMm: 25, sizeTier: ShapeSizeTier.MEDIUM, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  {
+    name: 'Medium Almond',
+    lengthMm: 25,
+    sizeTier: ShapeSizeTier.MEDIUM,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Medium Square',
+    lengthMm: 25,
+    sizeTier: ShapeSizeTier.MEDIUM,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Medium Coffin',
+    lengthMm: 25,
+    sizeTier: ShapeSizeTier.MEDIUM,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
   // ── Long (2.8 – 3.2 cm) ─────────────────────────────────────────────────────
-  { name: 'Long Almond', lengthMm: 28, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Long Coffin',  lengthMm: 30, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Long Square',  lengthMm: 30, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'Stiletto',     lengthMm: 32, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  {
+    name: 'Long Almond',
+    lengthMm: 28,
+    sizeTier: ShapeSizeTier.LARGE,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Long Coffin',
+    lengthMm: 30,
+    sizeTier: ShapeSizeTier.LARGE,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Long Square',
+    lengthMm: 30,
+    sizeTier: ShapeSizeTier.LARGE,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'Stiletto',
+    lengthMm: 32,
+    sizeTier: ShapeSizeTier.LARGE,
+    priceAdjustment: 0,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
   // ── XXL (+$10) ───────────────────────────────────────────────────────────────
-  { name: 'XXL Stiletto', lengthMm: 55, sizeTier: ShapeSizeTier.XL, priceAdjustment: 10, adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'XXL Coffin',   lengthMm: 40, sizeTier: ShapeSizeTier.XL, priceAdjustment: 10, adjustmentType: PriceAdjustmentType.FIXED },
-  { name: 'XXL Square',   lengthMm: 40, sizeTier: ShapeSizeTier.XL, priceAdjustment: 10, adjustmentType: PriceAdjustmentType.FIXED },
+  {
+    name: 'XXL Stiletto',
+    lengthMm: 55,
+    sizeTier: ShapeSizeTier.XL,
+    priceAdjustment: 10,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'XXL Coffin',
+    lengthMm: 40,
+    sizeTier: ShapeSizeTier.XL,
+    priceAdjustment: 10,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
+  {
+    name: 'XXL Square',
+    lengthMm: 40,
+    sizeTier: ShapeSizeTier.XL,
+    priceAdjustment: 10,
+    adjustmentType: PriceAdjustmentType.FIXED,
+  },
 ];
 
 // Widths per finger: thumb · index · middle · ring · pinky
 const NAIL_SIZES: { label: NailSizeLabel; sizeCode: string; measurements: string }[] = [
-  { label: NailSizeLabel.XS, sizeCode: 'XS', measurements: 'thumb: 14mm | index: 10mm | middle: 11mm | ring: 10mm | pinky: 8mm' },
-  { label: NailSizeLabel.S,  sizeCode: 'S',  measurements: 'thumb: 15mm | index: 11mm | middle: 12mm | ring: 11mm | pinky: 9mm' },
-  { label: NailSizeLabel.M,  sizeCode: 'M',  measurements: 'thumb: 16mm | index: 12mm | middle: 13mm | ring: 12mm | pinky: 10mm' },
-  { label: NailSizeLabel.L,  sizeCode: 'L',  measurements: 'thumb: 17mm | index: 13mm | middle: 14mm | ring: 13mm | pinky: 11mm' },
+  {
+    label: NailSizeLabel.XS,
+    sizeCode: 'XS',
+    measurements: 'thumb: 14mm | index: 10mm | middle: 11mm | ring: 10mm | pinky: 8mm',
+  },
+  {
+    label: NailSizeLabel.S,
+    sizeCode: 'S',
+    measurements: 'thumb: 15mm | index: 11mm | middle: 12mm | ring: 11mm | pinky: 9mm',
+  },
+  {
+    label: NailSizeLabel.M,
+    sizeCode: 'M',
+    measurements: 'thumb: 16mm | index: 12mm | middle: 13mm | ring: 12mm | pinky: 10mm',
+  },
+  {
+    label: NailSizeLabel.L,
+    sizeCode: 'L',
+    measurements: 'thumb: 17mm | index: 13mm | middle: 14mm | ring: 13mm | pinky: 11mm',
+  },
 ];
-
-type ShapePricingInput = {
-  shapeName: string;
-  priceOverride: number | null;
-  priceAdjustment: number | null;
-  adjustmentType: PriceAdjustmentType | null;
-};
-
-type VariantInput = {
-  shapeName: string;
-  sizeCode: string;
-  sku: string;
-  stockQty: number;
-  computedPrice: number;
-};
 
 type LocaleTranslation = {
   locale: string;
@@ -108,8 +204,6 @@ type ProductInput = {
   isNew?: boolean;
   isBestSeller?: boolean;
   images: string[];
-  shapePricings: ShapePricingInput[];
-  variants: VariantInput[];
   translations: LocaleTranslation[];
 };
 
@@ -126,63 +220,6 @@ const PRODUCTS: ProductInput[] = [
     images: [
       'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400',
       'https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400',
-    ],
-    shapePricings: [
-      { shapeName: 'Almond', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      { shapeName: 'Coffin', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      { shapeName: 'Square', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      { shapeName: 'Stiletto', priceOverride: 50.0, priceAdjustment: null, adjustmentType: null },
-    ],
-    variants: [
-      {
-        shapeName: 'Almond',
-        sizeCode: 'XS',
-        sku: 'S14-CA-ALM-XS',
-        stockQty: 24,
-        computedPrice: 38.0,
-      },
-      {
-        shapeName: 'Almond',
-        sizeCode: 'S',
-        sku: 'S14-CA-ALM-S',
-        stockQty: 32,
-        computedPrice: 38.0,
-      },
-      {
-        shapeName: 'Almond',
-        sizeCode: 'M',
-        sku: 'S14-CA-ALM-M',
-        stockQty: 18,
-        computedPrice: 38.0,
-      },
-      {
-        shapeName: 'Coffin',
-        sizeCode: 'S',
-        sku: 'S14-CA-COF-S',
-        stockQty: 15,
-        computedPrice: 40.0,
-      },
-      {
-        shapeName: 'Coffin',
-        sizeCode: 'M',
-        sku: 'S14-CA-COF-M',
-        stockQty: 22,
-        computedPrice: 40.0,
-      },
-      {
-        shapeName: 'Stiletto',
-        sizeCode: 'L',
-        sku: 'S14-CA-STL-L',
-        stockQty: 8,
-        computedPrice: 50.0,
-      },
-      {
-        shapeName: 'Stiletto',
-        sizeCode: 'XL',
-        sku: 'S14-CA-STL-XL',
-        stockQty: 0,
-        computedPrice: 50.0,
-      },
     ],
     translations: [
       {
@@ -213,46 +250,6 @@ const PRODUCTS: ProductInput[] = [
     isNew: false,
     isBestSeller: true,
     images: ['https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400'],
-    shapePricings: [
-      { shapeName: 'Almond', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      { shapeName: 'Square', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      {
-        shapeName: 'Ballerina',
-        priceOverride: null,
-        priceAdjustment: 2.0,
-        adjustmentType: PriceAdjustmentType.FIXED,
-      },
-    ],
-    variants: [
-      {
-        shapeName: 'Almond',
-        sizeCode: 'S',
-        sku: 'S14-MV-ALM-S',
-        stockQty: 30,
-        computedPrice: 35.0,
-      },
-      {
-        shapeName: 'Almond',
-        sizeCode: 'M',
-        sku: 'S14-MV-ALM-M',
-        stockQty: 25,
-        computedPrice: 35.0,
-      },
-      {
-        shapeName: 'Square',
-        sizeCode: 'XS',
-        sku: 'S14-MV-SQR-XS',
-        stockQty: 12,
-        computedPrice: 35.0,
-      },
-      {
-        shapeName: 'Ballerina',
-        sizeCode: 'L',
-        sku: 'S14-MV-BAL-L',
-        stockQty: 18,
-        computedPrice: 38.0,
-      },
-    ],
     translations: [
       {
         locale: 'en',
@@ -285,28 +282,6 @@ const PRODUCTS: ProductInput[] = [
       'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400',
       'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400',
       'https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400',
-    ],
-    shapePricings: [
-      { shapeName: 'Coffin', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      { shapeName: 'Oval', priceOverride: null, priceAdjustment: null, adjustmentType: null },
-      {
-        shapeName: 'XXL Stiletto',
-        priceOverride: 60.0,
-        priceAdjustment: null,
-        adjustmentType: null,
-      },
-    ],
-    variants: [
-      { shapeName: 'Coffin', sizeCode: 'S', sku: 'S14-RQ-COF-S', stockQty: 8, computedPrice: 44.0 },
-      { shapeName: 'Coffin', sizeCode: 'M', sku: 'S14-RQ-COF-M', stockQty: 4, computedPrice: 44.0 },
-      { shapeName: 'Oval', sizeCode: 'M', sku: 'S14-RQ-OVL-M', stockQty: 0, computedPrice: 42.0 },
-      {
-        shapeName: 'XXL Stiletto',
-        sizeCode: 'XL',
-        sku: 'S14-RQ-XXL-XL',
-        stockQty: 0,
-        computedPrice: 60.0,
-      },
     ],
     translations: [
       {
@@ -1310,46 +1285,38 @@ async function seedProducts(
       ),
     );
 
-    // Shape pricings
-    for (const sp of p.shapePricings) {
-      const shape = shapesByName.get(sp.shapeName);
-      if (!shape) {
-        log(`⚠  Shape "${sp.shapeName}" not found — skipping pricing for ${p.name}`);
-        continue;
-      }
+    // Shape pricings — all shapes
+    for (const [, shape] of shapesByName) {
       await pricingRepo.save(
         pricingRepo.create({
           product,
           shape,
-          priceOverride: sp.priceOverride,
-          priceAdjustment: sp.priceAdjustment,
-          adjustmentType: sp.adjustmentType,
+          priceOverride: null,
+          priceAdjustment: null,
+          adjustmentType: null,
           isEnabled: true,
         }),
       );
     }
 
-    // Variants — isAvailable derived from stockQty
-    for (const v of p.variants) {
-      const shape = shapesByName.get(v.shapeName);
-      const size = sizesByCode.get(v.sizeCode);
-      if (!shape || !size) {
-        log(
-          `⚠  Shape "${v.shapeName}" or size "${v.sizeCode}" not found — skipping variant for ${p.name}`,
+    // Variants — all shapes × all sizes (computedPrice = basePrice + shape adjustment)
+    for (const [, shape] of shapesByName) {
+      const adjustment = Number(shape.priceAdjustment) || 0;
+      const computedPrice = p.basePrice + adjustment;
+      for (const [, size] of sizesByCode) {
+        const sku = `S14-${productCode(p.slug)}-${shapeCode(shape.name)}-${size.sizeCode}`;
+        await variantRepo.save(
+          variantRepo.create({
+            product,
+            shape,
+            size,
+            sku,
+            stockQty: 10,
+            computedPrice,
+            isAvailable: true,
+          }),
         );
-        continue;
       }
-      await variantRepo.save(
-        variantRepo.create({
-          product,
-          shape,
-          size,
-          sku: v.sku,
-          stockQty: v.stockQty,
-          computedPrice: v.computedPrice,
-          isAvailable: v.stockQty > 0,
-        }),
-      );
     }
 
     // Translations
@@ -1375,7 +1342,7 @@ async function seedProducts(
     result.set(p.name, product);
     created(
       'Product',
-      `${p.name} | ${p.images.length} images | ${p.shapePricings.length} pricings | ${p.variants.length} variants | ${p.translations.length} translations`,
+      `${p.name} | ${p.images.length} images | ${shapesByName.size} pricings | ${shapesByName.size * sizesByCode.size} variants | ${p.translations.length} translations`,
     );
   }
 
