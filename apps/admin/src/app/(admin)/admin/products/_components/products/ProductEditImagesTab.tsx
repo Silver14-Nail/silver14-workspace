@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Upload, Trash2, Star, ChevronUp, ChevronDown, Loader2, Package } from 'lucide-react';
 import type { ApiProductImage } from '../../types';
 import {
@@ -24,6 +25,7 @@ export default function ProductEditImagesTab({
   images,
   onRefresh,
 }: ProductEditImagesTabProps) {
+  const { t } = useTranslation('products');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -43,11 +45,11 @@ export default function ProductEditImagesTab({
 
     for (const file of files) {
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setUploadError(`"${file.name}" is not a supported image type (JPEG, PNG, WebP, GIF).`);
+        setUploadError(t('images.errorType', { name: file.name }));
         continue;
       }
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        setUploadError(`"${file.name}" exceeds the ${MAX_SIZE_MB}MB limit.`);
+        setUploadError(t('images.errorSize', { name: file.name, max: MAX_SIZE_MB }));
         continue;
       }
 
@@ -65,14 +67,14 @@ export default function ProductEditImagesTab({
 
         await onRefresh();
       } catch {
-        setUploadError('An unexpected error occurred during upload.');
+        setUploadError(t('images.errorUnexpected'));
       }
       setUploading(false);
     }
   };
 
   const handleDelete = async (img: ApiProductImage) => {
-    if (!confirm('Remove this image?')) return;
+    if (!confirm(t('images.removeConfirm'))) return;
     setActionError('');
     setDeletingId(img.id);
     const result = await deleteProductImageAction(productId, img.id);
@@ -124,7 +126,7 @@ export default function ProductEditImagesTab({
       {/* Upload button */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-semibold text-[#374151] uppercase tracking-wider">
-          Images ({images.length})
+          {t('images.title', { count: images.length })}
         </h3>
         <button
           onClick={() => fileInputRef.current?.click()}
@@ -136,7 +138,7 @@ export default function ProductEditImagesTab({
           ) : (
             <Upload className="w-3.5 h-3.5" />
           )}
-          {uploading ? 'Uploading...' : 'Upload Images'}
+          {uploading ? t('images.uploading') : t('images.upload')}
         </button>
         <input
           ref={fileInputRef}
@@ -166,9 +168,9 @@ export default function ProductEditImagesTab({
       >
         <Upload className="w-5 h-5 text-[#D1D5DB] mx-auto mb-1" />
         <p className="text-xs text-[#9CA3AF]">
-          Click to upload or drag &amp; drop
+          {t('images.dropHint')}
           <br />
-          JPEG, PNG, WebP, GIF · max {MAX_SIZE_MB}MB per file
+          {t('images.formatHint', { max: MAX_SIZE_MB })}
         </p>
       </div>
 
@@ -176,7 +178,7 @@ export default function ProductEditImagesTab({
       {sorted.length === 0 ? (
         <div className="py-10 text-center border border-dashed border-[#E5E7EB] rounded-xl">
           <Package className="w-7 h-7 text-[#D1D5DB] mx-auto mb-2" />
-          <p className="text-sm text-[#9CA3AF]">No images yet</p>
+          <p className="text-sm text-[#9CA3AF]">{t('images.noImages')}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -207,7 +209,7 @@ export default function ProductEditImagesTab({
                     {img.isMain && (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#111827] text-white text-[10px] font-semibold">
                         <Star className="w-2.5 h-2.5" />
-                        Main
+                        {t('images.mainBadge')}
                       </span>
                     )}
                     <span className="text-xs text-[#6B7280]">#{idx + 1}</span>
@@ -240,7 +242,7 @@ export default function ProductEditImagesTab({
                     <button
                       onClick={() => handleSetMain(img)}
                       disabled={busy}
-                      title="Set as main image"
+                      title={t('images.setMain')}
                       className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-amber-500 hover:bg-amber-50 disabled:opacity-40 transition-colors"
                     >
                       {isSettingMain ? (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ApiProductDetail, ApiNailShape, ApiNailSize } from '../../types';
 import { getProductDetailAction, updateProductAction } from '../../actions';
 import ProductEditImagesTab from './ProductEditImagesTab';
@@ -27,6 +28,7 @@ export default function ProductEditDrawer({
   onClose,
   onSuccess,
 }: ProductEditDrawerProps) {
+  const { t } = useTranslation('products');
   const [product, setProduct] = useState<ApiProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -106,16 +108,18 @@ export default function ProductEditDrawer({
   const canSave = name.trim() !== '' && basePrice !== '' && basePriceNum >= 0 && salePriceValid;
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'info', label: 'General Info' },
+    { key: 'info', label: t('edit.tabGeneral') },
     {
       key: 'images',
-      label: product ? `Images (${product.images.length})` : 'Images',
+      label: product ? `${t('edit.tabImages')} (${product.images.length})` : t('edit.tabImages'),
     },
     {
       key: 'variants',
-      label: product ? `Variants (${product.variants.length})` : 'Variants',
+      label: product
+        ? `${t('edit.tabVariants')} (${product.variants.length})`
+        : t('edit.tabVariants'),
     },
-    { key: 'translations', label: 'Translations' },
+    { key: 'translations', label: t('edit.tabTranslations') },
   ];
 
   return (
@@ -125,7 +129,7 @@ export default function ProductEditDrawer({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] shrink-0">
           <div className="min-w-0 pr-4">
-            <h2 className="text-sm font-semibold text-[#111827]">Edit Product</h2>
+            <h2 className="text-sm font-semibold text-[#111827]">{t('edit.title')}</h2>
             {product && <p className="text-xs text-[#9CA3AF] mt-0.5 truncate">{product.name}</p>}
           </div>
           <button
@@ -174,7 +178,7 @@ export default function ProductEditDrawer({
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                    Name *
+                    {t('form.name')}
                   </label>
                   <input
                     value={name}
@@ -185,7 +189,7 @@ export default function ProductEditDrawer({
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                    Description <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                    {t('form.description')}
                   </label>
                   <textarea
                     value={description}
@@ -198,7 +202,7 @@ export default function ProductEditDrawer({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                      Base Price *
+                      {t('form.basePrice')}
                     </label>
                     <input
                       value={basePrice}
@@ -212,7 +216,7 @@ export default function ProductEditDrawer({
                   </div>
                   <div>
                     <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                      Currency *
+                      {t('form.currency')}
                     </label>
                     <select
                       value={currency}
@@ -230,7 +234,7 @@ export default function ProductEditDrawer({
 
                 <div>
                   <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                    Sale Price <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                    {t('form.salePrice')}
                   </label>
                   <input
                     value={salePrice}
@@ -238,7 +242,7 @@ export default function ProductEditDrawer({
                     type="number"
                     min="0"
                     step="0.01"
-                    placeholder="Leave empty for no sale"
+                    placeholder={t('form.salePriceHint')}
                     className={`w-full px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors ${
                       !salePriceValid
                         ? 'border-red-400 focus:border-red-500'
@@ -246,13 +250,12 @@ export default function ProductEditDrawer({
                     }`}
                   />
                   {!salePriceValid && (
-                    <p className="mt-1 text-xs text-red-500">
-                      Sale price must be less than base price
-                    </p>
+                    <p className="mt-1 text-xs text-red-500">{t('form.salePriceError')}</p>
                   )}
                   {discountPreview != null && (
                     <p className="mt-1 text-xs text-emerald-600 font-medium">
-                      {discountPreview}% off
+                      {discountPreview}
+                      {t('form.off')}
                     </p>
                   )}
                 </div>
@@ -260,8 +263,8 @@ export default function ProductEditDrawer({
                 <div className="rounded-lg bg-[#F9FAFB] divide-y divide-[#E5E7EB]">
                   <div className="flex items-center justify-between p-4">
                     <div>
-                      <p className="text-sm font-medium text-[#374151]">Active</p>
-                      <p className="text-xs text-[#9CA3AF]">Visible to customers</p>
+                      <p className="text-sm font-medium text-[#374151]">{t('form.active')}</p>
+                      <p className="text-xs text-[#9CA3AF]">{t('form.activeHint')}</p>
                     </div>
                     <button
                       type="button"
@@ -280,8 +283,8 @@ export default function ProductEditDrawer({
 
                   <div className="flex items-center justify-between p-4">
                     <div>
-                      <p className="text-sm font-medium text-[#374151]">New</p>
-                      <p className="text-xs text-[#9CA3AF]">Show &ldquo;New&rdquo; badge</p>
+                      <p className="text-sm font-medium text-[#374151]">{t('form.isNew')}</p>
+                      <p className="text-xs text-[#9CA3AF]">{t('form.isNewHint')}</p>
                     </div>
                     <button
                       type="button"
@@ -300,8 +303,8 @@ export default function ProductEditDrawer({
 
                   <div className="flex items-center justify-between p-4">
                     <div>
-                      <p className="text-sm font-medium text-[#374151]">Best Seller</p>
-                      <p className="text-xs text-[#9CA3AF]">Show &ldquo;Best Seller&rdquo; badge</p>
+                      <p className="text-sm font-medium text-[#374151]">{t('form.isBestSeller')}</p>
+                      <p className="text-xs text-[#9CA3AF]">{t('form.isBestSellerHint')}</p>
                     </div>
                     <button
                       type="button"
@@ -322,9 +325,9 @@ export default function ProductEditDrawer({
                 {product && (
                   <div className="pt-2 border-t border-[#F3F4F6] space-y-2">
                     {[
-                      { label: 'Product ID', value: product.id, mono: true },
+                      { label: t('edit.productId'), value: product.id, mono: true },
                       {
-                        label: 'Created',
+                        label: t('edit.created'),
                         value: new Date(product.createdAt).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',
@@ -368,9 +371,7 @@ export default function ProductEditDrawer({
               />
             )}
 
-            {tab === 'translations' && (
-              <ProductTranslationsTab productId={productId} />
-            )}
+            {tab === 'translations' && <ProductTranslationsTab productId={productId} />}
           </div>
         )}
 
@@ -382,13 +383,13 @@ export default function ProductEditDrawer({
               disabled={!canSave || saving}
               className="flex-1 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('form.saving') : t('edit.save')}
             </button>
             <button
               onClick={onClose}
               className="px-4 py-2.5 rounded-lg border border-[#E5E7EB] text-sm font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
             >
-              Cancel
+              {t('form.cancel')}
             </button>
           </div>
         )}

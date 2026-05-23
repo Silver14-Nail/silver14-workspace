@@ -1,4 +1,4 @@
-const getBase = () => process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+import { getBase } from '@/lib/api-base';
 
 export interface CouponValidationResult {
   valid: boolean;

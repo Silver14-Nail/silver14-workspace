@@ -155,10 +155,7 @@ export async function getProductDetail(id: string): Promise<ApiProductDetail> {
 
 // ─── Product Images ────────────────────────────────────────────────────────────
 
-export async function uploadProductImage(
-  productId: string,
-  file: File,
-): Promise<ApiProductImage> {
+export async function uploadProductImage(productId: string, file: File): Promise<ApiProductImage> {
   const client = await createApiClient();
   const formData = new FormData();
   formData.append('file', file);

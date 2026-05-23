@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 import type { Product, CreateProductPayload, UpdateProductPayload } from '../products/types';
 
@@ -20,6 +21,7 @@ export default function SupplyFormDrawer({
   supply,
   onSubmit,
 }: SupplyFormDrawerProps) {
+  const { t } = useTranslation('supplies');
   const { theme } = useAdminTheme();
   const isDark = theme === 'dark';
   const isEdit = !!supply;
@@ -70,13 +72,13 @@ export default function SupplyFormDrawer({
 
     const basePriceNum = parseFloat(basePrice);
     if (isNaN(basePriceNum) || basePriceNum < 0) {
-      setError('Base price must be a valid number ≥ 0');
+      setError(t('form.basePriceError'));
       return;
     }
 
     const salePriceNum = salePrice ? parseFloat(salePrice) : undefined;
     if (salePrice && (isNaN(salePriceNum!) || salePriceNum! >= basePriceNum)) {
-      setError('Sale price must be less than base price');
+      setError(t('form.salePriceError'));
       return;
     }
 
@@ -97,7 +99,7 @@ export default function SupplyFormDrawer({
     try {
       const result = await onSubmit(payload);
       if (!result.success) {
-        setError(result.error ?? 'Something went wrong');
+        setError(result.error ?? t('form.error'));
       }
     } finally {
       setLoading(false);
@@ -123,7 +125,7 @@ export default function SupplyFormDrawer({
         {/* Header */}
         <div className={`flex items-center justify-between px-6 py-4 border-b ${isDark ? 'border-gray-800' : 'border-[#E5E7EB]'}`}>
           <h2 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-[#111827]'}`}>
-            {isEdit ? 'Edit Supply' : 'Add Supply'}
+            {isEdit ? t('form.editTitle') : t('form.createTitle')}
           </h2>
           <button onClick={onClose} className={`p-1.5 rounded hover:bg-[#F3F4F6] ${isDark ? 'hover:bg-gray-800 text-gray-400' : 'text-[#6B7280]'}`}>
             <X className="w-4 h-4" />
@@ -139,22 +141,22 @@ export default function SupplyFormDrawer({
           )}
 
           <div>
-            <label className={labelCls}>Name *</label>
+            <label className={labelCls}>{t('form.name')} *</label>
             <input
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Premium Nail Glue"
+              placeholder={t('form.namePlaceholder')}
               className={inputCls}
             />
           </div>
 
           <div>
-            <label className={labelCls}>Description</label>
+            <label className={labelCls}>{t('form.description')}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Product description..."
+              placeholder={t('form.descriptionPlaceholder')}
               rows={3}
               className={`${inputCls} resize-none`}
             />
@@ -162,7 +164,7 @@ export default function SupplyFormDrawer({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Base Price (USD) *</label>
+              <label className={labelCls}>{t('form.basePrice')} *</label>
               <input
                 required
                 type="number"
@@ -175,14 +177,14 @@ export default function SupplyFormDrawer({
               />
             </div>
             <div>
-              <label className={labelCls}>Sale Price</label>
+              <label className={labelCls}>{t('form.salePrice')}</label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 value={salePrice}
                 onChange={(e) => setSalePrice(e.target.value)}
-                placeholder="Optional"
+                placeholder={t('form.salePricePlaceholder')}
                 className={inputCls}
               />
             </div>
@@ -190,7 +192,7 @@ export default function SupplyFormDrawer({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>SKU</label>
+              <label className={labelCls}>{t('form.sku')}</label>
               <input
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
@@ -199,7 +201,7 @@ export default function SupplyFormDrawer({
               />
             </div>
             <div>
-              <label className={labelCls}>Stock Quantity</label>
+              <label className={labelCls}>{t('form.stockQty')}</label>
               <input
                 type="number"
                 min="0"
@@ -213,9 +215,9 @@ export default function SupplyFormDrawer({
 
           <div className="space-y-3 pt-2">
             {[
-              { label: 'Active', value: isActive, set: setIsActive },
-              { label: 'New arrival', value: isNew, set: setIsNew },
-              { label: 'Best seller', value: isBestSeller, set: setIsBestSeller },
+              { label: t('form.active'), value: isActive, set: setIsActive },
+              { label: t('form.newArrival'), value: isNew, set: setIsNew },
+              { label: t('form.bestSeller'), value: isBestSeller, set: setIsBestSeller },
             ].map(({ label, value, set }) => (
               <label key={label} className="flex items-center justify-between cursor-pointer">
                 <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-[#374151]'}`}>{label}</span>
@@ -238,7 +240,7 @@ export default function SupplyFormDrawer({
             onClick={onClose}
             className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border transition-colors ${isDark ? 'border-gray-700 text-gray-300 hover:bg-gray-800' : 'border-[#E5E7EB] text-[#374151] hover:bg-[#F9FAFB]'}`}
           >
-            Cancel
+            {t('form.cancel')}
           </button>
           <button
             onClick={handleSubmit as any}
@@ -246,7 +248,7 @@ export default function SupplyFormDrawer({
             className="flex-1 px-4 py-2.5 bg-[#111827] text-white rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isEdit ? 'Save Changes' : 'Create Supply'}
+            {isEdit ? t('form.saveChanges') : t('form.create')}
           </button>
         </div>
       </div>

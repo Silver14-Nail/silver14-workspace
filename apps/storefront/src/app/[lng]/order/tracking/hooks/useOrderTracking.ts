@@ -2,8 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { TrackingFormData, TrackedOrder } from '../types';
-
-const getBase = () => process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+import { getBase } from '@/lib/api-base';
 
 async function fetchTrackedOrder(orderId: string, phone: string): Promise<TrackedOrder | null> {
   try {

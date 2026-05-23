@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Loader2, Star, StarOff, Eye, EyeOff, Trash2, Edit2, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Collection, CollectionWithProducts } from '../types';
 import {
   getCollectionDetailAction,
@@ -21,6 +22,7 @@ interface Props {
 }
 
 export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, onUpdate }: Props) {
+  const { t } = useTranslation('collections');
   const [detail, setDetail] = useState<CollectionWithProducts | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -43,14 +45,14 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
     const result = await fn();
     setActionLoading(null);
     if (!result.success) {
-      setError((result as any).error ?? 'Action failed');
+      setError((result as any).error ?? t('detail.actionFailed'));
     } else if (result.data) {
       onUpdate(result.data as Collection);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this collection? This cannot be undone.')) return;
+    if (!confirm(t('detail.deleteConfirm'))) return;
     setActionLoading('delete');
     const result = await deleteCollectionAction(collection.id);
     setActionLoading(null);
@@ -58,7 +60,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
       onDelete(collection.id);
       onClose();
     } else {
-      setError((result as { success: false; error: string }).error ?? 'Delete failed');
+      setError((result as { success: false; error: string }).error ?? t('detail.deleteFailed'));
     }
   };
 
@@ -91,7 +93,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
               onClick={() => onEdit(collection)}
               className="flex items-center gap-1.5 rounded border border-[#D1D5DB] px-3 py-1.5 text-xs font-medium text-[#374151] hover:bg-[#F9FAFB]"
             >
-              <Edit2 className="size-3.5" /> Edit
+              <Edit2 className="size-3.5" /> {t('detail.edit')}
             </button>
             <button
               disabled={!!actionLoading}
@@ -111,7 +113,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
               ) : (
                 <Eye className="size-3.5" />
               )}
-              {collection.isActive ? 'Deactivate' : 'Activate'}
+              {collection.isActive ? t('detail.deactivate') : t('detail.activate')}
             </button>
             <button
               disabled={!!actionLoading}
@@ -131,7 +133,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
               ) : (
                 <Star className="size-3.5" />
               )}
-              {collection.isFeatured ? 'Unfeature' : 'Feature'}
+              {collection.isFeatured ? t('detail.unfeature') : t('detail.feature')}
             </button>
             <button
               disabled={!!actionLoading}
@@ -143,7 +145,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
               ) : (
                 <Trash2 className="size-3.5" />
               )}
-              Delete
+              {t('detail.delete')}
             </button>
           </div>
 
@@ -156,22 +158,22 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
                   : 'bg-[#F3F4F6] text-[#6B7280]'
               }`}
             >
-              {collection.isActive ? 'Active' : 'Inactive'}
+              {collection.isActive ? t('badge.active') : t('badge.inactive')}
             </span>
             {collection.isFeatured && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                <Star className="size-3" /> Featured
+                <Star className="size-3" /> {t('badge.featured')}
               </span>
             )}
             <span className="inline-flex items-center gap-1 rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-xs font-medium text-[#6B7280]">
-              <Package className="size-3" /> {collection.productCount ?? 0} products
+              <Package className="size-3" /> {t('detail.productCount', { count: collection.productCount ?? 0 })}
             </span>
           </div>
 
           {/* Description */}
           {collection.description && (
             <div>
-              <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-1">Description</p>
+              <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-1">{t('detail.description')}</p>
               <p className="text-sm text-[#374151]">{collection.description}</p>
             </div>
           )}
@@ -179,7 +181,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
           {/* SEO */}
           {(collection.seoTitle || collection.seoDescription) && (
             <div className="rounded border border-[#E5E7EB] p-4">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">SEO</p>
+              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">{t('detail.seo')}</p>
               {collection.seoTitle && (
                 <p className="text-sm font-medium text-[#111827]">{collection.seoTitle}</p>
               )}
@@ -192,11 +194,11 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
           {/* Products */}
           <div>
             <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">
-              Assigned Products
+              {t('detail.assignedProducts')}
             </p>
             {loadingDetail ? (
               <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
-                <Loader2 className="size-4 animate-spin" /> Loading...
+                <Loader2 className="size-4 animate-spin" /> {t('detail.loading')}
               </div>
             ) : detail?.products?.length ? (
               <div className="space-y-2">
@@ -229,14 +231,14 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
                           p.isActive ? 'bg-green-50 text-green-700' : 'bg-[#F3F4F6] text-[#9CA3AF]'
                         }`}
                       >
-                        {p.isActive ? 'Active' : 'Inactive'}
+                        {p.isActive ? t('badge.active') : t('badge.inactive')}
                       </span>
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <p className="text-sm text-[#9CA3AF]">No products assigned yet.</p>
+              <p className="text-sm text-[#9CA3AF]">{t('detail.noProducts')}</p>
             )}
           </div>
         </div>

@@ -18,7 +18,9 @@ export interface CollectionListQuery {
   isFeatured?: boolean;
 }
 
-export async function listCollections(query?: CollectionListQuery): Promise<CollectionListResponse> {
+export async function listCollections(
+  query?: CollectionListQuery,
+): Promise<CollectionListResponse> {
   const client = await createApiClient();
   const { data } = await client.get<CollectionListResponse>('/admin-api/collections', {
     params: query,

@@ -1,0 +1,49 @@
+{
+  "title": "Thanh toán & Giỏ hàng",
+  "subtitle": "Theo dõi hoạt động giỏ hàng và phiên thanh toán",
+  "tabs": {
+    "abandoned": "Giỏ hàng bỏ rơi",
+    "active": "Giỏ hàng đang hoạt động",
+    "sessions": "Phiên thanh toán",
+    "guests": "Thanh toán khách"
+  },
+  "stats": {
+    "activeCarts": "Giỏ hàng đang hoạt động",
+    "abandonedToday": "Bỏ rơi hôm nay",
+    "sessions": "Phiên thanh toán",
+    "recovery": "Tiềm năng khôi phục"
+  },
+  "table": {
+    "customer": "Khách hàng",
+    "items": "Sản phẩm",
+    "value": "Giá trị",
+    "abandonedAt": "Bỏ rơi tại bước",
+    "timeAgo": "Thời gian trước",
+    "actions": "Thao tác",
+    "sessionId": "Mã phiên",
+    "step": "Bước",
+    "status": "Trạng thái",
+    "duration": "Thời lượng",
+    "total": "Tổng",
+    "started": "Bắt đầu",
+    "email": "Email",
+    "country": "Quốc gia",
+    "date": "Ngày",
+    "action": "Thao tác"
+  },
+  "recover": "Khôi phục",
+  "live": "Trực tiếp",
+  "step": "Bước: {{step}}",
+  "itemCount_one": "{{count}} sản phẩm",
+  "itemCount_other": "{{count}} sản phẩm",
+  "activeAgo": "Hoạt động {{time}} trước",
+  "stepContact": "Liên hệ",
+  "stepShipping": "Vận chuyển",
+  "stepPayment": "Thanh toán",
+  "lastHours": "24 giờ qua",
+  "sessionStatus": {
+    "active": "Đang hoạt động",
+    "completed": "Hoàn thành",
+    "abandoned": "Đã bỏ"
+  }
+}

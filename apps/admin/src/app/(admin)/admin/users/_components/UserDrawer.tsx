@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useTranslation } from 'react-i18next';
 import { KeyRound, Loader2, Mail, Phone, ShieldCheck, ShieldOff, Trash2, X } from 'lucide-react';
 
 import { deleteUserAction, getUserAction, toggleUserActiveAction } from '../actions';
@@ -34,6 +35,7 @@ type Props = {
 };
 
 export function UserDrawer({ userId, onClose }: Props) {
+  const { t } = useTranslation('users');
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export function UserDrawer({ userId, onClose }: Props) {
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
-          <h2 className="text-sm font-semibold text-[#111827]">User Details</h2>
+          <h2 className="text-sm font-semibold text-[#111827]">{t('drawer.title')}</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-[#F3F4F6] transition-colors"
@@ -136,7 +138,7 @@ export function UserDrawer({ userId, onClose }: Props) {
                           : 'bg-gray-100 text-gray-600 border-gray-200'
                       }`}
                     >
-                      {user.isActive ? 'Active' : 'Inactive'}
+                      {user.isActive ? t('badge.active') : t('badge.inactive')}
                     </span>
                   </div>
                 </div>
@@ -158,22 +160,22 @@ export function UserDrawer({ userId, onClose }: Props) {
               {/* Account Info */}
               <div className="px-6 py-4">
                 <h3 className="text-xs font-semibold text-[#374151] uppercase tracking-wider mb-3">
-                  Account Info
+                  {t('drawer.accountInfo')}
                 </h3>
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#6B7280]">Email Verified</span>
+                    <span className="text-xs text-[#6B7280]">{t('drawer.emailVerified')}</span>
                     <span
                       className={`text-xs font-medium ${
                         user.emailVerified ? 'text-emerald-600' : 'text-red-500'
                       }`}
                     >
-                      {user.emailVerified ? '✓ Verified' : '✗ Unverified'}
+                      {user.emailVerified ? t('drawer.verified') : t('drawer.unverified')}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#6B7280]">Member Since</span>
+                    <span className="text-xs text-[#6B7280]">{t('drawer.memberSince')}</span>
                     <span className="text-xs font-medium text-[#374151]">
                       {new Date(user.createdAt).toLocaleDateString('en-GB', {
                         day: '2-digit',
@@ -184,7 +186,7 @@ export function UserDrawer({ userId, onClose }: Props) {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#6B7280]">Last Login</span>
+                    <span className="text-xs text-[#6B7280]">{t('drawer.lastLogin')}</span>
                     <span className="text-xs font-medium text-[#374151]">
                       {user.lastLoginAt
                         ? new Date(user.lastLoginAt).toLocaleString('en-GB', {
@@ -199,7 +201,7 @@ export function UserDrawer({ userId, onClose }: Props) {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#6B7280]">User ID</span>
+                    <span className="text-xs text-[#6B7280]">{t('drawer.userId')}</span>
                     <span className="text-xs font-mono text-[#9CA3AF] truncate max-w-[180px]">
                       {user.id}
                     </span>
@@ -215,13 +217,13 @@ export function UserDrawer({ userId, onClose }: Props) {
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] disabled:opacity-50 transition-colors"
               >
                 <KeyRound className="w-4 h-4" />
-                Reset Password
+                {t('drawer.resetPassword')}
               </button>
 
               <button
                 onClick={handleToggleActive}
                 disabled={isPending}
-                title={user.isActive ? 'Deactivate user' : 'Activate user'}
+                title={user.isActive ? t('drawer.deactivate') : t('drawer.activate')}
                 className={`px-3.5 py-2.5 rounded-lg border text-sm font-medium disabled:opacity-50 transition-colors ${
                   user.isActive
                     ? 'border-orange-200 text-orange-600 hover:bg-orange-50'

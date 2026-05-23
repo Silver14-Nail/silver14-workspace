@@ -33,6 +33,7 @@ import { UpdateShippingDto } from './dto/update-shipping.dto';
 import { ApplyCouponDto } from './dto/apply-coupon.dto';
 
 const SESSION_EXPIRY_HOURS = 2;
+const FREE_SHIPPING_THRESHOLD_USD = 100;
 
 @Injectable()
 export class ClientCheckoutService {
@@ -409,7 +410,9 @@ export class ClientCheckoutService {
     const discountAmountUSD = Number(session.discountAmount ?? 0);
 
     const isFreeShipping =
-      session.couponCode !== null && session.discountAmount === 0 && shippingFeeUSD !== null;
+      shippingFeeUSD !== null &&
+      (subtotalUSD >= FREE_SHIPPING_THRESHOLD_USD ||
+        (session.couponCode !== null && session.discountAmount === 0));
     const effectiveShippingUSD = isFreeShipping ? 0 : (shippingFeeUSD ?? 0);
 
     const currency = (session.currency as string) || SupportedCurrency.USD;

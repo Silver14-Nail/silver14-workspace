@@ -3,6 +3,7 @@
 import { useState, useTransition, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, Eye, Download, ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import type {
   OrderListResponse,
@@ -63,6 +64,7 @@ interface OrdersClientProps {
 }
 
 export function OrdersClient({ initialOrders, initialStats, currentQuery }: OrdersClientProps) {
+  const { t } = useTranslation('orders');
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -166,12 +168,12 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
 
   const { pagination } = orders;
   const quickStatuses: Array<{ key: OrderStatus | 'all'; label: string }> = [
-    { key: 'all', label: 'All' },
-    { key: 'pending', label: 'Pending' },
-    { key: 'processing', label: 'Processing' },
-    { key: 'shipped', label: 'Shipped' },
-    { key: 'delivered', label: 'Delivered' },
-    { key: 'cancelled', label: 'Cancelled' },
+    { key: 'all', label: t('status.all') },
+    { key: 'pending', label: t('status.pending') },
+    { key: 'processing', label: t('status.processing') },
+    { key: 'shipped', label: t('status.shipped') },
+    { key: 'delivered', label: t('status.delivered') },
+    { key: 'cancelled', label: t('status.cancelled') },
   ];
 
   return (
@@ -179,13 +181,13 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Orders</h1>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
           <p className="text-sm text-[#6B7280] mt-0.5">
-            {pagination.totalItems} total order{pagination.totalItems !== 1 ? 's' : ''}
+            {t('subtitle', { count: pagination.totalItems })}
           </p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-[#E5E7EB] text-[#374151] text-sm font-medium hover:bg-[#F3F4F6]">
-          <Download className="w-4 h-4" /> Export
+          <Download className="w-4 h-4" /> {t('export')}
         </button>
       </div>
 
@@ -193,13 +195,13 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
           <StatCard
-            label="Revenue this month"
+            label={t('stats.revenue')}
             value={`$${stats.revenue.thisMonth.toFixed(2)}`}
-            sub={`$${stats.revenue.today.toFixed(2)} today`}
+            sub={t('stats.revenueToday', { amount: `$${stats.revenue.today.toFixed(2)}` })}
           />
-          <StatCard label="Pending" value={stats.counts.pending} />
-          <StatCard label="Shipped" value={stats.counts.shipped} />
-          <StatCard label="Delivered" value={stats.counts.delivered} />
+          <StatCard label={t('stats.pending')} value={stats.counts.pending} />
+          <StatCard label={t('stats.shipped')} value={stats.counts.shipped} />
+          <StatCard label={t('stats.delivered')} value={stats.counts.delivered} />
         </div>
       )}
 
@@ -234,7 +236,7 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
           <Search className="w-4 h-4 text-[#9CA3AF] flex-shrink-0" />
           <input
             type="text"
-            placeholder="Order ID or customer email..."
+            placeholder={t('filter.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 text-sm outline-none placeholder:text-[#9CA3AF]"
@@ -246,12 +248,12 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
           onChange={(e) => handlePaymentFilter(e.target.value)}
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none cursor-pointer"
         >
-          <option value="all">All Payments</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Payment Pending</option>
-          <option value="failed">Failed</option>
-          <option value="refunded">Refunded</option>
-          <option value="partially_refunded">Partial Refund</option>
+          <option value="all">{t('filter.allPayments')}</option>
+          <option value="paid">{t('filter.paid')}</option>
+          <option value="pending">{t('filter.paymentPending')}</option>
+          <option value="failed">{t('filter.failed')}</option>
+          <option value="refunded">{t('filter.refunded')}</option>
+          <option value="partially_refunded">{t('filter.partialRefund')}</option>
         </select>
 
         <div className="flex items-center gap-2">
@@ -261,7 +263,7 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
             onChange={(e) => setDateFrom(e.target.value)}
             className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none"
           />
-          <span className="text-xs text-[#9CA3AF]">to</span>
+          <span className="text-xs text-[#9CA3AF]">{t('filter.dateTo')}</span>
           <input
             type="date"
             value={dateTo}
@@ -272,7 +274,7 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
             onClick={handleDateFilter}
             className="px-3 py-2 rounded-lg bg-[#111827] text-white text-xs font-medium"
           >
-            Apply
+            {t('filter.apply')}
           </button>
         </div>
       </div>
@@ -286,26 +288,26 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
             <thead>
               <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Order
+                  {t('table.order')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Customer
+                  {t('table.customer')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Payment
+                  {t('table.payment')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Status
+                  {t('table.status')}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider hidden md:table-cell">
-                  Shipping
+                  {t('table.shipping')}
                 </th>
                 <th
                   className="px-4 py-3 text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider cursor-pointer hover:text-[#111827] select-none"
                   onClick={() => handleSort('total')}
                 >
                   <span className="flex items-center gap-1">
-                    Total <ArrowUpDown className="w-3 h-3" />
+                    {t('table.total')} <ArrowUpDown className="w-3 h-3" />
                   </span>
                 </th>
                 <th
@@ -313,11 +315,11 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
                   onClick={() => handleSort('createdAt')}
                 >
                   <span className="flex items-center gap-1">
-                    Date <ArrowUpDown className="w-3 h-3" />
+                    {t('table.date')} <ArrowUpDown className="w-3 h-3" />
                   </span>
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
-                  Action
+                  {t('table.action')}
                 </th>
               </tr>
             </thead>
@@ -332,7 +334,7 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
         {orders.items.length === 0 && (
           <div className="py-16 text-center">
             <p className="text-sm text-[#9CA3AF]">
-              {isPending ? 'Loading orders...' : 'No orders match your filters'}
+              {isPending ? t('loading') : t('empty')}
             </p>
           </div>
         )}
@@ -341,8 +343,11 @@ export function OrdersClient({ initialOrders, initialStats, currentQuery }: Orde
         {pagination.totalPages > 1 && (
           <div className="px-5 py-3 border-t border-[#E5E7EB] flex items-center justify-between">
             <p className="text-xs text-[#6B7280]">
-              Page {pagination.currentPage} of {pagination.totalPages} · {pagination.totalItems}{' '}
-              orders
+              {t('pagination', {
+                page: pagination.currentPage,
+                totalPages: pagination.totalPages,
+                total: pagination.totalItems,
+              })}
             </p>
             <div className="flex items-center gap-1">
               <button

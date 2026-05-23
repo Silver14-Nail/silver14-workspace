@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type {
   CouponDetail,
   DiscountType,
@@ -53,6 +54,7 @@ function toDatetimeLocal(iso: string | null | undefined): string {
 }
 
 export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDrawerProps) {
+  const { t } = useTranslation('coupons');
   const isEdit = couponId !== null;
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [loading, setLoading] = useState(isEdit);
@@ -96,11 +98,11 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
 
     const discountValue = parseFloat(form.discountValue);
     if (!form.code.trim()) {
-      setError('Coupon code is required');
+      setError(t('form.codeRequired'));
       return;
     }
     if (form.discountType !== 'free_shipping' && (isNaN(discountValue) || discountValue <= 0)) {
-      setError('Discount value must be greater than 0');
+      setError(t('form.discountRequired'));
       return;
     }
 
@@ -165,7 +167,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] shrink-0">
           <h2 className="text-sm font-semibold text-[#111827]">
-            {isEdit ? 'Edit Coupon' : 'Create Coupon'}
+            {isEdit ? t('form.editTitle') : t('form.createTitle')}
           </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#F3F4F6]">
             <X className="w-4 h-4" />
@@ -189,7 +191,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {/* Code */}
               <div>
                 <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                  Coupon Code <span className="text-red-500">*</span>
+                  {t('form.code')} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -203,7 +205,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
                     onClick={generateCode}
                     className="px-3 py-2 rounded-lg border border-[#E5E7EB] text-xs text-[#6B7280] hover:bg-[#F3F4F6]"
                   >
-                    Generate
+                    {t('form.generate')}
                   </button>
                 </div>
               </div>
@@ -211,12 +213,12 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {/* Description */}
               <div>
                 <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                  Description
+                  {t('form.description')}
                 </label>
                 <input
                   value={form.description}
                   onChange={(e) => set('description', e.target.value)}
-                  placeholder="Optional description"
+                  placeholder={t('form.descriptionPlaceholder')}
                   className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
                 />
               </div>
@@ -224,7 +226,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {/* Discount Type */}
               <div>
                 <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                  Discount Type
+                  {t('form.discountType')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['percent', 'fixed', 'free_shipping'] as DiscountType[]).map((type) => (
@@ -235,10 +237,10 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
                       className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${form.discountType === type ? 'bg-[#111827] text-white border-[#111827]' : 'border-[#E5E7EB] text-[#374151] hover:border-[#111827]'}`}
                     >
                       {type === 'percent'
-                        ? '% Percent'
+                        ? t('form.typePercent')
                         : type === 'fixed'
-                          ? '$ Fixed'
-                          : 'Free Ship'}
+                          ? t('form.typeFixed')
+                          : t('form.typeFreeShip')}
                     </button>
                   ))}
                 </div>
@@ -248,7 +250,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {form.discountType !== 'free_shipping' && (
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    {form.discountType === 'percent' ? 'Percentage (%)' : 'Amount ($)'}{' '}
+                    {form.discountType === 'percent' ? t('form.discountPercent') : t('form.discountAmount')}{' '}
                     <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -268,7 +270,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {form.discountType === 'percent' && (
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Max Discount Cap ($)
+                    {t('form.maxDiscountCap')}
                   </label>
                   <input
                     type="number"
@@ -276,7 +278,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
                     step="0.01"
                     value={form.maxDiscountAmount}
                     onChange={(e) => set('maxDiscountAmount', e.target.value)}
-                    placeholder="Unlimited"
+                    placeholder={t('form.unlimited')}
                     className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
                   />
                 </div>
@@ -286,7 +288,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Min. Order ($)
+                    {t('form.minOrder')}
                   </label>
                   <input
                     type="number"
@@ -300,7 +302,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Uses per User
+                    {t('form.usesPerUser')}
                   </label>
                   <input
                     type="number"
@@ -315,14 +317,14 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {/* Total Usage Limit */}
               <div>
                 <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                  Total Usage Limit
+                  {t('form.totalUsageLimit')}
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={form.maxUsesTotal}
                   onChange={(e) => set('maxUsesTotal', e.target.value)}
-                  placeholder="Unlimited"
+                  placeholder={t('form.unlimited')}
                   className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-[#111827]"
                 />
               </div>
@@ -331,7 +333,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Starts At
+                    {t('form.startsAt')}
                   </label>
                   <input
                     type="datetime-local"
@@ -342,7 +344,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
-                    Expires At
+                    {t('form.expiresAt')}
                   </label>
                   <input
                     type="datetime-local"
@@ -356,8 +358,8 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               {/* Active toggle */}
               <div className="flex items-center justify-between p-3 bg-[#F9FAFB] rounded-lg border border-[#E5E7EB]">
                 <div>
-                  <p className="text-sm font-medium text-[#374151]">Active</p>
-                  <p className="text-xs text-[#9CA3AF]">Coupon is usable by customers</p>
+                  <p className="text-sm font-medium text-[#374151]">{t('form.activeLabel')}</p>
+                  <p className="text-xs text-[#9CA3AF]">{t('form.activeHint')}</p>
                 </div>
                 <button
                   type="button"
@@ -383,14 +385,14 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] disabled:opacity-60 transition-colors"
             >
               {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isEdit ? 'Save Changes' : 'Create Coupon'}
+              {isEdit ? t('form.saveChanges') : t('form.create')}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2.5 rounded-lg border border-[#E5E7EB] text-[#374151] text-sm font-medium hover:bg-[#F3F4F6]"
             >
-              Cancel
+              {t('form.cancel')}
             </button>
           </div>
         )}

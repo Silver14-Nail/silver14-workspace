@@ -3,6 +3,7 @@
 import { useState, useCallback, memo, useTransition } from 'react';
 import { Search, Plus, Package, X, Edit, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { CURRENCY_SYMBOLS } from '../../_constants';
 import type { Product, ProductListResponse, ApiNailShape, ApiNailSize } from '../../types';
 import ProductFormDrawer from './ProductFormDrawer';
@@ -22,6 +23,7 @@ const ProductRow = memo(function ProductRow({
   onDelete,
   isDeleting,
 }: ProductRowProps) {
+  const { t } = useTranslation('products');
   return (
     <tr className="hover:bg-[#F9FAFB] transition-colors">
       <td className="px-4 py-3">
@@ -42,7 +44,7 @@ const ProductRow = memo(function ProductRow({
               <p className="text-sm font-medium text-[#111827] truncate">{product.name}</p>
               {product.salePrice != null && (
                 <span className="text-[10px] font-semibold bg-red-100 text-red-600 px-1.5 py-0.5 rounded shrink-0">
-                  SALE
+                  {t('badge.sale')}
                 </span>
               )}
             </div>
@@ -75,7 +77,7 @@ const ProductRow = memo(function ProductRow({
               product.isActive ? 'bg-emerald-400' : 'bg-[#D1D5DB]'
             }`}
           />
-          {product.isActive ? 'Active' : 'Inactive'}
+          {product.isActive ? t('badge.active') : t('badge.inactive')}
         </span>
       </td>
       <td className="px-4 py-3 text-right">
@@ -118,6 +120,7 @@ export default function ProductsTab({
   sizes,
 }: ProductsTabProps) {
   const router = useRouter();
+  const { t } = useTranslation('products');
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState(currentSearch);
   const [showAddDrawer, setShowAddDrawer] = useState(false);
@@ -172,9 +175,9 @@ export default function ProductsTab({
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Products</h1>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
           <p className="text-sm text-[#6B7280] mt-0.5">
-            {pagination.totalItems} products in catalog
+            {t('subtitle', { count: pagination.totalItems })}
           </p>
         </div>
         <button
@@ -182,21 +185,21 @@ export default function ProductsTab({
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Product
+          {t('addProduct')}
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
         {[
-          { label: 'Total Products', value: pagination.totalItems, color: 'text-[#111827]' },
+          { label: t('stats.total'), value: pagination.totalItems, color: 'text-[#111827]' },
           {
-            label: 'Active (page)',
+            label: t('stats.active'),
             value: items.filter((p) => p.isActive).length,
             color: 'text-emerald-600',
           },
           {
-            label: 'Pages',
+            label: t('stats.pages'),
             value: `${pagination.currentPage} / ${Math.max(1, pagination.totalPages)}`,
             color: 'text-[#111827]',
           },
@@ -217,7 +220,7 @@ export default function ProductsTab({
           <Search className="w-4 h-4 text-[#9CA3AF] shrink-0" />
           <input
             type="text"
-            placeholder="Search products... (press Enter)"
+            placeholder={t('search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 text-sm outline-none placeholder:text-[#9CA3AF]"
@@ -241,10 +244,10 @@ export default function ProductsTab({
             <thead>
               <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
                 {[
-                  { label: 'Product', cls: 'text-left' },
-                  { label: 'Base Price', cls: 'text-left' },
-                  { label: 'Status', cls: 'text-left' },
-                  { label: 'Actions', cls: 'text-right' },
+                  { label: t('table.product'), cls: 'text-left' },
+                  { label: t('table.basePrice'), cls: 'text-left' },
+                  { label: t('table.status'), cls: 'text-left' },
+                  { label: t('table.actions'), cls: 'text-right' },
                 ].map((h) => (
                   <th
                     key={h.label}
@@ -272,13 +275,13 @@ export default function ProductsTab({
         {items.length === 0 && (
           <div className="py-16 text-center">
             <Package className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
-            <p className="text-sm text-[#9CA3AF]">No products found</p>
+            <p className="text-sm text-[#9CA3AF]">{t('empty')}</p>
           </div>
         )}
 
         <div className="px-5 py-3 border-t border-[#E5E7EB] flex items-center justify-between">
           <p className="text-xs text-[#6B7280]">
-            Showing {items.length} of {pagination.totalItems} products
+            {t('pagination.showing', { count: items.length, total: pagination.totalItems })}
           </p>
           {pagination.totalPages > 1 && (
             <div className="flex items-center gap-2">
@@ -287,7 +290,7 @@ export default function ProductsTab({
                 onClick={() => navigate({ page: currentPage - 1, search: currentSearch })}
                 className="px-3 py-1.5 text-xs rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Prev
+                {t('pagination.prev')}
               </button>
               <span className="text-xs text-[#6B7280]">
                 {currentPage} / {pagination.totalPages}
@@ -297,14 +300,13 @@ export default function ProductsTab({
                 onClick={() => navigate({ page: currentPage + 1, search: currentSearch })}
                 className="px-3 py-1.5 text-xs rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Next
+                {t('pagination.next')}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Add new product */}
       {showAddDrawer && (
         <ProductFormDrawer
           onClose={() => setShowAddDrawer(false)}
@@ -315,7 +317,6 @@ export default function ProductsTab({
         />
       )}
 
-      {/* Edit product (full tabbed drawer) */}
       {editProductId && (
         <ProductEditDrawer
           productId={editProductId}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Collection, CreateCollectionPayload } from '../types';
 import { createCollectionAction, updateCollectionAction } from '../actions';
 import { CollectionTranslationsSection } from './CollectionTranslationsSection';
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) {
+  const { t } = useTranslation('collections');
   const isEdit = !!collection;
 
   const [form, setForm] = useState<CreateCollectionPayload>({
@@ -72,7 +74,7 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
           <h2 className="text-base font-semibold text-[#111827]">
-            {isEdit ? 'Edit Collection' : 'New Collection'}
+            {isEdit ? t('form.editTitle') : t('form.createTitle')}
           </h2>
           <button onClick={onClose} className="p-1 text-[#6B7280] hover:text-[#111827]">
             <X className="size-5" />
@@ -90,56 +92,56 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
           {/* Name */}
           <div>
             <label className="block text-xs font-medium text-[#374151] mb-1">
-              Name <span className="text-red-500">*</span>
+              {t('form.name')} <span className="text-red-500">*</span>
             </label>
             <input
               required
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
               className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
-              placeholder="e.g. Spring Collection"
+              placeholder={t('form.namePlaceholder')}
             />
           </div>
 
           {/* Slug */}
           <div>
             <label className="block text-xs font-medium text-[#374151] mb-1">
-              Slug <span className="text-[#9CA3AF]">(auto-generated if empty)</span>
+              {t('form.slug')} <span className="text-[#9CA3AF]">{t('form.slugHint')}</span>
             </label>
             <input
               value={form.slug}
               onChange={(e) => set('slug', e.target.value)}
               className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
-              placeholder="e.g. spring-collection"
+              placeholder={t('form.slugPlaceholder')}
             />
           </div>
 
           {/* Short description */}
           <div>
-            <label className="block text-xs font-medium text-[#374151] mb-1">Short Description</label>
+            <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.shortDescription')}</label>
             <input
               value={form.shortDescription}
               onChange={(e) => set('shortDescription', e.target.value)}
               className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
-              placeholder="One-line summary shown in cards"
+              placeholder={t('form.shortDescriptionPlaceholder')}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-medium text-[#374151] mb-1">Description</label>
+            <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.description')}</label>
             <textarea
               rows={3}
               value={form.description}
               onChange={(e) => set('description', e.target.value)}
               className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none resize-none"
-              placeholder="Full description shown on collection landing page"
+              placeholder={t('form.descriptionPlaceholder')}
             />
           </div>
 
           {/* Image URL */}
           <div>
-            <label className="block text-xs font-medium text-[#374151] mb-1">Cover Image URL</label>
+            <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.coverImage')}</label>
             <input
               value={form.image}
               onChange={(e) => set('image', e.target.value)}
@@ -150,7 +152,7 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
 
           {/* Banner Image URL */}
           <div>
-            <label className="block text-xs font-medium text-[#374151] mb-1">Banner Image URL</label>
+            <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.bannerImage')}</label>
             <input
               value={form.bannerImage}
               onChange={(e) => set('bannerImage', e.target.value)}
@@ -161,19 +163,19 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
 
           {/* SEO */}
           <div className="border-t border-[#E5E7EB] pt-5">
-            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">SEO</p>
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">{t('form.seo')}</p>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#374151] mb-1">SEO Title</label>
+                <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.seoTitle')}</label>
                 <input
                   value={form.seoTitle}
                   onChange={(e) => set('seoTitle', e.target.value)}
                   className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
-                  placeholder="e.g. Spring Collection — Silver14 Nail"
+                  placeholder={t('form.seoTitlePlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#374151] mb-1">SEO Description</label>
+                <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.seoDescription')}</label>
                 <textarea
                   rows={2}
                   value={form.seoDescription}
@@ -186,7 +188,7 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
 
           {/* Settings */}
           <div className="border-t border-[#E5E7EB] pt-5">
-            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">Settings</p>
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">{t('form.settings')}</p>
             <div className="space-y-3">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -195,7 +197,7 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
                   onChange={(e) => set('isActive', e.target.checked)}
                   className="size-4 rounded border-[#D1D5DB]"
                 />
-                <span className="text-sm text-[#374151]">Active (visible on storefront)</span>
+                <span className="text-sm text-[#374151]">{t('form.activeLabel')}</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -204,10 +206,10 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
                   onChange={(e) => set('isFeatured', e.target.checked)}
                   className="size-4 rounded border-[#D1D5DB]"
                 />
-                <span className="text-sm text-[#374151]">Featured (shown on homepage)</span>
+                <span className="text-sm text-[#374151]">{t('form.featuredLabel')}</span>
               </label>
               <div>
-                <label className="block text-xs font-medium text-[#374151] mb-1">Sort Order</label>
+                <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.sortOrder')}</label>
                 <input
                   type="number"
                   min={0}
@@ -232,7 +234,7 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
             onClick={onClose}
             className="rounded border border-[#D1D5DB] px-4 py-2 text-sm font-medium text-[#374151] hover:bg-[#F9FAFB]"
           >
-            Cancel
+            {t('form.cancel')}
           </button>
           <button
             onClick={handleSubmit}
@@ -240,7 +242,7 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
             className="flex items-center gap-2 rounded bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-[#1F2937] disabled:opacity-50"
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            {isEdit ? 'Save Changes' : 'Create Collection'}
+            {isEdit ? t('form.saveChanges') : t('form.create')}
           </button>
         </div>
       </div>

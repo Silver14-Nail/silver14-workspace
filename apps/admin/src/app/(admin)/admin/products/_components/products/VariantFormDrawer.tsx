@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import type { ApiNailShape, ApiNailSize, ApiProductVariant, ProductType } from '../../types';
 import { createVariantAction, updateVariantAction } from '../../actions';
@@ -24,6 +25,7 @@ export default function VariantFormDrawer({
   onClose,
   onSuccess,
 }: VariantFormDrawerProps) {
+  const { t } = useTranslation('products');
   const isEdit = variant !== undefined;
   const isNail = productType === 'nail';
 
@@ -100,7 +102,7 @@ export default function VariantFormDrawer({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
           <h3 className="text-sm font-semibold text-[#111827]">
-            {isEdit ? 'Edit Variant' : 'Add Variant'}
+            {isEdit ? t('variantForm.editTitle') : t('variantForm.addTitle')}
           </h3>
           <button
             onClick={onClose}
@@ -122,14 +124,14 @@ export default function VariantFormDrawer({
             <>
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                  Nail Shape *
+                  {t('variantForm.shape')}
                 </label>
                 <select
                   value={shapeId}
                   onChange={(e) => setShapeId(e.target.value)}
                   className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
                 >
-                  <option value="">Select a shape...</option>
+                  <option value="">{t('variantForm.shapePlaceholder')}</option>
                   {activeShapes.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.name} ({s.sizeTier})
@@ -138,21 +140,21 @@ export default function VariantFormDrawer({
                 </select>
                 {shapes.length > activeShapes.length && (
                   <p className="text-xs text-[#9CA3AF] mt-1">
-                    {shapes.length - activeShapes.length} inactive shapes hidden
+                    {t('variantForm.shapeHidden', { count: shapes.length - activeShapes.length })}
                   </p>
                 )}
               </div>
 
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                  Nail Size *
+                  {t('variantForm.size')}
                 </label>
                 <select
                   value={sizeId}
                   onChange={(e) => handleSizeChange(e.target.value)}
                   className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none cursor-pointer focus:border-[#111827] transition-colors"
                 >
-                  <option value="">Select a size...</option>
+                  <option value="">{t('variantForm.sizePlaceholder')}</option>
                   {sizes.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.label} — {s.sizeCode}
@@ -163,7 +165,7 @@ export default function VariantFormDrawer({
                 </select>
                 {isCustomSizeSelected && (
                   <p className="text-xs text-amber-600 mt-1.5 bg-amber-50 px-2.5 py-1.5 rounded-md border border-amber-100">
-                    Custom size is made-to-order. Stock is set to 9999 (unlimited).
+                    {t('variantForm.sizeCustomHint')}
                   </p>
                 )}
               </div>
@@ -172,25 +174,25 @@ export default function VariantFormDrawer({
             <>
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                  Color Name <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                  {t('variantForm.colorName')}
                 </label>
                 <input
                   value={colorName}
                   onChange={(e) => setColorName(e.target.value)}
-                  placeholder="e.g. Clear, Bn01, Pink"
+                  placeholder={t('variantForm.colorNamePlaceholder')}
                   className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                  Color Hex <span className="font-normal text-[#9CA3AF]">(optional)</span>
+                  {t('variantForm.colorHex')}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
                     value={colorHex}
                     onChange={(e) => setColorHex(e.target.value)}
-                    placeholder="#RRGGBB"
+                    placeholder={t('variantForm.colorHexPlaceholder')}
                     maxLength={7}
                     className="flex-1 px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm text-[#111827] outline-none focus:border-[#111827] transition-colors font-mono"
                   />
@@ -207,7 +209,7 @@ export default function VariantFormDrawer({
 
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-              SKU <span className="font-normal text-[#9CA3AF]">(optional)</span>
+              {t('variantForm.sku')}
             </label>
             <input
               value={sku}
@@ -220,7 +222,7 @@ export default function VariantFormDrawer({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Price ($) *
+                {t('variantForm.price')}
               </label>
               <input
                 value={price}
@@ -234,9 +236,9 @@ export default function VariantFormDrawer({
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
-                Stock Qty
+                {t('variantForm.stock')}
                 {isNail && isCustomSizeSelected && (
-                  <span className="ml-1 font-normal text-[#9CA3AF]">(unlimited)</span>
+                  <span className="ml-1 font-normal text-[#9CA3AF]">{t('variantForm.stockUnlimited')}</span>
                 )}
               </label>
               <input
@@ -257,8 +259,8 @@ export default function VariantFormDrawer({
 
           <div className="flex items-center justify-between p-3.5 rounded-lg bg-[#F9FAFB]">
             <div>
-              <p className="text-sm font-medium text-[#374151]">Available</p>
-              <p className="text-xs text-[#9CA3AF]">Can be purchased by customers</p>
+              <p className="text-sm font-medium text-[#374151]">{t('variantForm.available')}</p>
+              <p className="text-xs text-[#9CA3AF]">{t('variantForm.availableHint')}</p>
             </div>
             <button
               type="button"
@@ -283,13 +285,13 @@ export default function VariantFormDrawer({
             disabled={!canSubmit || saving}
             className="flex-1 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-sm font-medium hover:bg-[#374151] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Variant'}
+            {saving ? t('variantForm.saving') : isEdit ? t('variantForm.save') : t('variantForm.add')}
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-lg border border-[#E5E7EB] text-sm font-medium text-[#374151] hover:bg-[#F3F4F6] transition-colors"
           >
-            Cancel
+            {t('form.cancel')}
           </button>
         </div>
       </div>

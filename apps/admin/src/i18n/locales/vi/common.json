@@ -1,0 +1,35 @@
+{
+  "nav": {
+    "dashboard": "Bảng điều khiển",
+    "users": "Người dùng",
+    "products": "Sản phẩm",
+    "supplies": "Vật tư",
+    "collections": "Bộ sưu tập",
+    "campaigns": "Chiến dịch",
+    "inventory": "Kho hàng",
+    "orders": "Đơn hàng",
+    "checkouts": "Thanh toán & Giỏ hàng",
+    "payments": "Thanh toán",
+    "coupons": "Mã giảm giá",
+    "wholesale": "Bán sỉ",
+    "newsletter": "Bản tin",
+    "analytics": "Phân tích",
+    "settings": "Cài đặt"
+  },
+  "shell": {
+    "search": "Tìm kiếm...",
+    "comingSoon": "Sắp ra mắt",
+    "viewStore": "Xem cửa hàng",
+    "collapse": "Thu gọn",
+    "notifications": "Thông báo",
+    "newCount": "{{count}} mới",
+    "profileSettings": "Cài đặt hồ sơ",
+    "signOut": "Đăng xuất",
+    "signingOut": "Đang đăng xuất…"
+  },
+  "lang": {
+    "en": "English",
+    "vi": "Tiếng Việt",
+    "switchLabel": "Chuyển ngôn ngữ"
+  }
+}

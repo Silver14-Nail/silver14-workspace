@@ -47,7 +47,7 @@ async function pollForOrder(
 
 export function useCheckout() {
   const queryClient = useQueryClient();
-  const { cartId, items, subtotal, clearCart } = useCart();
+  const { cartId, items, subtotal: cartSubtotal, clearCart } = useCart();
   const selectedCurrency = useAppSelector((s) => s.currency.code);
 
   const [sessionId, setSessionId] = useState<string | null>(getCheckoutSessionId);
@@ -300,7 +300,9 @@ export function useCheckout() {
   // Use session currency (authoritative — set from Redux at session creation time).
   // Fall back to 'USD' before a session exists so SSR and the first client render match.
   const currency = totals?.currency ?? 'USD';
-  const finalTotal = totals?.total ?? subtotal + (shippingCost ?? 0);
+  // Prefer session-authoritative subtotal so sidebar subtotal + shipping = total.
+  const subtotal = totals?.subtotal ?? cartSubtotal;
+  const finalTotal = totals?.total ?? cartSubtotal + (shippingCost ?? 0);
 
   return {
     // State

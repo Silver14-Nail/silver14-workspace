@@ -48,64 +48,31 @@ const NAIL_SHAPES: {
   priceAdjustment: number;
   adjustmentType: PriceAdjustmentType;
 }[] = [
-  {
-    name: 'Almond',
-    lengthMm: 18,
-    sizeTier: ShapeSizeTier.STANDARD,
-    priceAdjustment: 0,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
-  {
-    name: 'Coffin',
-    lengthMm: 20,
-    sizeTier: ShapeSizeTier.MEDIUM,
-    priceAdjustment: 2,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
-  {
-    name: 'Square',
-    lengthMm: 15,
-    sizeTier: ShapeSizeTier.STANDARD,
-    priceAdjustment: 0,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
-  {
-    name: 'Oval',
-    lengthMm: 17,
-    sizeTier: ShapeSizeTier.STANDARD,
-    priceAdjustment: 0,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
-  {
-    name: 'Stiletto',
-    lengthMm: 25,
-    sizeTier: ShapeSizeTier.LARGE,
-    priceAdjustment: 5,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
-  {
-    name: 'Ballerina',
-    lengthMm: 22,
-    sizeTier: ShapeSizeTier.MEDIUM,
-    priceAdjustment: 3,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
-  {
-    name: 'XXL Stiletto',
-    lengthMm: 35,
-    sizeTier: ShapeSizeTier.XL,
-    priceAdjustment: 10,
-    adjustmentType: PriceAdjustmentType.FIXED,
-  },
+  // ── Short (2.0 cm) ──────────────────────────────────────────────────────────
+  { name: 'Short Oval',   lengthMm: 20, sizeTier: ShapeSizeTier.STANDARD, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Short Almond', lengthMm: 20, sizeTier: ShapeSizeTier.STANDARD, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Short Square', lengthMm: 20, sizeTier: ShapeSizeTier.STANDARD, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  // ── Medium (2.5 cm) ─────────────────────────────────────────────────────────
+  { name: 'Medium Almond', lengthMm: 25, sizeTier: ShapeSizeTier.MEDIUM, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Medium Square', lengthMm: 25, sizeTier: ShapeSizeTier.MEDIUM, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Medium Coffin', lengthMm: 25, sizeTier: ShapeSizeTier.MEDIUM, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  // ── Long (2.8 – 3.2 cm) ─────────────────────────────────────────────────────
+  { name: 'Long Almond', lengthMm: 28, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Long Coffin',  lengthMm: 30, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Long Square',  lengthMm: 30, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'Stiletto',     lengthMm: 32, sizeTier: ShapeSizeTier.LARGE, priceAdjustment: 0,  adjustmentType: PriceAdjustmentType.FIXED },
+  // ── XXL (+$10) ───────────────────────────────────────────────────────────────
+  { name: 'XXL Stiletto', lengthMm: 55, sizeTier: ShapeSizeTier.XL, priceAdjustment: 10, adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'XXL Coffin',   lengthMm: 40, sizeTier: ShapeSizeTier.XL, priceAdjustment: 10, adjustmentType: PriceAdjustmentType.FIXED },
+  { name: 'XXL Square',   lengthMm: 40, sizeTier: ShapeSizeTier.XL, priceAdjustment: 10, adjustmentType: PriceAdjustmentType.FIXED },
 ];
 
+// Widths per finger: thumb · index · middle · ring · pinky
 const NAIL_SIZES: { label: NailSizeLabel; sizeCode: string; measurements: string }[] = [
-  { label: NailSizeLabel.XS, sizeCode: 'XS', measurements: 'width: 12mm, length: 16mm' },
-  { label: NailSizeLabel.S, sizeCode: 'S', measurements: 'width: 13mm, length: 17mm' },
-  { label: NailSizeLabel.M, sizeCode: 'M', measurements: 'width: 14mm, length: 18mm' },
-  { label: NailSizeLabel.L, sizeCode: 'L', measurements: 'width: 15mm, length: 19mm' },
-  { label: NailSizeLabel.XL, sizeCode: 'XL', measurements: 'width: 16mm, length: 20mm' },
-  { label: NailSizeLabel.XXL, sizeCode: 'XXL', measurements: 'width: 17mm, length: 22mm' },
+  { label: NailSizeLabel.XS, sizeCode: 'XS', measurements: 'thumb: 14mm | index: 10mm | middle: 11mm | ring: 10mm | pinky: 8mm' },
+  { label: NailSizeLabel.S,  sizeCode: 'S',  measurements: 'thumb: 15mm | index: 11mm | middle: 12mm | ring: 11mm | pinky: 9mm' },
+  { label: NailSizeLabel.M,  sizeCode: 'M',  measurements: 'thumb: 16mm | index: 12mm | middle: 13mm | ring: 12mm | pinky: 10mm' },
+  { label: NailSizeLabel.L,  sizeCode: 'L',  measurements: 'thumb: 17mm | index: 13mm | middle: 14mm | ring: 13mm | pinky: 11mm' },
 ];
 
 type ShapePricingInput = {
@@ -394,7 +361,8 @@ const SUPPLIES: SupplyInput[] = [
   {
     name: 'Nail Glue Pro',
     slug: 'nail-glue-pro',
-    description: 'Extra-strength professional nail glue for long-lasting hold. 3g precision-tip bottle.',
+    description:
+      'Extra-strength professional nail glue for long-lasting hold. 3g precision-tip bottle.',
     basePrice: 6.9,
     salePrice: null,
     isNew: false,
@@ -406,85 +374,188 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Nail Glue Pro',
-        description: 'Extra-strength professional nail glue for long-lasting hold. 3g precision-tip bottle.',
+        description:
+          'Extra-strength professional nail glue for long-lasting hold. 3g precision-tip bottle.',
         seoTitle: 'Nail Glue Pro — Silver14',
-        seoDescription: 'Professional extra-strength nail glue for press-on nails. Long-lasting hold with precision tip.',
+        seoDescription:
+          'Professional extra-strength nail glue for press-on nails. Long-lasting hold with precision tip.',
       },
       {
         locale: 'vi',
         name: 'Keo Móng Chuyên Nghiệp',
-        description: 'Keo móng chuyên nghiệp độ bền cao cho độ bám dài lâu. Chai 3g đầu kim chính xác.',
+        description:
+          'Keo móng chuyên nghiệp độ bền cao cho độ bám dài lâu. Chai 3g đầu kim chính xác.',
         seoTitle: 'Keo Móng Chuyên Nghiệp — Silver14',
-        seoDescription: 'Keo móng chuyên nghiệp độ bền cao cho móng giả. Độ bám lâu dài với đầu kim chính xác.',
+        seoDescription:
+          'Keo móng chuyên nghiệp độ bền cao cho móng giả. Độ bám lâu dài với đầu kim chính xác.',
       },
     ],
   },
   {
     name: 'Builder Gel',
     slug: 'builder-gel',
-    description: 'Professional builder gel for nail extensions and overlays. Available in clear, nude, pink and specialty shades. Soak-off formula.',
+    description:
+      'Professional builder gel for nail extensions and overlays. Available in clear, nude, pink and specialty shades. Soak-off formula.',
     basePrice: 12.9,
     salePrice: null,
     isNew: true,
     isBestSeller: true,
     images: ['https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=400'],
     variants: [
-      { sku: 'S14-GEL-CLEAR-60', colorName: 'Clear', colorHex: '#F5F5F5', stockQty: 80, computedPrice: 12.9 },
-      { sku: 'S14-GEL-PINK-8', colorName: 'Pink', colorHex: '#FFB6C1', stockQty: 60, computedPrice: 9.9 },
-      { sku: 'S14-GEL-NUDE-8', colorName: 'Nude', colorHex: '#D4A574', stockQty: 55, computedPrice: 9.9 },
-      { sku: 'S14-GEL-JG01-7', colorName: 'JG01', colorHex: '#C8A882', stockQty: 40, computedPrice: 10.9 },
-      { sku: 'S14-GEL-JG02-7', colorName: 'JG02', colorHex: '#F2C4CE', stockQty: 40, computedPrice: 10.9 },
+      {
+        sku: 'S14-GEL-CLEAR-60',
+        colorName: 'Clear',
+        colorHex: '#F5F5F5',
+        stockQty: 80,
+        computedPrice: 12.9,
+      },
+      {
+        sku: 'S14-GEL-PINK-8',
+        colorName: 'Pink',
+        colorHex: '#FFB6C1',
+        stockQty: 60,
+        computedPrice: 9.9,
+      },
+      {
+        sku: 'S14-GEL-NUDE-8',
+        colorName: 'Nude',
+        colorHex: '#D4A574',
+        stockQty: 55,
+        computedPrice: 9.9,
+      },
+      {
+        sku: 'S14-GEL-JG01-7',
+        colorName: 'JG01',
+        colorHex: '#C8A882',
+        stockQty: 40,
+        computedPrice: 10.9,
+      },
+      {
+        sku: 'S14-GEL-JG02-7',
+        colorName: 'JG02',
+        colorHex: '#F2C4CE',
+        stockQty: 40,
+        computedPrice: 10.9,
+      },
     ],
     translations: [
       {
         locale: 'en',
         name: 'Builder Gel',
-        description: 'Professional builder gel for nail extensions and overlays. Available in clear, nude, pink and specialty shades. Soak-off formula.',
+        description:
+          'Professional builder gel for nail extensions and overlays. Available in clear, nude, pink and specialty shades. Soak-off formula.',
         seoTitle: 'Builder Gel — Silver14',
-        seoDescription: 'Professional builder gel for nail extensions in clear, nude, pink and specialty shades. Soak-off formula.',
+        seoDescription:
+          'Professional builder gel for nail extensions in clear, nude, pink and specialty shades. Soak-off formula.',
       },
       {
         locale: 'vi',
         name: 'Gel Nối Móng',
-        description: 'Gel nối móng chuyên nghiệp dùng cho nối và phủ móng. Có nhiều màu: trong suốt, nude, hồng và các màu đặc biệt. Công thức soak-off.',
+        description:
+          'Gel nối móng chuyên nghiệp dùng cho nối và phủ móng. Có nhiều màu: trong suốt, nude, hồng và các màu đặc biệt. Công thức soak-off.',
         seoTitle: 'Gel Nối Móng — Silver14',
-        seoDescription: 'Gel nối móng chuyên nghiệp màu trong suốt, nude, hồng và các màu đặc biệt. Công thức soak-off dễ tháo.',
+        seoDescription:
+          'Gel nối móng chuyên nghiệp màu trong suốt, nude, hồng và các màu đặc biệt. Công thức soak-off dễ tháo.',
       },
     ],
   },
   {
     name: 'Chrome Powder (Bột Tráng Gương)',
     slug: 'chrome-powder',
-    description: 'Ultra-fine chrome nail powder for mirror-effect nails. Simply rub onto cured gel for instant chrome finish. Available in 10 color codes.',
+    description:
+      'Ultra-fine chrome nail powder for mirror-effect nails. Simply rub onto cured gel for instant chrome finish. Available in 10 color codes.',
     basePrice: 5.9,
     salePrice: null,
     isNew: false,
     isBestSeller: true,
     images: ['https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400'],
     variants: [
-      { sku: 'S14-CHROME-BN01', colorName: 'Bn01', colorHex: '#C0C0C0', stockQty: 70, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN02', colorName: 'Bn02', colorHex: '#FFD700', stockQty: 65, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN03', colorName: 'Bn03', colorHex: '#B76E79', stockQty: 60, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN04', colorName: 'Bn04', colorHex: '#4169E1', stockQty: 55, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN05', colorName: 'Bn05', colorHex: '#8A2BE2', stockQty: 50, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN06', colorName: 'Bn06', colorHex: '#2E8B57', stockQty: 45, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN07', colorName: 'Bn07', colorHex: '#FF6347', stockQty: 40, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN08', colorName: 'Bn08', colorHex: '#20B2AA', stockQty: 35, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN10', colorName: 'Bn10', colorHex: '#FF1493', stockQty: 30, computedPrice: 5.9 },
-      { sku: 'S14-CHROME-BN12', colorName: 'Bn12', colorHex: '#1C1C2E', stockQty: 25, computedPrice: 5.9 },
+      {
+        sku: 'S14-CHROME-BN01',
+        colorName: 'Bn01',
+        colorHex: '#C0C0C0',
+        stockQty: 70,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN02',
+        colorName: 'Bn02',
+        colorHex: '#FFD700',
+        stockQty: 65,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN03',
+        colorName: 'Bn03',
+        colorHex: '#B76E79',
+        stockQty: 60,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN04',
+        colorName: 'Bn04',
+        colorHex: '#4169E1',
+        stockQty: 55,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN05',
+        colorName: 'Bn05',
+        colorHex: '#8A2BE2',
+        stockQty: 50,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN06',
+        colorName: 'Bn06',
+        colorHex: '#2E8B57',
+        stockQty: 45,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN07',
+        colorName: 'Bn07',
+        colorHex: '#FF6347',
+        stockQty: 40,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN08',
+        colorName: 'Bn08',
+        colorHex: '#20B2AA',
+        stockQty: 35,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN10',
+        colorName: 'Bn10',
+        colorHex: '#FF1493',
+        stockQty: 30,
+        computedPrice: 5.9,
+      },
+      {
+        sku: 'S14-CHROME-BN12',
+        colorName: 'Bn12',
+        colorHex: '#1C1C2E',
+        stockQty: 25,
+        computedPrice: 5.9,
+      },
     ],
     translations: [
       {
         locale: 'en',
         name: 'Chrome Powder',
-        description: 'Ultra-fine chrome nail powder for mirror-effect nails. Simply rub onto cured gel for instant chrome finish. 10 color codes available.',
+        description:
+          'Ultra-fine chrome nail powder for mirror-effect nails. Simply rub onto cured gel for instant chrome finish. 10 color codes available.',
         seoTitle: 'Chrome Powder — Silver14',
-        seoDescription: 'Ultra-fine chrome nail powder for mirror-finish nails. 10 color codes for every style.',
+        seoDescription:
+          'Ultra-fine chrome nail powder for mirror-finish nails. 10 color codes for every style.',
       },
       {
         locale: 'vi',
         name: 'Bột Tráng Gương',
-        description: 'Bột chrome siêu mịn tạo hiệu ứng gương cho móng. Chỉ cần chà lên gel đã đóng rắn để có lớp chrome tức thì. Có 10 mã màu.',
+        description:
+          'Bột chrome siêu mịn tạo hiệu ứng gương cho móng. Chỉ cần chà lên gel đã đóng rắn để có lớp chrome tức thì. Có 10 mã màu.',
         seoTitle: 'Bột Tráng Gương — Silver14',
         seoDescription: 'Bột chrome siêu mịn tạo hiệu ứng gương cho móng tay. 10 mã màu đa dạng.',
       },
@@ -493,32 +564,72 @@ const SUPPLIES: SupplyInput[] = [
   {
     name: 'Crystal Gems (Đá Cực Quang)',
     slug: 'crystal-gems',
-    description: 'Aurora crystal nail gems with dazzling multi-color shimmer. Sold individually by color. Perfect for nail art accents.',
+    description:
+      'Aurora crystal nail gems with dazzling multi-color shimmer. Sold individually by color. Perfect for nail art accents.',
     basePrice: 4.9,
     salePrice: null,
     isNew: false,
     isBestSeller: false,
     images: ['https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=400'],
     variants: [
-      { sku: 'S14-GEM-01', colorName: '01 Crystal Clear', colorHex: '#F0F8FF', stockQty: 80, computedPrice: 4.9 },
-      { sku: 'S14-GEM-02', colorName: '02 Pink Aurora', colorHex: '#FF69B4', stockQty: 75, computedPrice: 4.9 },
-      { sku: 'S14-GEM-03', colorName: '03 Sky Blue', colorHex: '#87CEEB', stockQty: 70, computedPrice: 4.9 },
-      { sku: 'S14-GEM-04', colorName: '04 Lavender', colorHex: '#9370DB', stockQty: 65, computedPrice: 4.9 },
-      { sku: 'S14-GEM-05', colorName: '05 Gold Shimmer', colorHex: '#FFD700', stockQty: 60, computedPrice: 4.9 },
-      { sku: 'S14-GEM-06', colorName: '06 Emerald', colorHex: '#50C878', stockQty: 55, computedPrice: 4.9 },
+      {
+        sku: 'S14-GEM-01',
+        colorName: '01 Crystal Clear',
+        colorHex: '#F0F8FF',
+        stockQty: 80,
+        computedPrice: 4.9,
+      },
+      {
+        sku: 'S14-GEM-02',
+        colorName: '02 Pink Aurora',
+        colorHex: '#FF69B4',
+        stockQty: 75,
+        computedPrice: 4.9,
+      },
+      {
+        sku: 'S14-GEM-03',
+        colorName: '03 Sky Blue',
+        colorHex: '#87CEEB',
+        stockQty: 70,
+        computedPrice: 4.9,
+      },
+      {
+        sku: 'S14-GEM-04',
+        colorName: '04 Lavender',
+        colorHex: '#9370DB',
+        stockQty: 65,
+        computedPrice: 4.9,
+      },
+      {
+        sku: 'S14-GEM-05',
+        colorName: '05 Gold Shimmer',
+        colorHex: '#FFD700',
+        stockQty: 60,
+        computedPrice: 4.9,
+      },
+      {
+        sku: 'S14-GEM-06',
+        colorName: '06 Emerald',
+        colorHex: '#50C878',
+        stockQty: 55,
+        computedPrice: 4.9,
+      },
     ],
     translations: [
       {
         locale: 'en',
         name: 'Crystal Gems',
-        description: 'Aurora crystal nail gems with dazzling multi-color shimmer. Sold individually by color. Perfect for nail art accents.',
+        description:
+          'Aurora crystal nail gems with dazzling multi-color shimmer. Sold individually by color. Perfect for nail art accents.',
         seoTitle: 'Crystal Gems — Silver14',
-        seoDescription: 'Aurora crystal nail gems in 6 shimmer colors for stunning nail art accents.',
+        seoDescription:
+          'Aurora crystal nail gems in 6 shimmer colors for stunning nail art accents.',
       },
       {
         locale: 'vi',
         name: 'Đá Cực Quang',
-        description: 'Đá cực quang cho móng tay với hiệu ứng ánh sáng đa màu. Bán lẻ từng màu. Hoàn hảo để trang trí nail art.',
+        description:
+          'Đá cực quang cho móng tay với hiệu ứng ánh sáng đa màu. Bán lẻ từng màu. Hoàn hảo để trang trí nail art.',
         seoTitle: 'Đá Cực Quang — Silver14',
         seoDescription: 'Đá cực quang móng tay 6 màu ánh sáng cho nail art độc đáo.',
       },
@@ -527,7 +638,8 @@ const SUPPLIES: SupplyInput[] = [
   {
     name: 'Cuticle Oil Pen',
     slug: 'cuticle-oil-pen',
-    description: 'Nourishing cuticle oil pen with jojoba & vitamin E. Promotes healthy nail growth.',
+    description:
+      'Nourishing cuticle oil pen with jojoba & vitamin E. Promotes healthy nail growth.',
     basePrice: 8.5,
     salePrice: null,
     isNew: false,
@@ -539,16 +651,20 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Cuticle Oil Pen',
-        description: 'Nourishing cuticle oil pen with jojoba & vitamin E. Promotes healthy nail growth.',
+        description:
+          'Nourishing cuticle oil pen with jojoba & vitamin E. Promotes healthy nail growth.',
         seoTitle: 'Cuticle Oil Pen — Silver14',
-        seoDescription: 'Nourishing cuticle oil pen with jojoba and vitamin E for healthy nail growth and hydration.',
+        seoDescription:
+          'Nourishing cuticle oil pen with jojoba and vitamin E for healthy nail growth and hydration.',
       },
       {
         locale: 'vi',
         name: 'Bút Dưỡng Da Cuticle',
-        description: 'Bút dầu dưỡng cuticle với jojoba & vitamin E. Thúc đẩy móng tay phát triển khỏe mạnh.',
+        description:
+          'Bút dầu dưỡng cuticle với jojoba & vitamin E. Thúc đẩy móng tay phát triển khỏe mạnh.',
         seoTitle: 'Bút Dưỡng Da Cuticle — Silver14',
-        seoDescription: 'Bút dầu dưỡng cuticle với jojoba và vitamin E giúp móng tay khỏe mạnh và giữ ẩm.',
+        seoDescription:
+          'Bút dầu dưỡng cuticle với jojoba và vitamin E giúp móng tay khỏe mạnh và giữ ẩm.',
       },
     ],
   },
@@ -567,23 +683,27 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Mini Nail File Set',
-        description: 'Set of 5 professional-grade nail files: 100/180 grit for shaping and smoothing.',
+        description:
+          'Set of 5 professional-grade nail files: 100/180 grit for shaping and smoothing.',
         seoTitle: 'Mini Nail File Set — Silver14',
-        seoDescription: 'Set of 5 professional nail files for shaping and smoothing press-on nails. 100/180 grit.',
+        seoDescription:
+          'Set of 5 professional nail files for shaping and smoothing press-on nails. 100/180 grit.',
       },
       {
         locale: 'vi',
         name: 'Bộ Dũa Móng Mini',
         description: 'Bộ 5 dũa móng chuyên nghiệp: độ nhám 100/180 để tạo hình và làm mịn.',
         seoTitle: 'Bộ Dũa Móng Mini — Silver14',
-        seoDescription: 'Bộ 5 dũa móng chuyên nghiệp để tạo hình và làm mịn móng giả. Độ nhám 100/180.',
+        seoDescription:
+          'Bộ 5 dũa móng chuyên nghiệp để tạo hình và làm mịn móng giả. Độ nhám 100/180.',
       },
     ],
   },
   {
     name: 'Nail Tabs Adhesive (60pcs)',
     slug: 'nail-tabs-adhesive-60',
-    description: 'Double-sided adhesive nail tabs for damage-free press-on nails. 60 tabs in 10 sizes.',
+    description:
+      'Double-sided adhesive nail tabs for damage-free press-on nails. 60 tabs in 10 sizes.',
     basePrice: 5.5,
     salePrice: null,
     isNew: false,
@@ -595,23 +715,27 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Nail Tabs Adhesive (60pcs)',
-        description: 'Double-sided adhesive nail tabs for damage-free press-on nails. 60 tabs in 10 sizes.',
+        description:
+          'Double-sided adhesive nail tabs for damage-free press-on nails. 60 tabs in 10 sizes.',
         seoTitle: 'Nail Adhesive Tabs 60pcs — Silver14',
-        seoDescription: 'Double-sided nail adhesive tabs for damage-free application. 60 pieces in 10 sizes for all nail shapes.',
+        seoDescription:
+          'Double-sided nail adhesive tabs for damage-free application. 60 pieces in 10 sizes for all nail shapes.',
       },
       {
         locale: 'vi',
         name: 'Miếng Dán Móng (60 miếng)',
         description: 'Miếng dán hai mặt cho móng giả không gây hại. 60 miếng trong 10 kích cỡ.',
         seoTitle: 'Miếng Dán Móng 60 Miếng — Silver14',
-        seoDescription: 'Miếng dán hai mặt cho móng giả, không gây hại. 60 miếng trong 10 kích cỡ phù hợp mọi hình dạng móng.',
+        seoDescription:
+          'Miếng dán hai mặt cho móng giả, không gây hại. 60 miếng trong 10 kích cỡ phù hợp mọi hình dạng móng.',
       },
     ],
   },
   {
     name: 'Glossy Top Coat',
     slug: 'glossy-top-coat',
-    description: 'High-shine gel-effect top coat for press-on nails. Extends wear and adds glass-like gloss. 10ml.',
+    description:
+      'High-shine gel-effect top coat for press-on nails. Extends wear and adds glass-like gloss. 10ml.',
     basePrice: 9.9,
     salePrice: 7.9,
     isNew: true,
@@ -623,23 +747,28 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Glossy Top Coat',
-        description: 'High-shine gel-effect top coat for press-on nails. Extends wear and adds glass-like gloss. 10ml.',
+        description:
+          'High-shine gel-effect top coat for press-on nails. Extends wear and adds glass-like gloss. 10ml.',
         seoTitle: 'Glossy Top Coat — Silver14',
-        seoDescription: 'High-shine gel-effect top coat for press-on nails. Extends wear time and provides a glass-like finish.',
+        seoDescription:
+          'High-shine gel-effect top coat for press-on nails. Extends wear time and provides a glass-like finish.',
       },
       {
         locale: 'vi',
         name: 'Top Coat Bóng Cao Cấp',
-        description: 'Top coat hiệu ứng gel bóng cao cho móng giả. Kéo dài thời gian dùng và tạo độ bóng như kính. 10ml.',
+        description:
+          'Top coat hiệu ứng gel bóng cao cho móng giả. Kéo dài thời gian dùng và tạo độ bóng như kính. 10ml.',
         seoTitle: 'Top Coat Bóng Cao Cấp — Silver14',
-        seoDescription: 'Top coat hiệu ứng gel bóng cao cho móng giả. Kéo dài thời gian dùng và tạo lớp hoàn thiện như kính.',
+        seoDescription:
+          'Top coat hiệu ứng gel bóng cao cho móng giả. Kéo dài thời gian dùng và tạo lớp hoàn thiện như kính.',
       },
     ],
   },
   {
     name: 'Nail Remover Wraps (20pcs)',
     slug: 'nail-remover-wraps-20',
-    description: 'Acetone-soaked foil wraps for gentle press-on nail removal. 20 wraps with wooden cuticle stick.',
+    description:
+      'Acetone-soaked foil wraps for gentle press-on nail removal. 20 wraps with wooden cuticle stick.',
     basePrice: 3.9,
     salePrice: null,
     isNew: false,
@@ -651,23 +780,28 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Nail Remover Wraps (20pcs)',
-        description: 'Acetone-soaked foil wraps for gentle press-on nail removal. 20 wraps with wooden cuticle stick.',
+        description:
+          'Acetone-soaked foil wraps for gentle press-on nail removal. 20 wraps with wooden cuticle stick.',
         seoTitle: 'Nail Remover Wraps 20pcs — Silver14',
-        seoDescription: 'Acetone foil nail remover wraps for gentle and easy press-on nail removal. Pack of 20 with cuticle stick.',
+        seoDescription:
+          'Acetone foil nail remover wraps for gentle and easy press-on nail removal. Pack of 20 with cuticle stick.',
       },
       {
         locale: 'vi',
         name: 'Giấy Tẩy Móng (20 miếng)',
-        description: 'Giấy bạc ngâm acetone để tháo móng giả nhẹ nhàng. 20 miếng kèm que gỗ đẩy cuticle.',
+        description:
+          'Giấy bạc ngâm acetone để tháo móng giả nhẹ nhàng. 20 miếng kèm que gỗ đẩy cuticle.',
         seoTitle: 'Giấy Tẩy Móng 20 Miếng — Silver14',
-        seoDescription: 'Giấy tẩy móng acetone để tháo móng giả nhẹ nhàng và dễ dàng. Gói 20 miếng kèm que gỗ.',
+        seoDescription:
+          'Giấy tẩy móng acetone để tháo móng giả nhẹ nhàng và dễ dàng. Gói 20 miếng kèm que gỗ.',
       },
     ],
   },
   {
     name: 'Buffer Block 4-Way',
     slug: 'buffer-block-4-way',
-    description: '4-way nail buffer block: file, buff, smooth and shine in one tool. Professional grade.',
+    description:
+      '4-way nail buffer block: file, buff, smooth and shine in one tool. Professional grade.',
     basePrice: 3.5,
     salePrice: null,
     isNew: false,
@@ -679,16 +813,20 @@ const SUPPLIES: SupplyInput[] = [
       {
         locale: 'en',
         name: 'Buffer Block 4-Way',
-        description: '4-way nail buffer block: file, buff, smooth and shine in one tool. Professional grade.',
+        description:
+          '4-way nail buffer block: file, buff, smooth and shine in one tool. Professional grade.',
         seoTitle: '4-Way Nail Buffer Block — Silver14',
-        seoDescription: 'Professional 4-way nail buffer block for filing, buffing, smoothing and shining nails in one tool.',
+        seoDescription:
+          'Professional 4-way nail buffer block for filing, buffing, smoothing and shining nails in one tool.',
       },
       {
         locale: 'vi',
         name: 'Khối Đánh Bóng 4 Mặt',
-        description: 'Khối đánh bóng móng 4 mặt: dũa, đánh bóng, làm mịn và tạo độ bóng trong một công cụ. Chuyên nghiệp.',
+        description:
+          'Khối đánh bóng móng 4 mặt: dũa, đánh bóng, làm mịn và tạo độ bóng trong một công cụ. Chuyên nghiệp.',
         seoTitle: 'Khối Đánh Bóng Móng 4 Mặt — Silver14',
-        seoDescription: 'Khối đánh bóng móng 4 mặt chuyên nghiệp để dũa, đánh bóng, làm mịn và tạo độ bóng trong một công cụ.',
+        seoDescription:
+          'Khối đánh bóng móng 4 mặt chuyên nghiệp để dũa, đánh bóng, làm mịn và tạo độ bóng trong một công cụ.',
       },
     ],
   },

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import {
   AreaChart,
   Area,
@@ -40,81 +41,6 @@ import {
   mockWholesale,
 } from '../../MOCK_DATAS/mockData';
 
-const kpis = [
-  {
-    label: 'Total Revenue',
-    value: '$28,100',
-    change: '+18.4%',
-    up: true,
-    icon: Euro,
-    color: 'text-emerald-600',
-    bg: 'bg-emerald-50',
-  },
-  {
-    label: 'Total Orders',
-    value: '375',
-    change: '+12.1%',
-    up: true,
-    icon: ShoppingBag,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-  },
-  {
-    label: 'Pending Orders',
-    value: '7',
-    change: '-3',
-    up: false,
-    icon: RotateCcw,
-    color: 'text-amber-600',
-    bg: 'bg-amber-50',
-  },
-  {
-    label: 'Wholesale Revenue',
-    value: '$6,960',
-    change: '+24.3%',
-    up: true,
-    icon: Building2,
-    color: 'text-purple-600',
-    bg: 'bg-purple-50',
-  },
-  {
-    label: 'Conversion Rate',
-    value: '3.2%',
-    change: '+0.4%',
-    up: true,
-    icon: TrendingUp,
-    color: 'text-indigo-600',
-    bg: 'bg-indigo-50',
-  },
-  {
-    label: 'Active Customers',
-    value: '284',
-    change: '+31',
-    up: true,
-    icon: Users,
-    color: 'text-cyan-600',
-    bg: 'bg-cyan-50',
-  },
-  {
-    label: 'Low Stock Alerts',
-    value: '3',
-    change: 'Action needed',
-    up: false,
-    icon: AlertTriangle,
-    color: 'text-orange-600',
-    bg: 'bg-orange-50',
-  },
-  {
-    label: 'Failed Payments',
-    value: '2',
-    change: '-1 this week',
-    up: true,
-    icon: CreditCard,
-    color: 'text-red-600',
-    bg: 'bg-red-50',
-  },
-];
-
 const statusColors: Record<string, string> = {
   pending: 'bg-amber-50 text-amber-700 border-amber-200',
   confirmed: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -139,7 +65,83 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation('dashboard');
   const [revenueRange, setRevenueRange] = useState<'7d' | '30d' | '6m'>('6m');
+
+  const kpis = [
+    {
+      label: t('kpi.revenue'),
+      value: '$28,100',
+      change: '+18.4%',
+      up: true,
+      icon: Euro,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
+    {
+      label: t('kpi.orders'),
+      value: '375',
+      change: '+12.1%',
+      up: true,
+      icon: ShoppingBag,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: t('kpi.pendingOrders'),
+      value: '7',
+      change: '-3',
+      up: false,
+      icon: RotateCcw,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+    },
+    {
+      label: t('kpi.wholesaleRevenue'),
+      value: '$6,960',
+      change: '+24.3%',
+      up: true,
+      icon: Building2,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+    },
+    {
+      label: t('kpi.conversionRate'),
+      value: '3.2%',
+      change: '+0.4%',
+      up: true,
+      icon: TrendingUp,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+    },
+    {
+      label: t('kpi.activeCustomers'),
+      value: '284',
+      change: '+31',
+      up: true,
+      icon: Users,
+      color: 'text-cyan-600',
+      bg: 'bg-cyan-50',
+    },
+    {
+      label: t('kpi.lowStock'),
+      value: '3',
+      change: t('kpi.actionNeeded'),
+      up: false,
+      icon: AlertTriangle,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+    },
+    {
+      label: t('kpi.failedPayments'),
+      value: '2',
+      change: t('kpi.minusOneWeek'),
+      up: true,
+      icon: CreditCard,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+    },
+  ];
 
   const recentOrders = mockOrders.slice(0, 6);
   const lowStockProducts = mockProducts.filter((p) => p.stock < 20);
@@ -153,9 +155,9 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-[#111827]">Dashboard</h1>
+          <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
           <p className="text-sm text-[#6B7280] mt-0.5">
-            Welcome back, Admin. Here's what's happening today.
+            {t('welcome', { name: 'Admin' })}
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm text-[#6B7280]">
@@ -194,8 +196,8 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-white rounded-xl border border-[#E5E7EB] p-5">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-semibold text-[#111827]">Revenue & Orders</h3>
-              <p className="text-xs text-[#6B7280] mt-0.5">Monthly performance overview</p>
+              <h3 className="text-sm font-semibold text-[#111827]">{t('charts.revenueOrders')}</h3>
+              <p className="text-xs text-[#6B7280] mt-0.5">{t('charts.revenueOrdersSubtitle')}</p>
             </div>
             <div className="flex gap-1">
               {(['7d', '30d', '6m'] as const).map((r) => (
@@ -243,7 +245,7 @@ export default function AdminDashboardPage() {
                 }}
                 formatter={(value: number, name: string) => [
                   `$${value.toLocaleString()}`,
-                  name === 'revenue' ? 'Revenue' : 'Wholesale',
+                  name === 'revenue' ? t('charts.revenueLabel') : t('charts.wholesaleLabel'),
                 ]}
               />
               <Area
@@ -266,8 +268,8 @@ export default function AdminDashboardPage() {
 
         {/* Payment Methods */}
         <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
-          <h3 className="text-sm font-semibold text-[#111827] mb-1">Payment Methods</h3>
-          <p className="text-xs text-[#6B7280] mb-4">Distribution this month</p>
+          <h3 className="text-sm font-semibold text-[#111827] mb-1">{t('charts.paymentMethods')}</h3>
+          <p className="text-xs text-[#6B7280] mb-4">{t('charts.paymentMethodsSubtitle')}</p>
           <ResponsiveContainer width="100%" height={160}>
             <PieChart>
               <Pie
@@ -307,8 +309,8 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Daily Orders */}
         <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
-          <h3 className="text-sm font-semibold text-[#111827] mb-1">Daily Orders</h3>
-          <p className="text-xs text-[#6B7280] mb-4">This week</p>
+          <h3 className="text-sm font-semibold text-[#111827] mb-1">{t('charts.dailyOrders')}</h3>
+          <p className="text-xs text-[#6B7280] mb-4">{t('charts.dailyOrdersSubtitle')}</p>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={dailyOrdersData} barSize={28}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
@@ -334,8 +336,8 @@ export default function AdminDashboardPage() {
 
         {/* Cart Abandonment Funnel */}
         <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
-          <h3 className="text-sm font-semibold text-[#111827] mb-1">Checkout Funnel</h3>
-          <p className="text-xs text-[#6B7280] mb-4">Cart abandonment this month</p>
+          <h3 className="text-sm font-semibold text-[#111827] mb-1">{t('charts.funnel')}</h3>
+          <p className="text-xs text-[#6B7280] mb-4">{t('charts.funnelSubtitle')}</p>
           <div className="space-y-3 mt-2">
             {cartAbandonmentData.map((item, i) => {
               const pct = Math.round((item.count / cartAbandonmentData[0].count) * 100);
@@ -371,12 +373,12 @@ export default function AdminDashboardPage() {
         {/* Recent Orders */}
         <div className="bg-white rounded-xl border border-[#E5E7EB]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
-            <h3 className="text-sm font-semibold text-[#111827]">Recent Orders</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('recentOrders.title')}</h3>
             <Link
               href="/admin/orders"
               className="text-xs text-[#635BFF] hover:underline flex items-center gap-1"
             >
-              View all <ArrowRight className="w-3 h-3" />
+              {t('recentOrders.viewAll')} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="divide-y divide-[#F3F4F6]">
@@ -414,12 +416,12 @@ export default function AdminDashboardPage() {
         {/* Top Selling Products */}
         <div className="bg-white rounded-xl border border-[#E5E7EB]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
-            <h3 className="text-sm font-semibold text-[#111827]">Top Selling Products</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('topProducts.title')}</h3>
             <Link
               href="/admin/products"
               className="text-xs text-[#635BFF] hover:underline flex items-center gap-1"
             >
-              View all <ArrowRight className="w-3 h-3" />
+              {t('topProducts.viewAll')} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="divide-y divide-[#F3F4F6]">
@@ -441,7 +443,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-semibold text-[#111827]">{product.sales} sold</p>
+                  <p className="text-xs font-semibold text-[#111827]">{product.sales} {t('topProducts.sold')}</p>
                   <p className="text-xs text-[#6B7280]">${product.basePrice}</p>
                 </div>
               </div>
@@ -457,13 +459,13 @@ export default function AdminDashboardPage() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
             <h3 className="text-sm font-semibold text-[#111827] flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-orange-500" />
-              Low Stock Alerts
+              {t('lowStockAlerts.title')}
             </h3>
             <Link
               href="/admin/inventory"
               className="text-xs text-[#635BFF] hover:underline flex items-center gap-1"
             >
-              Manage <ArrowRight className="w-3 h-3" />
+              {t('lowStockAlerts.manage')} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="divide-y divide-[#F3F4F6]">
@@ -483,14 +485,14 @@ export default function AdminDashboardPage() {
                   <span
                     className={`text-xs font-semibold ${product.stock === 0 ? 'text-red-600' : 'text-orange-600'}`}
                   >
-                    {product.stock} left
+                    {t('lowStockAlerts.left', { count: product.stock })}
                   </span>
                 </div>
               </div>
             ))}
             {lowStockProducts.length === 0 && (
               <div className="px-5 py-8 text-center text-sm text-[#9CA3AF]">
-                All products in stock
+                {t('lowStockAlerts.allInStock')}
               </div>
             )}
           </div>
@@ -499,12 +501,12 @@ export default function AdminDashboardPage() {
         {/* Wholesale Enquiries */}
         <div className="bg-white rounded-xl border border-[#E5E7EB]">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
-            <h3 className="text-sm font-semibold text-[#111827]">Wholesale Enquiries</h3>
+            <h3 className="text-sm font-semibold text-[#111827]">{t('wholesale.title')}</h3>
             <Link
               href="/admin/wholesale"
               className="text-xs text-[#635BFF] hover:underline flex items-center gap-1"
             >
-              View all <ArrowRight className="w-3 h-3" />
+              {t('wholesale.viewAll')} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
           <div className="divide-y divide-[#F3F4F6]">
@@ -532,7 +534,7 @@ export default function AdminDashboardPage() {
             ))}
             {pendingWholesale.length === 0 && (
               <div className="px-5 py-8 text-center text-sm text-[#9CA3AF]">
-                No pending enquiries
+                {t('wholesale.noPending')}
               </div>
             )}
           </div>

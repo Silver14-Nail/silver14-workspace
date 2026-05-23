@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { Search, Plus, Megaphone, Edit, Trash2, X } from 'lucide-react';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 import Pagination from '../shared/Pagination';
@@ -49,6 +50,7 @@ export function CampaignsClient({
 }: CampaignsClientProps) {
   const router = useRouter();
   const { theme } = useAdminTheme();
+  const { t } = useTranslation('campaigns');
   const [search, setSearch] = useState(currentSearch);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
@@ -84,7 +86,7 @@ export function CampaignsClient({
 
   const handleDelete = useCallback(
     (id: string) => {
-      if (!confirm('Delete this campaign? This cannot be undone.')) return;
+      if (!confirm(t('deleteConfirm'))) return;
       setDeletingId(id);
       startTransition(async () => {
         await deleteCampaignAction(id);
@@ -103,10 +105,10 @@ export function CampaignsClient({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-[#111827]'}`}>
-            Marketing Campaigns
+            {t('title')}
           </h1>
           <p className={`text-sm mt-0.5 ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
-            {pagination.totalItems} total campaigns
+            {t('subtitle', { count: pagination.totalItems })}
           </p>
         </div>
         <button
@@ -114,7 +116,7 @@ export function CampaignsClient({
           className="flex items-center gap-2 bg-[#111827] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors"
         >
           <Plus className="w-4 h-4" />
-          New Campaign
+          {t('addCampaign')}
         </button>
       </div>
 
@@ -129,7 +131,7 @@ export function CampaignsClient({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search campaigns..."
+            placeholder={t('search')}
             className="bg-transparent outline-none flex-1 text-sm"
           />
           {search && (
@@ -148,7 +150,7 @@ export function CampaignsClient({
           type="submit"
           className="px-3 py-2 bg-[#111827] text-white rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors"
         >
-          Search
+          {t('searchBtn')}
         </button>
       </form>
 
@@ -161,7 +163,7 @@ export function CampaignsClient({
         <table className="w-full text-sm">
           <thead>
             <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
-              {['Campaign', 'Placement', 'Type', 'Priority', 'Status', 'Schedule', ''].map((h) => (
+              {[t('table.campaign'), t('table.placement'), t('table.type'), t('table.priority'), t('table.status'), t('table.schedule'), ''].map((h) => (
                 <th
                   key={h}
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider ${
@@ -179,7 +181,7 @@ export function CampaignsClient({
                 <td colSpan={7} className="px-4 py-12 text-center">
                   <Megaphone className="w-8 h-8 mx-auto mb-2 text-[#D1D5DB]" />
                   <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-[#9CA3AF]'}`}>
-                    No campaigns found. Create your first campaign.
+                    {t('empty')}
                   </p>
                 </td>
               </tr>
@@ -244,14 +246,14 @@ export function CampaignsClient({
                     {campaign.startsAt || campaign.endsAt ? (
                       <div className="space-y-0.5">
                         {campaign.startsAt && (
-                          <p>From: {new Date(campaign.startsAt).toLocaleDateString()}</p>
+                          <p>{t('schedule.from', { date: new Date(campaign.startsAt).toLocaleDateString() })}</p>
                         )}
                         {campaign.endsAt && (
-                          <p>To: {new Date(campaign.endsAt).toLocaleDateString()}</p>
+                          <p>{t('schedule.to', { date: new Date(campaign.endsAt).toLocaleDateString() })}</p>
                         )}
                       </div>
                     ) : (
-                      <span className="text-[#9CA3AF]">Always</span>
+                      <span className="text-[#9CA3AF]">{t('schedule.always')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
