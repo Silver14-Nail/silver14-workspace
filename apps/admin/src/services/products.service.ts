@@ -1,4 +1,4 @@
-import { createApiClient } from './api-client';
+import { createApiClient, getAuthToken, SERVER_API_BASE } from './api-client';
 import type {
   Product,
   ProductListResponse,
@@ -158,15 +158,28 @@ export async function getProductDetail(id: string): Promise<ApiProductDetail> {
 // ─── Product Images ────────────────────────────────────────────────────────────
 
 export async function uploadProductImage(productId: string, file: File): Promise<ApiProductImage> {
-  const client = await createApiClient();
+  const token = await getAuthToken();
+
+  // Use native fetch so FormData sets the multipart boundary correctly.
+  // axios overrides Content-Type when manually specified, stripping the boundary.
   const formData = new FormData();
   formData.append('file', file);
-  const { data } = await client.post<ApiProductImage>(
-    `/admin-api/products/${productId}/images/upload`,
-    formData,
-    { headers: { 'Content-Type': 'multipart/form-data' } },
+
+  const res = await fetch(
+    `${SERVER_API_BASE}/admin-api/products/${productId}/images/upload`,
+    {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    },
   );
-  return data;
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Upload failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<ApiProductImage>;
 }
 
 export async function addProductImage(
