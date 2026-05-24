@@ -8,8 +8,9 @@ import { getProductDetailAction, updateProductAction } from '../../actions';
 import ProductEditImagesTab from './ProductEditImagesTab';
 import ProductEditVariantsTab from './ProductEditVariantsTab';
 import ProductTranslationsTab from './ProductTranslationsTab';
+import ProductEditCollectionsTab from './ProductEditCollectionsTab';
 
-type Tab = 'info' | 'images' | 'variants' | 'translations';
+type Tab = 'info' | 'images' | 'variants' | 'translations' | 'collections';
 
 interface ProductEditDrawerProps {
   productId: string;
@@ -116,6 +117,7 @@ export default function ProductEditDrawer({
         : t('edit.tabVariants'),
     },
     { key: 'translations', label: t('edit.tabTranslations') },
+    { key: 'collections', label: 'Collections' },
   ];
 
   return (
@@ -356,6 +358,8 @@ export default function ProductEditDrawer({
             )}
 
             {tab === 'translations' && <ProductTranslationsTab productId={productId} />}
+
+            {tab === 'collections' && <ProductEditCollectionsTab productId={productId} />}
           </div>
         )}
 

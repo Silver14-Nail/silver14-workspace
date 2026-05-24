@@ -229,3 +229,14 @@ export interface UpsertProductTranslationPayload {
   seoTitle?: string | null;
   seoDescription?: string | null;
 }
+
+// ─── Product Collections ──────────────────────────────────────────────────────
+
+export interface ProductCollection {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  sortOrder: number;
+}

@@ -22,6 +22,9 @@ import {
   getProductTranslations,
   upsertProductTranslation,
   regenerateProductTranslations,
+  getProductCollections,
+  addProductToCollection,
+  removeProductFromCollection,
 } from '../../../../services/products.service';
 import type {
   Product,
@@ -41,6 +44,7 @@ import type {
   UpdateVariantPayload,
   ProductTranslation,
   UpsertProductTranslationPayload,
+  ProductCollection,
 } from './types';
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
@@ -315,5 +319,44 @@ export async function regenerateProductTranslationsAction(
     return { success: true, data: undefined };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to regenerate translations' };
+  }
+}
+
+// ─── Product Collections ───────────────────────────────────────────────────────
+
+export async function getProductCollectionsAction(
+  productId: string,
+): Promise<ActionResult<ProductCollection[]>> {
+  try {
+    const data = await getProductCollections(productId);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to load collections' };
+  }
+}
+
+export async function addProductToCollectionAction(
+  productId: string,
+  collectionId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await addProductToCollection(productId, collectionId);
+    revalidatePath('/admin/products');
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to add to collection' };
+  }
+}
+
+export async function removeProductFromCollectionAction(
+  productId: string,
+  collectionId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await removeProductFromCollection(productId, collectionId);
+    revalidatePath('/admin/products');
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to remove from collection' };
   }
 }

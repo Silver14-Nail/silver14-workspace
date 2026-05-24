@@ -263,3 +263,33 @@ export class ProductVariantsController {
     return this.productsService.removeProductVariant(productId, variantId);
   }
 }
+
+@ApiTags('Admin - Product Collections')
+@ApiBearerAuth()
+@Controller('products/:productId/collections')
+export class ProductCollectionsController {
+  constructor(private readonly productsService: ProductsService) {}
+
+  @Get()
+  listCollections(@Param('productId') productId: string) {
+    return this.productsService.getProductCollections(productId);
+  }
+
+  @Post(':collectionId')
+  @HttpCode(HttpStatus.CREATED)
+  addToCollection(
+    @Param('productId') productId: string,
+    @Param('collectionId') collectionId: string,
+  ) {
+    return this.productsService.addProductToCollection(productId, collectionId);
+  }
+
+  @Delete(':collectionId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeFromCollection(
+    @Param('productId') productId: string,
+    @Param('collectionId') collectionId: string,
+  ) {
+    return this.productsService.removeProductFromCollection(productId, collectionId);
+  }
+}
