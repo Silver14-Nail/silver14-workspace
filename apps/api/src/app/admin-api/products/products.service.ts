@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { randomBytes } from 'crypto';
 import type { ProductVariantStrategy } from './strategies/product-variant.strategy';
 import { NailVariantStrategy } from './strategies/nail-variant.strategy';
 import { ColorVariantStrategy } from './strategies/color-variant.strategy';
@@ -26,6 +27,10 @@ function toSlug(text: string): string {
     .trim()
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
+}
+
+function generateSlugCode(): string {
+  return randomBytes(2).toString('hex'); // 4 hex chars, e.g. "a3f2"
 }
 
 import { ProductEntity } from '@/db/entities/products/product.entity';
@@ -153,14 +158,8 @@ export class ProductsService {
   }
 
   async createProduct(dto: CreateProductDto) {
-    const englishName = await this.translationService.resolveEnglishName(dto.name);
-    const baseSlug = toSlug(englishName);
-    let slug = baseSlug;
-    let attempt = 0;
-    while (await this.productRepo.findOne({ where: { slug } })) {
-      attempt++;
-      slug = `${baseSlug}-${attempt}`;
-    }
+    const baseSlug = toSlug(dto.name);
+    const slug = `${baseSlug}-${generateSlugCode()}`;
 
     if (dto.salePrice != null && dto.salePrice >= dto.basePrice) {
       throw new BadRequestException('Sale price must be less than base price');
@@ -239,8 +238,17 @@ export class ProductsService {
       );
     }
 
-    // Fire-and-forget: generate translations asynchronously
+    // Fire-and-forget: generate translations + upgrade slug to English asynchronously
     this.translationService.generateForProduct(saved).catch(() => undefined);
+    this.translationService
+      .resolveEnglishName(saved.name)
+      .then(async (englishName) => {
+        const betterBase = toSlug(englishName);
+        if (!betterBase || betterBase === baseSlug) return;
+        await this.productRepo.update(saved.id, { slug: `${betterBase}-${generateSlugCode()}` });
+      })
+      .catch(() => undefined);
+
     return saved;
   }
 
@@ -255,15 +263,7 @@ export class ProductsService {
       product.name = dto.name;
       // Backfill slug for products created before auto-slug was added
       if (!product.slug) {
-        const englishName = await this.translationService.resolveEnglishName(dto.name);
-        const baseSlug = toSlug(englishName);
-        let slug = baseSlug;
-        let attempt = 0;
-        while (await this.productRepo.findOne({ where: { slug } })) {
-          attempt++;
-          slug = `${baseSlug}-${attempt}`;
-        }
-        product.slug = slug;
+        product.slug = `${toSlug(dto.name)}-${generateSlugCode()}`;
       }
     }
     if (dto.description !== undefined) product.description = dto.description;
