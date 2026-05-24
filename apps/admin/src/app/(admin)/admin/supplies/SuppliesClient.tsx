@@ -17,6 +17,8 @@ import Pagination from '../shared/Pagination';
 import type { Product, ProductListResponse, CreateProductPayload } from '../products/types';
 import { createSupplyAction, updateSupplyAction, deleteSupplyAction } from './actions';
 import SupplyFormDrawer from './SupplyFormDrawer';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import { useConfirmDialog } from '../shared/useConfirmDialog';
 
 interface SuppliesClientProps {
   initialSupplies: ProductListResponse;
@@ -37,8 +39,8 @@ export function SuppliesClient({
   const [search, setSearch] = useState(currentSearch);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingSupply, setEditingSupply] = useState<Product | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const isDark = theme === 'dark';
 
@@ -56,15 +58,18 @@ export function SuppliesClient({
 
   const handleDelete = useCallback(
     (id: string) => {
-      if (!confirm(t('deleteConfirm'))) return;
-      setDeletingId(id);
-      startTransition(async () => {
-        await deleteSupplyAction(id);
-        setDeletingId(null);
-        router.refresh();
+      openDialog({
+        title: t('deleteConfirm'),
+        description: 'This supply will be permanently deleted and cannot be undone.',
+        confirmLabel: 'Delete',
+        onConfirm: async () => {
+          const result = await deleteSupplyAction(id);
+          if (!result.success) throw new Error((result as { error: string }).error);
+          router.refresh();
+        },
       });
     },
-    [router],
+    [router, openDialog, t],
   );
 
   const { items: supplies, pagination } = initialSupplies;
@@ -208,7 +213,7 @@ export function SuppliesClient({
                         </button>
                         <button
                           onClick={() => handleDelete(supply.id)}
-                          disabled={deletingId === supply.id || isPending}
+                          disabled={isPending}
                           className={`p-1.5 rounded transition-colors disabled:opacity-40 ${isDark ? 'text-gray-400 hover:bg-red-900 hover:text-red-300' : 'text-[#9CA3AF] hover:bg-red-50 hover:text-red-500'}`}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -278,6 +283,8 @@ export function SuppliesClient({
           }}
         />
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

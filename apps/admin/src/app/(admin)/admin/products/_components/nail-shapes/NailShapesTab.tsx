@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Search, Plus, X, Edit, Trash2 } from 'lucide-react';
+import ConfirmDialog from '../../../shared/ConfirmDialog';
+import { useConfirmDialog } from '../../../shared/useConfirmDialog';
 import { useRouter } from 'next/navigation';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 import { useNailShapeFilters } from '../../_hooks/useNailShapeFilters';
@@ -40,7 +42,7 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [editShape, setEditShape] = useState<NailShape | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const openAdd = () => {
     setEditShape(null);
@@ -57,13 +59,17 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
     setEditShape(null);
   };
 
-  const handleDelete = async (shape: NailShape) => {
-    if (!confirm(`Delete shape "${shape.name}"? This cannot be undone.`)) return;
-    setDeletingId(shape.id);
-    const result = await deleteNailShapeAction(shape.id);
-    setDeletingId(null);
-    if (result.success) router.refresh();
-    else alert((result as { error: string }).error);
+  const handleDelete = (shape: NailShape) => {
+    openDialog({
+      title: `Delete "${shape.name}"?`,
+      description: 'This shape will be permanently deleted and cannot be undone.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        const result = await deleteNailShapeAction(shape.id);
+        if (!result.success) throw new Error((result as { error: string }).error);
+        router.refresh();
+      },
+    });
   };
 
   const standardCount = initialShapes.filter((s) => s.sizeTier === 'standard').length;
@@ -269,8 +275,7 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => openEdit(shape)}
-                        disabled={deletingId === shape.id}
-                        className={`p-1.5 rounded-lg transition-colors disabled:opacity-40 ${
+                        className={`p-1.5 rounded-lg transition-colors ${
                           dark
                             ? 'text-gray-400 hover:bg-[#2E3244] hover:text-white'
                             : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]'
@@ -280,8 +285,7 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
                       </button>
                       <button
                         onClick={() => handleDelete(shape)}
-                        disabled={deletingId === shape.id}
-                        className={`p-1.5 rounded-lg transition-colors disabled:opacity-40 ${
+                        className={`p-1.5 rounded-lg transition-colors ${
                           dark
                             ? 'text-gray-400 hover:bg-red-900/30 hover:text-red-400'
                             : 'text-[#6B7280] hover:bg-red-50 hover:text-red-600'
@@ -324,6 +328,8 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
           }}
         />
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

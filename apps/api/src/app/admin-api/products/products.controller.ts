@@ -12,6 +12,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -155,6 +156,15 @@ export class NailSizesController {
 @Controller('products/:productId/images')
 export class ProductImagesController {
   constructor(private readonly productsService: ProductsService) {}
+
+  @Get('presign')
+  getPresignedUrl(
+    @Param('productId') productId: string,
+    @Query('contentType') contentType: string,
+  ) {
+    if (!contentType) throw new BadRequestException('contentType query param is required');
+    return this.productsService.getProductImagePresignedUrl(productId, contentType);
+  }
 
   @Post('upload')
   @HttpCode(HttpStatus.CREATED)

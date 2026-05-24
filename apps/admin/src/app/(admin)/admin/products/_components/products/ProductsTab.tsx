@@ -10,6 +10,8 @@ import ProductFormDrawer from './ProductFormDrawer';
 import ProductEditDrawer from './ProductEditDrawer';
 import Pagination from '../../../shared/Pagination';
 import { deleteProductAction } from '../../actions';
+import ConfirmDialog from '../../../shared/ConfirmDialog';
+import { useConfirmDialog } from '../../../shared/useConfirmDialog';
 
 interface ProductRowProps {
   product: Product;
@@ -126,7 +128,7 @@ export default function ProductsTab({
   const [search, setSearch] = useState(currentSearch);
   const [showAddDrawer, setShowAddDrawer] = useState(false);
   const [editProductId, setEditProductId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const { items, pagination } = initialProducts;
 
@@ -160,15 +162,19 @@ export default function ProductsTab({
   }, []);
 
   const handleDelete = useCallback(
-    async (p: Product) => {
-      if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
-      setDeletingId(p.id);
-      const result = await deleteProductAction(p.id);
-      setDeletingId(null);
-      if (result.success) router.refresh();
-      else alert((result as { error: string }).error);
+    (p: Product) => {
+      openDialog({
+        title: `Delete "${p.name}"?`,
+        description: 'This product will be permanently deleted and cannot be undone.',
+        confirmLabel: 'Delete',
+        onConfirm: async () => {
+          const result = await deleteProductAction(p.id);
+          if (!result.success) throw new Error((result as { error: string }).error);
+          router.refresh();
+        },
+      });
     },
-    [router],
+    [router, openDialog],
   );
 
   return (
@@ -266,7 +272,7 @@ export default function ProductsTab({
                   product={product}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  isDeleting={deletingId === product.id}
+                  isDeleting={false}
                 />
               ))}
             </tbody>
@@ -317,6 +323,8 @@ export default function ProductsTab({
           }}
         />
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

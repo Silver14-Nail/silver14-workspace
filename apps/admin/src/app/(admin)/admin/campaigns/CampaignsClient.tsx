@@ -14,6 +14,8 @@ import {
 } from './types';
 import { createCampaignAction, updateCampaignAction, deleteCampaignAction } from './actions';
 import CampaignFormDrawer from './CampaignFormDrawer';
+import ConfirmDialog from '../shared/ConfirmDialog';
+import { useConfirmDialog } from '../shared/useConfirmDialog';
 
 const STATUS_BADGE: Record<CampaignStatus, string> = {
   draft: 'bg-gray-100 text-gray-600',
@@ -54,8 +56,8 @@ export function CampaignsClient({
   const [search, setSearch] = useState(currentSearch);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending] = useTransition();
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const isDark = theme === 'dark';
 
@@ -86,15 +88,18 @@ export function CampaignsClient({
 
   const handleDelete = useCallback(
     (id: string) => {
-      if (!confirm(t('deleteConfirm'))) return;
-      setDeletingId(id);
-      startTransition(async () => {
-        await deleteCampaignAction(id);
-        setDeletingId(null);
-        router.refresh();
+      openDialog({
+        title: t('deleteConfirm'),
+        description: 'This campaign will be permanently deleted and cannot be undone.',
+        confirmLabel: 'Delete',
+        onConfirm: async () => {
+          const result = await deleteCampaignAction(id);
+          if (!result.success) throw new Error((result as { error: string }).error);
+          router.refresh();
+        },
       });
     },
-    [router],
+    [router, openDialog, t],
   );
 
   const { items: campaigns, pagination } = initialCampaigns;
@@ -270,7 +275,7 @@ export function CampaignsClient({
                       </button>
                       <button
                         onClick={() => handleDelete(campaign.id)}
-                        disabled={deletingId === campaign.id || isPending}
+                        disabled={isPending}
                         className={`p-1.5 rounded transition-colors disabled:opacity-40 ${
                           isDark
                             ? 'text-gray-400 hover:bg-red-900 hover:text-red-300'
@@ -335,6 +340,8 @@ export function CampaignsClient({
           }}
         />
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

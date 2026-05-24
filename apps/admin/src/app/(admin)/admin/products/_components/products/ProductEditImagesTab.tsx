@@ -5,11 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { Upload, Trash2, Star, ChevronUp, ChevronDown, Loader2, Package } from 'lucide-react';
 import type { ApiProductImage } from '../../types';
 import {
-  uploadProductImageAction,
+  getProductImageUploadUrlAction,
+  addProductImageByUrlAction,
   deleteProductImageAction,
   reorderProductImagesAction,
   setMainProductImageAction,
 } from '../../actions';
+import ConfirmDialog from '../../../shared/ConfirmDialog';
+import { useConfirmDialog } from '../../../shared/useConfirmDialog';
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE_MB = 5;
@@ -30,9 +33,9 @@ export default function ProductEditImagesTab({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [actionError, setActionError] = useState('');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [settingMainId, setSettingMainId] = useState<string | null>(null);
   const [reordering, setReordering] = useState(false);
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -55,12 +58,30 @@ export default function ProductEditImagesTab({
 
       setUploading(true);
       try {
-        const formData = new FormData();
-        formData.append('file', file);
+        // Step 1: get a short-lived presigned PUT URL from the API
+        const presignResult = await getProductImageUploadUrlAction(productId, file.type);
+        if (!presignResult.success) {
+          setUploadError((presignResult as { error: string }).error);
+          setUploading(false);
+          return;
+        }
 
-        const result = await uploadProductImageAction(productId, formData);
-        if (!result.success) {
-          setUploadError((result as { error: string }).error);
+        // Step 2: upload file directly to R2 from the browser (bypasses Next.js body limit)
+        const r2Res = await fetch(presignResult.data.presignedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        });
+        if (!r2Res.ok) {
+          setUploadError(t('images.errorUnexpected'));
+          setUploading(false);
+          return;
+        }
+
+        // Step 3: register the public URL in the database via Server Action
+        const registerResult = await addProductImageByUrlAction(productId, presignResult.data.publicUrl);
+        if (!registerResult.success) {
+          setUploadError((registerResult as { error: string }).error);
           setUploading(false);
           return;
         }
@@ -73,17 +94,17 @@ export default function ProductEditImagesTab({
     }
   };
 
-  const handleDelete = async (img: ApiProductImage) => {
-    if (!confirm(t('images.removeConfirm'))) return;
-    setActionError('');
-    setDeletingId(img.id);
-    const result = await deleteProductImageAction(productId, img.id);
-    setDeletingId(null);
-    if (result.success) {
-      await onRefresh();
-    } else {
-      setActionError((result as { error: string }).error);
-    }
+  const handleDelete = (img: ApiProductImage) => {
+    openDialog({
+      title: t('images.removeConfirm'),
+      description: 'This image will be permanently deleted.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        const result = await deleteProductImageAction(productId, img.id);
+        if (!result.success) throw new Error((result as { error: string }).error);
+        await onRefresh();
+      },
+    });
   };
 
   const handleSetMain = async (img: ApiProductImage) => {
@@ -183,9 +204,8 @@ export default function ProductEditImagesTab({
       ) : (
         <div className="space-y-2">
           {sorted.map((img, idx) => {
-            const isDeleting = deletingId === img.id;
             const isSettingMain = settingMainId === img.id;
-            const busy = isDeleting || isSettingMain || reordering;
+            const busy = isSettingMain || reordering;
 
             return (
               <div
@@ -259,11 +279,7 @@ export default function ProductEditImagesTab({
                     disabled={busy}
                     className="p-1.5 rounded-lg text-[#9CA3AF] hover:text-red-600 hover:bg-red-50 disabled:opacity-40 transition-colors"
                   >
-                    {isDeleting ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-3.5 h-3.5" />
-                    )}
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -271,6 +287,8 @@ export default function ProductEditImagesTab({
           })}
         </div>
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

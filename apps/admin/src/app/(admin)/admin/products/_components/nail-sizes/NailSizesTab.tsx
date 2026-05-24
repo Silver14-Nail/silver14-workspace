@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Search, Plus, X, Edit, Trash2 } from 'lucide-react';
+import ConfirmDialog from '../../../shared/ConfirmDialog';
+import { useConfirmDialog } from '../../../shared/useConfirmDialog';
 import { useRouter } from 'next/navigation';
 import { useNailSizeFilters } from '../../_hooks/useNailSizeFilters';
 import { sizeColors } from '../../_constants';
@@ -32,7 +34,7 @@ export default function NailSizesTab({ initialSizes }: NailSizesTabProps) {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [editSize, setEditSize] = useState<NailSize | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const openAdd = () => {
     setEditSize(null);
@@ -49,13 +51,17 @@ export default function NailSizesTab({ initialSizes }: NailSizesTabProps) {
     setEditSize(null);
   };
 
-  const handleDelete = async (size: NailSize) => {
-    if (!confirm(`Delete size "${size.sizeCode}"? This cannot be undone.`)) return;
-    setDeletingId(size.id);
-    const result = await deleteNailSizeAction(size.id);
-    setDeletingId(null);
-    if (result.success) router.refresh();
-    else alert((result as { error: string }).error);
+  const handleDelete = (size: NailSize) => {
+    openDialog({
+      title: `Delete size "${size.sizeCode}"?`,
+      description: 'This size will be permanently deleted and cannot be undone.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        const result = await deleteNailSizeAction(size.id);
+        if (!result.success) throw new Error((result as { error: string }).error);
+        router.refresh();
+      },
+    });
   };
 
   const standardCount = initialSizes.filter((s) => ['XS', 'S', 'M'].includes(s.label)).length;
@@ -151,15 +157,13 @@ export default function NailSizesTab({ initialSizes }: NailSizesTabProps) {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => openEdit(size)}
-                        disabled={deletingId === size.id}
-                        className="p-1.5 rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors disabled:opacity-40"
+                        className="p-1.5 rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827] transition-colors"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(size)}
-                        disabled={deletingId === size.id}
-                        className="p-1.5 rounded-lg text-[#6B7280] hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-40"
+                        className="p-1.5 rounded-lg text-[#6B7280] hover:bg-red-50 hover:text-red-600 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -196,6 +200,8 @@ export default function NailSizesTab({ initialSizes }: NailSizesTabProps) {
           }}
         />
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }
