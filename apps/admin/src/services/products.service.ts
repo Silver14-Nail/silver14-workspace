@@ -19,6 +19,7 @@ import type {
   UpdateVariantPayload,
   ProductTranslation,
   UpsertProductTranslationPayload,
+  ProductCollection,
 } from '../app/(admin)/admin/products/types';
 
 export interface ProductListQuery {
@@ -264,4 +265,30 @@ export async function upsertProductTranslation(
 export async function regenerateProductTranslations(productId: string): Promise<void> {
   const client = await createApiClient();
   await client.post(`/admin-api/products/${productId}/translations/regenerate`, {});
+}
+
+// ─── Product Collections ──────────────────────────────────────────────────────
+
+export async function getProductCollections(productId: string): Promise<ProductCollection[]> {
+  const client = await createApiClient();
+  const { data } = await client.get<ProductCollection[]>(
+    `/admin-api/products/${productId}/collections`,
+  );
+  return data;
+}
+
+export async function addProductToCollection(
+  productId: string,
+  collectionId: string,
+): Promise<void> {
+  const client = await createApiClient();
+  await client.post(`/admin-api/products/${productId}/collections/${collectionId}`, {});
+}
+
+export async function removeProductFromCollection(
+  productId: string,
+  collectionId: string,
+): Promise<void> {
+  const client = await createApiClient();
+  await client.delete(`/admin-api/products/${productId}/collections/${collectionId}`);
 }

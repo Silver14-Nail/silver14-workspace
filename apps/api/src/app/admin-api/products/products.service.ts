@@ -34,6 +34,7 @@ import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
 import { ProductImageEntity } from '@/db/entities/products/product-image.entity';
 import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
 import { ProductShapePricingEntity } from '@/db/entities/products/product-shape-pricing.entity';
+import { CollectionEntity } from '@/db/entities/products/collection.entity';
 import { PriceAdjustmentType, ProductType } from '@/common/enums/entity.enum';
 
 import { PaginationDTO } from '@/common/dtos/pagination';
@@ -69,6 +70,8 @@ export class ProductsService {
     private readonly productVariantRepo: Repository<ProductVariantEntity>,
     @InjectRepository(ProductShapePricingEntity)
     private readonly productShapePricingRepo: Repository<ProductShapePricingEntity>,
+    @InjectRepository(CollectionEntity)
+    private readonly collectionRepo: Repository<CollectionEntity>,
     private readonly r2: R2Service,
     private readonly translationService: TranslationService,
     private readonly nailVariantStrategy: NailVariantStrategy,
@@ -602,6 +605,54 @@ export class ProductsService {
     if (!variant) throw new NotFoundException(`Variant #${variantId} not found`);
 
     await this.productVariantRepo.softDelete(variantId);
+    return { success: true };
+  }
+
+  // ─── Product Collections ────────────────────────────────────────────────────
+
+  async getProductCollections(productId: string) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    return this.collectionRepo
+      .createQueryBuilder('c')
+      .innerJoin('c.products', 'p', 'p.id = :productId', { productId })
+      .orderBy('c.sortOrder', 'ASC')
+      .addOrderBy('c.name', 'ASC')
+      .getMany();
+  }
+
+  async addProductToCollection(productId: string, collectionId: string) {
+    const [product, collection] = await Promise.all([
+      this.productRepo.findOneBy({ id: productId }),
+      this.collectionRepo.findOneBy({ id: collectionId }),
+    ]);
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+    if (!collection) throw new NotFoundException(`Collection #${collectionId} not found`);
+
+    await this.collectionRepo
+      .createQueryBuilder()
+      .relation(CollectionEntity, 'products')
+      .of(collectionId)
+      .add(productId);
+
+    return { success: true };
+  }
+
+  async removeProductFromCollection(productId: string, collectionId: string) {
+    const [product, collection] = await Promise.all([
+      this.productRepo.findOneBy({ id: productId }),
+      this.collectionRepo.findOneBy({ id: collectionId }),
+    ]);
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+    if (!collection) throw new NotFoundException(`Collection #${collectionId} not found`);
+
+    await this.collectionRepo
+      .createQueryBuilder()
+      .relation(CollectionEntity, 'products')
+      .of(collectionId)
+      .remove(productId);
+
     return { success: true };
   }
 }
