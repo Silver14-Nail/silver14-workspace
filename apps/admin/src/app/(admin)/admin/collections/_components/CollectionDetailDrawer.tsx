@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, Star, StarOff, Eye, EyeOff, Trash2, Edit2, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import ConfirmDialog from '../../shared/ConfirmDialog';
+import { useConfirmDialog } from '../../shared/useConfirmDialog';
 import type { Collection, CollectionWithProducts } from '../types';
 import {
   getCollectionDetailAction,
@@ -27,6 +29,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
   const [loadingDetail, setLoadingDetail] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   useEffect(() => {
     setLoadingDetail(true);
@@ -51,17 +54,22 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm(t('detail.deleteConfirm'))) return;
-    setActionLoading('delete');
-    const result = await deleteCollectionAction(collection.id);
-    setActionLoading(null);
-    if (result.success) {
-      onDelete(collection.id);
-      onClose();
-    } else {
-      setError((result as { success: false; error: string }).error ?? t('detail.deleteFailed'));
-    }
+  const handleDelete = () => {
+    openDialog({
+      title: t('detail.deleteConfirm'),
+      description: 'This collection will be permanently deleted and cannot be undone.',
+      confirmLabel: t('detail.delete'),
+      onConfirm: async () => {
+        const result = await deleteCollectionAction(collection.id);
+        if (!result.success) {
+          throw new Error(
+            (result as { success: false; error: string }).error ?? t('detail.deleteFailed'),
+          );
+        }
+        onDelete(collection.id);
+        onClose();
+      },
+    });
   };
 
   return (
@@ -140,11 +148,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
               onClick={handleDelete}
               className="flex items-center gap-1.5 rounded border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
             >
-              {actionLoading === 'delete' ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <Trash2 className="size-3.5" />
-              )}
+              <Trash2 className="size-3.5" />
               {t('detail.delete')}
             </button>
           </div>
@@ -243,6 +247,8 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
           </div>
         </div>
       </div>
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }

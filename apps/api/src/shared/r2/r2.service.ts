@@ -75,6 +75,33 @@ export class R2Service {
   }
 
   /**
+   * Generate a presigned PUT URL for a new file, auto-assigning a UUID key.
+   * Public URL uses the same format as upload() for consistency.
+   */
+  async getPresignedUploadUrl(
+    mime: string,
+    prefix = 'products',
+    expiresIn = 300,
+  ): Promise<{ presignedUrl: string; publicUrl: string; key: string }> {
+    const ext = mime.split('/')[1] ?? 'jpg';
+    const key = `${prefix}/${randomUUID()}.${ext}`;
+
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+      ContentType: mime,
+    });
+
+    const presignedUrl = await getSignedUrl(this.client, command, { expiresIn });
+
+    return {
+      presignedUrl,
+      publicUrl: `${this.publicUrl}/${this.bucket}/${key}`,
+      key,
+    };
+  }
+
+  /**
    * Delete an object by its storage key (not full URL).
    */
   async delete(key: string): Promise<void> {

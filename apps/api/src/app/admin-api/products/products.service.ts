@@ -445,6 +445,12 @@ export class ProductsService {
 
   // ─── Product Images ─────────────────────────────────────────────────────────
 
+  async getProductImagePresignedUrl(productId: string, contentType: string) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+    return this.r2.getPresignedUploadUrl(contentType, 'products');
+  }
+
   async uploadProductImage(productId: string, file: UploadedFile) {
     const product = await this.productRepo.findOneBy({ id: productId });
     if (!product) throw new NotFoundException(`Product #${productId} not found`);

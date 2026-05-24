@@ -6,6 +6,8 @@ import { Plus, Edit, Trash2 } from 'lucide-react';
 import type { ApiProductVariant, ApiNailShape, ApiNailSize, ProductType } from '../../types';
 import { deleteVariantAction } from '../../actions';
 import VariantFormDrawer from './VariantFormDrawer';
+import ConfirmDialog from '../../../shared/ConfirmDialog';
+import { useConfirmDialog } from '../../../shared/useConfirmDialog';
 
 interface VariantRowProps {
   variant: ApiProductVariant;
@@ -145,23 +147,24 @@ export default function ProductEditVariantsTab({
   const { t } = useTranslation('products');
   const [showForm, setShowForm] = useState(false);
   const [editVariant, setEditVariant] = useState<ApiProductVariant | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { dialogProps, openDialog } = useConfirmDialog();
 
   const isNail = productType === 'nail';
 
-  const handleDelete = async (v: ApiProductVariant) => {
+  const handleDelete = (v: ApiProductVariant) => {
     const label = isNail
       ? `${v.shape?.name ?? '?'} / ${v.size?.label ?? '?'}`
       : (v.colorName ?? 'Default variant');
-    if (!confirm(`Delete variant (${label})? This cannot be undone.`)) return;
-    setDeletingId(v.id);
-    const result = await deleteVariantAction(productId, v.id);
-    setDeletingId(null);
-    if (result.success) {
-      await onRefresh();
-    } else {
-      alert((result as { error: string }).error);
-    }
+    openDialog({
+      title: `Delete variant (${label})?`,
+      description: 'This variant will be permanently deleted and cannot be undone.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        const result = await deleteVariantAction(productId, v.id);
+        if (!result.success) throw new Error((result as { error: string }).error);
+        await onRefresh();
+      },
+    });
   };
 
   const openEdit = (v: ApiProductVariant) => {
@@ -240,7 +243,7 @@ export default function ProductEditVariantsTab({
                   productType={productType}
                   onEdit={openEdit}
                   onDelete={handleDelete}
-                  isDeleting={deletingId === v.id}
+                  isDeleting={false}
                 />
               ))}
             </tbody>
@@ -259,6 +262,8 @@ export default function ProductEditVariantsTab({
           onSuccess={handleSuccess}
         />
       )}
+
+      <ConfirmDialog {...dialogProps} />
     </div>
   );
 }
