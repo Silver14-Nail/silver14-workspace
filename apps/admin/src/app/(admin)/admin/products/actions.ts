@@ -18,6 +18,7 @@ import {
   deleteProductImage,
   reorderProductImages,
   setMainProductImage,
+  listProductVariants,
   createProductVariant,
   updateProductVariant,
   deleteProductVariant,
@@ -270,6 +271,17 @@ export async function setMainProductImageAction(
 }
 
 // ─── Product Variants ──────────────────────────────────────────────────────────
+
+export async function listProductVariantsAction(
+  productId: string,
+): Promise<ActionResult<ApiProductVariant[]>> {
+  try {
+    const data = await listProductVariants(productId);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to load variants' };
+  }
+}
 
 export async function createVariantAction(
   productId: string,

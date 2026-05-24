@@ -1,4 +1,8 @@
-import { getBase } from '@/lib/api-base';
+import axios from 'axios';
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+const http = axios.create({ baseURL: BASE, withCredentials: true });
 
 export interface CouponValidationResult {
   valid: boolean;
@@ -15,21 +19,13 @@ export async function validateCoupon(
   cartId: string,
   accessToken?: string | null,
 ): Promise<CouponValidationResult> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = {};
   if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
 
-  const res = await fetch(`${getBase()}/client-api/coupons/validate`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ code: code.toUpperCase().trim(), cartId }),
-    credentials: 'include',
-  });
-
-  const data = await res.json().catch(() => ({ message: 'Network error' }));
-
-  if (!res.ok) {
-    throw new Error(typeof data?.message === 'string' ? data.message : `Error ${res.status}`);
-  }
-
-  return data as CouponValidationResult;
+  const { data } = await http.post<CouponValidationResult>(
+    '/client-api/coupons/validate',
+    { code: code.toUpperCase().trim(), cartId },
+    { headers },
+  );
+  return data;
 }

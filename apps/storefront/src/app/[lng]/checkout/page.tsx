@@ -3,6 +3,7 @@
 import { LinkBase } from '@/components/shared/LinkBase';
 import { AnimatePresence, motion } from 'motion/react';
 import { useT } from 'next-i18next/client';
+import { useState, useEffect } from 'react';
 import { useCheckout } from './hooks/useCheckout';
 import { DEFAULT_SHIPPING } from './constants';
 import {
@@ -22,13 +23,18 @@ const SLIDE = {
 
 export default function CheckoutPage() {
   const { t } = useT('checkout');
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const {
     step,
     session,
     sessionId,
+    isSessionLoading,
     isSubmitting,
     error,
     completedOrderId,
+    orderPollingDone,
     confirmEmail,
     confirmFirstName,
     confirmPhone,
@@ -72,6 +78,15 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-10">
           {/* ── Step forms ── */}
           <main>
+            {mounted && isSessionLoading ? (
+              <div className="bg-white p-6 sm:p-8 space-y-4 animate-pulse">
+                <div className="h-7 bg-gray-200 rounded w-48" />
+                <div className="h-10 bg-gray-100 rounded" />
+                <div className="h-10 bg-gray-100 rounded" />
+                <div className="h-10 bg-gray-100 rounded" />
+                <div className="h-11 bg-gray-200 rounded w-36 ml-auto mt-2" />
+              </div>
+            ) : (
             <AnimatePresence mode="wait">
               {step === 'contact' && (
                 <motion.div key="contact" {...SLIDE} transition={{ duration: 0.3 }}>
@@ -121,12 +136,14 @@ export default function CheckoutPage() {
               {step === 'confirmation' && (
                 <ConfirmationStep
                   orderId={completedOrderId ?? ''}
+                  orderPollingDone={orderPollingDone}
                   firstName={confirmFirstName}
                   email={confirmEmail}
                   phone={confirmPhone}
                 />
               )}
             </AnimatePresence>
+            )}
           </main>
 
           {/* ── Sidebar ── */}

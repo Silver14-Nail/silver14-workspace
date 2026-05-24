@@ -68,9 +68,7 @@ export function useProductDetail(
     if (!product) return [];
     if (!selections.shape) return product.availableSizes;
     const shapeSizeLabels = new Set(
-      product.variants
-        .filter((v) => v.shapeLabel === selections.shape)
-        .map((v) => v.sizeLabel),
+      product.variants.filter((v) => v.shapeLabel === selections.shape).map((v) => v.sizeLabel),
     );
     return product.availableSizes.filter((s) => s === 'Custom' || shapeSizeLabels.has(s));
   }, [product, selections.shape]);

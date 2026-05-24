@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { randomBytes } from 'crypto';
 import { hashSync } from 'bcryptjs';
 import { AppDataSource } from './ormconfig';
 import {
@@ -1282,17 +1283,19 @@ async function seedProducts(
   const result = new Map<string, ProductEntity>();
 
   for (const p of PRODUCTS) {
-    let product = await productRepo.findOne({ where: { slug: p.slug } });
+    let product = await productRepo.findOne({ where: { name: p.name } });
     if (product) {
       skip('Product', p.name);
       result.set(p.name, product);
       continue;
     }
 
+    const slug = `${p.slug}-${randomBytes(2).toString('hex')}`;
+
     product = await productRepo.save(
       productRepo.create({
         name: p.name,
-        slug: p.slug,
+        slug,
         description: p.description,
         basePrice: p.basePrice,
         salePrice: p.salePrice ?? null,
@@ -1381,16 +1384,18 @@ async function seedSupplies() {
   const translationRepo = AppDataSource.getRepository(ProductTranslationEntity);
 
   for (const s of SUPPLIES) {
-    let product = await productRepo.findOne({ where: { slug: s.slug } });
+    let product = await productRepo.findOne({ where: { name: s.name } });
     if (product) {
       skip('Supply', s.name);
       continue;
     }
 
+    const slug = `${s.slug}-${randomBytes(2).toString('hex')}`;
+
     product = await productRepo.save(
       productRepo.create({
         name: s.name,
-        slug: s.slug,
+        slug,
         description: s.description,
         basePrice: s.basePrice,
         salePrice: s.salePrice ?? null,

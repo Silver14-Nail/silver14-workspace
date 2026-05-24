@@ -70,20 +70,39 @@ export class ClientPaymentsService {
     };
   }
 
-  // Called by Stripe webhook after payment_intent.succeeded
-  async fulfillStripePayment(paymentIntentId: string, checkoutSessionId: string): Promise<void> {
+  // Called directly by client after confirmCardPayment succeeds, or by Stripe webhook
+  async fulfillStripePayment(
+    paymentIntentId: string,
+    checkoutSessionId: string,
+  ): Promise<{ orderId: string }> {
+    // Verify payment with Stripe first — prevents fake fulfillment requests
+    const intent = await this.stripeService.retrievePaymentIntent(paymentIntentId);
+
+    if (intent.status !== 'succeeded') {
+      throw new BadRequestException(`Payment has not succeeded (status: ${intent.status})`);
+    }
+
+    const intentMeta = intent.metadata as Record<string, string>;
+    if (intentMeta?.checkoutSessionId !== checkoutSessionId) {
+      throw new BadRequestException('Payment intent does not match this checkout session');
+    }
+
+    // Idempotent: if order already created by a concurrent call or webhook, return it
+    const existingOrder = await this.paymentRepo.manager.findOne(OrderEntity, {
+      where: { checkoutSession: { id: checkoutSessionId } },
+      select: ['id'],
+    });
+    if (existingOrder) return { orderId: existingOrder.id };
+
     const session = await this.loadSessionOrFail(checkoutSessionId);
 
-    if (session.status === CheckoutSessionStatus.COMPLETED) return; // idempotent
-
-    const intent = await this.stripeService.retrievePaymentIntent(paymentIntentId);
-    // payment_method is expanded via retrievePaymentIntent({ expand: ['payment_method'] })
     const pm = intent.payment_method as unknown as ExpandedPaymentMethod | null;
-
     const totals = this.calculateTotals(session);
 
+    let orderId!: string;
     await this.paymentRepo.manager.transaction(async (manager) => {
       const order = await this.createOrder(manager, session, totals);
+      orderId = order.id;
 
       const payment = manager.create(PaymentEntity, {
         order,
@@ -111,6 +130,8 @@ export class ClientPaymentsService {
       session.status = CheckoutSessionStatus.COMPLETED;
       await manager.save(CheckoutSessionEntity, session);
     });
+
+    return { orderId };
   }
 
   // ─── PayPal ─────────────────────────────────────────────────────────────────

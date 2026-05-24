@@ -7,7 +7,7 @@ import {
   type ApiCampaign,
   type ApiCampaignTranslation,
   type CampaignPlacement,
-} from '@/lib/campaigns.api';
+} from '@/features/campaigns/campaigns.api';
 
 export interface UseCampaignResult {
   campaign: ApiCampaign | null;

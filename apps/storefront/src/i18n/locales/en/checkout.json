@@ -76,6 +76,7 @@
     "description": "Your order has been received and our artisans will begin crafting your nails shortly. A confirmation has been sent to {{email}}.",
     "orderIdLabel": "Your Order ID",
     "orderIdHint": "Save this to track your order",
+    "orderIdPending": "Your order ID will be sent to your email shortly",
     "trackHint": "📱 You can track your order status using your phone number ({{phone}}) and order ID above.",
     "trackOrder": "Track Order",
     "continueShopping": "Continue Shopping"

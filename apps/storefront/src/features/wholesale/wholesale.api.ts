@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type {
   WholesaleTier,
   WholesaleAccount,
@@ -5,40 +6,25 @@ import type {
   SubmitEnquiryInput,
 } from './wholesale.types';
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 
-function authHeaders(token?: string | null): HeadersInit {
-  const h: HeadersInit = { 'Content-Type': 'application/json' };
-  if (token) h['Authorization'] = `Bearer ${token}`;
-  return h;
-}
-
-async function api<T>(url: string, opts?: RequestInit): Promise<T> {
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-    throw new Error(
-      typeof data['message'] === 'string' ? data['message'] : `API error ${res.status}`,
-    );
-  }
-  return res.json() as Promise<T>;
-}
+const http = axios.create({ baseURL: BASE, withCredentials: true });
 
 export const wholesaleApi = {
   getTiers: () =>
-    api<WholesaleTier[]>(`${BASE}/client-api/wholesales/tiers`),
+    http.get<WholesaleTier[]>('/client-api/wholesales/tiers').then((r) => r.data),
 
   submitEnquiry: (data: SubmitEnquiryInput) =>
-    api<{ id: string; status: string }>(`${BASE}/client-api/wholesales/enquire`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }),
+    http
+      .post<{ id: string; status: string }>('/client-api/wholesales/enquire', data)
+      .then((r) => r.data),
 
   getAccount: (token: string) =>
-    api<WholesaleAccount>(`${BASE}/client-api/wholesales/account`, {
-      headers: authHeaders(token),
-    }),
+    http
+      .get<WholesaleAccount>('/client-api/wholesales/account', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((r) => r.data),
 
   getOrders: (
     token: string,
@@ -49,9 +35,10 @@ export const wholesaleApi = {
     if (params?.limit) qs.set('limit', String(params.limit));
     if (params?.paymentStatus) qs.set('paymentStatus', params.paymentStatus);
     const query = qs.toString() ? `?${qs.toString()}` : '';
-    return api<WholesaleOrdersResponse>(
-      `${BASE}/client-api/wholesales/account/orders${query}`,
-      { headers: authHeaders(token) },
-    );
+    return http
+      .get<WholesaleOrdersResponse>(`/client-api/wholesales/account/orders${query}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((r) => r.data);
   },
 };

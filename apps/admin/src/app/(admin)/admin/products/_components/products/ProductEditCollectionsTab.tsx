@@ -41,6 +41,8 @@ export default function ProductEditCollectionsTab({ productId }: Props) {
 
     if (allResult.success) {
       setAllCollections(allResult.data.data);
+    } else {
+      setError((allResult as { error: string }).error);
     }
 
     setLoading(false);

@@ -43,6 +43,12 @@ export default function VariantFormDrawer({
   const [stock, setStock] = useState(variant ? String(variant.stockQty) : '0');
   const [isAvailable, setIsAvailable] = useState(variant?.isAvailable ?? true);
 
+  // For non-nail types, let user choose between color or shape/size variant
+  const [variantMode, setVariantMode] = useState<'color' | 'shape'>(
+    isNail || (variant && variant.shape != null) ? 'shape' : 'color',
+  );
+  const useShapeMode = isNail || variantMode === 'shape';
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -55,7 +61,7 @@ export default function VariantFormDrawer({
     if (sizes.find((sz) => sz.id === id)?.label === 'Custom') setStock('9999');
   };
 
-  const canSubmit = isNail
+  const canSubmit = useShapeMode
     ? shapeId !== '' && sizeId !== '' && price !== '' && parseFloat(price) >= 0
     : price !== '' && parseFloat(price) >= 0;
 
@@ -64,7 +70,7 @@ export default function VariantFormDrawer({
     setSaving(true);
     setError('');
 
-    const payload = isNail
+    const payload = useShapeMode
       ? {
           shapeId,
           sizeId,
@@ -120,7 +126,35 @@ export default function VariantFormDrawer({
             </div>
           )}
 
-          {isNail ? (
+          {/* Variant type toggle — only for non-nail products when not editing */}
+          {!isNail && !isEdit && (
+            <div className="flex rounded-lg border border-[#E5E7EB] overflow-hidden text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setVariantMode('color')}
+                className={`flex-1 py-2 transition-colors ${
+                  variantMode === 'color'
+                    ? 'bg-[#111827] text-white'
+                    : 'bg-white text-[#6B7280] hover:bg-[#F9FAFB]'
+                }`}
+              >
+                {t('variantForm.colorName')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setVariantMode('shape')}
+                className={`flex-1 py-2 transition-colors ${
+                  variantMode === 'shape'
+                    ? 'bg-[#111827] text-white'
+                    : 'bg-white text-[#6B7280] hover:bg-[#F9FAFB]'
+                }`}
+              >
+                {t('variantForm.shape')} / {t('variantForm.size')}
+              </button>
+            </div>
+          )}
+
+          {useShapeMode ? (
             <>
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
@@ -237,19 +271,19 @@ export default function VariantFormDrawer({
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-[#374151]">
                 {t('variantForm.stock')}
-                {isNail && isCustomSizeSelected && (
+                {useShapeMode && isCustomSizeSelected && (
                   <span className="ml-1 font-normal text-[#9CA3AF]">{t('variantForm.stockUnlimited')}</span>
                 )}
               </label>
               <input
                 value={stock}
-                onChange={(e) => !(isNail && isCustomSizeSelected) && setStock(e.target.value)}
-                readOnly={isNail && isCustomSizeSelected}
+                onChange={(e) => !(useShapeMode && isCustomSizeSelected) && setStock(e.target.value)}
+                readOnly={useShapeMode && isCustomSizeSelected}
                 type="number"
                 min="0"
                 step="1"
                 className={`w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none transition-colors ${
-                  isNail && isCustomSizeSelected
+                  useShapeMode && isCustomSizeSelected
                     ? 'bg-[#F9FAFB] text-[#9CA3AF] cursor-not-allowed'
                     : 'text-[#111827] focus:border-[#111827]'
                 }`}

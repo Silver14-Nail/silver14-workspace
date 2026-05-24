@@ -15,8 +15,8 @@ const config_1 = __webpack_require__(913);
 const cookie_parser_1 = tslib_1.__importDefault(__webpack_require__(1001));
 const express_1 = tslib_1.__importDefault(__webpack_require__(677));
 const app_module_1 = __webpack_require__(1003);
-const global_exception_filter_1 = __webpack_require__(2449);
-const logging_interceptor_1 = __webpack_require__(2450);
+const global_exception_filter_1 = __webpack_require__(2450);
+const logging_interceptor_1 = __webpack_require__(2451);
 const logger = new common_1.Logger('Bootstrap');
 const expressApp = (0, express_1.default)();
 let nestApp = null;
@@ -78641,8 +78641,8 @@ const app_service_1 = __webpack_require__(1005);
 const database_module_1 = __webpack_require__(1006);
 const admin_api_module_1 = __webpack_require__(1774);
 const client_api_module_1 = __webpack_require__(2183);
-const health_module_1 = __webpack_require__(2444);
-const translation_module_1 = __webpack_require__(2446);
+const health_module_1 = __webpack_require__(2445);
+const translation_module_1 = __webpack_require__(2447);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -238366,6 +238366,7 @@ const nail_size_entity_1 = __webpack_require__(1747);
 const product_image_entity_1 = __webpack_require__(1743);
 const product_variants_entity_1 = __webpack_require__(1746);
 const product_shape_pricing_entity_1 = __webpack_require__(1744);
+const collection_entity_1 = __webpack_require__(1748);
 const products_service_1 = __webpack_require__(2100);
 const products_controller_1 = __webpack_require__(2106);
 const nail_variant_strategy_1 = __webpack_require__(2101);
@@ -238384,6 +238385,7 @@ exports.ProductsModule = ProductsModule = tslib_1.__decorate([
                 product_image_entity_1.ProductImageEntity,
                 product_variants_entity_1.ProductVariantEntity,
                 product_shape_pricing_entity_1.ProductShapePricingEntity,
+                collection_entity_1.CollectionEntity,
             ]),
         ],
         controllers: [
@@ -238393,6 +238395,7 @@ exports.ProductsModule = ProductsModule = tslib_1.__decorate([
             products_controller_1.ProductImagesController,
             products_controller_1.ProductVariantsController,
             products_controller_1.ProductTranslationsController,
+            products_controller_1.ProductCollectionsController,
         ],
         providers: [products_service_1.ProductsService, nail_variant_strategy_1.NailVariantStrategy, color_variant_strategy_1.ColorVariantStrategy],
         exports: [products_service_1.ProductsService],
@@ -238487,6 +238490,25 @@ let R2Service = R2Service_1 = class R2Service {
         return {
             presignedUrl,
             publicUrl: `${this.publicUrl}/${key}`,
+            key,
+        };
+    }
+    /**
+     * Generate a presigned PUT URL for a new file, auto-assigning a UUID key.
+     * Public URL uses the same format as upload() for consistency.
+     */
+    async getPresignedUploadUrl(mime, prefix = 'products', expiresIn = 300) {
+        const ext = mime.split('/')[1] ?? 'jpg';
+        const key = `${prefix}/${(0, crypto_1.randomUUID)()}.${ext}`;
+        const command = new client_s3_1.PutObjectCommand({
+            Bucket: this.bucket,
+            Key: key,
+            ContentType: mime,
+        });
+        const presignedUrl = await (0, s3_request_presigner_1.getSignedUrl)(this.client, command, { expiresIn });
+        return {
+            presignedUrl,
+            publicUrl: `${this.publicUrl}/${this.bucket}/${key}`,
             key,
         };
     }
@@ -244266,10 +244288,10 @@ var chain = __webpack_require__(1965);
 
 const ENV_IMDS_DISABLED = "AWS_EC2_METADATA_DISABLED";
 const remoteProvider = async (init) => {
-    const { ENV_CMDS_FULL_URI, ENV_CMDS_RELATIVE_URI, fromContainerMetadata, fromInstanceMetadata } = await __webpack_require__.e(/* import() */ 7).then(__webpack_require__.bind(__webpack_require__, 2461));
+    const { ENV_CMDS_FULL_URI, ENV_CMDS_RELATIVE_URI, fromContainerMetadata, fromInstanceMetadata } = await __webpack_require__.e(/* import() */ 7).then(__webpack_require__.bind(__webpack_require__, 2462));
     if (process.env[ENV_CMDS_RELATIVE_URI] || process.env[ENV_CMDS_FULL_URI]) {
         init.logger?.debug("@aws-sdk/credential-provider-node - remoteProvider::fromHttp/fromContainerMetadata");
-        const { fromHttp } = await __webpack_require__.e(/* import() */ 8).then(__webpack_require__.bind(__webpack_require__, 2462));
+        const { fromHttp } = await __webpack_require__.e(/* import() */ 8).then(__webpack_require__.bind(__webpack_require__, 2463));
         return (0,chain.chain)(fromHttp(init), fromContainerMetadata(init));
     }
     if (process.env[ENV_IMDS_DISABLED] && process.env[ENV_IMDS_DISABLED] !== "false") {
@@ -244385,22 +244407,22 @@ const defaultProvider = (init = {}) => memoizeChain([
         if (!ssoStartUrl && !ssoAccountId && !ssoRegion && !ssoRoleName && !ssoSession) {
             throw new CredentialsProviderError.CredentialsProviderError("Skipping SSO provider in default chain (inputs do not include SSO fields).", { logger: init.logger });
         }
-        const { fromSSO } = await __webpack_require__.e(/* import() */ 1).then(__webpack_require__.bind(__webpack_require__, 2452));
+        const { fromSSO } = await __webpack_require__.e(/* import() */ 1).then(__webpack_require__.bind(__webpack_require__, 2453));
         return fromSSO(init)(awsIdentityProperties);
     },
     async (awsIdentityProperties) => {
         init.logger?.debug("@aws-sdk/credential-provider-node - defaultProvider::fromIni");
-        const { fromIni } = await __webpack_require__.e(/* import() */ 4).then(__webpack_require__.bind(__webpack_require__, 2456));
+        const { fromIni } = await __webpack_require__.e(/* import() */ 4).then(__webpack_require__.bind(__webpack_require__, 2457));
         return fromIni(init)(awsIdentityProperties);
     },
     async (awsIdentityProperties) => {
         init.logger?.debug("@aws-sdk/credential-provider-node - defaultProvider::fromProcess");
-        const { fromProcess } = await __webpack_require__.e(/* import() */ 3).then(__webpack_require__.bind(__webpack_require__, 2457));
+        const { fromProcess } = await __webpack_require__.e(/* import() */ 3).then(__webpack_require__.bind(__webpack_require__, 2458));
         return fromProcess(init)(awsIdentityProperties);
     },
     async (awsIdentityProperties) => {
         init.logger?.debug("@aws-sdk/credential-provider-node - defaultProvider::fromTokenFile");
-        const { fromTokenFile } = await __webpack_require__.e(/* import() */ 6).then(__webpack_require__.bind(__webpack_require__, 2460));
+        const { fromTokenFile } = await __webpack_require__.e(/* import() */ 6).then(__webpack_require__.bind(__webpack_require__, 2461));
         return fromTokenFile(init)(awsIdentityProperties);
     },
     async () => {
@@ -250481,7 +250503,7 @@ class InvokeStoreMulti extends InvokeStoreBase {
     als;
     static async create() {
         const instance = new InvokeStoreMulti();
-        const asyncHooks = await Promise.resolve(/* import() */).then(__webpack_require__.t.bind(__webpack_require__, 2451, 23));
+        const asyncHooks = await Promise.resolve(/* import() */).then(__webpack_require__.t.bind(__webpack_require__, 2452, 23));
         instance.als = new asyncHooks.AsyncLocalStorage();
         return instance;
     }
@@ -261918,7 +261940,7 @@ class HttpProtocol extends _SerdeContext__WEBPACK_IMPORTED_MODULE_3__.SerdeConte
         });
     }
     async loadEventStreamCapability() {
-        const { EventStreamSerde } = await __webpack_require__.e(/* import() */ 9).then(__webpack_require__.bind(__webpack_require__, 2463));
+        const { EventStreamSerde } = await __webpack_require__.e(/* import() */ 9).then(__webpack_require__.bind(__webpack_require__, 2464));
         return new EventStreamSerde({
             marshaller: this.getEventStreamMarshaller(),
             serializer: this.serializer,
@@ -268716,13 +268738,14 @@ const getSignedUrl = async (client, command, options = {}) => {
 
 "use strict";
 
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductsService = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const typeorm_1 = __webpack_require__(1007);
 const typeorm_2 = __webpack_require__(1013);
+const crypto_1 = __webpack_require__(610);
 const nail_variant_strategy_1 = __webpack_require__(2101);
 const color_variant_strategy_1 = __webpack_require__(2102);
 function toSlug(text) {
@@ -268735,23 +268758,28 @@ function toSlug(text) {
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-');
 }
+function generateSlugCode() {
+    return (0, crypto_1.randomBytes)(2).toString('hex'); // 4 hex chars, e.g. "a3f2"
+}
 const product_entity_1 = __webpack_require__(1742);
 const nail_shape_entity_1 = __webpack_require__(1745);
 const nail_size_entity_1 = __webpack_require__(1747);
 const product_image_entity_1 = __webpack_require__(1743);
 const product_variants_entity_1 = __webpack_require__(1746);
 const product_shape_pricing_entity_1 = __webpack_require__(1744);
+const collection_entity_1 = __webpack_require__(1748);
 const entity_enum_1 = __webpack_require__(1731);
 const r2_service_1 = __webpack_require__(1938);
 const translation_service_1 = __webpack_require__(2103);
 let ProductsService = class ProductsService {
-    constructor(productRepo, nailShapeRepo, nailSizeRepo, productImageRepo, productVariantRepo, productShapePricingRepo, r2, translationService, nailVariantStrategy, colorVariantStrategy) {
+    constructor(productRepo, nailShapeRepo, nailSizeRepo, productImageRepo, productVariantRepo, productShapePricingRepo, collectionRepo, r2, translationService, nailVariantStrategy, colorVariantStrategy) {
         this.productRepo = productRepo;
         this.nailShapeRepo = nailShapeRepo;
         this.nailSizeRepo = nailSizeRepo;
         this.productImageRepo = productImageRepo;
         this.productVariantRepo = productVariantRepo;
         this.productShapePricingRepo = productShapePricingRepo;
+        this.collectionRepo = collectionRepo;
         this.r2 = r2;
         this.translationService = translationService;
         this.nailVariantStrategy = nailVariantStrategy;
@@ -268819,14 +268847,8 @@ let ProductsService = class ProductsService {
         return product;
     }
     async createProduct(dto) {
-        const englishName = await this.translationService.resolveEnglishName(dto.name);
-        const baseSlug = toSlug(englishName);
-        let slug = baseSlug;
-        let attempt = 0;
-        while (await this.productRepo.findOne({ where: { slug } })) {
-            attempt++;
-            slug = `${baseSlug}-${attempt}`;
-        }
+        const baseSlug = toSlug(dto.name);
+        const slug = `${baseSlug}-${generateSlugCode()}`;
         if (dto.salePrice != null && dto.salePrice >= dto.basePrice) {
             throw new common_1.BadRequestException('Sale price must be less than base price');
         }
@@ -268887,8 +268909,17 @@ let ProductsService = class ProductsService {
                 isAvailable: (dto.stockQty ?? 0) > 0,
             }));
         }
-        // Fire-and-forget: generate translations asynchronously
+        // Fire-and-forget: generate translations + upgrade slug to English asynchronously
         this.translationService.generateForProduct(saved).catch(() => undefined);
+        this.translationService
+            .resolveEnglishName(saved.name)
+            .then(async (englishName) => {
+            const betterBase = toSlug(englishName);
+            if (!betterBase || betterBase === baseSlug)
+                return;
+            await this.productRepo.update(saved.id, { slug: `${betterBase}-${generateSlugCode()}` });
+        })
+            .catch(() => undefined);
         return saved;
     }
     async updateProduct(id, dto) {
@@ -268900,15 +268931,7 @@ let ProductsService = class ProductsService {
             product.name = dto.name;
             // Backfill slug for products created before auto-slug was added
             if (!product.slug) {
-                const englishName = await this.translationService.resolveEnglishName(dto.name);
-                const baseSlug = toSlug(englishName);
-                let slug = baseSlug;
-                let attempt = 0;
-                while (await this.productRepo.findOne({ where: { slug } })) {
-                    attempt++;
-                    slug = `${baseSlug}-${attempt}`;
-                }
-                product.slug = slug;
+                product.slug = `${toSlug(dto.name)}-${generateSlugCode()}`;
             }
         }
         if (dto.description !== undefined)
@@ -269064,6 +269087,12 @@ let ProductsService = class ProductsService {
         return { success: true };
     }
     // ─── Product Images ─────────────────────────────────────────────────────────
+    async getProductImagePresignedUrl(productId, contentType) {
+        const product = await this.productRepo.findOneBy({ id: productId });
+        if (!product)
+            throw new common_1.NotFoundException(`Product #${productId} not found`);
+        return this.r2.getPresignedUploadUrl(contentType, 'products');
+    }
     async uploadProductImage(productId, file) {
         const product = await this.productRepo.findOneBy({ id: productId });
         if (!product)
@@ -269201,6 +269230,50 @@ let ProductsService = class ProductsService {
         await this.productVariantRepo.softDelete(variantId);
         return { success: true };
     }
+    // ─── Product Collections ────────────────────────────────────────────────────
+    async getProductCollections(productId) {
+        const product = await this.productRepo.findOneBy({ id: productId });
+        if (!product)
+            throw new common_1.NotFoundException(`Product #${productId} not found`);
+        return this.collectionRepo
+            .createQueryBuilder('c')
+            .innerJoin('c.products', 'p', 'p.id = :productId', { productId })
+            .orderBy('c.sortOrder', 'ASC')
+            .addOrderBy('c.name', 'ASC')
+            .getMany();
+    }
+    async addProductToCollection(productId, collectionId) {
+        const [product, collection] = await Promise.all([
+            this.productRepo.findOneBy({ id: productId }),
+            this.collectionRepo.findOneBy({ id: collectionId }),
+        ]);
+        if (!product)
+            throw new common_1.NotFoundException(`Product #${productId} not found`);
+        if (!collection)
+            throw new common_1.NotFoundException(`Collection #${collectionId} not found`);
+        await this.collectionRepo
+            .createQueryBuilder()
+            .relation(collection_entity_1.CollectionEntity, 'products')
+            .of(collectionId)
+            .add(productId);
+        return { success: true };
+    }
+    async removeProductFromCollection(productId, collectionId) {
+        const [product, collection] = await Promise.all([
+            this.productRepo.findOneBy({ id: productId }),
+            this.collectionRepo.findOneBy({ id: collectionId }),
+        ]);
+        if (!product)
+            throw new common_1.NotFoundException(`Product #${productId} not found`);
+        if (!collection)
+            throw new common_1.NotFoundException(`Collection #${collectionId} not found`);
+        await this.collectionRepo
+            .createQueryBuilder()
+            .relation(collection_entity_1.CollectionEntity, 'products')
+            .of(collectionId)
+            .remove(productId);
+        return { success: true };
+    }
 };
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = tslib_1.__decorate([
@@ -269211,7 +269284,8 @@ exports.ProductsService = ProductsService = tslib_1.__decorate([
     tslib_1.__param(3, (0, typeorm_1.InjectRepository)(product_image_entity_1.ProductImageEntity)),
     tslib_1.__param(4, (0, typeorm_1.InjectRepository)(product_variants_entity_1.ProductVariantEntity)),
     tslib_1.__param(5, (0, typeorm_1.InjectRepository)(product_shape_pricing_entity_1.ProductShapePricingEntity)),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object, typeof (_g = typeof r2_service_1.R2Service !== "undefined" && r2_service_1.R2Service) === "function" ? _g : Object, typeof (_h = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _h : Object, typeof (_j = typeof nail_variant_strategy_1.NailVariantStrategy !== "undefined" && nail_variant_strategy_1.NailVariantStrategy) === "function" ? _j : Object, typeof (_k = typeof color_variant_strategy_1.ColorVariantStrategy !== "undefined" && color_variant_strategy_1.ColorVariantStrategy) === "function" ? _k : Object])
+    tslib_1.__param(6, (0, typeorm_1.InjectRepository)(collection_entity_1.CollectionEntity)),
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object, typeof (_g = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _g : Object, typeof (_h = typeof r2_service_1.R2Service !== "undefined" && r2_service_1.R2Service) === "function" ? _h : Object, typeof (_j = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _j : Object, typeof (_k = typeof nail_variant_strategy_1.NailVariantStrategy !== "undefined" && nail_variant_strategy_1.NailVariantStrategy) === "function" ? _k : Object, typeof (_l = typeof color_variant_strategy_1.ColorVariantStrategy !== "undefined" && color_variant_strategy_1.ColorVariantStrategy) === "function" ? _l : Object])
 ], ProductsService);
 
 
@@ -269622,9 +269696,9 @@ exports.TRANSLATION_PROVIDER_TOKEN = 'TRANSLATION_PROVIDER';
 
 "use strict";
 
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ProductVariantsController = exports.ProductTranslationsController = exports.ProductImagesController = exports.NailSizesController = exports.NailShapesController = exports.ProductsController = exports.UpsertProductTranslationDto = void 0;
+exports.ProductCollectionsController = exports.ProductVariantsController = exports.ProductTranslationsController = exports.ProductImagesController = exports.NailSizesController = exports.NailShapesController = exports.ProductsController = exports.UpsertProductTranslationDto = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const platform_express_1 = __webpack_require__(671);
@@ -269865,6 +269939,11 @@ let ProductImagesController = class ProductImagesController {
     constructor(productsService) {
         this.productsService = productsService;
     }
+    getPresignedUrl(productId, contentType) {
+        if (!contentType)
+            throw new common_1.BadRequestException('contentType query param is required');
+        return this.productsService.getProductImagePresignedUrl(productId, contentType);
+    }
     uploadImage(productId, file) {
         return this.productsService.uploadProductImage(productId, file);
     }
@@ -269882,6 +269961,14 @@ let ProductImagesController = class ProductImagesController {
     }
 };
 exports.ProductImagesController = ProductImagesController;
+tslib_1.__decorate([
+    (0, common_1.Get)('presign'),
+    tslib_1.__param(0, (0, common_1.Param)('productId')),
+    tslib_1.__param(1, (0, common_1.Query)('contentType')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String, String]),
+    tslib_1.__metadata("design:returntype", void 0)
+], ProductImagesController.prototype, "getPresignedUrl", null);
 tslib_1.__decorate([
     (0, common_1.Post)('upload'),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
@@ -270048,6 +270135,52 @@ exports.ProductVariantsController = ProductVariantsController = tslib_1.__decora
     (0, common_1.Controller)('products/:productId/variants'),
     tslib_1.__metadata("design:paramtypes", [typeof (_r = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _r : Object])
 ], ProductVariantsController);
+let ProductCollectionsController = class ProductCollectionsController {
+    constructor(productsService) {
+        this.productsService = productsService;
+    }
+    listCollections(productId) {
+        return this.productsService.getProductCollections(productId);
+    }
+    addToCollection(productId, collectionId) {
+        return this.productsService.addProductToCollection(productId, collectionId);
+    }
+    removeFromCollection(productId, collectionId) {
+        return this.productsService.removeProductFromCollection(productId, collectionId);
+    }
+};
+exports.ProductCollectionsController = ProductCollectionsController;
+tslib_1.__decorate([
+    (0, common_1.Get)(),
+    tslib_1.__param(0, (0, common_1.Param)('productId')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String]),
+    tslib_1.__metadata("design:returntype", void 0)
+], ProductCollectionsController.prototype, "listCollections", null);
+tslib_1.__decorate([
+    (0, common_1.Post)(':collectionId'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    tslib_1.__param(0, (0, common_1.Param)('productId')),
+    tslib_1.__param(1, (0, common_1.Param)('collectionId')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String, String]),
+    tslib_1.__metadata("design:returntype", void 0)
+], ProductCollectionsController.prototype, "addToCollection", null);
+tslib_1.__decorate([
+    (0, common_1.Delete)(':collectionId'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    tslib_1.__param(0, (0, common_1.Param)('productId')),
+    tslib_1.__param(1, (0, common_1.Param)('collectionId')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String, String]),
+    tslib_1.__metadata("design:returntype", void 0)
+], ProductCollectionsController.prototype, "removeFromCollection", null);
+exports.ProductCollectionsController = ProductCollectionsController = tslib_1.__decorate([
+    (0, swagger_1.ApiTags)('Admin - Product Collections'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.Controller)('products/:productId/collections'),
+    tslib_1.__metadata("design:paramtypes", [typeof (_u = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _u : Object])
+], ProductCollectionsController);
 
 
 /***/ }),
@@ -274930,7 +275063,7 @@ tslib_1.__decorate([
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
-    (0, class_validator_1.Max)(100),
+    (0, class_validator_1.Max)(500),
     tslib_1.__metadata("design:type", Number)
 ], CollectionListQueryDto.prototype, "limit", void 0);
 tslib_1.__decorate([
@@ -275311,6 +275444,29 @@ const marketing_campaign_entity_1 = __webpack_require__(1766);
 const marketing_campaign_translation_entity_1 = __webpack_require__(1767);
 const entity_enum_1 = __webpack_require__(1731);
 const r2_service_1 = __webpack_require__(1938);
+// Default i18n content per locale for each placement.
+// Merges into null translation fields so the client API always returns complete data
+// when a campaign is active but some text fields haven't been customised yet.
+const PLACEMENT_TRANSLATION_DEFAULTS = {
+    [entity_enum_1.CampaignPlacement.HOMEPAGE_HERO]: {
+        en: {
+            eyebrow: 'Handcrafted Luxury',
+            title: 'Silver14 Nail',
+            subtitle: null,
+            ctaLabel: 'Shop Collection',
+            secondaryCtaLabel: 'Wholesale Enquiry',
+            secondaryCtaUrl: '/wholesales',
+        },
+        vi: {
+            eyebrow: 'Sang trọng thủ công',
+            title: 'Silver14 Nail',
+            subtitle: null,
+            ctaLabel: 'Mua bộ sưu tập',
+            secondaryCtaLabel: 'Yêu cầu bán sỉ',
+            secondaryCtaUrl: '/wholesales',
+        },
+    },
+};
 let MarketingCampaignsService = class MarketingCampaignsService {
     constructor(campaignRepo, translationRepo, r2) {
         this.campaignRepo = campaignRepo;
@@ -275429,12 +275585,54 @@ let MarketingCampaignsService = class MarketingCampaignsService {
             .createQueryBuilder('c')
             .leftJoinAndSelect('c.translations', 'translations')
             .where('c.placement = :placement', { placement })
-            .andWhere('c.status = :status', { status: entity_enum_1.CampaignStatus.ACTIVE })
-            .andWhere('(c.startsAt IS NULL OR c.startsAt <= :now)', { now })
+            .andWhere(`(
+          c.status = :active
+          OR (c.status = :scheduled AND (c.startsAt IS NULL OR c.startsAt <= :now))
+        )`, { active: entity_enum_1.CampaignStatus.ACTIVE, scheduled: entity_enum_1.CampaignStatus.SCHEDULED, now })
             .andWhere('(c.endsAt IS NULL OR c.endsAt >= :now)', { now })
             .orderBy('c.priority', 'DESC')
             .getOne();
-        return campaign ?? null;
+        if (!campaign)
+            return null;
+        // Merge null translation fields with i18n defaults so the client always
+        // receives complete content for active campaigns.
+        const placementDefaults = PLACEMENT_TRANSLATION_DEFAULTS[placement];
+        if (placementDefaults) {
+            // Ensure every locale that has defaults is represented in the response.
+            const existingLocales = new Set(campaign.translations.map((t) => t.locale));
+            for (const [loc, defaults] of Object.entries(placementDefaults)) {
+                if (!existingLocales.has(loc)) {
+                    // Synthesise a virtual translation row (not persisted — only for this response).
+                    const virtual = Object.assign(new marketing_campaign_translation_entity_1.MarketingCampaignTranslationEntity(), {
+                        campaignId: campaign.id,
+                        locale: loc,
+                        ...defaults,
+                        isAutoGenerated: false,
+                    });
+                    campaign.translations.push(virtual);
+                }
+            }
+            // Fill null fields in existing translations with defaults for their locale.
+            campaign.translations = campaign.translations.map((tr) => {
+                const d = placementDefaults[tr.locale] ?? placementDefaults['en'];
+                if (!d)
+                    return tr;
+                if (tr.eyebrow === null)
+                    tr.eyebrow = d.eyebrow ?? null;
+                if (tr.title === null)
+                    tr.title = d.title ?? null;
+                if (tr.subtitle === null && d.subtitle !== undefined)
+                    tr.subtitle = d.subtitle;
+                if (tr.ctaLabel === null)
+                    tr.ctaLabel = d.ctaLabel ?? null;
+                if (tr.secondaryCtaLabel === null)
+                    tr.secondaryCtaLabel = d.secondaryCtaLabel ?? null;
+                if (tr.secondaryCtaUrl === null)
+                    tr.secondaryCtaUrl = d.secondaryCtaUrl ?? null;
+                return tr;
+            });
+        }
+        return campaign;
     }
     // ─── Private helpers ──────────────────────────────────────────────────────────
     async upsertTranslations(campaignId, translations) {
@@ -275858,18 +276056,18 @@ const client_api_middleware_1 = __webpack_require__(2184);
 const auth_module_1 = __webpack_require__(1927);
 const auth_module_2 = __webpack_require__(2185);
 const payments_module_1 = __webpack_require__(2193);
-const webhooks_module_1 = __webpack_require__(2388);
-const products_module_1 = __webpack_require__(2391);
-const wholesales_module_1 = __webpack_require__(2396);
-const cart_module_1 = __webpack_require__(2403);
-const checkout_module_1 = __webpack_require__(2410);
-const user_module_1 = __webpack_require__(2420);
-const orders_module_1 = __webpack_require__(2425);
-const client_coupons_module_1 = __webpack_require__(2430);
-const client_collections_module_1 = __webpack_require__(2434);
-const currency_module_1 = __webpack_require__(2438);
-const supplies_module_1 = __webpack_require__(2440);
-const client_marketing_module_1 = __webpack_require__(2442);
+const webhooks_module_1 = __webpack_require__(2389);
+const products_module_1 = __webpack_require__(2392);
+const wholesales_module_1 = __webpack_require__(2397);
+const cart_module_1 = __webpack_require__(2404);
+const checkout_module_1 = __webpack_require__(2411);
+const user_module_1 = __webpack_require__(2421);
+const orders_module_1 = __webpack_require__(2426);
+const client_coupons_module_1 = __webpack_require__(2431);
+const client_collections_module_1 = __webpack_require__(2435);
+const currency_module_1 = __webpack_require__(2439);
+const supplies_module_1 = __webpack_require__(2441);
+const client_marketing_module_1 = __webpack_require__(2443);
 const clientModules = [
     auth_module_2.ClientAuthModule,
     products_module_1.ClientProductsModule,
@@ -296985,17 +297183,31 @@ let ClientPaymentsService = class ClientPaymentsService {
             currency: totals.currency,
         };
     }
-    // Called by Stripe webhook after payment_intent.succeeded
+    // Called directly by client after confirmCardPayment succeeds, or by Stripe webhook
     async fulfillStripePayment(paymentIntentId, checkoutSessionId) {
-        const session = await this.loadSessionOrFail(checkoutSessionId);
-        if (session.status === entity_enum_1.CheckoutSessionStatus.COMPLETED)
-            return; // idempotent
+        // Verify payment with Stripe first — prevents fake fulfillment requests
         const intent = await this.stripeService.retrievePaymentIntent(paymentIntentId);
-        // payment_method is expanded via retrievePaymentIntent({ expand: ['payment_method'] })
+        if (intent.status !== 'succeeded') {
+            throw new common_1.BadRequestException(`Payment has not succeeded (status: ${intent.status})`);
+        }
+        const intentMeta = intent.metadata;
+        if (intentMeta?.checkoutSessionId !== checkoutSessionId) {
+            throw new common_1.BadRequestException('Payment intent does not match this checkout session');
+        }
+        // Idempotent: if order already created by a concurrent call or webhook, return it
+        const existingOrder = await this.paymentRepo.manager.findOne(order_entity_1.OrderEntity, {
+            where: { checkoutSession: { id: checkoutSessionId } },
+            select: ['id'],
+        });
+        if (existingOrder)
+            return { orderId: existingOrder.id };
+        const session = await this.loadSessionOrFail(checkoutSessionId);
         const pm = intent.payment_method;
         const totals = this.calculateTotals(session);
+        let orderId;
         await this.paymentRepo.manager.transaction(async (manager) => {
             const order = await this.createOrder(manager, session, totals);
+            orderId = order.id;
             const payment = manager.create(payment_entity_1.PaymentEntity, {
                 order,
                 gateway: entity_enum_1.PaymentGateway.STRIPE,
@@ -297020,6 +297232,7 @@ let ClientPaymentsService = class ClientPaymentsService {
             session.status = entity_enum_1.CheckoutSessionStatus.COMPLETED;
             await manager.save(checkout_session_entity_1.CheckoutSessionEntity, session);
         });
+        return { orderId };
     }
     // ─── PayPal ─────────────────────────────────────────────────────────────────
     async createPaypalOrder(dto) {
@@ -297213,7 +297426,7 @@ exports.ClientPaymentsService = ClientPaymentsService = tslib_1.__decorate([
 
 "use strict";
 
-var _a, _b, _c, _d;
+var _a, _b, _c, _d, _e;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientPaymentsController = void 0;
 const tslib_1 = __webpack_require__(1);
@@ -297221,13 +297434,17 @@ const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
 const payments_service_1 = __webpack_require__(2383);
 const initiate_stripe_payment_dto_1 = __webpack_require__(2385);
-const create_paypal_order_dto_1 = __webpack_require__(2386);
-const capture_paypal_order_dto_1 = __webpack_require__(2387);
+const confirm_stripe_payment_dto_1 = __webpack_require__(2386);
+const create_paypal_order_dto_1 = __webpack_require__(2387);
+const capture_paypal_order_dto_1 = __webpack_require__(2388);
 let ClientPaymentsController = class ClientPaymentsController {
     constructor(paymentsService) {
         this.paymentsService = paymentsService;
     }
     // ─── Stripe ─────────────────────────────────────────────────────────────────
+    confirmStripe(dto) {
+        return this.paymentsService.fulfillStripePayment(dto.paymentIntentId, dto.checkoutSessionId);
+    }
     initiateStripe(dto) {
         return this.paymentsService.initiateStripePayment(dto);
     }
@@ -297240,6 +297457,18 @@ let ClientPaymentsController = class ClientPaymentsController {
     }
 };
 exports.ClientPaymentsController = ClientPaymentsController;
+tslib_1.__decorate([
+    (0, common_1.Post)('stripe/confirm'),
+    (0, common_1.HttpCode)(200),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'Verifies Stripe payment with Stripe API and creates the order. Returns orderId.',
+        schema: { properties: { orderId: { type: 'string' } } },
+    }),
+    tslib_1.__param(0, (0, common_1.Body)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_b = typeof confirm_stripe_payment_dto_1.ConfirmStripePaymentDto !== "undefined" && confirm_stripe_payment_dto_1.ConfirmStripePaymentDto) === "function" ? _b : Object]),
+    tslib_1.__metadata("design:returntype", void 0)
+], ClientPaymentsController.prototype, "confirmStripe", null);
 tslib_1.__decorate([
     (0, common_1.Post)('stripe/intent'),
     (0, common_1.HttpCode)(200),
@@ -297256,7 +297485,7 @@ tslib_1.__decorate([
     }),
     tslib_1.__param(0, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_b = typeof initiate_stripe_payment_dto_1.InitiateStripePaymentDto !== "undefined" && initiate_stripe_payment_dto_1.InitiateStripePaymentDto) === "function" ? _b : Object]),
+    tslib_1.__metadata("design:paramtypes", [typeof (_c = typeof initiate_stripe_payment_dto_1.InitiateStripePaymentDto !== "undefined" && initiate_stripe_payment_dto_1.InitiateStripePaymentDto) === "function" ? _c : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ClientPaymentsController.prototype, "initiateStripe", null);
 tslib_1.__decorate([
@@ -297274,7 +297503,7 @@ tslib_1.__decorate([
     }),
     tslib_1.__param(0, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_c = typeof create_paypal_order_dto_1.CreatePaypalOrderDto !== "undefined" && create_paypal_order_dto_1.CreatePaypalOrderDto) === "function" ? _c : Object]),
+    tslib_1.__metadata("design:paramtypes", [typeof (_d = typeof create_paypal_order_dto_1.CreatePaypalOrderDto !== "undefined" && create_paypal_order_dto_1.CreatePaypalOrderDto) === "function" ? _d : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ClientPaymentsController.prototype, "createPaypalOrder", null);
 tslib_1.__decorate([
@@ -297284,7 +297513,7 @@ tslib_1.__decorate([
     }),
     tslib_1.__param(0, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_d = typeof capture_paypal_order_dto_1.CapturePaypalOrderDto !== "undefined" && capture_paypal_order_dto_1.CapturePaypalOrderDto) === "function" ? _d : Object]),
+    tslib_1.__metadata("design:paramtypes", [typeof (_e = typeof capture_paypal_order_dto_1.CapturePaypalOrderDto !== "undefined" && capture_paypal_order_dto_1.CapturePaypalOrderDto) === "function" ? _e : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ClientPaymentsController.prototype, "capturePaypal", null);
 exports.ClientPaymentsController = ClientPaymentsController = tslib_1.__decorate([
@@ -297323,6 +297552,29 @@ tslib_1.__decorate([
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ConfirmStripePaymentDto = void 0;
+const tslib_1 = __webpack_require__(1);
+const class_validator_1 = __webpack_require__(171);
+class ConfirmStripePaymentDto {
+}
+exports.ConfirmStripePaymentDto = ConfirmStripePaymentDto;
+tslib_1.__decorate([
+    (0, class_validator_1.IsString)(),
+    tslib_1.__metadata("design:type", String)
+], ConfirmStripePaymentDto.prototype, "paymentIntentId", void 0);
+tslib_1.__decorate([
+    (0, class_validator_1.IsString)(),
+    tslib_1.__metadata("design:type", String)
+], ConfirmStripePaymentDto.prototype, "checkoutSessionId", void 0);
+
+
+/***/ }),
+/* 2387 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CreatePaypalOrderDto = void 0;
 const tslib_1 = __webpack_require__(1);
 const swagger_1 = __webpack_require__(1782);
@@ -297338,7 +297590,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2387 */
+/* 2388 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297364,7 +297616,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2388 */
+/* 2389 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297375,8 +297627,8 @@ const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const payments_shared_module_1 = __webpack_require__(2194);
 const payments_module_1 = __webpack_require__(2193);
-const webhooks_service_1 = __webpack_require__(2389);
-const webhooks_controller_1 = __webpack_require__(2390);
+const webhooks_service_1 = __webpack_require__(2390);
+const webhooks_controller_1 = __webpack_require__(2391);
 let WebhooksModule = class WebhooksModule {
 };
 exports.WebhooksModule = WebhooksModule;
@@ -297390,7 +297642,7 @@ exports.WebhooksModule = WebhooksModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2389 */
+/* 2390 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297473,7 +297725,7 @@ exports.WebhooksService = WebhooksService = WebhooksService_1 = tslib_1.__decora
 
 
 /***/ }),
-/* 2390 */
+/* 2391 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297484,7 +297736,7 @@ exports.WebhooksController = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
-const webhooks_service_1 = __webpack_require__(2389);
+const webhooks_service_1 = __webpack_require__(2390);
 let WebhooksController = class WebhooksController {
     constructor(webhooksService) {
         this.webhooksService = webhooksService;
@@ -297529,7 +297781,7 @@ exports.WebhooksController = WebhooksController = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2391 */
+/* 2392 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297543,8 +297795,8 @@ const product_entity_1 = __webpack_require__(1742);
 const nail_shape_entity_1 = __webpack_require__(1745);
 const nail_size_entity_1 = __webpack_require__(1747);
 const product_translation_entity_1 = __webpack_require__(1750);
-const products_service_1 = __webpack_require__(2392);
-const products_controller_1 = __webpack_require__(2394);
+const products_service_1 = __webpack_require__(2393);
+const products_controller_1 = __webpack_require__(2395);
 let ClientProductsModule = class ClientProductsModule {
 };
 exports.ClientProductsModule = ClientProductsModule;
@@ -297566,7 +297818,7 @@ exports.ClientProductsModule = ClientProductsModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2392 */
+/* 2393 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297596,7 +297848,7 @@ const product_translation_entity_1 = __webpack_require__(1750);
 const nail_shape_entity_1 = __webpack_require__(1745);
 const nail_size_entity_1 = __webpack_require__(1747);
 const translation_constants_1 = __webpack_require__(2105);
-const product_query_dto_1 = __webpack_require__(2393);
+const product_query_dto_1 = __webpack_require__(2394);
 const entity_enum_1 = __webpack_require__(1731);
 function sortVariants(variants) {
     return [...variants].sort((a, b) => {
@@ -297824,7 +298076,7 @@ exports.ClientProductsService = ClientProductsService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2393 */
+/* 2394 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297936,7 +298188,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2394 */
+/* 2395 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -297947,9 +298199,9 @@ exports.ClientProductsController = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
-const products_service_1 = __webpack_require__(2392);
-const product_query_dto_1 = __webpack_require__(2393);
-const locale_resolver_1 = __webpack_require__(2395);
+const products_service_1 = __webpack_require__(2393);
+const product_query_dto_1 = __webpack_require__(2394);
+const locale_resolver_1 = __webpack_require__(2396);
 let ClientProductsController = class ClientProductsController {
     constructor(productsService) {
         this.productsService = productsService;
@@ -298030,7 +298282,7 @@ exports.ClientProductsController = ClientProductsController = tslib_1.__decorate
 
 
 /***/ }),
-/* 2395 */
+/* 2396 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298061,7 +298313,7 @@ function resolveLocale(xLocale, acceptLanguage) {
 
 
 /***/ }),
-/* 2396 */
+/* 2397 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298078,8 +298330,8 @@ const wholesale_tier_entity_1 = __webpack_require__(1771);
 const newsletter_subscribers_entity_1 = __webpack_require__(1768);
 const user_entity_1 = __webpack_require__(1730);
 const auth_module_1 = __webpack_require__(1927);
-const wholesales_service_1 = __webpack_require__(2397);
-const wholesales_controller_1 = __webpack_require__(2398);
+const wholesales_service_1 = __webpack_require__(2398);
+const wholesales_controller_1 = __webpack_require__(2399);
 let ClientWholesalesModule = class ClientWholesalesModule {
 };
 exports.ClientWholesalesModule = ClientWholesalesModule;
@@ -298103,7 +298355,7 @@ exports.ClientWholesalesModule = ClientWholesalesModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2397 */
+/* 2398 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298259,7 +298511,7 @@ exports.ClientWholesalesService = ClientWholesalesService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2398 */
+/* 2399 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298272,11 +298524,11 @@ const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
 const jwt_auth_guard_1 = __webpack_require__(1935);
 const current_user_decorator_1 = __webpack_require__(1929);
-const wholesales_service_1 = __webpack_require__(2397);
-const submit_enquiry_dto_1 = __webpack_require__(2399);
-const subscribe_newsletter_dto_1 = __webpack_require__(2400);
-const unsubscribe_newsletter_dto_1 = __webpack_require__(2401);
-const wholesale_orders_query_dto_1 = __webpack_require__(2402);
+const wholesales_service_1 = __webpack_require__(2398);
+const submit_enquiry_dto_1 = __webpack_require__(2400);
+const subscribe_newsletter_dto_1 = __webpack_require__(2401);
+const unsubscribe_newsletter_dto_1 = __webpack_require__(2402);
+const wholesale_orders_query_dto_1 = __webpack_require__(2403);
 // ─── Wholesale Enquiry ────────────────────────────────────────────────────────
 let WholesaleEnquiryController = class WholesaleEnquiryController {
     constructor(wholesalesService) {
@@ -298387,7 +298639,7 @@ exports.NewsletterController = NewsletterController = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2399 */
+/* 2400 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298465,7 +298717,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2400 */
+/* 2401 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298494,7 +298746,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2401 */
+/* 2402 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298515,7 +298767,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2402 */
+/* 2403 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298561,7 +298813,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2403 */
+/* 2404 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298575,8 +298827,8 @@ const cart_entity_1 = __webpack_require__(1752);
 const cart_item_entity_1 = __webpack_require__(1753);
 const product_variants_entity_1 = __webpack_require__(1746);
 const auth_module_1 = __webpack_require__(1927);
-const cart_service_1 = __webpack_require__(2404);
-const cart_controller_1 = __webpack_require__(2405);
+const cart_service_1 = __webpack_require__(2405);
+const cart_controller_1 = __webpack_require__(2406);
 let ClientCartModule = class ClientCartModule {
 };
 exports.ClientCartModule = ClientCartModule;
@@ -298594,7 +298846,7 @@ exports.ClientCartModule = ClientCartModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2404 */
+/* 2405 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298642,20 +298894,19 @@ let ClientCartService = class ClientCartService {
             throw new common_1.BadRequestException('Insufficient stock');
         }
         const cart = await this.findOrCreateCart(userId, cartId);
-        const existing = await this.cartItemRepo.findOne({
-            where: { cart: { id: cart.id }, variant: { id: dto.variantId } },
-        });
+        // Custom-size items are always unique orders (different measurements per set).
+        // Only merge standard-size items that share the same variantId.
+        const existing = dto.isCustomSize
+            ? null
+            : await this.cartItemRepo.findOne({
+                where: { cart: { id: cart.id }, variant: { id: dto.variantId }, isCustomSize: false },
+            });
         if (existing) {
             const newQty = existing.quantity + dto.quantity;
             if (variant.stockQty < newQty) {
                 throw new common_1.BadRequestException('Insufficient stock for requested quantity');
             }
             existing.quantity = newQty;
-            if (dto.isCustomSize !== undefined)
-                existing.isCustomSize = dto.isCustomSize;
-            if (dto.customMeasurements !== undefined) {
-                existing.customMeasurements = dto.customMeasurements ?? null;
-            }
             await this.cartItemRepo.save(existing);
         }
         else {
@@ -298730,9 +298981,15 @@ let ClientCartService = class ClientCartService {
             return this.loadCart(userCart.id);
         }
         for (const guestItem of guestCart.items) {
-            const existing = await this.cartItemRepo.findOne({
-                where: { cart: { id: userCart.id }, variant: { id: guestItem.variant.id } },
-            });
+            const existing = guestItem.isCustomSize
+                ? null
+                : await this.cartItemRepo.findOne({
+                    where: {
+                        cart: { id: userCart.id },
+                        variant: { id: guestItem.variant.id },
+                        isCustomSize: false,
+                    },
+                });
             if (existing) {
                 const merged = Math.min(existing.quantity + guestItem.quantity, guestItem.variant.stockQty);
                 existing.quantity = merged;
@@ -298779,7 +299036,7 @@ exports.ClientCartService = ClientCartService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2405 */
+/* 2406 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298791,11 +299048,11 @@ const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
 const jwt_auth_guard_1 = __webpack_require__(1935);
-const maybe_current_user_decorator_1 = __webpack_require__(2406);
-const cart_service_1 = __webpack_require__(2404);
-const add_cart_item_dto_1 = __webpack_require__(2407);
-const update_cart_item_dto_1 = __webpack_require__(2408);
-const merge_cart_dto_1 = __webpack_require__(2409);
+const maybe_current_user_decorator_1 = __webpack_require__(2407);
+const cart_service_1 = __webpack_require__(2405);
+const add_cart_item_dto_1 = __webpack_require__(2408);
+const update_cart_item_dto_1 = __webpack_require__(2409);
+const merge_cart_dto_1 = __webpack_require__(2410);
 let ClientCartController = class ClientCartController {
     constructor(cartService) {
         this.cartService = cartService;
@@ -298891,7 +299148,7 @@ exports.ClientCartController = ClientCartController = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2406 */
+/* 2407 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298906,7 +299163,7 @@ exports.MaybeCurrentUser = (0, common_1.createParamDecorator)((_data, context) =
 
 
 /***/ }),
-/* 2407 */
+/* 2408 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -298985,7 +299242,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2408 */
+/* 2409 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299007,7 +299264,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2409 */
+/* 2410 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299028,7 +299285,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2410 */
+/* 2411 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299045,9 +299302,9 @@ const coupon_entity_1 = __webpack_require__(1756);
 const coupon_usage_entity_1 = __webpack_require__(1759);
 const order_entity_1 = __webpack_require__(1760);
 const auth_module_1 = __webpack_require__(1927);
-const currency_module_1 = __webpack_require__(2411);
-const checkout_service_1 = __webpack_require__(2413);
-const checkout_controller_1 = __webpack_require__(2415);
+const currency_module_1 = __webpack_require__(2412);
+const checkout_service_1 = __webpack_require__(2414);
+const checkout_controller_1 = __webpack_require__(2416);
 let ClientCheckoutModule = class ClientCheckoutModule {
 };
 exports.ClientCheckoutModule = ClientCheckoutModule;
@@ -299072,7 +299329,7 @@ exports.ClientCheckoutModule = ClientCheckoutModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2411 */
+/* 2412 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299081,7 +299338,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CurrencySharedModule = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
-const currency_service_1 = __webpack_require__(2412);
+const currency_service_1 = __webpack_require__(2413);
 let CurrencySharedModule = class CurrencySharedModule {
 };
 exports.CurrencySharedModule = CurrencySharedModule;
@@ -299094,7 +299351,7 @@ exports.CurrencySharedModule = CurrencySharedModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2412 */
+/* 2413 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299166,7 +299423,7 @@ exports.CurrencyService = CurrencyService = CurrencyService_1 = tslib_1.__decora
 
 
 /***/ }),
-/* 2413 */
+/* 2414 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299185,8 +299442,8 @@ const coupon_entity_1 = __webpack_require__(1756);
 const coupon_usage_entity_1 = __webpack_require__(1759);
 const order_entity_1 = __webpack_require__(1760);
 const entity_enum_1 = __webpack_require__(1731);
-const currency_service_1 = __webpack_require__(2412);
-const shipping_zones_constant_1 = __webpack_require__(2414);
+const currency_service_1 = __webpack_require__(2413);
+const shipping_zones_constant_1 = __webpack_require__(2415);
 const SESSION_EXPIRY_HOURS = 2;
 const FREE_SHIPPING_THRESHOLD_USD = 100;
 let ClientCheckoutService = class ClientCheckoutService {
@@ -299256,7 +299513,7 @@ let ClientCheckoutService = class ClientCheckoutService {
         });
         if (!session)
             throw new common_1.NotFoundException('Checkout session not found');
-        return this.withTotals(session);
+        return await this.withTotals(session);
     }
     async updateContact(sessionId, dto) {
         const session = await this.findActiveSession(sessionId);
@@ -299352,14 +299609,14 @@ let ClientCheckoutService = class ClientCheckoutService {
         session.couponCode = coupon.code;
         session.discountAmount = discountAmountUSD;
         const saved = await this.sessionRepo.save(session);
-        return this.withTotals(saved);
+        return await this.withTotals(saved);
     }
     async removeCoupon(sessionId) {
         const session = await this.findActiveSession(sessionId);
         session.couponCode = null;
         session.discountAmount = 0;
         const saved = await this.sessionRepo.save(session);
-        return this.withTotals(saved);
+        return await this.withTotals(saved);
     }
     async getSessionOrder(sessionId) {
         const order = await this.orderRepo.findOne({
@@ -299447,11 +299704,24 @@ let ClientCheckoutService = class ClientCheckoutService {
         }
     }
     async calculateSubtotalUSD(session) {
+        return (await this.loadCartItemsWithProduct(session.cart.id)).reduce((sum, item) => sum + this.effectiveUnitPrice(item.variant) * item.quantity, 0);
+    }
+    async loadCartItemsWithProduct(cartId) {
         const cart = await this.cartRepo.findOne({
-            where: { id: session.cart.id },
-            relations: ['items', 'items.variant'],
+            where: { id: cartId },
+            relations: ['items', 'items.variant', 'items.variant.product'],
         });
-        return (cart?.items.reduce((sum, item) => sum + Number(item.variant.computedPrice) * item.quantity, 0) ?? 0);
+        return cart?.items ?? [];
+    }
+    /** Apply sale ratio to computedPrice — mirrors the frontend adaptCartItem logic. */
+    effectiveUnitPrice(variant) {
+        const computed = Number(variant.computedPrice);
+        const base = Number(variant.product?.basePrice ?? 0);
+        const sale = variant.product?.salePrice != null ? Number(variant.product.salePrice) : null;
+        if (sale !== null && sale < base && base > 0) {
+            return computed * (sale / base);
+        }
+        return computed;
     }
     computeDiscount(coupon, subtotalUSD) {
         if (coupon.discountType === entity_enum_1.DiscountType.PERCENT) {
@@ -299466,10 +299736,14 @@ let ClientCheckoutService = class ClientCheckoutService {
         // FREE_SHIPPING — shipping waiver handled at payment time
         return 0;
     }
-    withTotals(session) {
-        const items = session.cart?.items ?? [];
-        // All DB amounts are in USD
-        const subtotalUSD = items.reduce((sum, item) => sum + Number(item.variant?.computedPrice ?? 0) * item.quantity, 0);
+    async withTotals(session) {
+        // Explicitly reload cart items with product relations.
+        // TypeORM does not reliably populate variant.product when traversing 4+ levels deep
+        // on a @OneToOne relation, causing effectiveUnitPrice to fall back to computedPrice.
+        const cartId = session.cart?.id;
+        const loadedItems = cartId ? await this.loadCartItemsWithProduct(cartId) : [];
+        // All DB amounts are in USD; apply sale ratio so computedPrice reflects actual charge
+        const subtotalUSD = loadedItems.reduce((sum, item) => sum + this.effectiveUnitPrice(item.variant) * item.quantity, 0);
         const shippingFeeUSD = session.shippingSnapshot
             ? Number(session.shippingSnapshot['shippingFee'] ?? 0)
             : null;
@@ -299510,7 +299784,7 @@ exports.ClientCheckoutService = ClientCheckoutService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2414 */
+/* 2415 */
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -299685,7 +299959,7 @@ function getShippingZone(country) {
 
 
 /***/ }),
-/* 2415 */
+/* 2416 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299697,12 +299971,12 @@ const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
 const jwt_auth_guard_1 = __webpack_require__(1935);
-const maybe_current_user_decorator_1 = __webpack_require__(2406);
-const checkout_service_1 = __webpack_require__(2413);
-const create_checkout_session_dto_1 = __webpack_require__(2416);
-const update_contact_dto_1 = __webpack_require__(2417);
-const update_shipping_dto_1 = __webpack_require__(2418);
-const apply_coupon_dto_1 = __webpack_require__(2419);
+const maybe_current_user_decorator_1 = __webpack_require__(2407);
+const checkout_service_1 = __webpack_require__(2414);
+const create_checkout_session_dto_1 = __webpack_require__(2417);
+const update_contact_dto_1 = __webpack_require__(2418);
+const update_shipping_dto_1 = __webpack_require__(2419);
+const apply_coupon_dto_1 = __webpack_require__(2420);
 let ClientCheckoutController = class ClientCheckoutController {
     constructor(checkoutService) {
         this.checkoutService = checkoutService;
@@ -299826,7 +300100,7 @@ exports.ClientCheckoutController = ClientCheckoutController = tslib_1.__decorate
 
 
 /***/ }),
-/* 2416 */
+/* 2417 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299858,7 +300132,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2417 */
+/* 2418 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299891,7 +300165,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2418 */
+/* 2419 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299944,7 +300218,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2419 */
+/* 2420 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299968,7 +300242,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2420 */
+/* 2421 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -299982,8 +300256,8 @@ const user_entity_1 = __webpack_require__(1730);
 const address_entity_1 = __webpack_require__(1735);
 const order_entity_1 = __webpack_require__(1760);
 const auth_module_1 = __webpack_require__(1927);
-const user_service_1 = __webpack_require__(2421);
-const user_controller_1 = __webpack_require__(2422);
+const user_service_1 = __webpack_require__(2422);
+const user_controller_1 = __webpack_require__(2423);
 let ClientUserModule = class ClientUserModule {
 };
 exports.ClientUserModule = ClientUserModule;
@@ -299997,7 +300271,7 @@ exports.ClientUserModule = ClientUserModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2421 */
+/* 2422 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300149,7 +300423,7 @@ exports.ClientUserService = ClientUserService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2422 */
+/* 2423 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300162,9 +300436,9 @@ const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
 const jwt_auth_guard_1 = __webpack_require__(1935);
 const current_user_decorator_1 = __webpack_require__(1929);
-const user_service_1 = __webpack_require__(2421);
-const update_profile_dto_1 = __webpack_require__(2423);
-const save_address_dto_1 = __webpack_require__(2424);
+const user_service_1 = __webpack_require__(2422);
+const update_profile_dto_1 = __webpack_require__(2424);
+const save_address_dto_1 = __webpack_require__(2425);
 let ClientUserController = class ClientUserController {
     constructor(userService) {
         this.userService = userService;
@@ -300269,7 +300543,7 @@ exports.ClientUserController = ClientUserController = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2423 */
+/* 2424 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300306,7 +300580,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2424 */
+/* 2425 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300359,7 +300633,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2425 */
+/* 2426 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300371,8 +300645,8 @@ const common_1 = __webpack_require__(3);
 const typeorm_1 = __webpack_require__(1007);
 const order_entity_1 = __webpack_require__(1760);
 const auth_module_1 = __webpack_require__(1927);
-const orders_controller_1 = __webpack_require__(2426);
-const orders_service_1 = __webpack_require__(2427);
+const orders_controller_1 = __webpack_require__(2427);
+const orders_service_1 = __webpack_require__(2428);
 let ClientOrdersModule = class ClientOrdersModule {
 };
 exports.ClientOrdersModule = ClientOrdersModule;
@@ -300386,7 +300660,7 @@ exports.ClientOrdersModule = ClientOrdersModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2426 */
+/* 2427 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300399,9 +300673,9 @@ const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
 const jwt_auth_guard_1 = __webpack_require__(1935);
 const current_user_decorator_1 = __webpack_require__(1929);
-const orders_service_1 = __webpack_require__(2427);
-const track_order_query_dto_1 = __webpack_require__(2428);
-const my_orders_query_dto_1 = __webpack_require__(2429);
+const orders_service_1 = __webpack_require__(2428);
+const track_order_query_dto_1 = __webpack_require__(2429);
+const my_orders_query_dto_1 = __webpack_require__(2430);
 let ClientOrdersController = class ClientOrdersController {
     constructor(ordersService) {
         this.ordersService = ordersService;
@@ -300464,7 +300738,7 @@ exports.ClientMyOrdersController = ClientMyOrdersController = tslib_1.__decorate
 
 
 /***/ }),
-/* 2427 */
+/* 2428 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300617,7 +300891,7 @@ exports.ClientOrdersService = ClientOrdersService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2428 */
+/* 2429 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300645,7 +300919,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2429 */
+/* 2430 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300678,7 +300952,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2430 */
+/* 2431 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300690,8 +300964,8 @@ const common_1 = __webpack_require__(3);
 const typeorm_1 = __webpack_require__(1007);
 const coupon_entity_1 = __webpack_require__(1756);
 const cart_entity_1 = __webpack_require__(1752);
-const client_coupons_service_1 = __webpack_require__(2431);
-const client_coupons_controller_1 = __webpack_require__(2432);
+const client_coupons_service_1 = __webpack_require__(2432);
+const client_coupons_controller_1 = __webpack_require__(2433);
 let ClientCouponsModule = class ClientCouponsModule {
 };
 exports.ClientCouponsModule = ClientCouponsModule;
@@ -300705,7 +300979,7 @@ exports.ClientCouponsModule = ClientCouponsModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2431 */
+/* 2432 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300792,7 +301066,7 @@ exports.ClientCouponsService = ClientCouponsService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2432 */
+/* 2433 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300803,8 +301077,8 @@ exports.ClientCouponsController = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
-const client_coupons_service_1 = __webpack_require__(2431);
-const validate_coupon_dto_1 = __webpack_require__(2433);
+const client_coupons_service_1 = __webpack_require__(2432);
+const validate_coupon_dto_1 = __webpack_require__(2434);
 let ClientCouponsController = class ClientCouponsController {
     constructor(couponsService) {
         this.couponsService = couponsService;
@@ -300832,7 +301106,7 @@ exports.ClientCouponsController = ClientCouponsController = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2433 */
+/* 2434 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300858,7 +301132,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2434 */
+/* 2435 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -300872,8 +301146,8 @@ const collection_entity_1 = __webpack_require__(1748);
 const product_entity_1 = __webpack_require__(1742);
 const collection_translation_entity_1 = __webpack_require__(1749);
 const product_translation_entity_1 = __webpack_require__(1750);
-const client_collections_service_1 = __webpack_require__(2435);
-const client_collections_controller_1 = __webpack_require__(2436);
+const client_collections_service_1 = __webpack_require__(2436);
+const client_collections_controller_1 = __webpack_require__(2437);
 let ClientCollectionsModule = class ClientCollectionsModule {
 };
 exports.ClientCollectionsModule = ClientCollectionsModule;
@@ -300894,7 +301168,7 @@ exports.ClientCollectionsModule = ClientCollectionsModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2435 */
+/* 2436 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301133,7 +301407,7 @@ exports.ClientCollectionsService = ClientCollectionsService = tslib_1.__decorate
 
 
 /***/ }),
-/* 2436 */
+/* 2437 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301144,9 +301418,9 @@ exports.ClientCollectionsController = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
-const client_collections_service_1 = __webpack_require__(2435);
-const collection_query_dto_1 = __webpack_require__(2437);
-const locale_resolver_1 = __webpack_require__(2395);
+const client_collections_service_1 = __webpack_require__(2436);
+const collection_query_dto_1 = __webpack_require__(2438);
+const locale_resolver_1 = __webpack_require__(2396);
 let ClientCollectionsController = class ClientCollectionsController {
     constructor(service) {
         this.service = service;
@@ -301216,7 +301490,7 @@ exports.ClientCollectionsController = ClientCollectionsController = tslib_1.__de
 
 
 /***/ }),
-/* 2437 */
+/* 2438 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301284,7 +301558,7 @@ tslib_1.__decorate([
 
 
 /***/ }),
-/* 2438 */
+/* 2439 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301293,8 +301567,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientCurrencyModule = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
-const currency_module_1 = __webpack_require__(2411);
-const currency_controller_1 = __webpack_require__(2439);
+const currency_module_1 = __webpack_require__(2412);
+const currency_controller_1 = __webpack_require__(2440);
 let ClientCurrencyModule = class ClientCurrencyModule {
 };
 exports.ClientCurrencyModule = ClientCurrencyModule;
@@ -301307,7 +301581,7 @@ exports.ClientCurrencyModule = ClientCurrencyModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2439 */
+/* 2440 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301318,7 +301592,7 @@ exports.ClientCurrencyController = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
-const currency_service_1 = __webpack_require__(2412);
+const currency_service_1 = __webpack_require__(2413);
 let ClientCurrencyController = class ClientCurrencyController {
     constructor(currencyService) {
         this.currencyService = currencyService;
@@ -301348,7 +301622,7 @@ exports.ClientCurrencyController = ClientCurrencyController = tslib_1.__decorate
 
 
 /***/ }),
-/* 2440 */
+/* 2441 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301357,8 +301631,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientSuppliesModule = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
-const products_module_1 = __webpack_require__(2391);
-const supplies_controller_1 = __webpack_require__(2441);
+const products_module_1 = __webpack_require__(2392);
+const supplies_controller_1 = __webpack_require__(2442);
 let ClientSuppliesModule = class ClientSuppliesModule {
 };
 exports.ClientSuppliesModule = ClientSuppliesModule;
@@ -301371,7 +301645,7 @@ exports.ClientSuppliesModule = ClientSuppliesModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2441 */
+/* 2442 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301382,10 +301656,10 @@ exports.ClientSuppliesController = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1782);
-const products_service_1 = __webpack_require__(2392);
-const product_query_dto_1 = __webpack_require__(2393);
+const products_service_1 = __webpack_require__(2393);
+const product_query_dto_1 = __webpack_require__(2394);
 const entity_enum_1 = __webpack_require__(1731);
-const locale_resolver_1 = __webpack_require__(2395);
+const locale_resolver_1 = __webpack_require__(2396);
 let ClientSuppliesController = class ClientSuppliesController {
     constructor(productsService) {
         this.productsService = productsService;
@@ -301430,7 +301704,7 @@ exports.ClientSuppliesController = ClientSuppliesController = tslib_1.__decorate
 
 
 /***/ }),
-/* 2442 */
+/* 2443 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301444,7 +301718,7 @@ const r2_module_1 = __webpack_require__(1937);
 const marketing_campaign_entity_1 = __webpack_require__(1766);
 const marketing_campaign_translation_entity_1 = __webpack_require__(1767);
 const marketing_campaigns_service_1 = __webpack_require__(2177);
-const client_marketing_campaigns_controller_1 = __webpack_require__(2443);
+const client_marketing_campaigns_controller_1 = __webpack_require__(2444);
 let ClientMarketingModule = class ClientMarketingModule {
 };
 exports.ClientMarketingModule = ClientMarketingModule;
@@ -301461,7 +301735,7 @@ exports.ClientMarketingModule = ClientMarketingModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2443 */
+/* 2444 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301501,7 +301775,7 @@ exports.ClientMarketingCampaignsController = ClientMarketingCampaignsController 
 
 
 /***/ }),
-/* 2444 */
+/* 2445 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301510,7 +301784,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HealthModule = void 0;
 const tslib_1 = __webpack_require__(1);
 const common_1 = __webpack_require__(3);
-const health_controller_1 = __webpack_require__(2445);
+const health_controller_1 = __webpack_require__(2446);
 let HealthModule = class HealthModule {
 };
 exports.HealthModule = HealthModule;
@@ -301522,7 +301796,7 @@ exports.HealthModule = HealthModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2445 */
+/* 2446 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301604,7 +301878,7 @@ exports.HealthController = HealthController = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2446 */
+/* 2447 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301619,8 +301893,8 @@ const product_translation_entity_1 = __webpack_require__(1750);
 const collection_translation_entity_1 = __webpack_require__(1749);
 const language_detection_service_1 = __webpack_require__(2104);
 const translation_service_1 = __webpack_require__(2103);
-const openai_translation_provider_1 = __webpack_require__(2447);
-const noop_translation_provider_1 = __webpack_require__(2448);
+const openai_translation_provider_1 = __webpack_require__(2448);
+const noop_translation_provider_1 = __webpack_require__(2449);
 const translation_constants_1 = __webpack_require__(2105);
 let TranslationModule = class TranslationModule {
 };
@@ -301649,7 +301923,7 @@ exports.TranslationModule = TranslationModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2447 */
+/* 2448 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301721,7 +301995,7 @@ exports.OpenAiTranslationProvider = OpenAiTranslationProvider = OpenAiTranslatio
 
 
 /***/ }),
-/* 2448 */
+/* 2449 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301754,7 +302028,7 @@ exports.NoopTranslationProvider = NoopTranslationProvider = NoopTranslationProvi
 
 
 /***/ }),
-/* 2449 */
+/* 2450 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301839,7 +302113,7 @@ exports.GlobalExceptionFilter = GlobalExceptionFilter = GlobalExceptionFilter_1 
 
 
 /***/ }),
-/* 2450 */
+/* 2451 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -301874,21 +302148,21 @@ exports.LoggingInterceptor = LoggingInterceptor = tslib_1.__decorate([
 
 
 /***/ }),
-/* 2451 */
+/* 2452 */
 /***/ ((module) => {
 
 "use strict";
 module.exports = require("node:async_hooks");
 
 /***/ }),
-/* 2452 */,
 /* 2453 */,
 /* 2454 */,
 /* 2455 */,
 /* 2456 */,
 /* 2457 */,
 /* 2458 */,
-/* 2459 */
+/* 2459 */,
+/* 2460 */
 /***/ ((module) => {
 
 "use strict";
@@ -302084,4 +302358,4 @@ module.exports = require("node:child_process");
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=main.js.map

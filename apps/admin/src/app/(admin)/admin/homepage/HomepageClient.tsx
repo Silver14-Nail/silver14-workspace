@@ -24,6 +24,28 @@ import type { Campaign, CampaignStatus } from '../campaigns/types';
 
 const STOREFRONT_URL = process.env.NEXT_PUBLIC_STOREFRONT_URL ?? 'http://localhost:4200';
 
+// Mirrors PLACEMENT_TRANSLATION_DEFAULTS in the API service.
+// Used to pre-populate the form when no campaign exists yet so admins
+// see the live fallback content instead of blank fields.
+const HERO_DEFAULTS = {
+  en: {
+    eyebrow: 'Handcrafted Luxury',
+    title: 'Silver14 Nail',
+    subtitle: '',
+    ctaLabel: 'Shop Collection',
+    secondaryLabel: 'Wholesale Enquiry',
+    secondaryUrl: '/wholesales',
+  },
+  vi: {
+    eyebrow: 'Sang trọng thủ công',
+    title: 'Silver14 Nail',
+    subtitle: '',
+    ctaLabel: 'Mua bộ sưu tập',
+    secondaryLabel: 'Yêu cầu bán sỉ',
+    secondaryUrl: '/wholesales',
+  },
+} as const;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ic = (isDark: boolean) =>
@@ -181,7 +203,22 @@ export default function HomepageClient() {
   useEffect(() => {
     getHomepageCampaignAction()
       .then((c) => {
-        if (c) populateForm(c);
+        if (c) {
+          populateForm(c);
+        } else {
+          // Pre-fill with i18n defaults so admins see the live fallback
+          // content rather than blank fields before creating the campaign.
+          setEnEyebrow(HERO_DEFAULTS.en.eyebrow);
+          setEnTitle(HERO_DEFAULTS.en.title);
+          setEnCtaLabel(HERO_DEFAULTS.en.ctaLabel);
+          setEnSecondaryLabel(HERO_DEFAULTS.en.secondaryLabel);
+          setEnSecondaryUrl(HERO_DEFAULTS.en.secondaryUrl);
+          setViEyebrow(HERO_DEFAULTS.vi.eyebrow);
+          setViTitle(HERO_DEFAULTS.vi.title);
+          setViCtaLabel(HERO_DEFAULTS.vi.ctaLabel);
+          setViSecondaryLabel(HERO_DEFAULTS.vi.secondaryLabel);
+          setViSecondaryUrl(HERO_DEFAULTS.vi.secondaryUrl);
+        }
         setCampaign(c);
       })
       .finally(() => setLoading(false));
