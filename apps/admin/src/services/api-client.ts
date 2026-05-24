@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance } from 'axios';
 import { cookies } from 'next/headers';
 
-const SERVER_API_BASE = `${process.env.API_URL || 'https://silver14-workspace-api.vercel.app'}/api`;
+export const SERVER_API_BASE = `${process.env.API_URL || 'https://silver14-workspace-api.vercel.app'}/api`;
 
 /**
  * Authenticated axios instance for Server Components and Server Actions.
@@ -19,4 +19,9 @@ export async function createApiClient(): Promise<AxiosInstance> {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+}
+
+export async function getAuthToken(): Promise<string | undefined> {
+  const store = await cookies();
+  return store.get('admin_access_token')?.value;
 }
