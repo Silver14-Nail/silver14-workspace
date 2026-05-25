@@ -4,6 +4,7 @@
   "description": "Enter your Order ID and the phone number used at checkout to view your order status.",
   "orderId": "Order ID",
   "phone": "Phone Number",
+  "phonePlaceholder": "Phone number used at checkout",
   "trackButton": "Track Order",
   "loading": "Searching...",
   "notFound": {
@@ -14,7 +15,12 @@
   "placedOn": "Placed on",
   "shippingAddress": "Shipping Address",
   "summary": "Summary",
+  "subtotal": "Subtotal",
+  "shipping": "Shipping",
+  "discount": "Discount",
   "total": "Total",
+  "shippingMethod": "Via",
+  "noItems": "Item details unavailable",
   "help": "Need help with your order?",
   "contactUs": "Contact us",
   "timeline": {

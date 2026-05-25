@@ -4,6 +4,7 @@
   "description": "Nhập mã đơn hàng và số điện thoại đã dùng khi thanh toán để xem trạng thái đơn hàng.",
   "orderId": "Mã đơn hàng",
   "phone": "Số điện thoại",
+  "phonePlaceholder": "Số điện thoại đã dùng thanh toán",
   "trackButton": "Tra cứu đơn hàng",
   "loading": "Đang tìm kiếm...",
   "notFound": {
@@ -14,7 +15,12 @@
   "placedOn": "Đặt ngày",
   "shippingAddress": "Địa chỉ giao hàng",
   "summary": "Tóm tắt",
+  "subtotal": "Tạm tính",
+  "shipping": "Phí vận chuyển",
+  "discount": "Giảm giá",
   "total": "Tổng cộng",
+  "shippingMethod": "Đơn vị",
+  "noItems": "Không có thông tin sản phẩm",
   "help": "Cần hỗ trợ đơn hàng?",
   "contactUs": "Liên hệ chúng tôi",
   "timeline": {

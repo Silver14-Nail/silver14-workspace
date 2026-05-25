@@ -60,6 +60,6 @@ export class MarketingCampaignEntity extends AbstractEntity {
   @Column({ name: 'overlay_opacity', type: 'float', default: 0.35 })
   overlayOpacity: number;
 
-  @OneToMany(() => MarketingCampaignTranslationEntity, (t) => t.campaign, { cascade: true })
+  @OneToMany(() => MarketingCampaignTranslationEntity, (t) => t.campaign)
   translations: MarketingCampaignTranslationEntity[];
 }

@@ -81,11 +81,15 @@ export class ClientCheckoutService {
     }
 
     const existing = await this.sessionRepo.findOne({
-      where: { cart: { id: cart.id }, status: CheckoutSessionStatus.IN_PROGRESS },
+      where: { cart: { id: cart.id } },
     });
     if (existing) {
-      existing.expiresAt = new Date(Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
-      return this.sessionRepo.save(existing);
+      if (existing.status === CheckoutSessionStatus.IN_PROGRESS) {
+        existing.expiresAt = new Date(Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+        return this.sessionRepo.save(existing);
+      }
+      // Stale session (COMPLETED / EXPIRED / ABANDONED) — remove it so a new one can be created
+      await this.sessionRepo.remove(existing);
     }
 
     const requestedCurrency = this.currencyService.normalize(dto.currency ?? SupportedCurrency.USD);
