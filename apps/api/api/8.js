@@ -3,7 +3,7 @@ exports.id = 8;
 exports.ids = [8];
 exports.modules = {
 
-/***/ 2462
+/***/ 2463
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 // ESM COMPAT FLAG

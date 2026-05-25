@@ -1,17 +1,19 @@
 'use client';
 
+import axios from 'axios';
 import { useState, useCallback } from 'react';
 import type { TrackingFormData, TrackedOrder } from '../types';
-import { getBase } from '@/lib/api-base';
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+const http = axios.create({ baseURL: BASE, withCredentials: true });
 
 async function fetchTrackedOrder(orderId: string, phone: string): Promise<TrackedOrder | null> {
   try {
-    const res = await fetch(
-      `${getBase()}/client-api/orders/track?orderId=${encodeURIComponent(orderId)}&phone=${encodeURIComponent(phone)}`,
+    const { data } = await http.get<TrackedOrder>(
+      `/client-api/orders/track?orderId=${encodeURIComponent(orderId)}&phone=${encodeURIComponent(phone)}`,
     );
-    if (res.status === 404) return null;
-    if (!res.ok) return null;
-    return res.json();
+    return data;
   } catch {
     return null;
   }

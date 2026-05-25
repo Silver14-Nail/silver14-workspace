@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type {
   CheckoutSession,
   ShippingMethod,
@@ -7,97 +8,121 @@ import type {
   UpdateShippingInput,
 } from './checkout.types';
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 
-function authHeaders(token?: string | null): HeadersInit {
-  const h: HeadersInit = { 'Content-Type': 'application/json' };
-  if (token) h['Authorization'] = `Bearer ${token}`;
-  return h;
-}
+const http = axios.create({ baseURL: BASE, withCredentials: true });
 
-async function api<T>(url: string, opts?: RequestInit): Promise<T> {
-  const res = await fetch(url, opts);
-  if (!res.ok) {
-    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-    throw new Error(
-      typeof data['message'] === 'string' ? data['message'] : `API error ${res.status}`,
-    );
-  }
-  return res.json() as Promise<T>;
+function authHeaders(token?: string | null): Record<string, string> {
+  if (token) return { Authorization: `Bearer ${token}` };
+  return {};
 }
 
 export const checkoutApi = {
   getShippingMethods: (token?: string | null) =>
-    api<ShippingMethod[]>(`${BASE}/client-api/checkout/shipping-methods`, {
-      headers: authHeaders(token),
-    }),
+    http
+      .get<ShippingMethod[]>('/client-api/checkout/shipping-methods', {
+        headers: authHeaders(token),
+      })
+      .then((r) => r.data),
 
   createSession: (cartId: string, token?: string | null, currency?: string) =>
-    api<CheckoutSession>(`${BASE}/client-api/checkout`, {
-      method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ cartId, currency: currency ?? 'USD' }),
-    }),
+    http
+      .post<CheckoutSession>(
+        '/client-api/checkout',
+        { cartId, currency: currency ?? 'USD' },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   getSession: (sessionId: string, token?: string | null) =>
-    api<CheckoutSession>(`${BASE}/client-api/checkout/${sessionId}`, {
-      headers: authHeaders(token),
-    }),
+    http
+      .get<CheckoutSession>(`/client-api/checkout/${sessionId}`, {
+        headers: authHeaders(token),
+      })
+      .then((r) => r.data),
 
   updateContact: (
     sessionId: string,
     data: { email: string; phone: string; fullName: string },
     token?: string | null,
   ) =>
-    api<CheckoutSession>(`${BASE}/client-api/checkout/${sessionId}/contact`, {
-      method: 'PATCH',
-      headers: authHeaders(token),
-      body: JSON.stringify(data),
-    }),
+    http
+      .patch<CheckoutSession>(
+        `/client-api/checkout/${sessionId}/contact`,
+        data,
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   updateShipping: (sessionId: string, data: UpdateShippingInput, token?: string | null) =>
-    api<CheckoutSession>(`${BASE}/client-api/checkout/${sessionId}/shipping`, {
-      method: 'PATCH',
-      headers: authHeaders(token),
-      body: JSON.stringify(data),
-    }),
+    http
+      .patch<CheckoutSession>(
+        `/client-api/checkout/${sessionId}/shipping`,
+        data,
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   applyCoupon: (sessionId: string, code: string, token?: string | null) =>
-    api<CheckoutSession>(`${BASE}/client-api/checkout/${sessionId}/coupon`, {
-      method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ code }),
-    }),
+    http
+      .post<CheckoutSession>(
+        `/client-api/checkout/${sessionId}/coupon`,
+        { code },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   removeCoupon: (sessionId: string, token?: string | null) =>
-    api<CheckoutSession>(`${BASE}/client-api/checkout/${sessionId}/coupon`, {
-      method: 'DELETE',
-      headers: authHeaders(token),
-    }),
+    http
+      .delete<CheckoutSession>(`/client-api/checkout/${sessionId}/coupon`, {
+        headers: authHeaders(token),
+      })
+      .then((r) => r.data),
 
   initiateStripe: (checkoutSessionId: string, token?: string | null) =>
-    api<StripeIntentResponse>(`${BASE}/client-api/payments/stripe/intent`, {
-      method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ checkoutSessionId }),
-    }),
+    http
+      .post<StripeIntentResponse>(
+        '/client-api/payments/stripe/intent',
+        { checkoutSessionId },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
+
+  confirmStripePayment: (
+    paymentIntentId: string,
+    checkoutSessionId: string,
+    token?: string | null,
+  ) =>
+    http
+      .post<{ orderId: string }>(
+        '/client-api/payments/stripe/confirm',
+        { paymentIntentId, checkoutSessionId },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   createPaypalOrder: (checkoutSessionId: string, token?: string | null) =>
-    api<PaypalCreateResponse>(`${BASE}/client-api/payments/paypal/create-order`, {
-      method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ checkoutSessionId }),
-    }),
+    http
+      .post<PaypalCreateResponse>(
+        '/client-api/payments/paypal/create-order',
+        { checkoutSessionId },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   capturePaypalOrder: (paypalOrderId: string, checkoutSessionId: string, token?: string | null) =>
-    api<{ order: CompletedOrderRef }>(`${BASE}/client-api/payments/paypal/capture`, {
-      method: 'POST',
-      headers: authHeaders(token),
-      body: JSON.stringify({ paypalOrderId, checkoutSessionId }),
-    }),
+    http
+      .post<{ order: CompletedOrderRef }>(
+        '/client-api/payments/paypal/capture',
+        { paypalOrderId, checkoutSessionId },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
 
   getSessionOrder: (sessionId: string, token?: string | null) =>
-    api<CompletedOrderRef | null>(`${BASE}/client-api/checkout/${sessionId}/order`, {
-      headers: authHeaders(token),
-    }),
+    http
+      .get<CompletedOrderRef | null>(`/client-api/checkout/${sessionId}/order`, {
+        headers: authHeaders(token),
+      })
+      .then((r) => r.data),
 };

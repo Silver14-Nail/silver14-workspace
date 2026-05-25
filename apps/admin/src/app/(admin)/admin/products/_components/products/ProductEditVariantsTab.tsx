@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, memo } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import type { ApiProductVariant, ApiNailShape, ApiNailSize, ProductType } from '../../types';
-import { deleteVariantAction } from '../../actions';
+import { listProductVariantsAction, deleteVariantAction } from '../../actions';
 import VariantFormDrawer from './VariantFormDrawer';
 import ConfirmDialog from '../../../shared/ConfirmDialog';
 import { useConfirmDialog } from '../../../shared/useConfirmDialog';
@@ -25,7 +25,8 @@ const VariantRow = memo(function VariantRow({
   isDeleting,
 }: VariantRowProps) {
   const { t } = useTranslation('products');
-  const isNail = productType === 'nail';
+  // A row is "nail-style" if the product is nail type OR this variant has shape data
+  const isNail = productType === 'nail' || variant.shape != null;
 
   return (
     <tr className={`transition-colors hover:bg-[#F9FAFB] ${isDeleting ? 'opacity-40' : ''}`}>
@@ -130,26 +131,42 @@ const VariantRow = memo(function VariantRow({
 interface ProductEditVariantsTabProps {
   productId: string;
   productType: ProductType;
-  variants: ApiProductVariant[];
   shapes: ApiNailShape[];
   sizes: ApiNailSize[];
-  onRefresh: () => Promise<void>;
 }
 
 export default function ProductEditVariantsTab({
   productId,
   productType,
-  variants,
   shapes,
   sizes,
-  onRefresh,
 }: ProductEditVariantsTabProps) {
   const { t } = useTranslation('products');
+  const [variants, setVariants] = useState<ApiProductVariant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editVariant, setEditVariant] = useState<ApiProductVariant | null>(null);
   const { dialogProps, openDialog } = useConfirmDialog();
 
-  const isNail = productType === 'nail';
+  const loadVariants = useCallback(async () => {
+    setLoading(true);
+    setLoadError('');
+    const result = await listProductVariantsAction(productId);
+    if (result.success) {
+      setVariants(result.data);
+    } else {
+      setLoadError((result as { error: string }).error);
+    }
+    setLoading(false);
+  }, [productId]);
+
+  useEffect(() => {
+    loadVariants();
+  }, [loadVariants]);
+
+  // Treat as nail-style if product is nail type OR if existing variants have shape data
+  const isNail = productType === 'nail' || variants.some((v) => v.shape != null);
 
   const handleDelete = (v: ApiProductVariant) => {
     const label = isNail
@@ -162,7 +179,7 @@ export default function ProductEditVariantsTab({
       onConfirm: async () => {
         const result = await deleteVariantAction(productId, v.id);
         if (!result.success) throw new Error((result as { error: string }).error);
-        await onRefresh();
+        await loadVariants();
       },
     });
   };
@@ -184,8 +201,24 @@ export default function ProductEditVariantsTab({
 
   const handleSuccess = async () => {
     closeForm();
-    await onRefresh();
+    await loadVariants();
   };
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-5 h-5 text-[#9CA3AF] animate-spin" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex-1 flex items-center justify-center px-6">
+        <p className="text-sm text-red-500 text-center">{loadError}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 overflow-y-auto p-5">

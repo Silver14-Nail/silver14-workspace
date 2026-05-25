@@ -55,6 +55,7 @@ export function useCheckout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
+  const [orderPollingDone, setOrderPollingDone] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState('');
   const [confirmFirstName, setConfirmFirstName] = useState('');
   const [confirmPhone, setConfirmPhone] = useState('');
@@ -67,7 +68,7 @@ export function useCheckout() {
 
   // ── Server state ──────────────────────────────────────────────────────────
 
-  const { data: session } = useQuery<CheckoutSession | null>({
+  const { data: session, isPending: isSessionPending } = useQuery<CheckoutSession | null>({
     queryKey: ['checkout-session', sessionId],
     queryFn: () =>
       sessionId ? checkoutApi.getSession(sessionId, getToken()) : Promise.resolve(null),
@@ -75,6 +76,10 @@ export function useCheckout() {
     staleTime: 60_000,
     retry: false,
   });
+
+  // True while we have a stored sessionId but haven't received the session data yet.
+  // Prevents rendering an empty contact form before the restored session (and its step) arrives.
+  const isSessionLoading = !!sessionId && isSessionPending;
 
   const { data: shippingMethods = [] } = useQuery<ShippingMethod[]>({
     queryKey: ['shipping-methods'],
@@ -226,16 +231,29 @@ export function useCheckout() {
         if (stripeError) throw new Error(stripeError.message ?? 'Card payment failed');
 
         if (paymentIntent?.status === 'succeeded') {
-          // Show confirmation immediately — don't make user wait for webhook
           const capturedSessionId = sessionId;
+          const capturedToken = getToken();
           await clearCart();
           clearCheckoutSessionId();
           setSessionId(null);
           setStep('confirmation');
-          // Poll for order ID in background; update when ready
-          pollForOrder(capturedSessionId!, getToken()).then((id) => {
-            if (id) setCompletedOrderId(id);
-          });
+
+          // Confirm directly with API — creates the order and returns orderId immediately
+          try {
+            const result = await checkoutApi.confirmStripePayment(
+              paymentIntent.id,
+              capturedSessionId!,
+              capturedToken,
+            );
+            setCompletedOrderId(result.orderId);
+          } catch {
+            // Fallback: poll in case order was already created by a webhook
+            pollForOrder(capturedSessionId!, capturedToken).then((id) => {
+              if (id) setCompletedOrderId(id);
+            });
+          } finally {
+            setOrderPollingDone(true);
+          }
         }
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Payment failed. Please try again.');
@@ -310,9 +328,11 @@ export function useCheckout() {
     step,
     session,
     sessionId,
+    isSessionLoading,
     isSubmitting,
     error,
     completedOrderId,
+    orderPollingDone,
     confirmEmail,
     confirmFirstName,
     confirmPhone,

@@ -1,11 +1,15 @@
+import axios from 'axios';
 import type { ApiCart, ApiAddItemResponse } from './cart.types';
-import { getBase } from '@/lib/api-base';
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+const http = axios.create({ baseURL: BASE, withCredentials: true });
 
 function buildHeaders(
   accessToken: string | null,
   guestCartId: string | null,
 ): Record<string, string> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = {};
   if (accessToken) {
     headers['Authorization'] = `Bearer ${accessToken}`;
   } else if (guestCartId) {
@@ -21,20 +25,14 @@ async function request<T>(
   accessToken?: string | null,
   guestCartId?: string | null,
 ): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
+  const response = await http.request<T>({
     method,
+    url: path,
+    data: body,
     headers: buildHeaders(accessToken ?? null, guestCartId ?? null),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    credentials: 'include',
   });
-
-  if (res.status === 204) return null as T;
-
-  const data = await res.json().catch(() => ({ message: res.statusText }));
-  if (!res.ok) {
-    throw new Error(typeof data?.message === 'string' ? data.message : `API error ${res.status}`);
-  }
-  return data as T;
+  if (response.status === 204) return null as T;
+  return response.data;
 }
 
 export interface AddItemInput {

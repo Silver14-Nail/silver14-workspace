@@ -350,10 +350,8 @@ export default function ProductEditDrawer({
               <ProductEditVariantsTab
                 productId={productId}
                 productType={product.type}
-                variants={product.variants}
                 shapes={shapes}
                 sizes={sizes}
-                onRefresh={refreshProduct}
               />
             )}
 

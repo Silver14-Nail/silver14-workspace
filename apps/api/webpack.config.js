@@ -6,7 +6,7 @@ const { join } = require('path');
 module.exports = {
   output: {
     path: join(__dirname, 'api'),
-    filename: 'index.js',
+    filename: 'main.js',
     library: { type: 'commonjs2' },
     clean: true,
   },

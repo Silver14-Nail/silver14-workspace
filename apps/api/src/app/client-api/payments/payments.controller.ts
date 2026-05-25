@@ -3,6 +3,7 @@ import { ApiTags, ApiBearerAuth, ApiOkResponse, ApiCreatedResponse } from '@nest
 
 import { ClientPaymentsService } from './payments.service';
 import { InitiateStripePaymentDto } from './dto/initiate-stripe-payment.dto';
+import { ConfirmStripePaymentDto } from './dto/confirm-stripe-payment.dto';
 import { CreatePaypalOrderDto } from './dto/create-paypal-order.dto';
 import { CapturePaypalOrderDto } from './dto/capture-paypal-order.dto';
 
@@ -13,6 +14,16 @@ export class ClientPaymentsController {
   constructor(private readonly paymentsService: ClientPaymentsService) {}
 
   // ─── Stripe ─────────────────────────────────────────────────────────────────
+
+  @Post('stripe/confirm')
+  @HttpCode(200)
+  @ApiOkResponse({
+    description: 'Verifies Stripe payment with Stripe API and creates the order. Returns orderId.',
+    schema: { properties: { orderId: { type: 'string' } } },
+  })
+  confirmStripe(@Body() dto: ConfirmStripePaymentDto) {
+    return this.paymentsService.fulfillStripePayment(dto.paymentIntentId, dto.checkoutSessionId);
+  }
 
   @Post('stripe/intent')
   @HttpCode(200)

@@ -6,7 +6,7 @@ import { ProductCard } from '@/components/shared/ProductCard';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { LinkBase } from '@/components/shared/LinkBase';
 import type { StorefrontProduct } from '@/types/product';
-import type { ApiCampaign, ApiCampaignTranslation } from '@/lib/campaigns.api';
+import type { ApiCampaign, ApiCampaignTranslation } from '@/features/campaigns/campaigns.api';
 
 interface HomeStrings {
   heroEyebrow: string;
@@ -68,17 +68,22 @@ export function HomePageClient({
   bestSellers,
   strings,
 }: HomePageClientProps) {
+  // Images & overlay come from campaign-level fields — fallback to local assets
+  // when no active campaign exists (or campaign has no image set).
   const desktopSrc = heroCampaign?.desktopImageUrl ?? '/images/home/main-banner_desktop.svg';
   const mobileSrc = heroCampaign?.mobileImageUrl ?? '/images/home/main-banner_mobile.JPG';
+  const overlayOpacity = heroCampaign?.overlayOpacity ?? 0.35;
+  const ctaUrl = heroCampaign?.ctaUrl ?? '/products';
 
+  // Text fields: when heroCampaign is active the API fills null fields with
+  // i18n defaults server-side, so heroTranslation always has complete values.
+  // The ?? fallbacks below only fire when no active campaign exists at all.
   const eyebrow = heroTranslation?.eyebrow ?? strings.heroEyebrow;
   const heroTitle = heroTranslation?.title ?? strings.heroTitle;
   const heroSubtitle = heroTranslation?.subtitle ?? null;
   const ctaLabel = heroTranslation?.ctaLabel ?? strings.heroShopNow;
-  const ctaUrl = heroCampaign?.ctaUrl ?? '/products';
   const secondaryLabel = heroTranslation?.secondaryCtaLabel ?? strings.heroWholesale;
   const secondaryUrl = heroTranslation?.secondaryCtaUrl ?? '/wholesales';
-  const overlayOpacity = heroCampaign?.overlayOpacity ?? 0.35;
 
   return (
     <>

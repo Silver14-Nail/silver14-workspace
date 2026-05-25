@@ -1,5 +1,5 @@
 import { getT } from 'next-i18next/server';
-import { fetchCampaignByPlacement, getCampaignTranslation } from '@/lib/campaigns.api';
+import { fetchCampaignByPlacement, getCampaignTranslation } from '@/features/campaigns/campaigns.api';
 import { fetchProducts } from '@/lib/products.api';
 import { adaptListItem } from '@/lib/product.adapter';
 import { HomePageClient } from './HomePageClient';

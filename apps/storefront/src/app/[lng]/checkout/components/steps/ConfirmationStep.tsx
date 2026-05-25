@@ -7,12 +7,13 @@ import { useT } from 'next-i18next/client';
 
 interface ConfirmationStepProps {
   orderId: string;
+  orderPollingDone?: boolean;
   firstName: string;
   email: string;
   phone: string;
 }
 
-export function ConfirmationStep({ orderId, firstName, email, phone }: ConfirmationStepProps) {
+export function ConfirmationStep({ orderId, orderPollingDone, firstName, email, phone }: ConfirmationStepProps) {
   const { t } = useT('checkout');
 
   return (
@@ -61,6 +62,10 @@ export function ConfirmationStep({ orderId, firstName, email, phone }: Confirmat
               style={{ fontWeight: 500 }}
             >
               {orderId.slice(0, 8).toUpperCase()}
+            </p>
+          ) : orderPollingDone ? (
+            <p className="text-[#9A9A9A] text-sm py-1">
+              {t('confirmation.orderIdPending')}
             </p>
           ) : (
             <div className="flex items-center justify-center gap-2 py-1">

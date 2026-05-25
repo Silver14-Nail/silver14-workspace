@@ -39,15 +39,20 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async () => {
 
   const stored = getStoredCustomerTokens();
 
-  if (stored && !isAccessTokenExpired(stored)) {
+  // No stored tokens means user never logged in — skip refresh entirely
+  if (!stored) return null;
+
+  if (!isAccessTokenExpired(stored)) {
     try {
       const user = await getCurrentCustomer(stored.accessToken);
       return { tokens: stored, user };
     } catch {
-      // Server rejected the token — fall through to cookie refresh
+      clearStoredCustomerTokens();
+      return null;
     }
   }
 
+  // Access token expired — attempt cookie-based refresh
   try {
     const response = await refreshCustomerToken();
     setStoredCustomerTokens(response.tokens);

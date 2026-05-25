@@ -1,4 +1,8 @@
-import { getBase } from './api-base';
+import axios from 'axios';
+
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+const http = axios.create({ baseURL: BASE });
 
 export type CampaignType =
   | 'hero'
@@ -53,14 +57,17 @@ export async function fetchCampaignByPlacement(
   placement: CampaignPlacement,
   locale: string,
 ): Promise<ApiCampaign | null> {
-  const base = getBase();
-  const res = await fetch(
-    `${base}/client-api/campaigns/${placement}?locale=${locale}`,
-    { next: { revalidate: 60 } },
-  );
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data ?? null;
+  try {
+    console.log('call fetchCampaignByPlacement');
+    const { data } = await http.get<ApiCampaign>(
+      `/client-api/campaigns/${placement}?locale=${locale}`,
+    );
+    console.log('data', data);
+    return data ?? null;
+  } catch (eror) {
+    console.log(eror);
+    return null;
+  }
 }
 
 export function getCampaignTranslation(
