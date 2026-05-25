@@ -1,4 +1,4 @@
-import { createApiClient } from './api-client';
+import { createApiClient, SERVER_API_BASE, getAuthToken } from './api-client';
 import type {
   Collection,
   CollectionWithProducts,
@@ -124,4 +124,25 @@ export async function upsertCollectionTranslation(
 export async function regenerateCollectionTranslations(collectionId: string): Promise<void> {
   const client = await createApiClient();
   await client.post(`/admin-api/collections/${collectionId}/translations/regenerate`, {});
+}
+
+// ─── Image Upload ─────────────────────────────────────────────────────────────
+
+export async function uploadCollectionImage(file: File): Promise<{ url: string }> {
+  const token = await getAuthToken();
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${SERVER_API_BASE}/admin-api/collections/upload-image`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Upload failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<{ url: string }>;
 }

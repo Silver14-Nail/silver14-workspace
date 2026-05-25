@@ -35,7 +35,7 @@ export class ClientOrdersService {
     const prefix = dto.orderId.trim().toLowerCase();
     const order = await this.orderRepo.findOne({
       where: { id: Like(`${prefix}%`) },
-      relations: ['items'],
+      relations: ['items', 'items.customSizeRequest'],
     });
 
     if (!order || order.contactSnapshot.phone !== dto.phone) {
@@ -76,6 +76,7 @@ export class ClientOrdersService {
           price: unitCost,
           lineTotal: unitCost * item.quantity,
           thumbnail: item.thumbnail ?? null,
+          customization: item.customSizeRequest?.notes ?? null,
         };
       }),
     };
@@ -120,7 +121,7 @@ export class ClientOrdersService {
   async getMyOrder(currentUser: AuthenticatedUser, orderId: string) {
     const order = await this.orderRepo.findOne({
       where: { id: orderId, user: { id: currentUser.id } },
-      relations: ['items', 'items.variant', 'items.variant.product'],
+      relations: ['items', 'items.variant', 'items.variant.product', 'items.customSizeRequest'],
     });
 
     if (!order) {
@@ -160,6 +161,7 @@ export class ClientOrdersService {
           quantity: item.quantity,
           price: unitCost,
           lineTotal: unitCost * item.quantity,
+          customization: item.customSizeRequest?.notes ?? null,
         };
       }),
     };

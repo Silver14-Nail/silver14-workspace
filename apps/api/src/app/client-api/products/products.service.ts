@@ -19,9 +19,10 @@ function computePricing(basePrice: number, salePrice: number | null) {
 }
 
 import { ProductEntity } from '@/db/entities/products/product.entity';
-import { ProductTranslationEntity } from '@/db/entities/products/product-translation.entity';
+import { I18nTranslationEntity } from '@/db/entities/shared/i18n-translation.entity';
 import { NailShapeEntity } from '@/db/entities/products/nail-shape.entity';
 import { NailSizeEntity } from '@/db/entities/products/nail-size.entity';
+import { ProductShapePricingEntity } from '@/db/entities/products/product-shape-pricing.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
 import { FALLBACK_LOCALE } from '@/shared/translation/translation.constants';
 import type { SupportedLocale } from '@/shared/translation/translation.constants';
@@ -40,7 +41,7 @@ function sortVariants(variants: ProductVariantEntity[]): ProductVariantEntity[] 
 
 function applyTranslation<T extends { name: string; description?: string | null }>(
   entity: T,
-  translation: ProductTranslationEntity | null,
+  translation: I18nTranslationEntity | null,
 ): T & {
   name: string;
   description?: string | null;
@@ -62,8 +63,8 @@ export class ClientProductsService {
   constructor(
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
-    @InjectRepository(ProductTranslationEntity)
-    private readonly translationRepo: Repository<ProductTranslationEntity>,
+    @InjectRepository(I18nTranslationEntity)
+    private readonly translationRepo: Repository<I18nTranslationEntity>,
     @InjectRepository(NailShapeEntity)
     private readonly shapeRepo: Repository<NailShapeEntity>,
     @InjectRepository(NailSizeEntity)
@@ -84,13 +85,13 @@ export class ClientProductsService {
       .take(limit);
 
     if (query.search) {
-      // Search in both original name and translated name for the requested locale
       qb.andWhere(
         `(LOWER(product.name) LIKE LOWER(:search) OR EXISTS (
-          SELECT 1 FROM product_translations pt
-          WHERE pt.product_id = product.id
-            AND pt.locale = :locale
-            AND LOWER(pt.name) LIKE LOWER(:search)
+          SELECT 1 FROM i18n_translations it
+          WHERE it.entity_type = 'product'
+            AND it.entity_id = product.id
+            AND it.locale = :locale
+            AND LOWER(it.name) LIKE LOWER(:search)
         ))`,
         { search: `%${query.search}%`, locale },
       );
@@ -135,7 +136,6 @@ export class ClientProductsService {
       qb.andWhere('product.isBestSeller = true');
     }
 
-    // Default to nail — this endpoint is storefront-facing; supply has its own route
     qb.andWhere('product.type = :productType', { productType: query.type ?? ProductType.NAIL });
 
     switch (query.sortBy) {
@@ -160,7 +160,6 @@ export class ClientProductsService {
 
     const [items, totalItems] = await qb.getManyAndCount();
 
-    // Batch-load translations for the requested locale
     const productIds = items.map((p) => p.id);
     const translations = await this.loadTranslations(productIds, locale);
 
@@ -187,61 +186,64 @@ export class ClientProductsService {
     const product = await this.productRepo
       .createQueryBuilder('product')
       .leftJoinAndSelect('product.images', 'images')
-      .leftJoinAndSelect('product.shapePricings', 'shapePricings')
-      .leftJoinAndSelect('shapePricings.shape', 'shape')
-      .leftJoinAndSelect('product.variants', 'variants')
-      .leftJoinAndSelect('variants.shape', 'variantShape')
-      .leftJoinAndSelect('variants.size', 'variantSize')
       .where('product.id = :id', { id })
       .andWhere('product.isActive = true')
       .orderBy('images.sortOrder', 'ASC')
-      .addOrderBy('variantShape.sortOrder', 'ASC')
-      .addOrderBy('variantSize.sortOrder', 'ASC')
       .getOne();
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    if (!product) throw new NotFoundException('Product not found');
 
-    product.shapePricings = product.shapePricings.filter(
-      (sp) => sp.isEnabled && sp.shape?.isActive,
-    );
-    product.variants = sortVariants(product.variants.filter((v) => !v.deletedAt));
-
-    const translation = await this.loadTranslation(product.id, locale);
-    return {
-      ...applyTranslation(product, translation),
-      ...computePricing(product.basePrice, product.salePrice),
-    };
+    return this.hydrateProduct(product, locale);
   }
 
   async getProductBySlug(slug: string, locale: SupportedLocale = FALLBACK_LOCALE) {
-    const qb = () =>
-      this.productRepo
-        .createQueryBuilder('product')
-        .leftJoinAndSelect('product.images', 'images')
-        .leftJoinAndSelect('product.shapePricings', 'shapePricings')
-        .leftJoinAndSelect('shapePricings.shape', 'shape')
-        .leftJoinAndSelect('product.variants', 'variants')
-        .leftJoinAndSelect('variants.shape', 'variantShape')
-        .leftJoinAndSelect('variants.size', 'variantSize')
-        .andWhere('product.isActive = true')
-        .orderBy('images.sortOrder', 'ASC');
+    const product = await this.productRepo
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.images', 'images')
+      .where('(product.slug = :slug OR product.id = :slug)', { slug })
+      .andWhere('product.isActive = true')
+      .orderBy('images.sortOrder', 'ASC')
+      .getOne();
 
-    const product =
-      (await qb().where('product.slug = :slug', { slug }).getOne()) ??
-      (await qb().where('product.id = :slug', { slug }).getOne());
+    if (!product) throw new NotFoundException('Product not found');
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    return this.hydrateProduct(product, locale);
+  }
 
-    product.shapePricings = product.shapePricings.filter(
-      (sp) => sp.isEnabled && sp.shape?.isActive,
+  // Load variants, shapePricings, translation in parallel — avoids the Cartesian-product
+  // JOIN that resulted in images × shapePricings × variants rows per product.
+  private async hydrateProduct(product: ProductEntity, locale: SupportedLocale) {
+    const em = this.productRepo.manager;
+
+    const [variants, shapePricings, translation] = await Promise.all([
+      em
+        .createQueryBuilder(ProductVariantEntity, 'v')
+        .leftJoinAndSelect('v.shape', 'shape')
+        .leftJoinAndSelect('v.size', 'size')
+        .where('v.product = :id', { id: product.id })
+        .orderBy('shape.sortOrder', 'ASC')
+        .addOrderBy('size.sortOrder', 'ASC')
+        .getMany(),
+      em
+        .createQueryBuilder(ProductShapePricingEntity, 'sp')
+        .leftJoinAndSelect('sp.shape', 'shape')
+        .where('sp.product = :id', { id: product.id })
+        .getMany(),
+      this.loadTranslation(product.id, locale),
+    ]);
+
+    const activeVariants = variants.filter((v) => !v.deletedAt);
+    const variantNameMap = await this.loadVariantTranslations(
+      activeVariants.map((v) => v.id),
+      locale,
     );
-    product.variants = sortVariants(product.variants.filter((v) => !v.deletedAt));
 
-    const translation = await this.loadTranslation(product.id, locale);
+    product.variants = sortVariants(activeVariants).map((v) => {
+      const translatedName = variantNameMap.get(v.id);
+      return translatedName ? { ...v, colorName: translatedName } : v;
+    }) as ProductVariantEntity[];
+    product.shapePricings = shapePricings.filter((sp) => sp.isEnabled && sp.shape?.isActive);
+
     return {
       ...applyTranslation(product, translation),
       ...computePricing(product.basePrice, product.salePrice),
@@ -266,41 +268,77 @@ export class ClientProductsService {
   private async loadTranslation(
     productId: string,
     locale: SupportedLocale,
-  ): Promise<ProductTranslationEntity | null> {
-    const tr = await this.translationRepo.findOne({ where: { productId, locale } });
-    if (tr) return tr;
-    if (locale !== FALLBACK_LOCALE) {
-      return this.translationRepo.findOne({ where: { productId, locale: FALLBACK_LOCALE } });
+  ): Promise<I18nTranslationEntity | null> {
+    if (locale === FALLBACK_LOCALE) {
+      return this.translationRepo.findOne({
+        where: { entityType: 'product', entityId: productId, locale },
+      });
     }
-    return null;
+    const rows = await this.translationRepo.find({
+      where: [
+        { entityType: 'product', entityId: productId, locale },
+        { entityType: 'product', entityId: productId, locale: FALLBACK_LOCALE },
+      ],
+    });
+    return (
+      rows.find((r) => r.locale === locale) ??
+      rows.find((r) => r.locale === FALLBACK_LOCALE) ??
+      null
+    );
   }
 
   private async loadTranslations(
     productIds: string[],
     locale: SupportedLocale,
-  ): Promise<Map<string, ProductTranslationEntity>> {
+  ): Promise<Map<string, I18nTranslationEntity>> {
     if (productIds.length === 0) return new Map();
 
     const rows = await this.translationRepo
       .createQueryBuilder('t')
-      .where('t.product_id IN (:...ids)', { ids: productIds })
+      .where('t.entity_type = :entityType', { entityType: 'product' })
+      .andWhere('t.entity_id IN (:...ids)', { ids: productIds })
       .andWhere('t.locale IN (:...locales)', {
         locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
       })
       .getMany();
 
-    const map = new Map<string, ProductTranslationEntity>();
-    // First pass: fallback locale
+    const map = new Map<string, I18nTranslationEntity>();
     for (const row of rows) {
-      if (row.locale === FALLBACK_LOCALE) map.set(row.productId, row);
+      if (row.locale === FALLBACK_LOCALE) map.set(row.entityId, row);
     }
-    // Second pass: preferred locale overwrites fallback
     if (locale !== FALLBACK_LOCALE) {
       for (const row of rows) {
-        if (row.locale === locale) map.set(row.productId, row);
+        if (row.locale === locale) map.set(row.entityId, row);
       }
     }
 
+    return map;
+  }
+
+  private async loadVariantTranslations(
+    variantIds: string[],
+    locale: SupportedLocale,
+  ): Promise<Map<string, string>> {
+    if (variantIds.length === 0) return new Map();
+
+    const rows = await this.translationRepo
+      .createQueryBuilder('t')
+      .where('t.entity_type = :entityType', { entityType: 'product_variant' })
+      .andWhere('t.entity_id IN (:...ids)', { ids: variantIds })
+      .andWhere('t.locale IN (:...locales)', {
+        locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
+      })
+      .getMany();
+
+    const map = new Map<string, string>();
+    for (const row of rows) {
+      if (row.locale === FALLBACK_LOCALE && row.name) map.set(row.entityId, row.name);
+    }
+    if (locale !== FALLBACK_LOCALE) {
+      for (const row of rows) {
+        if (row.locale === locale && row.name) map.set(row.entityId, row.name);
+      }
+    }
     return map;
   }
 }

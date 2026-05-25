@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,10 +11,14 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -28,6 +33,7 @@ import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { AssignProductsDto } from './dto/assign-products.dto';
 import { TranslationService } from '@/shared/translation/translation.service';
+import { R2Service } from '@/shared/r2/r2.service';
 import { SUPPORTED_LOCALES } from '@/shared/translation/translation.constants';
 import type { SupportedLocale } from '@/shared/translation/translation.constants';
 
@@ -55,7 +61,21 @@ export class CollectionsController {
   constructor(
     private readonly collectionsService: CollectionsService,
     private readonly translationService: TranslationService,
+    private readonly r2Service: R2Service,
   ) {}
+
+  @Post('upload-image')
+  @HttpCode(HttpStatus.OK)
+  @ApiConsumes('multipart/form-data')
+  @ApiOkResponse({ description: 'Uploaded image URL' })
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  async uploadImage(
+    @UploadedFile() file: { buffer: Buffer; mimetype: string; originalname: string; size: number },
+  ) {
+    if (!file) throw new BadRequestException('No file uploaded');
+    const url = await this.r2Service.upload(file.buffer, file.mimetype, 'collections');
+    return { url };
+  }
 
   @Get('stats')
   @ApiOkResponse({ description: 'Collection statistics' })

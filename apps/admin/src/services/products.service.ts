@@ -20,6 +20,7 @@ import type {
   ProductTranslation,
   UpsertProductTranslationPayload,
   ProductCollection,
+  VariantTranslation,
 } from '../app/(admin)/admin/products/types';
 
 export interface ProductListQuery {
@@ -279,6 +280,40 @@ export async function upsertProductTranslation(
 export async function regenerateProductTranslations(productId: string): Promise<void> {
   const client = await createApiClient();
   await client.post(`/admin-api/products/${productId}/translations/regenerate`, {});
+}
+
+// ─── Variant Translations ─────────────────────────────────────────────────────
+
+export async function getVariantTranslations(
+  productId: string,
+  variantId: string,
+): Promise<VariantTranslation[]> {
+  const client = await createApiClient();
+  const { data } = await client.get<VariantTranslation[]>(
+    `/admin-api/products/${productId}/variants/${variantId}/translations`,
+  );
+  return data;
+}
+
+export async function getAllVariantTranslations(
+  productId: string,
+): Promise<Record<string, VariantTranslation[]>> {
+  const client = await createApiClient();
+  const { data } = await client.get<Record<string, VariantTranslation[]>>(
+    `/admin-api/products/${productId}/translations/variants`,
+  );
+  return data;
+}
+
+export async function regenerateVariantTranslations(
+  productId: string,
+  variantId: string,
+): Promise<void> {
+  const client = await createApiClient();
+  await client.post(
+    `/admin-api/products/${productId}/variants/${variantId}/translations/regenerate`,
+    {},
+  );
 }
 
 // ─── Product Collections ──────────────────────────────────────────────────────

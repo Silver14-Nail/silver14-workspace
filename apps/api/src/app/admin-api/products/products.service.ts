@@ -650,7 +650,13 @@ export class ProductsService {
       isAvailable: dto.isAvailable ?? true,
     });
 
-    return this.productVariantRepo.save(variant);
+    const saved = await this.productVariantRepo.save(variant);
+
+    if (saved.colorName) {
+      this.translationService.generateForVariant({ id: saved.id, colorName: saved.colorName }).catch(() => undefined);
+    }
+
+    return saved;
   }
 
   async updateProductVariant(productId: string, variantId: string, dto: UpdateVariantDto) {
@@ -679,7 +685,13 @@ export class ProductsService {
     if (dto.computedPrice !== undefined) variant.computedPrice = dto.computedPrice;
     if (dto.isAvailable !== undefined) variant.isAvailable = dto.isAvailable;
 
-    return this.productVariantRepo.save(variant);
+    const saved = await this.productVariantRepo.save(variant);
+
+    if (dto.colorName !== undefined && saved.colorName) {
+      this.translationService.generateForVariant({ id: saved.id, colorName: saved.colorName }).catch(() => undefined);
+    }
+
+    return saved;
   }
 
   async removeProductVariant(productId: string, variantId: string) {
@@ -690,6 +702,29 @@ export class ProductsService {
 
     await this.productVariantRepo.softDelete(variantId);
     return { success: true };
+  }
+
+  async getProductVariant(productId: string, variantId: string) {
+    const variant = await this.productVariantRepo.findOne({
+      where: { id: variantId, product: { id: productId } },
+    });
+    if (!variant) throw new NotFoundException(`Variant #${variantId} not found`);
+    return variant;
+  }
+
+  async getProductVariantTranslations(productId: string): Promise<Record<string, any[]>> {
+    const variants = await this.productVariantRepo.find({
+      where: { product: { id: productId } },
+      select: ['id'],
+    });
+    const variantIds = variants.map((v) => v.id);
+    if (variantIds.length === 0) return {};
+
+    const translationsMap = await this.translationService.getBulkTranslations(
+      'product_variant',
+      variantIds,
+    );
+    return Object.fromEntries(translationsMap.entries());
   }
 
   // ─── Product Collections ────────────────────────────────────────────────────

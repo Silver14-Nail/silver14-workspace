@@ -284,6 +284,11 @@ export default function OrderDetailPage() {
                         {[item.shapeName, item.sizeName].filter(Boolean).join(' · ')}
                         {(item.shapeName || item.sizeName) ? ' · ' : ''}×{item.quantity}
                       </p>
+                      {item.customization && (
+                        <p className="text-[#6A6A6A] text-xs mt-1 italic">
+                          "{item.customization}"
+                        </p>
+                      )}
                     </div>
                     <p className="text-[#1A1A1A] text-sm whitespace-nowrap">{fmt(item.lineTotal)}</p>
                   </li>

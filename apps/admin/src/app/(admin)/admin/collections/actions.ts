@@ -16,6 +16,7 @@ import {
   getCollectionTranslations,
   upsertCollectionTranslation,
   regenerateCollectionTranslations,
+  uploadCollectionImage,
 } from '../../../../services/collections.service';
 import type {
   Collection,
@@ -188,5 +189,17 @@ export async function regenerateCollectionTranslationsAction(
     return { success: true, data: undefined };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to regenerate translations' };
+  }
+}
+
+export async function uploadCollectionImageAction(
+  formData: FormData,
+): Promise<ActionResult<{ url: string }>> {
+  try {
+    const file = formData.get('file') as File;
+    const data = await uploadCollectionImage(file);
+    return { success: true, data };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to upload image' };
   }
 }

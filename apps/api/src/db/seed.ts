@@ -16,9 +16,8 @@ import { ProductEntity } from './entities/products/product.entity';
 import { ProductImageEntity } from './entities/products/product-image.entity';
 import { ProductShapePricingEntity } from './entities/products/product-shape-pricing.entity';
 import { ProductVariantEntity } from './entities/products/product-variants.entity';
-import { ProductTranslationEntity } from './entities/products/product-translation.entity';
 import { CollectionEntity } from './entities/products/collection.entity';
-import { CollectionTranslationEntity } from './entities/products/collection-translation.entity';
+import { I18nTranslationEntity } from './entities/shared/i18n-translation.entity';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -1278,7 +1277,7 @@ async function seedProducts(
   const imageRepo = AppDataSource.getRepository(ProductImageEntity);
   const pricingRepo = AppDataSource.getRepository(ProductShapePricingEntity);
   const variantRepo = AppDataSource.getRepository(ProductVariantEntity);
-  const translationRepo = AppDataSource.getRepository(ProductTranslationEntity);
+  const translationRepo = AppDataSource.getRepository(I18nTranslationEntity);
 
   const result = new Map<string, ProductEntity>();
 
@@ -1350,12 +1349,13 @@ async function seedProducts(
     // Translations
     for (const tr of p.translations) {
       const existing = await translationRepo.findOne({
-        where: { productId: product.id, locale: tr.locale },
+        where: { entityType: 'product', entityId: product.id, locale: tr.locale },
       });
       if (!existing) {
         await translationRepo.save(
           translationRepo.create({
-            productId: product.id,
+            entityType: 'product',
+            entityId: product.id,
             locale: tr.locale,
             name: tr.name,
             description: tr.description,
@@ -1381,7 +1381,7 @@ async function seedSupplies() {
   const productRepo = AppDataSource.getRepository(ProductEntity);
   const imageRepo = AppDataSource.getRepository(ProductImageEntity);
   const variantRepo = AppDataSource.getRepository(ProductVariantEntity);
-  const translationRepo = AppDataSource.getRepository(ProductTranslationEntity);
+  const translationRepo = AppDataSource.getRepository(I18nTranslationEntity);
 
   for (const s of SUPPLIES) {
     let product = await productRepo.findOne({ where: { name: s.name } });
@@ -1453,7 +1453,8 @@ async function seedSupplies() {
     for (const tr of s.translations) {
       await translationRepo.save(
         translationRepo.create({
-          productId: product.id,
+          entityType: 'product',
+          entityId: product.id,
           locale: tr.locale,
           name: tr.name,
           description: tr.description,
@@ -1474,7 +1475,7 @@ async function seedSupplies() {
 
 async function seedCollections(productsByName: Map<string, ProductEntity>) {
   const collectionRepo = AppDataSource.getRepository(CollectionEntity);
-  const translationRepo = AppDataSource.getRepository(CollectionTranslationEntity);
+  const translationRepo = AppDataSource.getRepository(I18nTranslationEntity);
 
   for (const c of COLLECTIONS) {
     let entity = await collectionRepo.findOne({ where: { slug: c.slug } });
@@ -1507,12 +1508,13 @@ async function seedCollections(productsByName: Map<string, ProductEntity>) {
     // Translations
     for (const tr of c.translations) {
       const existing = await translationRepo.findOne({
-        where: { collectionId: entity.id, locale: tr.locale },
+        where: { entityType: 'collection', entityId: entity.id, locale: tr.locale },
       });
       if (!existing) {
         await translationRepo.save(
           translationRepo.create({
-            collectionId: entity.id,
+            entityType: 'collection',
+            entityId: entity.id,
             locale: tr.locale,
             name: tr.name,
             shortDescription: tr.shortDescription,

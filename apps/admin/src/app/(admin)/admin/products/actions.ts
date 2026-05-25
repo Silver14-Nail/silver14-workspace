@@ -23,6 +23,8 @@ import {
   getProductTranslations,
   upsertProductTranslation,
   regenerateProductTranslations,
+  getAllVariantTranslations,
+  regenerateVariantTranslations,
   getProductCollections,
   addProductToCollection,
   removeProductFromCollection,
@@ -46,6 +48,7 @@ import type {
   ProductTranslation,
   UpsertProductTranslationPayload,
   ProductCollection,
+  VariantTranslation,
 } from './types';
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
@@ -332,6 +335,37 @@ export async function regenerateProductTranslationsAction(
     return { success: true, data: undefined };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to regenerate translations' };
+  }
+}
+
+// ─── Variant Translations ──────────────────────────────────────────────────────
+
+export async function getAllVariantTranslationsAction(
+  productId: string,
+): Promise<ActionResult<Record<string, VariantTranslation[]>>> {
+  try {
+    const data = await getAllVariantTranslations(productId);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to load variant translations',
+    };
+  }
+}
+
+export async function regenerateVariantTranslationsAction(
+  productId: string,
+  variantId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await regenerateVariantTranslations(productId, variantId);
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to regenerate variant translations',
+    };
   }
 }
 

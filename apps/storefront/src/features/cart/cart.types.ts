@@ -64,6 +64,7 @@ export interface CartDisplayItem {
   lineTotal: number;
   stockQty: number;
   isCustomSize: boolean;
+  customization: string | null;
 }
 
 /** Lightweight snapshot used only in the add-to-cart preview dialog */

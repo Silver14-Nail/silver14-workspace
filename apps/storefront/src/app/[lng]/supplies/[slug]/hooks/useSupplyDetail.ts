@@ -16,6 +16,8 @@ export interface UseSupplyDetailResult {
   lastAddedItem: CartPreviewItem | null;
   handleAddToCart: () => void;
   inStock: boolean;
+  maxQuantity: number;
+  stockExceeded: boolean;
   selectedVariant: ApiVariant | null;
   selectedVariantId: string | null;
   setSelectedVariantId: (id: string | null) => void;
@@ -27,17 +29,17 @@ export function useSupplyDetail(supply: ApiProductDetail | null): UseSupplyDetai
   const [quantity, setQuantity] = useState(1);
   const [showCartPreview, setShowCartPreview] = useState(false);
   const [lastAddedItem, setLastAddedItem] = useState<CartPreviewItem | null>(null);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+  const [selectedVariantId, setSelectedVariantIdRaw] = useState<string | null>(
     supply?.variants?.[0]?.id ?? null,
   );
 
   const { addItem, cartCount, subtotal } = useCart();
 
-  // Sync initial variant when supply prop changes (navigation between supply pages)
+  // Reset state on product navigation
   useEffect(() => {
     setSelectedImage(0);
     setQuantity(1);
-    setSelectedVariantId(supply?.variants?.[0]?.id ?? null);
+    setSelectedVariantIdRaw(supply?.variants?.[0]?.id ?? null);
   }, [supply?.id]);
 
   const selectedVariant =
@@ -50,9 +52,17 @@ export function useSupplyDetail(supply: ApiProductDetail | null): UseSupplyDetai
     (supply?.variants?.[0]?.colorName != null && supply!.variants[0].colorName !== '');
 
   const inStock = (selectedVariant?.stockQty ?? 0) > 0 && (selectedVariant?.isAvailable ?? false);
+  const maxQuantity = inStock ? (selectedVariant?.stockQty ?? 0) : 0;
+  const stockExceeded = inStock && quantity > maxQuantity;
+
+  // Switching variant resets quantity to avoid carrying over an exceeded value
+  const setSelectedVariantId = useCallback((id: string | null) => {
+    setSelectedVariantIdRaw(id);
+    setQuantity(1);
+  }, []);
 
   const handleAddToCart = useCallback(async () => {
-    if (!supply || !selectedVariant || !inStock) return;
+    if (!supply || !selectedVariant || !inStock || stockExceeded) return;
 
     const thumbnail =
       supply.images?.find((img) => img.isMain)?.url ?? supply.images?.[0]?.url ?? null;
@@ -76,7 +86,7 @@ export function useSupplyDetail(supply: ApiProductDetail | null): UseSupplyDetai
     } catch {
       setShowCartPreview(false);
     }
-  }, [supply, selectedVariant, inStock, quantity, addItem, cartCount, subtotal]);
+  }, [supply, selectedVariant, inStock, stockExceeded, quantity, addItem, cartCount, subtotal]);
 
   return {
     supply,
@@ -89,6 +99,8 @@ export function useSupplyDetail(supply: ApiProductDetail | null): UseSupplyDetai
     lastAddedItem,
     handleAddToCart,
     inStock,
+    maxQuantity,
+    stockExceeded,
     selectedVariant,
     selectedVariantId,
     setSelectedVariantId,

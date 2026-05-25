@@ -2,8 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { ProductTranslationEntity } from '@/db/entities/products/product-translation.entity';
-import { CollectionTranslationEntity } from '@/db/entities/products/collection-translation.entity';
+import { I18nTranslationEntity } from '@/db/entities/shared/i18n-translation.entity';
 
 import { LanguageDetectionService } from './language-detection.service';
 import { TranslationService } from './translation.service';
@@ -15,7 +14,7 @@ import { TRANSLATION_PROVIDER_TOKEN } from './translation.constants';
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([ProductTranslationEntity, CollectionTranslationEntity]),
+    TypeOrmModule.forFeature([I18nTranslationEntity]),
   ],
   providers: [
     LanguageDetectionService,

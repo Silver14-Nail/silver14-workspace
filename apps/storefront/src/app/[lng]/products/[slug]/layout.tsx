@@ -6,7 +6,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 async function fetchProductForMeta(slug: string) {
   try {
     const res = await fetch(`${API_BASE}/client-api/products/slug/${slug}`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 60 },
     });
     if (!res.ok) return null;
     return res.json() as Promise<{

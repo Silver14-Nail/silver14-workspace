@@ -6,7 +6,6 @@ import { ProductImageEntity } from './product-image.entity';
 import { ProductShapePricingEntity } from './product-shape-pricing.entity';
 import { ProductVariantEntity } from './product-variants.entity';
 import { CollectionEntity } from './collection.entity';
-import { ProductTranslationEntity } from './product-translation.entity';
 
 @Entity('products')
 export class ProductEntity extends SoftDeleteAbstractEntity {
@@ -98,7 +97,4 @@ export class ProductEntity extends SoftDeleteAbstractEntity {
 
   @ManyToMany(() => CollectionEntity, (collection) => collection.products)
   collections: CollectionEntity[];
-
-  @OneToMany(() => ProductTranslationEntity, (t) => t.product)
-  translations: ProductTranslationEntity[];
 }

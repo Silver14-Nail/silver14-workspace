@@ -62,7 +62,7 @@ export type UpdateCollectionPayload = Partial<CreateCollectionPayload>;
 
 export interface CollectionTranslation {
   id: string;
-  collectionId: string;
+  entityId: string;
   locale: string;
   name: string;
   shortDescription: string | null;

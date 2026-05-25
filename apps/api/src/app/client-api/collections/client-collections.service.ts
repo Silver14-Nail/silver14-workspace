@@ -4,8 +4,7 @@ import { Repository } from 'typeorm';
 
 import { CollectionEntity } from '@/db/entities/products/collection.entity';
 import { ProductEntity } from '@/db/entities/products/product.entity';
-import { CollectionTranslationEntity } from '@/db/entities/products/collection-translation.entity';
-import { ProductTranslationEntity } from '@/db/entities/products/product-translation.entity';
+import { I18nTranslationEntity } from '@/db/entities/shared/i18n-translation.entity';
 import { FALLBACK_LOCALE } from '@/shared/translation/translation.constants';
 import type { SupportedLocale } from '@/shared/translation/translation.constants';
 
@@ -33,10 +32,8 @@ export class ClientCollectionsService {
     private readonly collectionRepo: Repository<CollectionEntity>,
     @InjectRepository(ProductEntity)
     private readonly productRepo: Repository<ProductEntity>,
-    @InjectRepository(CollectionTranslationEntity)
-    private readonly collectionTranslationRepo: Repository<CollectionTranslationEntity>,
-    @InjectRepository(ProductTranslationEntity)
-    private readonly productTranslationRepo: Repository<ProductTranslationEntity>,
+    @InjectRepository(I18nTranslationEntity)
+    private readonly translationRepo: Repository<I18nTranslationEntity>,
   ) {}
 
   async listCollections(query: CollectionQueryDto, locale: SupportedLocale = FALLBACK_LOCALE) {
@@ -179,12 +176,14 @@ export class ClientCollectionsService {
   private async loadCollectionTranslation(
     collectionId: string,
     locale: SupportedLocale,
-  ): Promise<CollectionTranslationEntity | null> {
-    const tr = await this.collectionTranslationRepo.findOne({ where: { collectionId, locale } });
+  ): Promise<I18nTranslationEntity | null> {
+    const tr = await this.translationRepo.findOne({
+      where: { entityType: 'collection', entityId: collectionId, locale },
+    });
     if (tr) return tr;
     if (locale !== FALLBACK_LOCALE) {
-      return this.collectionTranslationRepo.findOne({
-        where: { collectionId, locale: FALLBACK_LOCALE },
+      return this.translationRepo.findOne({
+        where: { entityType: 'collection', entityId: collectionId, locale: FALLBACK_LOCALE },
       });
     }
     return null;
@@ -193,24 +192,25 @@ export class ClientCollectionsService {
   private async loadCollectionTranslations(
     collectionIds: string[],
     locale: SupportedLocale,
-  ): Promise<Map<string, CollectionTranslationEntity>> {
+  ): Promise<Map<string, I18nTranslationEntity>> {
     if (collectionIds.length === 0) return new Map();
 
-    const rows = await this.collectionTranslationRepo
+    const rows = await this.translationRepo
       .createQueryBuilder('t')
-      .where('t.collection_id IN (:...ids)', { ids: collectionIds })
+      .where('t.entity_type = :entityType', { entityType: 'collection' })
+      .andWhere('t.entity_id IN (:...ids)', { ids: collectionIds })
       .andWhere('t.locale IN (:...locales)', {
         locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
       })
       .getMany();
 
-    const map = new Map<string, CollectionTranslationEntity>();
+    const map = new Map<string, I18nTranslationEntity>();
     for (const row of rows) {
-      if (row.locale === FALLBACK_LOCALE) map.set(row.collectionId, row);
+      if (row.locale === FALLBACK_LOCALE) map.set(row.entityId, row);
     }
     if (locale !== FALLBACK_LOCALE) {
       for (const row of rows) {
-        if (row.locale === locale) map.set(row.collectionId, row);
+        if (row.locale === locale) map.set(row.entityId, row);
       }
     }
     return map;
@@ -219,24 +219,25 @@ export class ClientCollectionsService {
   private async loadProductTranslations(
     productIds: string[],
     locale: SupportedLocale,
-  ): Promise<Map<string, ProductTranslationEntity>> {
+  ): Promise<Map<string, I18nTranslationEntity>> {
     if (productIds.length === 0) return new Map();
 
-    const rows = await this.productTranslationRepo
+    const rows = await this.translationRepo
       .createQueryBuilder('t')
-      .where('t.product_id IN (:...ids)', { ids: productIds })
+      .where('t.entity_type = :entityType', { entityType: 'product' })
+      .andWhere('t.entity_id IN (:...ids)', { ids: productIds })
       .andWhere('t.locale IN (:...locales)', {
         locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
       })
       .getMany();
 
-    const map = new Map<string, ProductTranslationEntity>();
+    const map = new Map<string, I18nTranslationEntity>();
     for (const row of rows) {
-      if (row.locale === FALLBACK_LOCALE) map.set(row.productId, row);
+      if (row.locale === FALLBACK_LOCALE) map.set(row.entityId, row);
     }
     if (locale !== FALLBACK_LOCALE) {
       for (const row of rows) {
-        if (row.locale === locale) map.set(row.productId, row);
+        if (row.locale === locale) map.set(row.entityId, row);
       }
     }
     return map;
@@ -246,7 +247,7 @@ export class ClientCollectionsService {
 
   private mapCollectionSummary(
     c: CollectionEntity & { productCount?: number },
-    tr: CollectionTranslationEntity | null,
+    tr: I18nTranslationEntity | null,
   ) {
     return {
       id: c.id,
@@ -262,7 +263,7 @@ export class ClientCollectionsService {
 
   private mapCollectionDetail(
     c: CollectionEntity & { productCount?: number },
-    tr: CollectionTranslationEntity | null,
+    tr: I18nTranslationEntity | null,
   ) {
     return {
       id: c.id,

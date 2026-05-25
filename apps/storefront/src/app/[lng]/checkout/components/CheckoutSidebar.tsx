@@ -124,6 +124,11 @@ export function CheckoutSidebar({
                     +{fmt(item.adjustment)} {t('sidebar.shapeAdjustment')}
                   </p>
                 )}
+                {item.customization && (
+                  <p className="text-[#6A6A6A] text-[10px] italic mt-0.5 line-clamp-2">
+                    "{item.customization}"
+                  </p>
+                )}
               </div>
               <div className="flex-shrink-0 text-right">
                 {isOnSale && (

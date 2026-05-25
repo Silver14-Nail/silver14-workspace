@@ -20,7 +20,10 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
   const sd = useSupplyDetail(initialSupply);
 
   const decrement = useCallback(() => sd.setQuantity(Math.max(1, sd.quantity - 1)), [sd]);
-  const increment = useCallback(() => sd.setQuantity(sd.quantity + 1), [sd]);
+  const increment = useCallback(
+    () => sd.setQuantity(Math.min(sd.quantity + 1, sd.maxQuantity || sd.quantity + 1)),
+    [sd],
+  );
 
   if (!sd.supply) return <SupplyNotFound />;
 
@@ -143,21 +146,31 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
                   <span className="text-[#1A1A1A] w-12 text-center">{sd.quantity}</span>
                   <button
                     onClick={increment}
-                    className="border border-[#E0E0E0] p-2 hover:border-[#1A1A1A] transition-colors"
+                    disabled={sd.inStock && sd.quantity >= sd.maxQuantity}
+                    className="border border-[#E0E0E0] p-2 hover:border-[#1A1A1A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Plus className="size-3.5" />
                   </button>
                 </div>
+                {sd.stockExceeded && (
+                  <p className="text-xs text-red-500 mt-1.5">
+                    {t('detail.insufficientStock', { max: sd.maxQuantity })}
+                  </p>
+                )}
               </div>
 
               <button
                 onClick={sd.handleAddToCart}
-                disabled={!sd.inStock}
+                disabled={!sd.inStock || sd.stockExceeded}
                 className="w-full bg-[#1A1A1A] text-white py-4 px-6 flex items-center justify-center gap-2 text-xs uppercase tracking-widest transition-all hover:bg-[#2A2A2A] disabled:bg-[#C0C0C0] disabled:cursor-not-allowed"
                 style={{ letterSpacing: '0.15em' }}
               >
                 <ShoppingBag className="size-4" />
-                {sd.inStock ? t('detail.addToCart') : t('detail.outOfStock')}
+                {!sd.inStock
+                  ? t('detail.outOfStock')
+                  : sd.stockExceeded
+                    ? t('detail.insufficientStock', { max: sd.maxQuantity })
+                    : t('detail.addToCart')}
               </button>
             </div>
 

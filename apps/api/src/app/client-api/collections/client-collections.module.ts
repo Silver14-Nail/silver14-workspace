@@ -3,8 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { CollectionEntity } from '@/db/entities/products/collection.entity';
 import { ProductEntity } from '@/db/entities/products/product.entity';
-import { CollectionTranslationEntity } from '@/db/entities/products/collection-translation.entity';
-import { ProductTranslationEntity } from '@/db/entities/products/product-translation.entity';
+import { I18nTranslationEntity } from '@/db/entities/shared/i18n-translation.entity';
 
 import { ClientCollectionsService } from './client-collections.service';
 import { ClientCollectionsController } from './client-collections.controller';
@@ -14,8 +13,7 @@ import { ClientCollectionsController } from './client-collections.controller';
     TypeOrmModule.forFeature([
       CollectionEntity,
       ProductEntity,
-      CollectionTranslationEntity,
-      ProductTranslationEntity,
+      I18nTranslationEntity,
     ]),
   ],
   providers: [ClientCollectionsService],
