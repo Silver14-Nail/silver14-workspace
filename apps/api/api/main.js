@@ -269994,6 +269994,8 @@ let ProductImagesController = class ProductImagesController {
         this.productsService = productsService;
     }
     uploadImage(productId, file) {
+        if (!file)
+            throw new BadRequestException('No file uploaded');
         return this.productsService.uploadProductImage(productId, file);
     }
     addImage(productId, dto) {

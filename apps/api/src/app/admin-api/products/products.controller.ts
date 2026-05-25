@@ -164,6 +164,7 @@ export class ProductImagesController {
     @Param('productId') productId: string,
     @UploadedFile() file: { buffer: Buffer; mimetype: string; originalname: string; size: number },
   ) {
+    if (!file) throw new BadRequestException('No file uploaded');
     return this.productsService.uploadProductImage(productId, file);
   }
 
