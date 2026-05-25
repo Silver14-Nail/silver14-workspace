@@ -13,8 +13,6 @@ import {
   deleteNailSize,
   getProductDetail,
   uploadProductImage,
-  getProductImageUploadUrl,
-  addProductImage,
   deleteProductImage,
   reorderProductImages,
   setMainProductImage,
@@ -201,32 +199,6 @@ export async function uploadProductImageAction(
   }
 }
 
-export async function getProductImageUploadUrlAction(
-  productId: string,
-  contentType: string,
-): Promise<ActionResult<{ presignedUrl: string; publicUrl: string; key: string }>> {
-  try {
-    const data = await getProductImageUploadUrl(productId, contentType);
-    return { success: true, data };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to get upload URL';
-    return { success: false, error: message };
-  }
-}
-
-export async function addProductImageByUrlAction(
-  productId: string,
-  url: string,
-): Promise<ActionResult<ApiProductImage>> {
-  try {
-    const image = await addProductImage(productId, { url });
-    revalidatePath('/admin/products');
-    return { success: true, data: image };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to register image';
-    return { success: false, error: message };
-  }
-}
 
 export async function deleteProductImageAction(
   productId: string,

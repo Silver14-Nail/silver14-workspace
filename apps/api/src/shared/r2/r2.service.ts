@@ -24,6 +24,10 @@ export class R2Service {
         accessKeyId: this.config.getOrThrow<string>('R2_ACCESS_KEY_ID'),
         secretAccessKey: this.config.getOrThrow<string>('R2_SECRET_ACCESS_KEY'),
       },
+      // Disable automatic CRC32 checksums — browser fetch can't compute them,
+      // so presigned PUT URLs must not require them.
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
 
     this.bucket = this.config.getOrThrow<string>('R2_BUCKET_NAME');
@@ -47,7 +51,7 @@ export class R2Service {
     );
 
     this.logger.debug(`Uploaded ${key}`);
-    return `${this.publicUrl}/${this.bucket}/${key}`;
+    return `${this.publicUrl}/${key}`;
   }
 
   /**

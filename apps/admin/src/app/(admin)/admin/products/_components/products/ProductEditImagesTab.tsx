@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Upload, Trash2, Star, ChevronUp, ChevronDown, Loader2, Package } from 'lucide-react';
 import type { ApiProductImage } from '../../types';
 import {
-  getProductImageUploadUrlAction,
-  addProductImageByUrlAction,
+  uploadProductImageAction,
   deleteProductImageAction,
   reorderProductImagesAction,
   setMainProductImageAction,
@@ -58,34 +57,14 @@ export default function ProductEditImagesTab({
 
       setUploading(true);
       try {
-        // Step 1: get a short-lived presigned PUT URL from the API
-        const presignResult = await getProductImageUploadUrlAction(productId, file.type);
-        if (!presignResult.success) {
-          setUploadError((presignResult as { error: string }).error);
+        const formData = new FormData();
+        formData.append('file', file);
+        const result = await uploadProductImageAction(productId, formData);
+        if (!result.success) {
+          setUploadError((result as { error: string }).error);
           setUploading(false);
           return;
         }
-
-        // Step 2: upload file directly to R2 from the browser (bypasses Next.js body limit)
-        const r2Res = await fetch(presignResult.data.presignedUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': file.type },
-          body: file,
-        });
-        if (!r2Res.ok) {
-          setUploadError(t('images.errorUnexpected'));
-          setUploading(false);
-          return;
-        }
-
-        // Step 3: register the public URL in the database via Server Action
-        const registerResult = await addProductImageByUrlAction(productId, presignResult.data.publicUrl);
-        if (!registerResult.success) {
-          setUploadError((registerResult as { error: string }).error);
-          setUploading(false);
-          return;
-        }
-
         await onRefresh();
       } catch {
         setUploadError(t('images.errorUnexpected'));

@@ -238457,6 +238457,10 @@ let R2Service = R2Service_1 = class R2Service {
                 accessKeyId: this.config.getOrThrow('R2_ACCESS_KEY_ID'),
                 secretAccessKey: this.config.getOrThrow('R2_SECRET_ACCESS_KEY'),
             },
+            // Disable automatic CRC32 checksums — browser fetch can't compute them,
+            // so presigned PUT URLs must not require them.
+            requestChecksumCalculation: 'WHEN_REQUIRED',
+            responseChecksumValidation: 'WHEN_REQUIRED',
         });
         this.bucket = this.config.getOrThrow('R2_BUCKET_NAME');
         this.publicUrl = this.config.getOrThrow('R2_PUBLIC_URL');
@@ -238474,7 +238478,7 @@ let R2Service = R2Service_1 = class R2Service {
             ContentType: mime,
         }));
         this.logger.debug(`Uploaded ${key}`);
-        return `${this.publicUrl}/${this.bucket}/${key}`;
+        return `${this.publicUrl}/${key}`;
     }
     /**
      * Generate a short-lived presigned PUT URL so the client can upload directly.
@@ -268891,9 +268895,9 @@ let ProductsService = class ProductsService {
                     shape,
                     size,
                     sku: null,
-                    stockQty: 0,
+                    stockQty: 999,
                     computedPrice,
-                    isAvailable: false,
+                    isAvailable: true,
                 }));
             }));
         }
@@ -269017,7 +269021,39 @@ let ProductsService = class ProductsService {
             adjustmentType: dto.adjustmentType,
             isActive: dto.isActive ?? true,
         });
-        return this.nailShapeRepo.save(shape);
+        const saved = await this.nailShapeRepo.save(shape);
+        if (saved.isActive) {
+            await this.backfillVariantsForShape(saved);
+        }
+        return saved;
+    }
+    async backfillVariantsForShape(shape) {
+        const [products, sizes] = await Promise.all([
+            this.productRepo.find({ where: { type: entity_enum_1.ProductType.NAIL } }),
+            this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } }),
+        ]);
+        if (!products.length || !sizes.length)
+            return;
+        const baseAdjustment = shape.adjustmentType === entity_enum_1.PriceAdjustmentType.PERCENT
+            ? (p) => Number(p.basePrice) * (Number(shape.priceAdjustment) / 100)
+            : () => Number(shape.priceAdjustment) || 0;
+        await this.productShapePricingRepo.save(products.map((product) => this.productShapePricingRepo.create({
+            product,
+            shape,
+            priceOverride: null,
+            priceAdjustment: null,
+            adjustmentType: null,
+            isEnabled: true,
+        })));
+        await this.productVariantRepo.save(products.flatMap((product) => sizes.map((size) => this.productVariantRepo.create({
+            product,
+            shape,
+            size,
+            sku: null,
+            stockQty: 999,
+            computedPrice: Number(product.basePrice) + baseAdjustment(product),
+            isAvailable: true,
+        }))));
     }
     async updateNailShape(id, dto) {
         const shape = await this.nailShapeRepo.findOneBy({ id });
@@ -269063,7 +269099,31 @@ let ProductsService = class ProductsService {
             sizeCode: dto.sizeCode,
             measurements: dto.measurements ?? null,
         });
-        return this.nailSizeRepo.save(size);
+        const saved = await this.nailSizeRepo.save(size);
+        await this.backfillVariantsForSize(saved);
+        return saved;
+    }
+    async backfillVariantsForSize(size) {
+        const [products, shapes] = await Promise.all([
+            this.productRepo.find({ where: { type: entity_enum_1.ProductType.NAIL } }),
+            this.nailShapeRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } }),
+        ]);
+        if (!products.length || !shapes.length)
+            return;
+        await this.productVariantRepo.save(products.flatMap((product) => shapes.map((shape) => {
+            const adjustment = shape.adjustmentType === entity_enum_1.PriceAdjustmentType.PERCENT
+                ? Number(product.basePrice) * (Number(shape.priceAdjustment) / 100)
+                : Number(shape.priceAdjustment) || 0;
+            return this.productVariantRepo.create({
+                product,
+                shape,
+                size,
+                sku: null,
+                stockQty: 999,
+                computedPrice: Number(product.basePrice) + adjustment,
+                isAvailable: true,
+            });
+        })));
     }
     async updateNailSize(id, dto) {
         const size = await this.nailSizeRepo.findOneBy({ id });
@@ -269087,12 +269147,6 @@ let ProductsService = class ProductsService {
         return { success: true };
     }
     // ─── Product Images ─────────────────────────────────────────────────────────
-    async getProductImagePresignedUrl(productId, contentType) {
-        const product = await this.productRepo.findOneBy({ id: productId });
-        if (!product)
-            throw new common_1.NotFoundException(`Product #${productId} not found`);
-        return this.r2.getPresignedUploadUrl(contentType, 'products');
-    }
     async uploadProductImage(productId, file) {
         const product = await this.productRepo.findOneBy({ id: productId });
         if (!product)
@@ -269939,11 +269993,6 @@ let ProductImagesController = class ProductImagesController {
     constructor(productsService) {
         this.productsService = productsService;
     }
-    getPresignedUrl(productId, contentType) {
-        if (!contentType)
-            throw new common_1.BadRequestException('contentType query param is required');
-        return this.productsService.getProductImagePresignedUrl(productId, contentType);
-    }
     uploadImage(productId, file) {
         return this.productsService.uploadProductImage(productId, file);
     }
@@ -269961,14 +270010,6 @@ let ProductImagesController = class ProductImagesController {
     }
 };
 exports.ProductImagesController = ProductImagesController;
-tslib_1.__decorate([
-    (0, common_1.Get)('presign'),
-    tslib_1.__param(0, (0, common_1.Param)('productId')),
-    tslib_1.__param(1, (0, common_1.Query)('contentType')),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, String]),
-    tslib_1.__metadata("design:returntype", void 0)
-], ProductImagesController.prototype, "getPresignedUrl", null);
 tslib_1.__decorate([
     (0, common_1.Post)('upload'),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),

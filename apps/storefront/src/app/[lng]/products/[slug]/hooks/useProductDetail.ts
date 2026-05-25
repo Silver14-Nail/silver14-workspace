@@ -98,11 +98,7 @@ export function useProductDetail(
     return computeEffectivePrice(selectedVariant.computedPrice, product.price, product.salePrice);
   }, [selectedVariant, product]);
 
-  const canAddToCart = Boolean(
-    selectedVariant &&
-      selectedVariant.isAvailable &&
-      (selectedVariant.stockQty > 0 || isCustomSize),
-  );
+  const canAddToCart = Boolean(selectedVariant && selectedVariant.isAvailable);
 
   const handleAddToCart = useCallback(async () => {
     if (!product || !selectedVariant || !canAddToCart) return;

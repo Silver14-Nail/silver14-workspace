@@ -182,17 +182,6 @@ export async function uploadProductImage(productId: string, file: File): Promise
   return res.json() as Promise<ApiProductImage>;
 }
 
-export async function getProductImageUploadUrl(
-  productId: string,
-  contentType: string,
-): Promise<{ presignedUrl: string; publicUrl: string; key: string }> {
-  const client = await createApiClient();
-  const { data } = await client.get<{ presignedUrl: string; publicUrl: string; key: string }>(
-    `/admin-api/products/${productId}/images/presign`,
-    { params: { contentType } },
-  );
-  return data;
-}
 
 export async function addProductImage(
   productId: string,
