@@ -13,6 +13,7 @@ import {
   Save,
   Eye,
   EyeOff,
+  Info,
 } from 'lucide-react';
 
 const settingsTabs = [
@@ -24,6 +25,7 @@ const settingsTabs = [
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'auth', label: 'Auth Providers', icon: Shield },
   { id: 'email', label: 'Email Templates', icon: Mail },
+  { id: 'version', label: 'Version', icon: Info },
 ] as const;
 
 type SettingsTab = (typeof settingsTabs)[number]['id'];
@@ -537,6 +539,33 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+          {/* Version */}
+          {activeTab === 'version' && (
+            <div className="p-6">
+              <h2 className="text-sm font-semibold text-[#111827] mb-5">Version</h2>
+              <div className="flex flex-col items-center justify-center py-12 gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-[#111827] flex items-center justify-center">
+                  <Info className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-[#111827] tracking-tight">v0.0.1</p>
+                  <p className="text-sm text-[#9CA3AF] mt-1">Silver14 Nail Admin</p>
+                </div>
+                <div className="mt-4 w-full max-w-xs divide-y divide-[#F3F4F6] border border-[#E5E7EB] rounded-xl overflow-hidden">
+                  {[
+                    { label: 'Version', value: '0.0.1' },
+                    { label: 'Environment', value: 'Production' },
+                    { label: 'Build', value: '2026.05.25' },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between px-4 py-3 bg-white">
+                      <span className="text-xs text-[#6B7280]">{label}</span>
+                      <span className="text-xs font-medium text-[#111827] font-mono">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

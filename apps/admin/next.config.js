@@ -7,6 +7,11 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
   nx: {},
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   async rewrites() {
     const apiUrl = process.env.API_URL || 'http://localhost:3000';
     return [

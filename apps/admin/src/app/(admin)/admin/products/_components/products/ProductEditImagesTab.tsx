@@ -66,8 +66,8 @@ export default function ProductEditImagesTab({
           return;
         }
         await onRefresh();
-      } catch {
-        setUploadError(t('images.errorUnexpected'));
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : t('images.errorUnexpected'));
       }
       setUploading(false);
     }
