@@ -12,12 +12,19 @@ export class R2Service {
   private readonly publicUrl: string;
 
   constructor(private readonly config: ConfigService) {
+    const accountId = this.config.getOrThrow<string>('R2_ACCOUNT_ID');
     this.bucket = this.config.getOrThrow<string>('R2_BUCKET_NAME');
     this.publicUrl = this.config.getOrThrow<string>('R2_PUBLIC_URL').replace(/\/$/, '');
 
+    // S3 API endpoint — must be the account-level R2 endpoint, NOT the public CDN URL.
+    // Do NOT use forcePathStyle: Cloudflare R2 treats the full path as the object key,
+    // so adding the bucket to the path (path-style) doubles it: /bucket/bucket/key.
+    const endpoint =
+      this.config.get<string>('R2_PRIVATE_URL') ?? `https://${accountId}.r2.cloudflarestorage.com`;
+
     this.client = new S3Client({
       region: 'auto',
-      endpoint: this.publicUrl,
+      endpoint,
       credentials: {
         accessKeyId: this.config.getOrThrow<string>('R2_ACCESS_KEY_ID'),
         secretAccessKey: this.config.getOrThrow<string>('R2_SECRET_ACCESS_KEY'),

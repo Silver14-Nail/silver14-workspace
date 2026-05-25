@@ -78703,7 +78703,7 @@ let AppService = class AppService {
         return {
             name: 'nail-commerce-api',
             status: 'ok',
-            version: 'v0.0.4',
+            version: 'v0.0.5',
         };
     }
 };
@@ -238448,11 +238448,16 @@ let R2Service = R2Service_1 = class R2Service {
     constructor(config) {
         this.config = config;
         this.logger = new common_1.Logger(R2Service_1.name);
+        const accountId = this.config.getOrThrow('R2_ACCOUNT_ID');
         this.bucket = this.config.getOrThrow('R2_BUCKET_NAME');
         this.publicUrl = this.config.getOrThrow('R2_PUBLIC_URL').replace(/\/$/, '');
+        // S3 API endpoint — must be the account-level R2 endpoint, NOT the public CDN URL.
+        // Do NOT use forcePathStyle: Cloudflare R2 treats the full path as the object key,
+        // so adding the bucket to the path (path-style) doubles it: /bucket/bucket/key.
+        const endpoint = this.config.get('R2_PRIVATE_URL') ?? `https://${accountId}.r2.cloudflarestorage.com`;
         this.client = new client_s3_1.S3Client({
             region: 'auto',
-            endpoint: this.publicUrl,
+            endpoint,
             credentials: {
                 accessKeyId: this.config.getOrThrow('R2_ACCESS_KEY_ID'),
                 secretAccessKey: this.config.getOrThrow('R2_SECRET_ACCESS_KEY'),
