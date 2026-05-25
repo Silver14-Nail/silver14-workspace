@@ -18,6 +18,7 @@ export interface CustomerOrderItem {
   quantity: number;
   price: number;
   lineTotal: number;
+  customization?: string | null;
 }
 
 export interface CustomerOrderDetail extends CustomerOrderSummary {

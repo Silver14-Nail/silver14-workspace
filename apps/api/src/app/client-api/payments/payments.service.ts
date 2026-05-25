@@ -6,6 +6,7 @@ import type { EntityManager } from 'typeorm';
 import { CheckoutSessionEntity } from '@/db/entities/checkouts/checkout-session.entity';
 import { OrderEntity } from '@/db/entities/orders/order.entity';
 import { OrderItemEntity } from '@/db/entities/orders/order-item.entity';
+import { CustomSizeRequestEntity } from '@/db/entities/orders/custom-size-request.entity';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 import { PaypalDetailEntity } from '@/db/entities/payments/paypal-detail.entity';
 import { CardDetailEntity } from '@/db/entities/payments/card-detail.entity';
@@ -150,6 +151,13 @@ export class ClientPaymentsService {
   }
 
   async capturePaypalOrder(dto: CapturePaypalOrderDto) {
+    // Idempotent: if order already created for this session, return it
+    const existingOrder = await this.paymentRepo.manager.findOne(OrderEntity, {
+      where: { checkoutSession: { id: dto.checkoutSessionId } },
+      select: ['id', 'status', 'total', 'currency'],
+    });
+    if (existingOrder) return { order: existingOrder, payment: null };
+
     const session = await this.loadSessionOrFail(dto.checkoutSessionId);
 
     if (session.status === CheckoutSessionStatus.COMPLETED) {
@@ -343,6 +351,35 @@ export class ClientPaymentsService {
     );
 
     await manager.save(OrderItemEntity, orderItems);
+
+    // Persist customization notes from cart items
+    const customSizeRequests = (session.cart?.items ?? [])
+      .map((cartItem, index) => {
+        const measurements = cartItem.customMeasurements;
+        if (!measurements) return null;
+        const hasData =
+          measurements['thumb'] ||
+          measurements['index'] ||
+          measurements['middle'] ||
+          measurements['ring'] ||
+          measurements['pinky'] ||
+          measurements['notes'];
+        if (!hasData) return null;
+        return manager.create(CustomSizeRequestEntity, {
+          orderItem: orderItems[index],
+          thumb: measurements['thumb'] ?? null,
+          indexFinger: measurements['index'] ?? null,
+          middleFinger: measurements['middle'] ?? null,
+          ringFinger: measurements['ring'] ?? null,
+          pinky: measurements['pinky'] ?? null,
+          notes: measurements['notes'] ?? null,
+        });
+      })
+      .filter((r): r is CustomSizeRequestEntity => r !== null);
+
+    if (customSizeRequests.length > 0) {
+      await manager.save(CustomSizeRequestEntity, customSizeRequests);
+    }
 
     // Track coupon usage
     if (couponEntity) {

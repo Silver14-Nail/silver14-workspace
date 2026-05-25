@@ -414,6 +414,11 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                           Qty: {item.quantity}
                           {item.isCustomSize && ' · Custom size'}
                         </p>
+                        {item.customSizeRequest?.notes && (
+                          <p className="text-xs text-[#6B7280] italic mt-0.5 line-clamp-3">
+                            "{item.customSizeRequest.notes}"
+                          </p>
+                        )}
                       </div>
                       <p className="text-xs font-semibold text-[#111827] flex-shrink-0">
                         {currencySymbol}{(Number(item.unitPrice) * item.quantity).toFixed(2)}

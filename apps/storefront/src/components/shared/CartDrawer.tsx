@@ -112,6 +112,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           +{format(item.adjustment)} shape surcharge
                         </p>
                       )}
+                      {item.customization && (
+                        <p className="text-[#6A6A6A] text-[10px] italic mt-0.5 line-clamp-2">
+                          "{item.customization}"
+                        </p>
+                      )}
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center border border-[#E0E0E0]">

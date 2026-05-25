@@ -47,6 +47,7 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
     lineTotal: effectivePrice * item.quantity,
     stockQty: variant.stockQty,
     isCustomSize: item.isCustomSize,
+    customization: item.customMeasurements?.['notes'] ?? null,
   };
 }
 

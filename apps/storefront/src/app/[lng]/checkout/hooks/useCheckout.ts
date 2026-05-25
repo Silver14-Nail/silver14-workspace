@@ -126,13 +126,13 @@ export function useCheckout() {
   useEffect(() => {
     if (!session) return;
 
-    if (session.status === 'EXPIRED' || session.status === 'ABANDONED') {
+    if (session.status === 'expired' || session.status === 'abandoned') {
       clearCheckoutSessionId();
       setSessionId(null);
       setError('Your checkout session has expired. Please start again.');
       return;
     }
-    if (session.status === 'COMPLETED') {
+    if (session.status === 'completed') {
       setStep('confirmation');
       return;
     }

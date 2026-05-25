@@ -38,7 +38,7 @@ export interface SessionTotals {
 export interface CheckoutSession {
   id: string;
   currentStep: 1 | 2 | 3;
-  status: 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED' | 'EXPIRED';
+  status: 'in_progress' | 'completed' | 'abandoned' | 'expired';
   contactSnapshot: ContactSnapshot | null;
   shippingSnapshot: ShippingSnapshot | null;
   couponCode: string | null;

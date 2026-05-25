@@ -14,6 +14,7 @@
     "quantity": "Số lượng",
     "addToCart": "Thêm vào giỏ",
     "outOfStock": "Hết hàng",
+    "insufficientStock": "Chỉ còn {{max}} sản phẩm",
     "shipping": {
       "title": "Miễn phí vận chuyển toàn cầu",
       "subtitle": "Giao hàng trong 5–7 ngày làm việc"

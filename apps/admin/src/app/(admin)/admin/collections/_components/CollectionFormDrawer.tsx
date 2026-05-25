@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Upload, ImageIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Collection, CreateCollectionPayload } from '../types';
-import { createCollectionAction, updateCollectionAction } from '../actions';
+import { createCollectionAction, updateCollectionAction, uploadCollectionImageAction } from '../actions';
 import { CollectionTranslationsSection } from './CollectionTranslationsSection';
 
 interface Props {
@@ -32,9 +32,31 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingField, setUploadingField] = useState<'image' | 'bannerImage' | null>(null);
+  const [uploadErrors, setUploadErrors] = useState<{ image?: string; bannerImage?: string }>({});
 
   const set = (key: keyof CreateCollectionPayload, value: unknown) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleImageUpload = async (
+    field: 'image' | 'bannerImage',
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setUploadingField(field);
+    setUploadErrors((prev) => ({ ...prev, [field]: undefined }));
+    const fd = new FormData();
+    fd.append('file', file);
+    const result = await uploadCollectionImageAction(fd);
+    setUploadingField(null);
+    if (result.success) {
+      set(field, result.data.url);
+    } else {
+      setUploadErrors((prev) => ({ ...prev, [field]: (result as { error: string }).error }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +88,62 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
       setError((result as { success: false; error: string }).error ?? 'Save failed');
     }
   };
+
+  const ImageUploadField = ({
+    field,
+    label,
+  }: {
+    field: 'image' | 'bannerImage';
+    label: string;
+  }) => (
+    <div>
+      <label className="block text-xs font-medium text-[#374151] mb-2">{label}</label>
+      <div className="flex items-start gap-3">
+        {form[field] ? (
+          <img
+            src={form[field] as string}
+            alt=""
+            className="h-20 w-20 rounded-md object-cover border border-[#E5E7EB] shrink-0"
+          />
+        ) : (
+          <div className="h-20 w-20 rounded-md border-2 border-dashed border-[#D1D5DB] flex items-center justify-center shrink-0 text-[#9CA3AF]">
+            <ImageIcon className="size-6" />
+          </div>
+        )}
+        <div className="flex flex-col gap-1.5">
+          <label
+            className={`cursor-pointer inline-flex items-center gap-1.5 rounded border border-[#D1D5DB] px-3 py-1.5 text-sm text-[#374151] hover:bg-[#F9FAFB] transition-colors ${uploadingField !== null ? 'opacity-50 pointer-events-none' : ''}`}
+          >
+            {uploadingField === field ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Upload className="size-3.5" />
+            )}
+            {form[field] ? t('form.changeImage') : t('form.uploadImage')}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => handleImageUpload(field, e)}
+              disabled={uploadingField !== null}
+            />
+          </label>
+          {form[field] && (
+            <button
+              type="button"
+              className="text-xs text-[#EF4444] hover:text-[#DC2626] text-left"
+              onClick={() => set(field, '')}
+            >
+              {t('form.removeImage')}
+            </button>
+          )}
+          {uploadErrors[field] && (
+            <p className="text-xs text-[#EF4444]">{uploadErrors[field]}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -139,27 +217,11 @@ export function CollectionFormDrawer({ collection, onClose, onSuccess }: Props) 
             />
           </div>
 
-          {/* Image URL */}
-          <div>
-            <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.coverImage')}</label>
-            <input
-              value={form.image}
-              onChange={(e) => set('image', e.target.value)}
-              className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
-              placeholder="https://..."
-            />
-          </div>
+          {/* Cover Image */}
+          <ImageUploadField field="image" label={t('form.coverImage')} />
 
-          {/* Banner Image URL */}
-          <div>
-            <label className="block text-xs font-medium text-[#374151] mb-1">{t('form.bannerImage')}</label>
-            <input
-              value={form.bannerImage}
-              onChange={(e) => set('bannerImage', e.target.value)}
-              className="w-full rounded border border-[#D1D5DB] px-3 py-2 text-sm focus:border-[#111827] focus:outline-none"
-              placeholder="https://..."
-            />
-          </div>
+          {/* Banner Image */}
+          <ImageUploadField field="bannerImage" label={t('form.bannerImage')} />
 
           {/* SEO */}
           <div className="border-t border-[#E5E7EB] pt-5">

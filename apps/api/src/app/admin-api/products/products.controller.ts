@@ -12,6 +12,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -26,13 +27,16 @@ export class UpsertProductTranslationDto {
   @IsString()
   name: string;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   description?: string | null;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   seoTitle?: string | null;
 
-  @IsOptional() @IsString()
+  @IsOptional()
+  @IsString()
   seoDescription?: string | null;
 }
 import { ProductListQueryDto } from './dto/product-list-query.dto';
@@ -205,6 +209,11 @@ export class ProductTranslationsController {
     return this.translationService.getProductTranslations(id);
   }
 
+  @Get('variants')
+  getVariantTranslations(@Param('id') productId: string) {
+    return this.productsService.getProductVariantTranslations(productId);
+  }
+
   @Put(':locale')
   async upsertTranslation(
     @Param('id') id: string,
@@ -236,7 +245,10 @@ export class ProductTranslationsController {
 @ApiBearerAuth()
 @Controller('products/:productId/variants')
 export class ProductVariantsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly translationService: TranslationService,
+  ) {}
 
   @Get()
   listVariants(@Param('productId') productId: string) {
@@ -262,6 +274,22 @@ export class ProductVariantsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   removeVariant(@Param('productId') productId: string, @Param('variantId') variantId: string) {
     return this.productsService.removeProductVariant(productId, variantId);
+  }
+
+  @Get(':variantId/translations')
+  getVariantTranslations(@Param('variantId') variantId: string) {
+    return this.translationService.getTranslations('product_variant', variantId);
+  }
+
+  @Post(':variantId/translations/regenerate')
+  @HttpCode(HttpStatus.OK)
+  async regenerateVariantTranslation(
+    @Param('productId') productId: string,
+    @Param('variantId') variantId: string,
+  ) {
+    const variant = await this.productsService.getProductVariant(productId, variantId);
+    await this.translationService.generateForVariant(variant);
+    return { success: true };
   }
 }
 

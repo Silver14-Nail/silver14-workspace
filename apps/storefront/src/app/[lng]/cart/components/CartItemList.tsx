@@ -89,6 +89,11 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
               +{format(item.adjustment)} {t('item.shapeAdjustment')}
             </p>
           )}
+          {item.customization && (
+            <p className="text-[#6A6A6A] text-xs mt-0.5 italic line-clamp-2">
+              "{item.customization}"
+            </p>
+          )}
           {isOnSale && <p className="text-[#C0392B] text-xs mt-0.5">Sale</p>}
           <p className="text-[#1A1A1A] text-sm mt-2 sm:hidden">{format(item.lineTotal)}</p>
         </div>

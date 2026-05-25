@@ -1,4 +1,5 @@
 import { IsString, IsOptional, IsNumber, IsBoolean, IsUUID, Min, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class UpdateVariantDto {
   @IsOptional()
@@ -24,6 +25,8 @@ export class UpdateVariantDto {
   computedPrice?: number;
 
   @IsOptional()
+  @Transform(({ value }) => value === true || value === 1 || value === '1' || value === 'true'
+    ? true : value === false || value === 0 || value === '0' || value === 'false' ? false : value)
   @IsBoolean()
   isAvailable?: boolean;
 

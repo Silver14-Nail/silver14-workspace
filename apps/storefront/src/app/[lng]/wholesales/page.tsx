@@ -7,6 +7,7 @@ import { LinkBase } from '@/components/shared/LinkBase';
 import { useWholesaleEnquiry } from '@/features/wholesale/hooks/useWholesaleEnquiry';
 import { useWholesaleTiers } from '@/features/wholesale/hooks/useWholesaleTiers';
 import { useCurrency } from '@/hooks/useCurrency';
+import { COUNTRIES } from '../checkout/constants';
 
 const PRODUCT_INTERESTS = [
   'French & Classic',
@@ -15,32 +16,6 @@ const PRODUCT_INTERESTS = [
   'Solid Colors',
   'Custom / Private Label',
   'All Collections',
-];
-
-const COUNTRIES = [
-  'Austria',
-  'Belgium',
-  'Czech Republic',
-  'Denmark',
-  'Finland',
-  'France',
-  'Germany',
-  'Italy',
-  'Netherlands',
-  'Norway',
-  'Poland',
-  'Portugal',
-  'Spain',
-  'Sweden',
-  'Switzerland',
-  'United Kingdom',
-  'Other EU',
-  'United States',
-  'Canada',
-  'Australia',
-  'Singapore',
-  'Japan',
-  'Other',
 ];
 
 const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
