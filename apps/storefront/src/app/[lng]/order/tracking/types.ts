@@ -2,11 +2,13 @@ export type OrderTrackingStatus = 'Processing' | 'Crafting' | 'Shipped' | 'Deliv
 
 export interface TrackedOrderItem {
   productName: string;
+  variantName: string | null;
   sizeName: string | null;
   shapeName: string | null;
   quantity: number;
   price: number;
   lineTotal: number;
+  thumbnail: string | null;
 }
 
 export interface TrackedOrderAddress {
@@ -16,14 +18,20 @@ export interface TrackedOrderAddress {
   city: string;
   postalCode: string;
   country: string;
+  shippingMethodName: string | null;
 }
 
 export interface TrackedOrder {
   id: string;
   status: OrderTrackingStatus;
   createdAt: string;
-  items: TrackedOrderItem[];
+  currency: string;
+  subtotal: number;
+  shippingFee: number;
+  discountAmount: number;
+  couponCode: string | null;
   total: number;
+  items: TrackedOrderItem[];
   shippingAddress: TrackedOrderAddress;
 }
 

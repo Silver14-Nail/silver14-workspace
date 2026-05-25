@@ -36,7 +36,7 @@ export default function TrackForm({ formData, loading, onChange, onSubmit }: Tra
           label={t('phone')}
           value={formData.phone}
           onChange={(e) => onChange('phone', e.target.value)}
-          placeholder="Số điện thoại đã dùng thanh toán"
+          placeholder={t('phonePlaceholder')}
           type="tel"
           required
         />

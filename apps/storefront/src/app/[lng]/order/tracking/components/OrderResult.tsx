@@ -39,7 +39,14 @@ export default function OrderResult({ order }: { order: TrackedOrder }) {
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-5">
         <ShippingInfo address={order.shippingAddress} />
-        <OrderSummary items={order.items} total={order.total} />
+        <OrderSummary
+          items={order.items}
+          subtotal={order.subtotal}
+          shippingFee={order.shippingFee}
+          discountAmount={order.discountAmount}
+          couponCode={order.couponCode}
+          total={order.total}
+        />
       </div>
     </motion.div>
   );

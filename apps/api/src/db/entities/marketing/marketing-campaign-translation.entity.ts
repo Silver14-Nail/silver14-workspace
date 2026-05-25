@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  RelationId,
   Unique,
   Index,
 } from 'typeorm';
@@ -11,7 +12,7 @@ import { AbstractEntity } from '../../../common/entities';
 import { MarketingCampaignEntity } from './marketing-campaign.entity';
 
 @Entity('marketing_campaign_translations')
-@Unique(['campaignId', 'locale'])
+@Unique(['campaign', 'locale'])
 @Index(['locale'])
 export class MarketingCampaignTranslationEntity extends AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -21,7 +22,7 @@ export class MarketingCampaignTranslationEntity extends AbstractEntity {
   @JoinColumn({ name: 'campaign_id' })
   campaign: MarketingCampaignEntity;
 
-  @Column({ name: 'campaign_id', type: 'uuid' })
+  @RelationId((t: MarketingCampaignTranslationEntity) => t.campaign)
   campaignId: string;
 
   @Column({ type: 'varchar', length: 10 })

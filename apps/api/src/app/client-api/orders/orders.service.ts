@@ -35,7 +35,7 @@ export class ClientOrdersService {
     const prefix = dto.orderId.trim().toLowerCase();
     const order = await this.orderRepo.findOne({
       where: { id: Like(`${prefix}%`) },
-      relations: ['items', 'items.variant', 'items.variant.product'],
+      relations: ['items'],
     });
 
     if (!order || order.contactSnapshot.phone !== dto.phone) {
@@ -49,6 +49,11 @@ export class ClientOrdersService {
       id: order.id.slice(0, 8).toUpperCase(),
       status: mapStatus(order.status),
       createdAt: order.createdAt,
+      currency: order.currency,
+      subtotal: Number(order.subtotal),
+      shippingFee: Number(order.shippingFee),
+      discountAmount: Number(order.discountAmount),
+      couponCode: order.couponCode ?? null,
       total: Number(order.total),
       shippingAddress: {
         firstName,
@@ -57,17 +62,20 @@ export class ClientOrdersService {
         city: order.shippingSnapshot.city,
         postalCode: order.shippingSnapshot.postalCode ?? '',
         country: order.shippingSnapshot.country,
+        shippingMethodName: order.shippingSnapshot.shippingMethodName ?? null,
       },
       items: order.items.map((item) => {
         const unitCost =
           Number(item.unitPrice) + Number(item.shapeSurcharge) - Number(item.itemDiscount);
         return {
-          productName: item.variant?.product?.name ?? 'Product',
+          productName: item.productName ?? 'Product',
+          variantName: item.sku ?? null,
           sizeName: item.sizeLabel,
           shapeName: item.shapeName,
           quantity: item.quantity,
           price: unitCost,
           lineTotal: unitCost * item.quantity,
+          thumbnail: item.thumbnail ?? null,
         };
       }),
     };

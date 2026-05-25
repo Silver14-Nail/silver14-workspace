@@ -20,6 +20,11 @@ export default function ShippingInfo({ address }: { address: TrackedOrderAddress
         <br />
         {address.country}
       </p>
+      {address.shippingMethodName && (
+        <p className="text-[#9A9A9A] text-xs mt-2">
+          {t('shippingMethod')} {address.shippingMethodName}
+        </p>
+      )}
     </div>
   );
 }

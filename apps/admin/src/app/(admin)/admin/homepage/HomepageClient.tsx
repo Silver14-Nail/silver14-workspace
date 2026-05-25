@@ -251,30 +251,26 @@ export default function HomepageClient() {
   }
 
   function buildTranslations() {
-    const list = [];
-    if (enEyebrow || enTitle || enSubtitle || enCtaLabel || enSecondaryLabel) {
-      list.push({
+    return [
+      {
         locale: 'en',
-        eyebrow: enEyebrow || null,
-        title: enTitle || null,
-        subtitle: enSubtitle || null,
-        ctaLabel: enCtaLabel || null,
-        secondaryCtaLabel: enSecondaryLabel || null,
-        secondaryCtaUrl: enSecondaryUrl || null,
-      });
-    }
-    if (viEyebrow || viTitle || viSubtitle || viCtaLabel || viSecondaryLabel) {
-      list.push({
+        eyebrow: enEyebrow || '',
+        title: enTitle || '',
+        subtitle: enSubtitle || '',
+        ctaLabel: enCtaLabel || '',
+        secondaryCtaLabel: enSecondaryLabel || '',
+        secondaryCtaUrl: enSecondaryUrl || '',
+      },
+      {
         locale: 'vi',
-        eyebrow: viEyebrow || null,
-        title: viTitle || null,
-        subtitle: viSubtitle || null,
-        ctaLabel: viCtaLabel || null,
-        secondaryCtaLabel: viSecondaryLabel || null,
-        secondaryCtaUrl: viSecondaryUrl || null,
-      });
-    }
-    return list;
+        eyebrow: viEyebrow || '',
+        title: viTitle || '',
+        subtitle: viSubtitle || '',
+        ctaLabel: viCtaLabel || '',
+        secondaryCtaLabel: viSecondaryLabel || '',
+        secondaryCtaUrl: viSecondaryUrl || '',
+      },
+    ];
   }
 
   function handleSave() {
@@ -294,7 +290,7 @@ export default function HomepageClient() {
         overlayOpacity: parseFloat(overlayOpacity) || 0.35,
         desktopImageUrl: desktopImageUrl.trim() || null,
         mobileImageUrl: mobileImageUrl.trim() || null,
-        ...(translations.length > 0 ? { translations } : {}),
+        translations,
       };
 
       const result = await saveHomepageCampaignAction(campaign?.id ?? null, payload);

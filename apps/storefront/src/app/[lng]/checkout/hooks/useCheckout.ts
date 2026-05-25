@@ -233,12 +233,13 @@ export function useCheckout() {
         if (paymentIntent?.status === 'succeeded') {
           const capturedSessionId = sessionId;
           const capturedToken = getToken();
-          await clearCart();
           clearCheckoutSessionId();
           setSessionId(null);
           setStep('confirmation');
 
-          // Confirm directly with API — creates the order and returns orderId immediately
+          // Confirm directly with API — creates the order and returns orderId immediately.
+          // clearCart() must run AFTER confirmStripePayment so the cart items still exist
+          // in the DB when the API snapshots them into order_items.
           try {
             const result = await checkoutApi.confirmStripePayment(
               paymentIntent.id,
@@ -246,11 +247,13 @@ export function useCheckout() {
               capturedToken,
             );
             setCompletedOrderId(result.orderId);
+            await clearCart();
           } catch {
             // Fallback: poll in case order was already created by a webhook
             pollForOrder(capturedSessionId!, capturedToken).then((id) => {
               if (id) setCompletedOrderId(id);
             });
+            await clearCart();
           } finally {
             setOrderPollingDone(true);
           }
