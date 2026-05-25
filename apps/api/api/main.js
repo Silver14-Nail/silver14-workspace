@@ -78703,7 +78703,7 @@ let AppService = class AppService {
         return {
             name: 'nail-commerce-api',
             status: 'ok',
-            version: 'v0.0.2',
+            version: 'v0.0.4',
         };
     }
 };
@@ -238448,23 +238448,18 @@ let R2Service = R2Service_1 = class R2Service {
     constructor(config) {
         this.config = config;
         this.logger = new common_1.Logger(R2Service_1.name);
-        const accountId = this.config.getOrThrow('R2_ACCOUNT_ID');
-        const endpoint = this.config.get('R2_PRIVATE_URL') ?? `https://${accountId}.r2.cloudflarestorage.com`;
+        this.bucket = this.config.getOrThrow('R2_BUCKET_NAME');
+        this.publicUrl = this.config.getOrThrow('R2_PUBLIC_URL').replace(/\/$/, '');
         this.client = new client_s3_1.S3Client({
             region: 'auto',
-            endpoint,
-            forcePathStyle: true, // R2 requires path-style: endpoint/{bucket}/{key}
+            endpoint: this.publicUrl,
             credentials: {
                 accessKeyId: this.config.getOrThrow('R2_ACCESS_KEY_ID'),
                 secretAccessKey: this.config.getOrThrow('R2_SECRET_ACCESS_KEY'),
             },
-            // Disable automatic CRC32 checksums — browser fetch can't compute them,
-            // so presigned PUT URLs must not require them.
             requestChecksumCalculation: 'WHEN_REQUIRED',
             responseChecksumValidation: 'WHEN_REQUIRED',
         });
-        this.bucket = this.config.getOrThrow('R2_BUCKET_NAME');
-        this.publicUrl = this.config.getOrThrow('R2_PUBLIC_URL');
     }
     /**
      * Upload a buffer directly to R2.
@@ -238513,7 +238508,7 @@ let R2Service = R2Service_1 = class R2Service {
         const presignedUrl = await (0, s3_request_presigner_1.getSignedUrl)(this.client, command, { expiresIn });
         return {
             presignedUrl,
-            publicUrl: `${this.publicUrl}/${this.bucket}/${key}`,
+            publicUrl: `${this.publicUrl}/${key}`,
             key,
         };
     }

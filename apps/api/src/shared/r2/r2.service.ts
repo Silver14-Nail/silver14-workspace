@@ -12,26 +12,19 @@ export class R2Service {
   private readonly publicUrl: string;
 
   constructor(private readonly config: ConfigService) {
-    const accountId = this.config.getOrThrow<string>('R2_ACCOUNT_ID');
-    const endpoint =
-      this.config.get<string>('R2_PRIVATE_URL') ?? `https://${accountId}.r2.cloudflarestorage.com`;
+    this.bucket = this.config.getOrThrow<string>('R2_BUCKET_NAME');
+    this.publicUrl = this.config.getOrThrow<string>('R2_PUBLIC_URL').replace(/\/$/, '');
 
     this.client = new S3Client({
       region: 'auto',
-      endpoint,
-      forcePathStyle: true, // R2 requires path-style: endpoint/{bucket}/{key}
+      endpoint: this.publicUrl,
       credentials: {
         accessKeyId: this.config.getOrThrow<string>('R2_ACCESS_KEY_ID'),
         secretAccessKey: this.config.getOrThrow<string>('R2_SECRET_ACCESS_KEY'),
       },
-      // Disable automatic CRC32 checksums — browser fetch can't compute them,
-      // so presigned PUT URLs must not require them.
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',
     });
-
-    this.bucket = this.config.getOrThrow<string>('R2_BUCKET_NAME');
-    this.publicUrl = this.config.getOrThrow<string>('R2_PUBLIC_URL');
   }
 
   /**

@@ -6,7 +6,7 @@ export class AppService {
     return {
       name: 'nail-commerce-api',
       status: 'ok',
-      version: 'v0.0.3',
+      version: 'v0.0.4',
     } as const;
   }
 }
