@@ -216,9 +216,9 @@ export class ProductsService {
               shape,
               size,
               sku: null,
-              stockQty: 0,
+              stockQty: 999,
               computedPrice,
-              isAvailable: false,
+              isAvailable: true,
             }),
           );
         }),
@@ -359,7 +359,55 @@ export class ProductsService {
       isActive: dto.isActive ?? true,
     });
 
-    return this.nailShapeRepo.save(shape);
+    const saved = await this.nailShapeRepo.save(shape);
+
+    if (saved.isActive) {
+      await this.backfillVariantsForShape(saved);
+    }
+
+    return saved;
+  }
+
+  private async backfillVariantsForShape(shape: NailShapeEntity) {
+    const [products, sizes] = await Promise.all([
+      this.productRepo.find({ where: { type: ProductType.NAIL } }),
+      this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } }),
+    ]);
+    if (!products.length || !sizes.length) return;
+
+    const baseAdjustment =
+      shape.adjustmentType === PriceAdjustmentType.PERCENT
+        ? (p: ProductEntity) => Number(p.basePrice) * (Number(shape.priceAdjustment) / 100)
+        : () => Number(shape.priceAdjustment) || 0;
+
+    await this.productShapePricingRepo.save(
+      products.map((product) =>
+        this.productShapePricingRepo.create({
+          product,
+          shape,
+          priceOverride: null,
+          priceAdjustment: null,
+          adjustmentType: null,
+          isEnabled: true,
+        }),
+      ),
+    );
+
+    await this.productVariantRepo.save(
+      products.flatMap((product) =>
+        sizes.map((size) =>
+          this.productVariantRepo.create({
+            product,
+            shape,
+            size,
+            sku: null,
+            stockQty: 999,
+            computedPrice: Number(product.basePrice) + baseAdjustment(product),
+            isAvailable: true,
+          }),
+        ),
+      ),
+    );
   }
 
   async updateNailShape(id: string, dto: UpdateNailShapeDto) {
@@ -414,7 +462,37 @@ export class ProductsService {
       measurements: dto.measurements ?? null,
     });
 
-    return this.nailSizeRepo.save(size);
+    const saved = await this.nailSizeRepo.save(size);
+    await this.backfillVariantsForSize(saved);
+    return saved;
+  }
+
+  private async backfillVariantsForSize(size: NailSizeEntity) {
+    const [products, shapes] = await Promise.all([
+      this.productRepo.find({ where: { type: ProductType.NAIL } }),
+      this.nailShapeRepo.find({ where: { isActive: true }, order: { sortOrder: 'ASC' } }),
+    ]);
+    if (!products.length || !shapes.length) return;
+
+    await this.productVariantRepo.save(
+      products.flatMap((product) =>
+        shapes.map((shape) => {
+          const adjustment =
+            shape.adjustmentType === PriceAdjustmentType.PERCENT
+              ? Number(product.basePrice) * (Number(shape.priceAdjustment) / 100)
+              : Number(shape.priceAdjustment) || 0;
+          return this.productVariantRepo.create({
+            product,
+            shape,
+            size,
+            sku: null,
+            stockQty: 999,
+            computedPrice: Number(product.basePrice) + adjustment,
+            isAvailable: true,
+          });
+        }),
+      ),
+    );
   }
 
   async updateNailSize(id: string, dto: UpdateNailSizeDto) {
@@ -444,12 +522,6 @@ export class ProductsService {
   }
 
   // ─── Product Images ─────────────────────────────────────────────────────────
-
-  async getProductImagePresignedUrl(productId: string, contentType: string) {
-    const product = await this.productRepo.findOneBy({ id: productId });
-    if (!product) throw new NotFoundException(`Product #${productId} not found`);
-    return this.r2.getPresignedUploadUrl(contentType, 'products');
-  }
 
   async uploadProductImage(productId: string, file: UploadedFile) {
     const product = await this.productRepo.findOneBy({ id: productId });
