@@ -100,7 +100,7 @@ export class R2Service {
 
     return {
       presignedUrl,
-      publicUrl: `${this.publicUrl}/${this.bucket}/${key}`,
+      publicUrl: `${this.publicUrl}/${key}`,
       key,
     };
   }
