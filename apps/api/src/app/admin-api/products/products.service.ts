@@ -189,40 +189,44 @@ export class ProductsService {
         this.nailSizeRepo.find({ order: { sortOrder: 'ASC' } }),
       ]);
 
-      await this.productShapePricingRepo.save(
-        shapes.map((shape) =>
-          this.productShapePricingRepo.create({
-            product: saved,
-            shape,
-            priceOverride: null,
-            priceAdjustment: null,
-            adjustmentType: null,
-            isEnabled: true,
-          }),
-        ),
-      );
-
-      const basePrice = Number(saved.basePrice);
-      await this.productVariantRepo.save(
-        shapes.flatMap((shape) => {
-          const adjustment =
-            shape.adjustmentType === PriceAdjustmentType.PERCENT
-              ? basePrice * (Number(shape.priceAdjustment) / 100)
-              : Number(shape.priceAdjustment) || 0;
-          const computedPrice = basePrice + adjustment;
-          return sizes.map((size) =>
-            this.productVariantRepo.create({
+      if (shapes.length > 0) {
+        await this.productShapePricingRepo.insert(
+          shapes.map((shape) =>
+            this.productShapePricingRepo.create({
               product: saved,
               shape,
-              size,
-              sku: null,
-              stockQty: 999,
-              computedPrice,
-              isAvailable: true,
+              priceOverride: null,
+              priceAdjustment: null,
+              adjustmentType: null,
+              isEnabled: true,
             }),
-          );
-        }),
-      );
+          ),
+        );
+      }
+
+      const basePrice = Number(saved.basePrice);
+      if (shapes.length > 0 && sizes.length > 0) {
+        await this.productVariantRepo.insert(
+          shapes.flatMap((shape) => {
+            const adjustment =
+              shape.adjustmentType === PriceAdjustmentType.PERCENT
+                ? basePrice * (Number(shape.priceAdjustment) / 100)
+                : Number(shape.priceAdjustment) || 0;
+            const computedPrice = basePrice + adjustment;
+            return sizes.map((size) =>
+              this.productVariantRepo.create({
+                product: saved,
+                shape,
+                size,
+                sku: null,
+                stockQty: 999,
+                computedPrice,
+                isAvailable: true,
+              }),
+            );
+          }),
+        );
+      }
     } else {
       // Non-NAIL products get a single default variant
       await this.productVariantRepo.save(
@@ -380,7 +384,7 @@ export class ProductsService {
         ? (p: ProductEntity) => Number(p.basePrice) * (Number(shape.priceAdjustment) / 100)
         : () => Number(shape.priceAdjustment) || 0;
 
-    await this.productShapePricingRepo.save(
+    await this.productShapePricingRepo.insert(
       products.map((product) =>
         this.productShapePricingRepo.create({
           product,
@@ -393,21 +397,23 @@ export class ProductsService {
       ),
     );
 
-    await this.productVariantRepo.save(
-      products.flatMap((product) =>
-        sizes.map((size) =>
-          this.productVariantRepo.create({
-            product,
-            shape,
-            size,
-            sku: null,
-            stockQty: 999,
-            computedPrice: Number(product.basePrice) + baseAdjustment(product),
-            isAvailable: true,
-          }),
+    if (sizes.length > 0) {
+      await this.productVariantRepo.insert(
+        products.flatMap((product) =>
+          sizes.map((size) =>
+            this.productVariantRepo.create({
+              product,
+              shape,
+              size,
+              sku: null,
+              stockQty: 999,
+              computedPrice: Number(product.basePrice) + baseAdjustment(product),
+              isAvailable: true,
+            }),
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   async updateNailShape(id: string, dto: UpdateNailShapeDto) {
@@ -474,7 +480,7 @@ export class ProductsService {
     ]);
     if (!products.length || !shapes.length) return;
 
-    await this.productVariantRepo.save(
+    await this.productVariantRepo.insert(
       products.flatMap((product) =>
         shapes.map((shape) => {
           const adjustment =
