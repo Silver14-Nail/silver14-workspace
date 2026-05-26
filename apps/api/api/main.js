@@ -275699,7 +275699,7 @@ let MarketingCampaignsService = class MarketingCampaignsService {
         return this.getCampaign(id);
     }
     // ─── Client-facing ────────────────────────────────────────────────────────────
-    async getActiveCampaignByPlacement(placement, locale) {
+    async getActiveCampaignByPlacement(placement) {
         const now = new Date();
         const campaign = await this.campaignRepo
             .createQueryBuilder('c')
