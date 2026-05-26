@@ -231,7 +231,7 @@ export default function ProductTranslationsTab({ productId }: Props) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs text-[#6B7280]">
           {t('translations.progress', { done: translations.length, total: LOCALES.length })}

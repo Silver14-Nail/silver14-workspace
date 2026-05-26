@@ -59,7 +59,7 @@ export default function AdminNewsletterPage() {
   const growthRate = '+12%';
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -72,7 +72,7 @@ export default function AdminNewsletterPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           {
             label: 'Total Subscribers',

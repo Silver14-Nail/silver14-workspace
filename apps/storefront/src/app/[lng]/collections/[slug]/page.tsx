@@ -51,7 +51,7 @@ export default async function CollectionPage({ params, searchParams }: Collectio
           <img
             src={collection.bannerImage}
             alt={collection.name}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-black/30 flex items-end p-8">
             <h1 className="text-3xl font-light tracking-wide text-white">{collection.name}</h1>
@@ -109,15 +109,15 @@ export default async function CollectionPage({ params, searchParams }: Collectio
                 href={`/products/${product.slug || product.id}`}
                 className="group block"
               >
-                <div className="aspect-square overflow-hidden bg-[#F8F8F8] relative">
+                <div className="relative aspect-square overflow-hidden bg-white">
                   {product.thumbnail?.url ? (
                     <img
                       src={product.thumbnail.url}
                       alt={product.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center">
                       <Package className="size-8 text-[#D1D5DB]" />
                     </div>
                   )}

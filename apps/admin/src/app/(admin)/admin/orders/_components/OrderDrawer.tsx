@@ -263,9 +263,9 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-stretch justify-center sm:justify-end">
       <div className="fixed inset-0 bg-black/30" onClick={() => onClose()} />
-      <div className="relative w-full max-w-xl bg-white h-full shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full sm:max-w-xl bg-white h-[90vh] sm:h-full shadow-2xl flex flex-col overflow-hidden rounded-t-2xl sm:rounded-none">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] flex-shrink-0">
           <div>

@@ -49,8 +49,17 @@ export function useCheckout() {
   const queryClient = useQueryClient();
   const { cartId, items, subtotal: cartSubtotal, clearCart } = useCart();
   const selectedCurrency = useAppSelector((s) => s.currency.code);
+  const { user } = useAppSelector((s) => s.auth);
 
-  const [sessionId, setSessionId] = useState<string | null>(getCheckoutSessionId);
+  // Only restore a previous session for logged-in users.
+  // Guests always start fresh — avoids the jarring step-jump that occurs when
+  // a stored guest session loads asynchronously after the user has already
+  // started typing into the empty form.
+  const [sessionId, setSessionId] = useState<string | null>(() => {
+    if (getToken()) return getCheckoutSessionId();
+    clearCheckoutSessionId();
+    return null;
+  });
   const [step, setStep] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>('contact');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,6 +130,18 @@ export function useCheckout() {
       setSelectedMethodId(shippingMethods[0].id);
     }
   }, [shippingMethods, selectedMethodId]);
+
+  // For logged-in users: pre-fill contact from their profile before the session
+  // even loads. This ensures the form is not blank on first checkout and avoids
+  // the user having to re-enter their email/name every time.
+  useEffect(() => {
+    if (!user) return;
+    setContactDefaults((prev) => {
+      // Don't overwrite if already populated (e.g. by a session restore below)
+      if (prev.email) return prev;
+      return { email: user.email, fullName: user.name, phone: '' };
+    });
+  }, [user]);
 
   // Restore step + form defaults from a resumed session
   useEffect(() => {

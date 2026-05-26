@@ -303,7 +303,7 @@ export function CouponDetailDrawer({
               <Loader2 className="w-6 h-6 animate-spin text-[#9CA3AF]" />
             </div>
           ) : error ? (
-            <div className="p-6 text-sm text-red-600">{error}</div>
+            <div className="p-4 sm:p-6 text-sm text-red-600">{error}</div>
           ) : coupon ? (
             <>
               {activeTab === 'info' && <InfoTab coupon={coupon} />}
@@ -432,7 +432,7 @@ function InfoTab({ coupon }: { coupon: CouponDetail }) {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <dl className="space-y-3">
         {rows.map(({ label, value }) => (
           <div key={label} className="flex items-start justify-between gap-4">
@@ -484,7 +484,7 @@ function RestrictionsTab({
   const needsRef = ['product', 'shape', 'category', 'min_qty'].includes(restrictionType);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[#374151]">
           {t('detail.restrictions', { count: coupon.restrictions.length })}
@@ -624,7 +624,7 @@ function WhitelistTab({
   const { t } = useTranslation('coupons');
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-[#374151]">
           {t('detail.whitelistedUsers', { count: coupon.whitelist.length })}
@@ -730,7 +730,7 @@ function UsagesTab({
   }
 
   return (
-    <div className="p-6 space-y-3">
+    <div className="p-4 sm:p-6 space-y-3">
       <p className="text-xs font-semibold text-[#374151]">
         {t('detail.usageHistory', { count: data.pagination.totalItems })}
       </p>

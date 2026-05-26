@@ -201,7 +201,7 @@ export function WholesalesClient({
   // ─── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-[#111827]">Wholesale Management</h1>
@@ -214,7 +214,7 @@ export function WholesalesClient({
 
       {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-4 gap-4 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
           {[
             { label: 'Total Accounts', value: stats.totalAccounts },
             { label: 'Active Accounts', value: stats.activeAccounts },
@@ -406,8 +406,8 @@ function AccountsTab({
         <EmptyState icon={Building2} text="No wholesale accounts found" />
       ) : (
         <>
-          <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden mb-4">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden overflow-x-auto mb-4">
+            <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
                   <th className="text-left px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">
@@ -516,8 +516,8 @@ function EnquiriesTab({
         <EmptyState icon={Users} text="No enquiries found" />
       ) : (
         <>
-          <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden mb-4">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden overflow-x-auto mb-4">
+            <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
                   <th className="text-left px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">
@@ -702,8 +702,8 @@ function NewsletterTab({
         <EmptyState icon={Mail} text="No newsletter subscribers found" />
       ) : (
         <>
-          <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden mb-4">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden overflow-x-auto mb-4">
+            <table className="w-full min-w-[480px] text-sm">
               <thead>
                 <tr className="border-b border-[#E5E7EB] bg-[#F9FAFB]">
                   <th className="text-left px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">

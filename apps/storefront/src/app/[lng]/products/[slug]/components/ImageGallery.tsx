@@ -33,24 +33,32 @@ export const ImageGallery = memo(function ImageGallery({
 
   return (
     <div className="flex flex-col-reverse sm:flex-row gap-3 md:gap-4 items-start select-none">
+      {/* Thumbnail strip */}
       <div
-        className="flex justify-center sm:justify-start sm:flex-col gap-2 overflow-x-auto sm:overflow-y-auto no-scrollbar w-full sm:w-20 md:w-24"
+        className="flex sm:flex-col justify-start gap-2 overflow-x-auto sm:overflow-y-auto no-scrollbar w-full sm:w-20 md:w-24 flex-shrink-0"
         role="list"
       >
         {images.map((img, idx) => (
           <button
             key={idx}
             onClick={() => onSelect(idx)}
-            className={`flex-shrink-0 size-16 sm:size-20 md:size-24 overflow-hidden border transition-all duration-200 ${
+            className={`relative flex-shrink-0 size-16 sm:size-20 md:size-24 overflow-hidden border transition-all duration-200 ${
               selectedIndex === idx ? 'border-[#1A1A1A]' : 'border-[#E8E8E8]'
             }`}
           >
-            <ImageWithFallback src={img} alt="" className="w-full h-full object-cover" />
+            <ImageWithFallback
+              src={img}
+              alt=""
+              fill
+              sizes="96px"
+              className="object-cover object-center"
+            />
           </button>
         ))}
       </div>
 
-      <div className="flex-1 aspect-square bg-[#F8F8F8] relative touch-pan-y w-full overflow-hidden">
+      {/* Main image */}
+      <div className="w-full sm:flex-1 sm:min-w-0 relative touch-pan-y bg-[#F8F8F8]" style={{ aspectRatio: '1 / 1' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={selectedIndex}
@@ -61,12 +69,14 @@ export const ImageGallery = memo(function ImageGallery({
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={handleDragEnd}
-            className="w-full h-full cursor-grab active:cursor-grabbing flex flex-col items-start justify-start"
+            className="absolute inset-0 cursor-grab active:cursor-grabbing"
           >
             <ImageWithFallback
               src={images[selectedIndex]}
               alt={productName}
-              className="w-full h-full object-cover object-top"
+              fill
+              sizes="(max-width: 640px) 100vw, 60vw"
+              className="object-cover object-center"
             />
           </motion.div>
         </AnimatePresence>

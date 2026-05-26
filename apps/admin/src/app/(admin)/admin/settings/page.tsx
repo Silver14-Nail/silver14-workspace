@@ -92,7 +92,7 @@ export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('store');
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Settings</h1>
@@ -100,18 +100,18 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      <div className="flex gap-5">
+      <div className="flex flex-col sm:flex-row gap-5">
         {/* Sidebar nav */}
-        <div className="w-48 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-[#E5E7EB] p-2 space-y-0.5">
+        <div className="w-full sm:w-48 sm:flex-shrink-0">
+          <div className="bg-white rounded-xl border border-[#E5E7EB] p-2 flex sm:flex-col gap-0.5 overflow-x-auto sm:overflow-x-visible no-scrollbar">
             {settingsTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-left transition-colors ${activeTab === tab.id ? 'bg-[#111827] text-white' : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]'}`}
+                className={`flex-shrink-0 flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium text-left transition-colors ${activeTab === tab.id ? 'bg-[#111827] text-white' : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#111827]'}`}
               >
                 <tab.icon className="w-4 h-4 flex-shrink-0" />
-                {tab.label}
+                <span className="sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -121,7 +121,7 @@ export default function AdminSettingsPage() {
         <div className="flex-1 bg-white rounded-xl border border-[#E5E7EB]">
           {/* Store Settings */}
           {activeTab === 'store' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Store Settings</h2>
               <div className="space-y-0">
                 <SettingRow label="Store Name" description="Your brand name shown to customers">
@@ -175,7 +175,7 @@ export default function AdminSettingsPage() {
 
           {/* Payment Settings */}
           {activeTab === 'payment' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Payment Settings</h2>
               <div className="space-y-6">
                 {/* Stripe */}
@@ -251,7 +251,7 @@ export default function AdminSettingsPage() {
 
           {/* Shipping Settings */}
           {activeTab === 'shipping' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Shipping Settings</h2>
               <div className="space-y-0">
                 <SettingRow
@@ -314,7 +314,7 @@ export default function AdminSettingsPage() {
 
           {/* Tax Settings */}
           {activeTab === 'tax' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Tax Settings</h2>
               <div className="space-y-0">
                 <SettingRow label="Prices Include VAT" description="Show prices inclusive of VAT">
@@ -395,7 +395,7 @@ export default function AdminSettingsPage() {
 
           {/* Currency */}
           {activeTab === 'currency' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Currency Settings</h2>
               <div className="space-y-0">
                 <SettingRow label="Base Currency" description="Your store's primary currency">
@@ -437,7 +437,7 @@ export default function AdminSettingsPage() {
 
           {/* Notifications */}
           {activeTab === 'notifications' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Notification Settings</h2>
               <div className="space-y-0">
                 {[
@@ -476,7 +476,7 @@ export default function AdminSettingsPage() {
 
           {/* Auth Providers */}
           {activeTab === 'auth' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Auth Providers</h2>
               <div className="space-y-3">
                 {[
@@ -507,7 +507,7 @@ export default function AdminSettingsPage() {
 
           {/* Email Templates */}
           {activeTab === 'email' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Email Templates</h2>
               <div className="space-y-2">
                 {[
@@ -544,7 +544,7 @@ export default function AdminSettingsPage() {
           )}
           {/* Version */}
           {activeTab === 'version' && (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <h2 className="text-sm font-semibold text-[#111827] mb-5">Version</h2>
               <div className="flex flex-col items-center justify-center py-12 gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-[#111827] flex items-center justify-center">

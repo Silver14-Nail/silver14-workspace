@@ -123,7 +123,7 @@ export default function ProductEditDrawer({
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-[600px] z-50 flex flex-col shadow-2xl bg-white">
+      <div className="fixed bottom-0 right-0 sm:top-0 w-full sm:w-[600px] h-[90vh] sm:h-full z-50 flex flex-col shadow-2xl bg-white rounded-t-2xl sm:rounded-none overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] shrink-0">
           <div className="min-w-0 pr-4">
@@ -139,7 +139,7 @@ export default function ProductEditDrawer({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-[#E5E7EB] px-6 shrink-0">
+        <div className="flex border-b border-[#E5E7EB] px-6 shrink-0 overflow-x-auto no-scrollbar">
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -167,7 +167,7 @@ export default function ProductEditDrawer({
         ) : (
           <div className="flex-1 overflow-hidden flex flex-col">
             {tab === 'info' && (
-              <div className="flex-1 overflow-y-auto p-6 space-y-5">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
                 {saveError && (
                   <div className="px-3 py-2.5 rounded-lg bg-red-50 text-xs text-red-600 border border-red-100">
                     {saveError}

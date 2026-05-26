@@ -261,7 +261,7 @@ export default function SupplyFormDrawer({
     <>
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
       <div
-        className={`fixed right-0 top-0 h-full w-full max-w-md z-50 flex flex-col shadow-2xl ${
+        className={`fixed bottom-0 right-0 sm:top-0 w-full sm:max-w-md h-[90vh] sm:h-full z-50 flex flex-col shadow-2xl rounded-t-2xl sm:rounded-none overflow-hidden ${
           isDark ? 'bg-gray-900' : 'bg-white'
         }`}
       >
@@ -351,7 +351,7 @@ export default function SupplyFormDrawer({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>{t('form.basePrice')} *</label>
                 <div className="relative">
@@ -397,7 +397,7 @@ export default function SupplyFormDrawer({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>{t('form.sku')}</label>
                 {detailLoading ? (

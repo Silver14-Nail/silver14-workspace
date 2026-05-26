@@ -307,7 +307,7 @@ export default function ProductEditVariantsTab({
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-5">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xs font-semibold text-[#374151] uppercase tracking-wider">
           {t('variants.title', { count: variants.length })}

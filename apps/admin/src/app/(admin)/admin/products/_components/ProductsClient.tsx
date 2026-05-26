@@ -48,8 +48,8 @@ export function ProductsClient({
   };
 
   return (
-    <div className="p-6">
-      <div className="flex gap-1 mb-6 border-b border-[#E5E7EB]">
+    <div className="p-4 sm:p-6">
+      <div className="flex gap-1 mb-6 border-b border-[#E5E7EB] overflow-x-auto no-scrollbar">
         {TABS.map((t) => (
           <button
             key={t.key}

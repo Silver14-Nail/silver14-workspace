@@ -68,9 +68,9 @@ export function AccountDrawer({ account, tiers, onClose, onUpdated }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-stretch justify-center sm:justify-end">
       <div className="fixed inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full sm:max-w-lg bg-white h-[90vh] sm:h-full shadow-2xl flex flex-col overflow-hidden rounded-t-2xl sm:rounded-none">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
           <h2 className="text-sm font-semibold text-[#111827]">Wholesale Account</h2>
@@ -91,7 +91,7 @@ export function AccountDrawer({ account, tiers, onClose, onUpdated }: Props) {
                 <p className="text-xs text-[#9CA3AF]">{account.user?.email}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-[#6B7280] mb-1">Business Name</label>
                 <input

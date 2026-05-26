@@ -88,7 +88,7 @@ export function HomePageClient({
   return (
     <>
       {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative h-[85vh] min-h-[560px] flex items-center justify-center overflow-hidden">
         <ImageWithFallback
           src={desktopSrc}
           alt="Silver14 Nail Hero"
@@ -119,7 +119,7 @@ export function HomePageClient({
             className="text-white mb-6"
             style={{
               fontWeight: 300,
-              fontSize: 'clamp(3.5rem, 9vw, 6.5rem)',
+              fontSize: 'clamp(2.5rem, 7vw, 5.5rem)',
               lineHeight: 1,
               letterSpacing: '-0.02em',
             }}
@@ -128,33 +128,33 @@ export function HomePageClient({
           </h1>
 
           {heroSubtitle ? (
-            <div className="mb-10">
-              <p className="text-white/85 text-[15px] md:text-[18px] leading-relaxed max-w-[640px] mx-auto">
+            <div className="mb-8">
+              <p className="text-white/85 text-[14px] md:text-[16px] leading-relaxed max-w-[560px] mx-auto">
                 {heroSubtitle}
               </p>
             </div>
           ) : (
-            <div className="space-y-5 mb-10">
-              <p className="text-white font-semibold text-[18px] md:text-[22px] leading-snug">
+            <div className="space-y-3 mb-8">
+              <p className="text-white font-semibold text-[15px] md:text-[18px] leading-snug">
                 {strings.heroDescLine1}
               </p>
-              <p className="text-white/85 text-[15px] md:text-[18px] leading-relaxed max-w-[640px] mx-auto">
+              <p className="text-white/85 text-[13px] md:text-[15px] leading-relaxed max-w-[560px] mx-auto">
                 {strings.heroDescLine2}
               </p>
             </div>
           )}
 
-          <div className="flex flex-col gap-4 w-full max-w-[520px] mx-auto">
+          <div className="flex flex-col gap-3 w-full max-w-[420px] mx-auto">
             <LinkBase
               href={ctaUrl}
-              className="h-[64px] bg-white text-black uppercase tracking-[0.25em] text-[13px] flex items-center justify-center gap-3 transition-all duration-300 hover:bg-neutral-100"
+              className="h-[52px] bg-white text-black uppercase tracking-[0.25em] text-[12px] flex items-center justify-center gap-3 transition-all duration-300 hover:bg-neutral-100"
             >
               {ctaLabel}
               <ArrowRight className="size-4" />
             </LinkBase>
             <LinkBase
               href={secondaryUrl}
-              className="h-[64px] border border-white/70 text-white uppercase tracking-[0.25em] text-[13px] flex items-center justify-center transition-all duration-300 hover:bg-white/10"
+              className="h-[52px] border border-white/70 text-white uppercase tracking-[0.25em] text-[12px] flex items-center justify-center transition-all duration-300 hover:bg-white/10"
             >
               {secondaryLabel}
             </LinkBase>

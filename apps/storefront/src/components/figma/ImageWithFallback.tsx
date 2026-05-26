@@ -8,6 +8,9 @@ const ERROR_IMG_SRC =
 
 interface Props extends Omit<ImageProps, 'onError'> {
   fallbackSrc?: string;
+  // Render at natural image ratio (w-full, h-auto). Parent must NOT have a
+  // fixed height — the image drives the container height itself.
+  naturalSize?: boolean;
 }
 
 export function ImageWithFallback({
@@ -19,6 +22,7 @@ export function ImageWithFallback({
   width,
   height,
   fill,
+  naturalSize,
   ...rest
 }: Props) {
   const validSrc = (s: typeof src) => (s && String(s).trim() !== '' ? s : fallbackSrc);
@@ -30,12 +34,33 @@ export function ImageWithFallback({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
+  const onError = () => setImgSrc(fallbackSrc);
+
+  // Natural-size mode: width=0/height=0 + sizes is the official Next.js pattern
+  // for displaying images at their intrinsic aspect ratio responsively.
+  if (naturalSize) {
+    return (
+      <Image
+        src={imgSrc}
+        alt={alt || 'Product image'}
+        className={className}
+        quality={quality}
+        width={0}
+        height={0}
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        style={{ width: '100%', height: 'auto', display: 'block' }}
+        onError={onError}
+        {...rest}
+      />
+    );
+  }
+
   const imageProps = {
     src: imgSrc,
     alt: alt || 'Product image',
     className,
     quality,
-    onError: () => setImgSrc(fallbackSrc),
+    onError,
     ...rest,
   };
 

@@ -105,7 +105,7 @@ export function CampaignsClient({
   const { items: campaigns, pagination } = initialCampaigns;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -161,11 +161,11 @@ export function CampaignsClient({
 
       {/* Table */}
       <div
-        className={`rounded-xl border overflow-hidden ${
+        className={`rounded-xl border overflow-hidden overflow-x-auto ${
           isDark ? 'border-gray-800 bg-gray-900' : 'border-[#E5E7EB] bg-white'
         }`}
       >
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
               {[t('table.campaign'), t('table.placement'), t('table.type'), t('table.priority'), t('table.status'), t('table.schedule'), ''].map((h) => (

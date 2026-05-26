@@ -55,11 +55,13 @@ export function SuppliesGrid({ supplies, loading, t }: Props) {
               transition={{ duration: 0.3 }}
             >
               <LinkBase href={`/supplies/${slug}`} className="group block">
-                <div className="relative aspect-square bg-[#F8F8F8] mb-3 overflow-hidden">
+                <div className="relative aspect-square overflow-hidden bg-white mb-3">
                   <ImageWithFallback
                     src={thumbnailUrl ?? ''}
                     alt={supply.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                   {supply.isOnSale && (
                     <div className="absolute top-2 left-2 bg-[#1A1A1A] text-white text-xs px-2 py-0.5">

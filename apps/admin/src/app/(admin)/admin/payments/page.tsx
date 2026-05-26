@@ -235,7 +235,7 @@ export default function AdminPaymentsPage() {
   const failedCount = mockPayments.filter((p) => p.status === 'failed').length;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Payments</h1>
@@ -244,7 +244,7 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
         {[
           {
             label: 'Total Collected',

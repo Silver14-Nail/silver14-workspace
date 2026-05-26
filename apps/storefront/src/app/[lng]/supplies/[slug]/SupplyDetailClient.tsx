@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { ShoppingBag, Minus, Plus, ArrowLeft, Truck, Package, RotateCcw } from 'lucide-react';
+import { ShoppingBag, Minus, Plus, ArrowLeft, Truck, Package } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { useCurrency } from '@/hooks/useCurrency';
 import { LinkBase } from '@/components/shared/LinkBase';
@@ -186,11 +186,6 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
                   Icon: Package,
                   titleKey: 'detail.packaging.title',
                   subtitleKey: 'detail.packaging.subtitle',
-                },
-                {
-                  Icon: RotateCcw,
-                  titleKey: 'detail.returns.title',
-                  subtitleKey: 'detail.returns.subtitle',
                 },
               ].map(({ Icon, titleKey, subtitleKey }) => (
                 <div key={titleKey} className="flex items-start gap-3">
