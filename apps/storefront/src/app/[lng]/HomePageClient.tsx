@@ -20,6 +20,7 @@ interface HomeStrings {
   bestSellersEyebrow: string;
   bestSellersTitle: string;
   viewAll: string;
+  comingSoon: string;
   ctaTitle: string;
   ctaDescription: string;
   ctaButton: string;
@@ -47,19 +48,6 @@ function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
   );
 }
 
-function ProductSectionSkeleton() {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="animate-pulse">
-          <div className="bg-[#F0F0F0] aspect-[3/4] mb-4" />
-          <div className="h-4 bg-[#F0F0F0] rounded w-3/4 mb-2" />
-          <div className="h-3 bg-[#F0F0F0] rounded w-1/4" />
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export function HomePageClient({
   heroCampaign,
@@ -170,14 +158,14 @@ export function HomePageClient({
             {strings.viewAll}
           </LinkBase>
         </div>
-        {newArrivals.length === 0 ? (
-          <ProductSectionSkeleton />
-        ) : (
+        {newArrivals.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {newArrivals.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
+        ) : (
+          <p className="text-[#9A9A9A] text-sm">{strings.comingSoon}</p>
         )}
       </section>
 
@@ -189,14 +177,14 @@ export function HomePageClient({
             {strings.viewAll}
           </LinkBase>
         </div>
-        {bestSellers.length === 0 ? (
-          <ProductSectionSkeleton />
-        ) : (
+        {bestSellers.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {bestSellers.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
+        ) : (
+          <p className="text-[#9A9A9A] text-sm">{strings.comingSoon}</p>
         )}
       </section>
 

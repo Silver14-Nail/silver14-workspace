@@ -66,7 +66,9 @@ export default function SupplyFormDrawer({
   const [images, setImages] = useState<ApiProductImage[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   const [imagesError, setImagesError] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Variants tab state ────────────────────────────────────────────────────
@@ -196,19 +198,22 @@ export default function SupplyFormDrawer({
   }
 
   // ── Image actions ─────────────────────────────────────────────────────────
-  async function handleImageUpload(file: File) {
-    if (!supply?.id) return;
-    setUploadingImage(true);
+  async function handleImageUpload(files: FileList) {
+    if (!supply?.id || files.length === 0) return;
     setImagesError('');
-    const fd = new FormData();
-    fd.append('file', file);
-    const result = await uploadSupplyImageAction(supply.id, fd);
-    if (!result.success) {
-      setImagesError((result as { error: string }).error);
-    } else {
+    const total = files.length;
+    for (let i = 0; i < total; i++) {
+      setUploadProgress({ current: i + 1, total });
+      const fd = new FormData();
+      fd.append('file', files[i]);
+      const result = await uploadSupplyImageAction(supply.id, fd);
+      if (!result.success) {
+        setImagesError((result as { error: string }).error);
+        break;
+      }
       await loadImages();
     }
-    setUploadingImage(false);
+    setUploadProgress(null);
   }
 
   function handleDeleteImage(image: ApiProductImage) {
@@ -287,11 +292,13 @@ export default function SupplyFormDrawer({
         {/* Tabs (only in edit mode) */}
         {isEdit && (
           <div className={`flex border-b ${isDark ? 'border-gray-800' : 'border-[#E5E7EB]'}`}>
-            {([
-              { key: 'details', label: t('form.editTitle').split(' ')[0], badge: null },
-              { key: 'images', label: 'Images', badge: images.length || null },
-              { key: 'variants', label: t('variants.tab'), badge: variants.length || null },
-            ] as { key: Tab; label: string; badge: number | null }[]).map(({ key, label, badge }) => (
+            {(
+              [
+                { key: 'details', label: t('form.editTitle').split(' ')[0], badge: null },
+                { key: 'images', label: 'Images', badge: images.length || null },
+                { key: 'variants', label: t('variants.tab'), badge: variants.length || null },
+              ] as { key: Tab; label: string; badge: number | null }[]
+            ).map(({ key, label, badge }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
@@ -490,28 +497,32 @@ export default function SupplyFormDrawer({
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleImageUpload(f);
+                  if (e.target.files && e.target.files.length > 0) {
+                    handleImageUpload(e.target.files);
+                  }
                   e.target.value = '';
                 }}
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingImage}
+                disabled={uploadProgress !== null}
                 className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed text-sm font-medium transition-colors disabled:opacity-50 ${
                   isDark
                     ? 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-300'
                     : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#9CA3AF] hover:text-[#374151]'
                 }`}
               >
-                {uploadingImage ? (
+                {uploadProgress !== null ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Upload className="w-4 h-4" />
                 )}
-                {uploadingImage ? 'Uploading…' : 'Upload Image'}
+                {uploadProgress !== null
+                  ? `Uploading ${uploadProgress.current}/${uploadProgress.total}…`
+                  : 'Upload Images'}
               </button>
             </div>
 
@@ -526,7 +537,9 @@ export default function SupplyFormDrawer({
                   isDark ? 'border-gray-700' : 'border-[#E5E7EB]'
                 }`}
               >
-                <ImageIcon className={`w-8 h-8 mb-3 ${isDark ? 'text-gray-600' : 'text-[#D1D5DB]'}`} />
+                <ImageIcon
+                  className={`w-8 h-8 mb-3 ${isDark ? 'text-gray-600' : 'text-[#D1D5DB]'}`}
+                />
                 <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
                   No images yet
                 </p>
@@ -590,11 +603,16 @@ export default function SupplyFormDrawer({
           <div className="flex-1 overflow-y-auto p-5">
             {/* Header row */}
             <div className="flex items-center justify-between mb-4">
-              <p className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}>
+              <p
+                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-[#6B7280]'}`}
+              >
                 {t('variants.title_other', { count: variants.length })}
               </p>
               <button
-                onClick={() => { setEditingVariant(null); setShowVariantForm(true); }}
+                onClick={() => {
+                  setEditingVariant(null);
+                  setShowVariantForm(true);
+                }}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -614,14 +632,19 @@ export default function SupplyFormDrawer({
                   {t('variants.empty')}
                 </p>
                 <button
-                  onClick={() => { setEditingVariant(null); setShowVariantForm(true); }}
+                  onClick={() => {
+                    setEditingVariant(null);
+                    setShowVariantForm(true);
+                  }}
                   className="px-4 py-2 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] transition-colors"
                 >
                   {t('variants.addFirst')}
                 </button>
               </div>
             ) : (
-              <div className={`rounded-xl border overflow-hidden ${isDark ? 'border-gray-700' : 'border-[#E5E7EB]'}`}>
+              <div
+                className={`rounded-xl border overflow-hidden ${isDark ? 'border-gray-700' : 'border-[#E5E7EB]'}`}
+              >
                 <table className="w-full text-xs">
                   <thead>
                     <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
@@ -660,7 +683,9 @@ export default function SupplyFormDrawer({
                                   style={{ backgroundColor: v.colorHex }}
                                 />
                               )}
-                              <span className={`font-medium ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                              <span
+                                className={`font-medium ${isDark ? 'text-white' : 'text-[#111827]'}`}
+                              >
                                 {v.colorName}
                               </span>
                             </div>
@@ -671,7 +696,9 @@ export default function SupplyFormDrawer({
                         {/* SKU */}
                         <td className="px-3 py-2.5">
                           {v.sku ? (
-                            <span className={`font-mono ${isDark ? 'text-gray-300' : 'text-[#374151]'}`}>
+                            <span
+                              className={`font-mono ${isDark ? 'text-gray-300' : 'text-[#374151]'}`}
+                            >
                               {v.sku}
                             </span>
                           ) : (
@@ -680,7 +707,9 @@ export default function SupplyFormDrawer({
                         </td>
                         {/* Price */}
                         <td className="px-3 py-2.5 text-right">
-                          <span className={`font-medium ${isDark ? 'text-white' : 'text-[#111827]'}`}>
+                          <span
+                            className={`font-medium ${isDark ? 'text-white' : 'text-[#111827]'}`}
+                          >
                             ${Number(v.computedPrice).toFixed(2)}
                           </span>
                         </td>
@@ -719,7 +748,10 @@ export default function SupplyFormDrawer({
                         <td className="px-3 py-2.5 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <button
-                              onClick={() => { setEditingVariant(v); setShowVariantForm(true); }}
+                              onClick={() => {
+                                setEditingVariant(v);
+                                setShowVariantForm(true);
+                              }}
                               className={`p-1.5 rounded-lg transition-colors ${
                                 isDark
                                   ? 'text-gray-400 hover:bg-gray-700 hover:text-white'
@@ -782,7 +814,10 @@ export default function SupplyFormDrawer({
         <SupplyVariantFormDrawer
           supplyId={supply.id}
           variant={editingVariant ?? undefined}
-          onClose={() => { setShowVariantForm(false); setEditingVariant(null); }}
+          onClose={() => {
+            setShowVariantForm(false);
+            setEditingVariant(null);
+          }}
           onSuccess={async () => {
             setShowVariantForm(false);
             setEditingVariant(null);

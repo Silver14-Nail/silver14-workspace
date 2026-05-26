@@ -38,7 +38,7 @@ export class CollectionsService {
     const qb = this.collectionRepo
       .createQueryBuilder('c')
       .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) =>
-        pb.where('p.deleted_at IS NULL AND p.is_active = true'),
+        pb.andWhere('p.isActive = :pActive', { pActive: true }),
       )
       .skip(skip)
       .take(limit)

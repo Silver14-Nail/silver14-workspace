@@ -55,6 +55,12 @@ export function useCheckout() {
   // Guests always start fresh — avoids the jarring step-jump that occurs when
   // a stored guest session loads asynchronously after the user has already
   // started typing into the empty form.
+  //
+  // wasStoredSession: true only when we started with an existing session in storage.
+  // Used to gate the loading skeleton — a brand-new session creation must NOT
+  // show the skeleton (user is already filling the form while the session
+  // is created silently in the background).
+  const [wasStoredSession] = useState(() => !!getToken() && !!getCheckoutSessionId());
   const [sessionId, setSessionId] = useState<string | null>(() => {
     if (getToken()) return getCheckoutSessionId();
     clearCheckoutSessionId();
@@ -86,9 +92,10 @@ export function useCheckout() {
     retry: false,
   });
 
-  // True while we have a stored sessionId but haven't received the session data yet.
-  // Prevents rendering an empty contact form before the restored session (and its step) arrives.
-  const isSessionLoading = !!sessionId && isSessionPending;
+  // True only while RESTORING an existing session (not while creating a new one).
+  // A new-session creation happens silently in the background — we must not hide the
+  // form while it runs, or the user loses everything they've already typed.
+  const isSessionLoading = wasStoredSession && !!sessionId && isSessionPending;
 
   const { data: shippingMethods = [] } = useQuery<ShippingMethod[]>({
     queryKey: ['shipping-methods'],
@@ -98,8 +105,11 @@ export function useCheckout() {
 
   // ── Session lifecycle ─────────────────────────────────────────────────────
 
-  const initSession = useCallback(async () => {
-    if (sessionId || !cartId) return;
+  // Creates a new checkout session if one doesn't exist yet.
+  // Returns the session id on success, null on failure.
+  const ensureSession = useCallback(async (): Promise<string | null> => {
+    if (sessionId) return sessionId;
+    if (!cartId) return null;
     try {
       const s = await checkoutApi.createSession(cartId, getToken(), selectedCurrency);
       setCheckoutSessionId(s.id);
@@ -115,14 +125,20 @@ export function useCheckout() {
         }
         clearPendingCoupon();
       }
+      return s.id;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to start checkout');
+      return null;
     }
   }, [cartId, sessionId, selectedCurrency, queryClient]);
 
+  // Logged-in users: eagerly create/restore session on mount so the step can
+  // be restored and the form pre-filled before the user starts typing.
+  // Guests: session is created lazily in handleContactNext — no API calls on mount.
   useEffect(() => {
-    initSession();
-  }, [initSession]);
+    if (!getToken()) return;
+    ensureSession();
+  }, [ensureSession]);
 
   // Auto-select first shipping method once loaded
   useEffect(() => {
@@ -180,16 +196,20 @@ export function useCheckout() {
 
   const handleContactNext = useCallback(
     async (data: ContactFormData) => {
-      if (!sessionId) return;
+      // For guests: lazily create the session on first submit.
+      // For logged-in: session already exists from eager init.
+      const sid = sessionId ?? (await ensureSession());
+      if (!sid) return;
+
       setIsSubmitting(true);
       setError(null);
       try {
-        await checkoutApi.updateContact(sessionId, data, getToken());
+        await checkoutApi.updateContact(sid, data, getToken());
         setConfirmEmail(data.email);
         setConfirmPhone(data.phone);
         const [first = ''] = data.fullName.split(' ');
         setConfirmFirstName(first);
-        queryClient.invalidateQueries({ queryKey: ['checkout-session', sessionId] });
+        queryClient.invalidateQueries({ queryKey: ['checkout-session', sid] });
         setStep('shipping');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Failed to save contact info');
@@ -197,7 +217,7 @@ export function useCheckout() {
         setIsSubmitting(false);
       }
     },
-    [sessionId, queryClient],
+    [sessionId, ensureSession, queryClient],
   );
 
   // ── Step: Shipping ────────────────────────────────────────────────────────

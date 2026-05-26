@@ -34,7 +34,10 @@ export async function createSupplyAction(
     revalidatePath('/admin/supplies');
     return { success: true, data: supply };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to create supply' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to create supply',
+    };
   }
 }
 
@@ -47,7 +50,10 @@ export async function updateSupplyAction(
     revalidatePath('/admin/supplies');
     return { success: true, data: supply };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to update supply' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to update supply',
+    };
   }
 }
 
@@ -57,7 +63,10 @@ export async function deleteSupplyAction(id: string): Promise<ActionResult<void>
     revalidatePath('/admin/supplies');
     return { success: true, data: undefined };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to delete supply' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to delete supply',
+    };
   }
 }
 
@@ -110,7 +119,10 @@ export async function setMainSupplyImageAction(
     revalidatePath('/admin/supplies');
     return { success: true, data: undefined };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to set main image' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to set main image',
+    };
   }
 }
 
@@ -123,7 +135,10 @@ export async function listSupplyVariantsAction(
     const data = await listProductVariants(supplyId);
     return { success: true, data };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to load variants' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to load variants',
+    };
   }
 }
 
@@ -136,7 +151,10 @@ export async function createSupplyVariantAction(
     revalidatePath('/admin/supplies');
     return { success: true, data: variant };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to create variant' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to create variant',
+    };
   }
 }
 
@@ -150,7 +168,10 @@ export async function updateSupplyVariantAction(
     revalidatePath('/admin/supplies');
     return { success: true, data: variant };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to update variant' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to update variant',
+    };
   }
 }
 
@@ -163,6 +184,9 @@ export async function deleteSupplyVariantAction(
     revalidatePath('/admin/supplies');
     return { success: true, data: undefined };
   } catch (err: unknown) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to delete variant' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to delete variant',
+    };
   }
 }

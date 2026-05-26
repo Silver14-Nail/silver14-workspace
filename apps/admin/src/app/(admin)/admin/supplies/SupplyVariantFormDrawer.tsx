@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { ApiProductVariant, CreateVariantPayload, UpdateVariantPayload } from '../products/types';
+import type {
+  ApiProductVariant,
+  CreateVariantPayload,
+  UpdateVariantPayload,
+} from '../products/types';
 import { createSupplyVariantAction, updateSupplyVariantAction } from './actions';
 
 interface SupplyVariantFormDrawerProps {
@@ -110,7 +114,9 @@ export default function SupplyVariantFormDrawer({
                 placeholder={t('variantForm.colorHexPlaceholder')}
                 maxLength={7}
                 className={`flex-1 px-3 py-2 border rounded-lg text-sm text-[#111827] outline-none transition-colors font-mono ${
-                  !isValidHex ? 'border-red-300 focus:border-red-400' : 'border-[#E5E7EB] focus:border-[#111827]'
+                  !isValidHex
+                    ? 'border-red-300 focus:border-red-400'
+                    : 'border-[#E5E7EB] focus:border-[#111827]'
                 }`}
               />
               <span
@@ -143,7 +149,9 @@ export default function SupplyVariantFormDrawer({
                 {t('variantForm.price')} *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6B7280]">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#6B7280]">
+                  $
+                </span>
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}

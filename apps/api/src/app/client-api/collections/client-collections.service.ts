@@ -43,9 +43,9 @@ export class ClientCollectionsService {
 
     const qb = this.collectionRepo
       .createQueryBuilder('c')
-      .where('c.isActive = true')
+      .where('c.isActive = :active', { active: true })
       .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) =>
-        pb.where('p.deleted_at IS NULL AND p.is_active = true'),
+        pb.andWhere('p.isActive = :pActive', { pActive: true }),
       )
       .orderBy('c.sortOrder', 'ASC')
       .addOrderBy('c.name', 'ASC')
@@ -68,9 +68,10 @@ export class ClientCollectionsService {
   async getFeaturedCollections(locale: SupportedLocale = FALLBACK_LOCALE) {
     const collections = await this.collectionRepo
       .createQueryBuilder('c')
-      .where('c.isActive = true AND c.isFeatured = true')
+      .where('c.isActive = :active', { active: true })
+      .andWhere('c.isFeatured = :featured', { featured: true })
       .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) =>
-        pb.where('p.deleted_at IS NULL AND p.is_active = true'),
+        pb.andWhere('p.isActive = :pActive', { pActive: true }),
       )
       .orderBy('c.sortOrder', 'ASC')
       .getMany();
@@ -86,9 +87,10 @@ export class ClientCollectionsService {
   async getCollectionBySlug(slug: string, locale: SupportedLocale = FALLBACK_LOCALE) {
     const collection = await this.collectionRepo
       .createQueryBuilder('c')
-      .where('c.slug = :slug AND c.isActive = true', { slug })
+      .where('c.slug = :slug', { slug })
+      .andWhere('c.isActive = :active', { active: true })
       .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) =>
-        pb.where('p.deleted_at IS NULL AND p.is_active = true'),
+        pb.andWhere('p.isActive = :pActive', { pActive: true }),
       )
       .getOne();
 
@@ -135,12 +137,27 @@ export class ClientCollectionsService {
 
     const [products, total] = await qb.getManyAndCount();
 
-    const productTranslations = await this.loadProductTranslations(
-      products.map((p) => p.id),
-      locale,
-    );
+    // Batch all translations in a single query (products + collection)
+    const allIds = [collection.id, ...products.map((p) => p.id)];
+    const allTranslations = await this.translationRepo
+      .createQueryBuilder('t')
+      .where('t.entity_id IN (:...ids)', { ids: allIds })
+      .andWhere('t.locale IN (:...locales)', {
+        locales: locale === FALLBACK_LOCALE ? [locale] : [locale, FALLBACK_LOCALE],
+      })
+      .getMany();
 
-    const collectionTranslation = await this.loadCollectionTranslation(collection.id, locale);
+    const productTranslations = new Map<string, I18nTranslationEntity>();
+    let collectionTranslation: I18nTranslationEntity | null = null;
+
+    for (const tr of allTranslations) {
+      if (tr.entityId === collection.id) {
+        if (!collectionTranslation || tr.locale === locale) collectionTranslation = tr;
+      } else {
+        const existing = productTranslations.get(tr.entityId);
+        if (!existing || tr.locale === locale) productTranslations.set(tr.entityId, tr);
+      }
+    }
 
     return {
       collection: {

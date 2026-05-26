@@ -18,10 +18,12 @@ export interface StorefrontCollectionProduct {
   id: string;
   name: string;
   slug: string;
-  basePrice: string;
-  salePrice?: string | null;
+  basePrice: string | number;
+  salePrice?: string | number | null;
   currency: string;
   isActive: boolean;
+  isNew?: boolean;
+  isBestSeller?: boolean;
   isOnSale?: boolean;
   discountPercent?: number | null;
   thumbnail?: { url: string } | null;
@@ -76,6 +78,7 @@ export async function getCollectionBySlug(
 export async function getCollectionProducts(
   slug: string,
   params?: { page?: number; limit?: number; sortBy?: string; locale?: string },
+  init?: RequestInit,
 ): Promise<{ data: StorefrontCollectionProduct[]; meta: { total: number; totalPages: number; page: number; limit: number } }> {
   const url = new URL(`${getBase()}/client-api/collections/${slug}/products`);
   if (params?.page) url.searchParams.set('page', String(params.page));
@@ -84,7 +87,7 @@ export async function getCollectionProducts(
   const headers: HeadersInit = {};
   if (params?.locale) headers['X-Locale'] = params.locale;
 
-  const res = await fetch(url.toString(), { next: { revalidate: 60 }, headers });
+  const res = await fetch(url.toString(), { next: { revalidate: 60 }, ...init, headers });
   if (!res.ok) throw new Error('Failed to fetch collection products');
   return res.json();
 }

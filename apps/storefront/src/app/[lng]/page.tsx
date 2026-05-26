@@ -32,6 +32,7 @@ export default async function HomePage({ params }: { params: Promise<{ lng: stri
     bestSellersEyebrow: t('sections.bestSellersEyebrow'),
     bestSellersTitle: t('sections.bestSellersTitle'),
     viewAll: t('sections.viewAll'),
+    comingSoon: t('sections.comingSoon'),
     ctaTitle: t('cta.title'),
     ctaDescription: t('cta.description'),
     ctaButton: t('cta.button'),

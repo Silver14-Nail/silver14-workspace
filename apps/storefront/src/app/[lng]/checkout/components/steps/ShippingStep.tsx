@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useT } from 'next-i18next/client';
@@ -12,7 +12,6 @@ import type { ShippingMethod } from '@/features/checkout/checkout.types';
 
 interface ShippingStepProps {
   defaultValues: ShippingFormData;
-  sessionId: string | null;
   shippingMethods: ShippingMethod[];
   selectedMethodId: string;
   isSubmitting: boolean;
@@ -24,7 +23,6 @@ interface ShippingStepProps {
 
 export function ShippingStep({
   defaultValues,
-  sessionId,
   shippingMethods,
   selectedMethodId,
   isSubmitting,
@@ -39,19 +37,12 @@ export function ShippingStep({
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isValid },
   } = useForm<ShippingFormData>({
     resolver: zodResolver(shippingSchema),
     defaultValues,
     mode: 'onTouched',
   });
-
-  // Reset form when session is restored with pre-filled data
-  useEffect(() => {
-    reset(defaultValues);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
 
   const onSubmit = handleSubmit(async (data) => {
     if (shippingMethods.length > 0 && !selectedMethodId) {
