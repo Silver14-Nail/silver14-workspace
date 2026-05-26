@@ -11,13 +11,14 @@
     "usageGuide": "Usage Guide",
     "features": "Features",
     "color": "Color",
+    "colorDefault": "Default",
     "quantity": "Quantity",
     "addToCart": "Add to Cart",
     "outOfStock": "Out of Stock",
     "insufficientStock": "Only {{max}} left in stock",
     "shipping": {
       "title": "Free Worldwide Shipping",
-      "subtitle": "5–7 business days delivery"
+      "subtitle": "Free shipping on orders over $100"
     },
     "packaging": {
       "title": "Secure Packaging",
@@ -25,7 +26,7 @@
     },
     "returns": {
       "title": "14-Day Returns",
-      "subtitle": "Hassle-free returns within 14 days"
+      "subtitle": "Please record a video when opening your package so we can assist you"
     }
   }
 }
