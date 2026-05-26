@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useT } from 'next-i18next/client';
@@ -10,7 +10,6 @@ import { contactSchema, type ContactFormData } from '../../schemas';
 
 interface ContactStepProps {
   defaultValues: ContactFormData;
-  sessionId: string | null;
   isSubmitting: boolean;
   error: string | null;
   onNext: (data: ContactFormData) => Promise<void>;
@@ -18,7 +17,6 @@ interface ContactStepProps {
 
 export function ContactStep({
   defaultValues,
-  sessionId,
   isSubmitting,
   error,
   onNext,
@@ -29,18 +27,27 @@ export function ContactStep({
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isDirty },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues,
     mode: 'onTouched',
   });
 
-  // Reset form when session is restored with pre-filled data
+  // Keep a ref so the effect below always reads the current isDirty without
+  // re-firing every time the user touches a field.
+  const isDirtyRef = useRef(isDirty);
+  isDirtyRef.current = isDirty;
+
+  // Apply profile / session-restore defaults only when the user hasn't typed
+  // anything yet. This prevents overwriting in-progress input while still
+  // pre-filling the form when navigating to checkout with an existing profile.
   useEffect(() => {
-    reset(defaultValues);
+    if (!isDirtyRef.current) {
+      reset(defaultValues);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
+  }, [defaultValues.email, defaultValues.fullName, defaultValues.phone]);
 
   return (
     <form onSubmit={handleSubmit(onNext)} noValidate>

@@ -2,10 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { ProductCard } from '@/components/shared/ProductCard';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { LinkBase } from '@/components/shared/LinkBase';
-import type { StorefrontProduct } from '@/types/product';
 import type { ApiCampaign, ApiCampaignTranslation } from '@/features/campaigns/campaigns.api';
 
 interface HomeStrings {
@@ -15,11 +13,6 @@ interface HomeStrings {
   heroWholesale: string;
   heroDescLine1: string;
   heroDescLine2: string;
-  newArrivalsEyebrow: string;
-  newArrivalsTitle: string;
-  bestSellersEyebrow: string;
-  bestSellersTitle: string;
-  viewAll: string;
   ctaTitle: string;
   ctaDescription: string;
   ctaButton: string;
@@ -28,56 +21,15 @@ interface HomeStrings {
 interface HomePageClientProps {
   heroCampaign: ApiCampaign | null;
   heroTranslation: ApiCampaignTranslation | null;
-  newArrivals: StorefrontProduct[];
-  bestSellers: StorefrontProduct[];
   strings: HomeStrings;
 }
 
-function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
-  return (
-    <div>
-      <p className="text-[#9A9A9A] uppercase text-xs tracking-[0.2em] mb-3">{eyebrow}</p>
-      <h2
-        className="text-[#1A1A1A]"
-        style={{ fontWeight: 400, fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', letterSpacing: '0.02em' }}
-      >
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-function ProductSectionSkeleton() {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="animate-pulse">
-          <div className="bg-[#F0F0F0] aspect-[3/4] mb-4" />
-          <div className="h-4 bg-[#F0F0F0] rounded w-3/4 mb-2" />
-          <div className="h-3 bg-[#F0F0F0] rounded w-1/4" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export function HomePageClient({
-  heroCampaign,
-  heroTranslation,
-  newArrivals,
-  bestSellers,
-  strings,
-}: HomePageClientProps) {
-  // Images & overlay come from campaign-level fields — fallback to local assets
-  // when no active campaign exists (or campaign has no image set).
+export function HomePageClient({ heroCampaign, heroTranslation, strings }: HomePageClientProps) {
   const desktopSrc = heroCampaign?.desktopImageUrl ?? '/images/home/main-banner_desktop.svg';
   const mobileSrc = heroCampaign?.mobileImageUrl ?? '/images/home/main-banner_mobile.JPG';
   const overlayOpacity = heroCampaign?.overlayOpacity ?? 0.35;
   const ctaUrl = heroCampaign?.ctaUrl ?? '/products';
 
-  // Text fields: when heroCampaign is active the API fills null fields with
-  // i18n defaults server-side, so heroTranslation always has complete values.
-  // The ?? fallbacks below only fire when no active campaign exists at all.
   const eyebrow = heroTranslation?.eyebrow ?? strings.heroEyebrow;
   const heroTitle = heroTranslation?.title ?? strings.heroTitle;
   const heroSubtitle = heroTranslation?.subtitle ?? null;
@@ -160,44 +112,6 @@ export function HomePageClient({
             </LinkBase>
           </div>
         </motion.div>
-      </section>
-
-      {/* NEW ARRIVALS */}
-      <section className="py-20 max-w-7xl mx-auto px-4">
-        <div className="flex justify-between mb-12">
-          <SectionTitle eyebrow={strings.newArrivalsEyebrow} title={strings.newArrivalsTitle} />
-          <LinkBase href="/products?filter=new" className="text-xs uppercase">
-            {strings.viewAll}
-          </LinkBase>
-        </div>
-        {newArrivals.length === 0 ? (
-          <ProductSectionSkeleton />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {newArrivals.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* BEST SELLERS */}
-      <section className="py-20 max-w-7xl mx-auto px-4">
-        <div className="flex justify-between mb-12">
-          <SectionTitle eyebrow={strings.bestSellersEyebrow} title={strings.bestSellersTitle} />
-          <LinkBase href="/products?filter=bestseller" className="text-xs uppercase">
-            {strings.viewAll}
-          </LinkBase>
-        </div>
-        {bestSellers.length === 0 ? (
-          <ProductSectionSkeleton />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {bestSellers.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        )}
       </section>
 
       {/* CTA */}

@@ -29,7 +29,6 @@ export default function CheckoutPage() {
   const {
     step,
     session,
-    sessionId,
     isSessionLoading,
     isSubmitting,
     error,
@@ -92,7 +91,6 @@ export default function CheckoutPage() {
                 <motion.div key="contact" {...SLIDE} transition={{ duration: 0.3 }}>
                   <ContactStep
                     defaultValues={contactDefaults}
-                    sessionId={sessionId}
                     isSubmitting={isSubmitting}
                     error={error}
                     onNext={handleContactNext}
@@ -104,7 +102,6 @@ export default function CheckoutPage() {
                 <motion.div key="shipping" {...SLIDE} transition={{ duration: 0.3 }}>
                   <ShippingStep
                     defaultValues={DEFAULT_SHIPPING}
-                    sessionId={sessionId}
                     shippingMethods={shippingMethods}
                     selectedMethodId={selectedMethodId}
                     isSubmitting={isSubmitting}
