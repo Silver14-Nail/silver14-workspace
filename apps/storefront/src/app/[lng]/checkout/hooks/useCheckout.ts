@@ -39,7 +39,7 @@ async function pollForOrder(
       const order = await checkoutApi.getSessionOrder(sessionId, token);
       if (order?.id) return order.id;
     } catch {
-      /* 404 = not yet created, keep polling */
+      /* getSessionOrder returns 200 with null (not a 404) while order is not yet created */
     }
   }
   return null;

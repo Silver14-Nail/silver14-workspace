@@ -7,6 +7,7 @@ import { I18nTranslationEntity } from '@/db/entities/shared/i18n-translation.ent
 import { LanguageDetectionService } from './language-detection.service';
 import { TranslationService } from './translation.service';
 import { OpenAiTranslationProvider } from './providers/openai-translation.provider';
+import { MyMemoryTranslationProvider } from './providers/mymemory-translation.provider';
 import { NoopTranslationProvider } from './providers/noop-translation.provider';
 import { TRANSLATION_PROVIDER_TOKEN } from './translation.constants';
 
@@ -19,15 +20,16 @@ import { TRANSLATION_PROVIDER_TOKEN } from './translation.constants';
   providers: [
     LanguageDetectionService,
     OpenAiTranslationProvider,
+    MyMemoryTranslationProvider,
     NoopTranslationProvider,
     {
       provide: TRANSLATION_PROVIDER_TOKEN,
       useFactory: (
         config: ConfigService,
         openai: OpenAiTranslationProvider,
-        noop: NoopTranslationProvider,
-      ) => (config.get('OPENAI_API_KEY') ? openai : noop),
-      inject: [ConfigService, OpenAiTranslationProvider, NoopTranslationProvider],
+        myMemory: MyMemoryTranslationProvider,
+      ) => (config.get('OPENAI_API_KEY') ? openai : myMemory),
+      inject: [ConfigService, OpenAiTranslationProvider, MyMemoryTranslationProvider],
     },
     TranslationService,
   ],

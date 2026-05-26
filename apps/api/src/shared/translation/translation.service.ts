@@ -318,7 +318,7 @@ export class TranslationService {
 
   // ─── Private translation helpers ─────────────────────────────────────────────
 
-  private async translateText(
+  async translateText(
     text: string | null | undefined,
     sourceLang: SupportedLocale,
     targetLang: SupportedLocale,

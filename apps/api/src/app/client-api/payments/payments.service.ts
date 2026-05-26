@@ -8,6 +8,7 @@ import { OrderEntity } from '@/db/entities/orders/order.entity';
 import { OrderItemEntity } from '@/db/entities/orders/order-item.entity';
 import { CustomSizeRequestEntity } from '@/db/entities/orders/custom-size-request.entity';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
+import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
 import { PaypalDetailEntity } from '@/db/entities/payments/paypal-detail.entity';
 import { CardDetailEntity } from '@/db/entities/payments/card-detail.entity';
 import { CouponEntity } from '@/db/entities/coupons/coupon.entity';
@@ -102,6 +103,17 @@ export class ClientPaymentsService {
 
     let orderId!: string;
     await this.paymentRepo.manager.transaction(async (manager) => {
+      // Secondary idempotency check inside the transaction to close the race window
+      // between the pre-check above and order creation
+      const duplicate = await manager.findOne(OrderEntity, {
+        where: { checkoutSession: { id: checkoutSessionId } },
+        select: ['id'],
+      });
+      if (duplicate) {
+        orderId = duplicate.id;
+        return;
+      }
+
       const order = await this.createOrder(manager, session, totals);
       orderId = order.id;
 
@@ -174,6 +186,13 @@ export class ClientPaymentsService {
     const totals = this.calculateTotals(session);
 
     return this.paymentRepo.manager.transaction(async (manager) => {
+      // Secondary idempotency check inside the transaction to close the race window
+      const duplicate = await manager.findOne(OrderEntity, {
+        where: { checkoutSession: { id: dto.checkoutSessionId } },
+        select: ['id', 'status', 'total', 'currency'],
+      });
+      if (duplicate) return { order: duplicate, payment: null };
+
       const order = await this.createOrder(manager, session, totals);
 
       const payment = manager.create(PaymentEntity, {
@@ -244,9 +263,17 @@ export class ClientPaymentsService {
 
   private calculateTotals(session: CheckoutSessionEntity): SessionTotals {
     const items = session.cart?.items ?? [];
-    // All variant prices are stored in USD
+    // All variant prices are stored in USD; apply sale ratio to match checkout display pricing
     const subtotalUSD = items.reduce((sum, item) => {
-      return sum + Number(item.variant.computedPrice) * item.quantity;
+      const computed = Number(item.variant.computedPrice);
+      const base = Number((item.variant as any).product?.basePrice ?? 0);
+      const sale =
+        (item.variant as any).product?.salePrice != null
+          ? Number((item.variant as any).product.salePrice)
+          : null;
+      const effectivePrice =
+        sale !== null && sale < base && base > 0 ? computed * (sale / base) : computed;
+      return sum + effectivePrice * item.quantity;
     }, 0);
 
     const shippingSnapshot = session.shippingSnapshot as Record<string, any>;
@@ -351,6 +378,16 @@ export class ClientPaymentsService {
     );
 
     await manager.save(OrderItemEntity, orderItems);
+
+    // Decrement stock for each ordered variant so inventory stays consistent
+    for (const cartItem of session.cart?.items ?? []) {
+      await manager.decrement(
+        ProductVariantEntity,
+        { id: cartItem.variant.id },
+        'stockQty',
+        cartItem.quantity,
+      );
+    }
 
     // Persist customization notes from cart items
     const customSizeRequests = (session.cart?.items ?? [])

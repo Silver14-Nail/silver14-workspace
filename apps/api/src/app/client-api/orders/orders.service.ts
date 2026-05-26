@@ -38,7 +38,7 @@ export class ClientOrdersService {
       relations: ['items', 'items.customSizeRequest'],
     });
 
-    if (!order || order.contactSnapshot.phone !== dto.phone) {
+    if (!order || !order.contactSnapshot || order.contactSnapshot.phone !== dto.phone) {
       throw new NotFoundException('Order not found');
     }
 
