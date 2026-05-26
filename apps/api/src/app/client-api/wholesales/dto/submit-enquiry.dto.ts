@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsEmail, IsOptional, IsPhoneNumber, IsString, Length } from 'class-validator';
+import { IsArray, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator';
 
 export class SubmitEnquiryDto {
   @ApiProperty()
@@ -16,8 +16,9 @@ export class SubmitEnquiryDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty()
-  @IsPhoneNumber()
+  @ApiProperty({ example: '+84364589229 or 0364589229' })
+  @IsString()
+  @Matches(/^[+\d][\d\s\-().]{5,29}$/, { message: 'phone must be a valid phone number' })
   phone: string;
 
   @ApiProperty()

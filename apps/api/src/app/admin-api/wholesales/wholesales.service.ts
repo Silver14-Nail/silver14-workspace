@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -15,6 +15,7 @@ import { UpdateWholesaleAccountDto } from './dto/update-wholesale-account.dto';
 import { EnquiryListQueryDto } from './dto/enquiry-list-query.dto';
 import { UpdateWholesaleEnquiryDto } from './dto/update-wholesale-enquiry.dto';
 import { UpdateWholesaleTierDto } from './dto/update-wholesale-tier.dto';
+import { CreateWholesaleTierDto } from './dto/create-wholesale-tier.dto';
 import { NewsletterListQueryDto } from './dto/newsletter-list-query.dto';
 import { UpdateNewsletterSubscriberDto } from './dto/update-newsletter-subscriber.dto';
 import { ApproveEnquiryDto } from './dto/approve-enquiry.dto';
@@ -192,6 +193,20 @@ export class WholesalesService {
 
   async listTiers() {
     return this.tierRepo.find({ order: { name: 'ASC' } });
+  }
+
+  async createTier(dto: CreateWholesaleTierDto) {
+    const existing = await this.tierRepo.findOneBy({ name: dto.name });
+    if (existing) throw new ConflictException(`Tier "${dto.name}" already exists`);
+    const tier = this.tierRepo.create({
+      name: dto.name,
+      discountPercent: dto.discountPercent,
+      maxDiscountAmount: dto.maxDiscountAmount ?? null,
+      minMonthlyQty: dto.minMonthlyQty ?? 0,
+      freeShipping: dto.freeShipping ?? false,
+      minOrderAmount: dto.minOrderAmount ?? 0,
+    });
+    return this.tierRepo.save(tier);
   }
 
   async getTier(id: string) {

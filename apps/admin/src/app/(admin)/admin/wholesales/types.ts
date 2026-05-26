@@ -117,6 +117,15 @@ export interface UpdateEnquiryPayload {
   handledById?: string | null;
 }
 
+export interface CreateTierPayload {
+  name: WholesaleTierName;
+  discountPercent: number;
+  maxDiscountAmount?: number | null;
+  minMonthlyQty?: number;
+  freeShipping?: boolean;
+  minOrderAmount?: number;
+}
+
 export interface UpdateTierPayload {
   minMonthlyQty?: number;
   discountPercent?: number;

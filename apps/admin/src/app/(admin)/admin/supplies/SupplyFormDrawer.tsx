@@ -1,15 +1,28 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { X, Loader2, Plus, Edit, Trash2 } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Loader2, Plus, Edit, Trash2, Upload, Star, ImageIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 import { getProductDetailAction } from '../products/actions';
-import { listSupplyVariantsAction, deleteSupplyVariantAction } from './actions';
+import {
+  listSupplyVariantsAction,
+  deleteSupplyVariantAction,
+  listSupplyImagesAction,
+  uploadSupplyImageAction,
+  deleteSupplyImageAction,
+  setMainSupplyImageAction,
+} from './actions';
 import SupplyVariantFormDrawer from './SupplyVariantFormDrawer';
 import ConfirmDialog from '../shared/ConfirmDialog';
 import { useConfirmDialog } from '../shared/useConfirmDialog';
-import type { Product, CreateProductPayload, UpdateProductPayload, ApiProductVariant } from '../products/types';
+import type {
+  Product,
+  CreateProductPayload,
+  UpdateProductPayload,
+  ApiProductImage,
+  ApiProductVariant,
+} from '../products/types';
 
 interface SupplyFormDrawerProps {
   open: boolean;
@@ -20,7 +33,7 @@ interface SupplyFormDrawerProps {
   ) => Promise<{ success: boolean; error?: string }>;
 }
 
-type Tab = 'details' | 'variants';
+type Tab = 'details' | 'images' | 'variants';
 
 export default function SupplyFormDrawer({
   open,
@@ -49,6 +62,13 @@ export default function SupplyFormDrawer({
   const [loading, setLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
 
+  // ── Images tab state ──────────────────────────────────────────────────────
+  const [images, setImages] = useState<ApiProductImage[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const [imagesError, setImagesError] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // ── Variants tab state ────────────────────────────────────────────────────
   const [variants, setVariants] = useState<ApiProductVariant[]>([]);
   const [variantsLoading, setVariantsLoading] = useState(false);
@@ -56,6 +76,20 @@ export default function SupplyFormDrawer({
   const [showVariantForm, setShowVariantForm] = useState(false);
   const [editingVariant, setEditingVariant] = useState<ApiProductVariant | null>(null);
   const { dialogProps, openDialog } = useConfirmDialog();
+
+  // ── Load images ───────────────────────────────────────────────────────────
+  const loadImages = useCallback(async () => {
+    if (!supply?.id) return;
+    setImagesLoading(true);
+    setImagesError('');
+    const result = await listSupplyImagesAction(supply.id);
+    if (result.success) {
+      setImages(result.data);
+    } else {
+      setImagesError((result as { error: string }).error);
+    }
+    setImagesLoading(false);
+  }, [supply?.id]);
 
   // ── Load variants ─────────────────────────────────────────────────────────
   const loadVariants = useCallback(async () => {
@@ -100,6 +134,7 @@ export default function SupplyFormDrawer({
         setDetailLoading(false);
       });
 
+      loadImages();
       loadVariants();
     } else {
       setName('');
@@ -111,9 +146,10 @@ export default function SupplyFormDrawer({
       setIsActive(true);
       setIsNew(false);
       setIsBestSeller(false);
+      setImages([]);
       setVariants([]);
     }
-  }, [supply, open, loadVariants]);
+  }, [supply, open, loadImages, loadVariants]);
 
   if (!open) return null;
 
@@ -156,6 +192,45 @@ export default function SupplyFormDrawer({
       }
     } finally {
       setLoading(false);
+    }
+  }
+
+  // ── Image actions ─────────────────────────────────────────────────────────
+  async function handleImageUpload(file: File) {
+    if (!supply?.id) return;
+    setUploadingImage(true);
+    setImagesError('');
+    const fd = new FormData();
+    fd.append('file', file);
+    const result = await uploadSupplyImageAction(supply.id, fd);
+    if (!result.success) {
+      setImagesError((result as { error: string }).error);
+    } else {
+      await loadImages();
+    }
+    setUploadingImage(false);
+  }
+
+  function handleDeleteImage(image: ApiProductImage) {
+    openDialog({
+      title: 'Delete Image',
+      description: 'This image will be permanently removed.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        const result = await deleteSupplyImageAction(supply!.id, image.id);
+        if (!result.success) throw new Error((result as { error: string }).error);
+        await loadImages();
+      },
+    });
+  }
+
+  async function handleSetMain(image: ApiProductImage) {
+    if (!supply?.id || image.isMain) return;
+    const result = await setMainSupplyImageAction(supply.id, image.id);
+    if (!result.success) {
+      setImagesError((result as { error: string }).error);
+    } else {
+      await loadImages();
     }
   }
 
@@ -211,15 +286,17 @@ export default function SupplyFormDrawer({
 
         {/* Tabs (only in edit mode) */}
         {isEdit && (
-          <div
-            className={`flex border-b ${isDark ? 'border-gray-800' : 'border-[#E5E7EB]'}`}
-          >
-            {(['details', 'variants'] as Tab[]).map((tab) => (
+          <div className={`flex border-b ${isDark ? 'border-gray-800' : 'border-[#E5E7EB]'}`}>
+            {([
+              { key: 'details', label: t('form.editTitle').split(' ')[0], badge: null },
+              { key: 'images', label: 'Images', badge: images.length || null },
+              { key: 'variants', label: t('variants.tab'), badge: variants.length || null },
+            ] as { key: Tab; label: string; badge: number | null }[]).map(({ key, label, badge }) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={key}
+                onClick={() => setActiveTab(key)}
                 className={`flex-1 py-2.5 text-xs font-semibold transition-colors border-b-2 ${
-                  activeTab === tab
+                  activeTab === key
                     ? isDark
                       ? 'border-white text-white'
                       : 'border-[#111827] text-[#111827]'
@@ -228,14 +305,14 @@ export default function SupplyFormDrawer({
                       : 'border-transparent text-[#9CA3AF] hover:text-[#374151]'
                 }`}
               >
-                {tab === 'details' ? t('form.editTitle').split(' ')[0] : t('variants.tab')}
-                {tab === 'variants' && variants.length > 0 && (
+                {label}
+                {badge !== null && (
                   <span
                     className={`ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold ${
                       isDark ? 'bg-gray-700 text-gray-300' : 'bg-[#F3F4F6] text-[#6B7280]'
                     }`}
                   >
-                    {variants.length}
+                    {badge}
                   </span>
                 )}
               </button>
@@ -396,6 +473,116 @@ export default function SupplyFormDrawer({
               ))}
             </div>
           </form>
+        )}
+
+        {/* ── Images Tab ── */}
+        {activeTab === 'images' && supply && (
+          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            {imagesError && (
+              <p className="text-sm text-red-500 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
+                {imagesError}
+              </p>
+            )}
+
+            {/* Upload button */}
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleImageUpload(f);
+                  e.target.value = '';
+                }}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingImage}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed text-sm font-medium transition-colors disabled:opacity-50 ${
+                  isDark
+                    ? 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                    : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#9CA3AF] hover:text-[#374151]'
+                }`}
+              >
+                {uploadingImage ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Upload className="w-4 h-4" />
+                )}
+                {uploadingImage ? 'Uploading…' : 'Upload Image'}
+              </button>
+            </div>
+
+            {/* Images grid */}
+            {imagesLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-5 h-5 animate-spin text-[#9CA3AF]" />
+              </div>
+            ) : images.length === 0 ? (
+              <div
+                className={`flex flex-col items-center justify-center py-14 rounded-xl border border-dashed ${
+                  isDark ? 'border-gray-700' : 'border-[#E5E7EB]'
+                }`}
+              >
+                <ImageIcon className={`w-8 h-8 mb-3 ${isDark ? 'text-gray-600' : 'text-[#D1D5DB]'}`} />
+                <p className={`text-sm ${isDark ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
+                  No images yet
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                {images.map((img) => (
+                  <div key={img.id} className="relative group">
+                    <div
+                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
+                        img.isMain
+                          ? 'border-amber-400'
+                          : isDark
+                            ? 'border-gray-700'
+                            : 'border-[#E5E7EB]'
+                      }`}
+                    >
+                      <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    </div>
+
+                    {/* Main badge */}
+                    {img.isMain && (
+                      <span className="absolute top-1.5 left-1.5 bg-amber-400 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <Star className="w-2.5 h-2.5" />
+                        Main
+                      </span>
+                    )}
+
+                    {/* Hover actions */}
+                    <div className="absolute inset-0 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      {!img.isMain && (
+                        <button
+                          onClick={() => handleSetMain(img)}
+                          title="Set as main"
+                          className="p-1.5 bg-white/90 rounded-lg text-amber-600 hover:bg-white transition-colors"
+                        >
+                          <Star className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteImage(img)}
+                        title="Delete"
+                        className="p-1.5 bg-white/90 rounded-lg text-red-600 hover:bg-white transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
+              Hover an image to set it as main or delete it. The main image is shown in listings.
+            </p>
+          </div>
         )}
 
         {/* ── Variants Tab ── */}

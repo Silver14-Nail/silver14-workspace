@@ -14,6 +14,7 @@ import {
   rejectEnquiry,
   listTiers,
   getTier,
+  createTier,
   updateTier,
   listNewsletterSubscribers,
   updateNewsletterSubscriber,
@@ -31,6 +32,7 @@ import type {
   NewsletterSubscriber,
   UpdateAccountPayload,
   UpdateEnquiryPayload,
+  CreateTierPayload,
   UpdateTierPayload,
   ApproveEnquiryPayload,
   ApproveEnquiryResult,
@@ -193,6 +195,18 @@ export async function getTierAction(id: string): Promise<ActionResult<WholesaleT
     return { success: true, data };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to load tier' };
+  }
+}
+
+export async function createTierAction(
+  payload: CreateTierPayload,
+): Promise<ActionResult<WholesaleTier>> {
+  try {
+    const data = await createTier(payload);
+    revalidatePath(REVALIDATE);
+    return { success: true, data };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to create tier' };
   }
 }
 

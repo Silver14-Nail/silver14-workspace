@@ -36,6 +36,13 @@ import { ENTITIES } from '@/db/entities';
             rejectUnauthorized: false,
           },
           connectorPackage: 'mysql2',
+          // Keep the pool small to stay within shared-hosting connection limits.
+          // Raise connectionLimit if the host allows more simultaneous connections.
+          extra: {
+            connectionLimit: 5,
+            waitForConnections: true,
+            queueLimit: 0,
+          },
         };
       },
     }),
