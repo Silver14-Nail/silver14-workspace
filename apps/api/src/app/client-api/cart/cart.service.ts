@@ -142,11 +142,15 @@ export class ClientCartService {
 
     const guestCart = await this.cartRepo.findOne({
       where: { id: dto.guestCartId, status: CartStatus.ACTIVE },
-      relations: ['items', 'items.variant'],
+      relations: ['items', 'items.variant', 'user'],
     });
 
     if (!guestCart || guestCart.items.length === 0) {
       return this.loadCart(userCart.id);
+    }
+
+    if (guestCart.user !== null) {
+      throw new BadRequestException('Cannot merge an authenticated user cart');
     }
 
     for (const guestItem of guestCart.items) {

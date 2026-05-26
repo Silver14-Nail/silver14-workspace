@@ -18,6 +18,7 @@ import { MarketingCampaignsService } from './marketing-campaigns.service';
 import { CampaignListQueryDto } from './dto/campaign-list-query.dto';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { TranslateContentDto } from './dto/translate-content.dto';
 
 @ApiTags('Admin - Marketing Campaigns')
 @ApiBearerAuth()
@@ -66,5 +67,10 @@ export class MarketingCampaignsController {
   @UseInterceptors(FileInterceptor('file'))
   uploadMobile(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
     return this.service.uploadImage(id, 'mobile', file);
+  }
+
+  @Post('translate')
+  translateContent(@Body() dto: TranslateContentDto) {
+    return this.service.translateCampaignContent(dto.texts, dto.from, dto.to);
   }
 }

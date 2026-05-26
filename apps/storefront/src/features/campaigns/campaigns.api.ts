@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
-
-const http = axios.create({ baseURL: BASE });
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
 
 export type CampaignType =
   | 'hero'
@@ -53,19 +49,21 @@ export interface ApiCampaign {
   translations: ApiCampaignTranslation[];
 }
 
+// Uses native fetch so Next.js ISR can track and revalidate this data.
+// Tag 'homepage-campaign' allows on-demand revalidation from the admin
+// via /api/revalidate (see apps/storefront/src/app/api/revalidate/route.ts).
 export async function fetchCampaignByPlacement(
   placement: CampaignPlacement,
   locale: string,
 ): Promise<ApiCampaign | null> {
   try {
-    console.log('call fetchCampaignByPlacement');
-    const { data } = await http.get<ApiCampaign>(
-      `/client-api/campaigns/${placement}?locale=${locale}`,
-    );
-    console.log('data', data);
+    const res = await fetch(`${BASE}/client-api/campaigns/${placement}?locale=${locale}`, {
+      next: { revalidate: 60, tags: ['homepage-campaign'] },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as ApiCampaign | null;
     return data ?? null;
-  } catch (eror) {
-    console.log(eror);
+  } catch {
     return null;
   }
 }

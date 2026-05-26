@@ -49,6 +49,19 @@ export async function deleteCampaign(id: string): Promise<void> {
   await client.delete(`/admin-api/marketing/campaigns/${id}`);
 }
 
+export async function translateCampaignContent(
+  texts: Record<string, string>,
+  from: 'en' | 'vi',
+  to: 'en' | 'vi',
+): Promise<Record<string, string>> {
+  const client = await createApiClient();
+  const { data } = await client.post<Record<string, string>>(
+    '/admin-api/marketing/campaigns/translate',
+    { texts, from, to },
+  );
+  return data;
+}
+
 export async function uploadCampaignImage(
   id: string,
   field: 'desktop' | 'mobile',

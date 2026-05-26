@@ -34,7 +34,7 @@ export const ImageGallery = memo(function ImageGallery({
   return (
     <div className="flex flex-col-reverse sm:flex-row gap-3 md:gap-4 items-start select-none">
       <div
-        className="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-y-auto no-scrollbar w-full sm:w-20 md:w-24"
+        className="flex justify-center sm:justify-start sm:flex-col gap-2 overflow-x-auto sm:overflow-y-auto no-scrollbar w-full sm:w-20 md:w-24"
         role="list"
       >
         {images.map((img, idx) => (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import {
   Upload,
   Loader2,
@@ -19,8 +19,10 @@ import {
   getHomepageCampaignAction,
   saveHomepageCampaignAction,
   uploadHomepageImageAction,
+  translateContentAction,
 } from './actions';
 import type { Campaign, CampaignStatus } from '../campaigns/types';
+import { useEffect } from 'react';
 
 const STOREFRONT_URL = process.env.NEXT_PUBLIC_STOREFRONT_URL ?? 'http://localhost:4200';
 
@@ -103,24 +105,30 @@ function SectionHeader({
 }
 
 // ─── Image field ──────────────────────────────────────────────────────────────
+// File selection is always available. The selected file is held in parent state
+// and uploaded automatically when the campaign is saved (creating the campaign
+// first if needed so we always have an ID before calling the upload endpoint).
 
 function ImageField({
   label,
   value,
   onChange,
-  onUpload,
+  onFileSelect,
+  previewUrl,
   uploading,
-  campaignId,
   isDark,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileSelect: (file: File) => void;
+  previewUrl: string | null;
   uploading: boolean;
-  campaignId: string | null;
   isDark: boolean;
 }) {
+  const displayPreview = previewUrl ?? (value || null);
+  const isPending = previewUrl !== null;
+
   return (
     <div>
       <label className={lc(isDark)}>{label}</label>
@@ -130,32 +138,38 @@ function ImageField({
         className={ic(isDark)}
         placeholder="https://cdn.example.com/image.jpg"
       />
-      {value && (
+      {displayPreview && (
         <div className="mt-2 relative rounded overflow-hidden h-24 bg-gray-100">
-          <img src={value} alt="" className="w-full h-full object-cover" />
+          <img src={displayPreview} alt="" className="w-full h-full object-cover" />
+          {isPending && (
+            <span className="absolute bottom-1 right-1 bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded">
+              Will upload on save
+            </span>
+          )}
         </div>
       )}
-      {campaignId && (
-        <label
-          className={`mt-2 inline-flex items-center gap-1.5 cursor-pointer text-xs transition-colors ${
-            isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
-          }`}
-        >
-          {uploading ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Upload className="w-3 h-3" />
-          )}
-          Upload from device
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={onUpload}
-            disabled={uploading}
-          />
-        </label>
-      )}
+      <label
+        className={`mt-2 inline-flex items-center gap-1.5 cursor-pointer text-xs transition-colors ${
+          isDark ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
+        }`}
+      >
+        {uploading ? (
+          <Loader2 className="w-3 h-3 animate-spin" />
+        ) : (
+          <Upload className="w-3 h-3" />
+        )}
+        {isPending ? 'Change file' : 'Upload from device'}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFileSelect(f);
+          }}
+          disabled={uploading}
+        />
+      </label>
     </div>
   );
 }
@@ -172,10 +186,17 @@ export default function HomepageClient() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
+  const [translating, setTranslating] = useState(false);
 
   // Upload states
   const [uploadingDesktop, setUploadingDesktop] = useState(false);
   const [uploadingMobile, setUploadingMobile] = useState(false);
+
+  // Pending local files (selected before save)
+  const [pendingDesktopFile, setPendingDesktopFile] = useState<File | null>(null);
+  const [pendingMobileFile, setPendingMobileFile] = useState<File | null>(null);
+  const [desktopObjectUrl, setDesktopObjectUrl] = useState<string | null>(null);
+  const [mobileObjectUrl, setMobileObjectUrl] = useState<string | null>(null);
 
   // Form state
   const [status, setStatus] = useState<CampaignStatus>('draft');
@@ -224,6 +245,15 @@ export default function HomepageClient() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Revoke object URLs on unmount to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (desktopObjectUrl) URL.revokeObjectURL(desktopObjectUrl);
+      if (mobileObjectUrl) URL.revokeObjectURL(mobileObjectUrl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function populateForm(c: Campaign) {
     setStatus(c.status);
     setCtaUrl(c.ctaUrl ?? '');
@@ -254,24 +284,88 @@ export default function HomepageClient() {
     return [
       {
         locale: 'en',
-        eyebrow: enEyebrow || '',
-        title: enTitle || '',
-        subtitle: enSubtitle || '',
-        ctaLabel: enCtaLabel || '',
-        secondaryCtaLabel: enSecondaryLabel || '',
-        secondaryCtaUrl: enSecondaryUrl || '',
+        eyebrow: enEyebrow.trim() || null,
+        title: enTitle.trim() || null,
+        subtitle: enSubtitle.trim() || null,
+        ctaLabel: enCtaLabel.trim() || null,
+        secondaryCtaLabel: enSecondaryLabel.trim() || null,
+        secondaryCtaUrl: enSecondaryUrl.trim() || null,
       },
       {
         locale: 'vi',
-        eyebrow: viEyebrow || '',
-        title: viTitle || '',
-        subtitle: viSubtitle || '',
-        ctaLabel: viCtaLabel || '',
-        secondaryCtaLabel: viSecondaryLabel || '',
-        secondaryCtaUrl: viSecondaryUrl || '',
+        eyebrow: viEyebrow.trim() || null,
+        title: viTitle.trim() || null,
+        subtitle: viSubtitle.trim() || null,
+        ctaLabel: viCtaLabel.trim() || null,
+        secondaryCtaLabel: viSecondaryLabel.trim() || null,
+        secondaryCtaUrl: viSecondaryUrl.trim() || null,
       },
     ];
   }
+
+  async function handleTranslate(from: 'en' | 'vi') {
+    const to = from === 'en' ? 'vi' : 'en';
+    const source =
+      from === 'en'
+        ? {
+            eyebrow: enEyebrow,
+            title: enTitle,
+            subtitle: enSubtitle,
+            ctaLabel: enCtaLabel,
+            secondaryCtaLabel: enSecondaryLabel,
+          }
+        : {
+            eyebrow: viEyebrow,
+            title: viTitle,
+            subtitle: viSubtitle,
+            ctaLabel: viCtaLabel,
+            secondaryCtaLabel: viSecondaryLabel,
+          };
+
+    const nonEmpty = Object.fromEntries(Object.entries(source).filter(([, v]) => v.trim()));
+    if (!Object.keys(nonEmpty).length) return;
+
+    setTranslating(true);
+    setError('');
+    try {
+      const result = await translateContentAction(nonEmpty, from, to);
+      if (!result.success) {
+        setError((result as { success: false; error: string }).error);
+        return;
+      }
+      const t = (result as { success: true; data: Record<string, string> }).data;
+      if (to === 'vi') {
+        if (t.eyebrow !== undefined) setViEyebrow(t.eyebrow);
+        if (t.title !== undefined) setViTitle(t.title);
+        if (t.subtitle !== undefined) setViSubtitle(t.subtitle);
+        if (t.ctaLabel !== undefined) setViCtaLabel(t.ctaLabel);
+        if (t.secondaryCtaLabel !== undefined) setViSecondaryLabel(t.secondaryCtaLabel);
+        setActiveContentTab('vi');
+      } else {
+        if (t.eyebrow !== undefined) setEnEyebrow(t.eyebrow);
+        if (t.title !== undefined) setEnTitle(t.title);
+        if (t.subtitle !== undefined) setEnSubtitle(t.subtitle);
+        if (t.ctaLabel !== undefined) setEnCtaLabel(t.ctaLabel);
+        if (t.secondaryCtaLabel !== undefined) setEnSecondaryLabel(t.secondaryCtaLabel);
+        setActiveContentTab('en');
+      }
+    } finally {
+      setTranslating(false);
+    }
+  }
+
+  // File select handlers — store the File locally for upload-on-save
+  const handleDesktopFileSelect = (file: File) => {
+    if (desktopObjectUrl) URL.revokeObjectURL(desktopObjectUrl);
+    setDesktopObjectUrl(URL.createObjectURL(file));
+    setPendingDesktopFile(file);
+  };
+
+  const handleMobileFileSelect = (file: File) => {
+    if (mobileObjectUrl) URL.revokeObjectURL(mobileObjectUrl);
+    setMobileObjectUrl(URL.createObjectURL(file));
+    setPendingMobileFile(file);
+  };
 
   function handleSave() {
     setError('');
@@ -298,49 +392,57 @@ export default function HomepageClient() {
         setError((result as { success: false; error: string }).error);
         return;
       }
-      setCampaign((result as { success: true; data: Campaign }).data);
+
+      let latest = (result as { success: true; data: Campaign }).data;
+      setCampaign(latest);
+
+      // Upload any locally-selected files now that we have a persisted campaign ID
+      if (pendingDesktopFile) {
+        setUploadingDesktop(true);
+        try {
+          const fd = new FormData();
+          fd.append('file', pendingDesktopFile);
+          const up = await uploadHomepageImageAction(latest.id, 'desktop', fd);
+          if (up.success) {
+            latest = (up as { success: true; data: Campaign }).data;
+            setDesktopImageUrl(latest.desktopImageUrl ?? '');
+            if (desktopObjectUrl) URL.revokeObjectURL(desktopObjectUrl);
+            setDesktopObjectUrl(null);
+            setPendingDesktopFile(null);
+            setCampaign(latest);
+          } else {
+            setError((up as { success: false; error: string }).error);
+          }
+        } finally {
+          setUploadingDesktop(false);
+        }
+      }
+
+      if (pendingMobileFile) {
+        setUploadingMobile(true);
+        try {
+          const fd = new FormData();
+          fd.append('file', pendingMobileFile);
+          const up = await uploadHomepageImageAction(latest.id, 'mobile', fd);
+          if (up.success) {
+            const final = (up as { success: true; data: Campaign }).data;
+            setMobileImageUrl(final.mobileImageUrl ?? '');
+            if (mobileObjectUrl) URL.revokeObjectURL(mobileObjectUrl);
+            setMobileObjectUrl(null);
+            setPendingMobileFile(null);
+            setCampaign(final);
+          } else {
+            setError((up as { success: false; error: string }).error);
+          }
+        } finally {
+          setUploadingMobile(false);
+        }
+      }
+
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     });
   }
-
-  const handleDesktopUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!campaign?.id || !e.target.files?.[0]) return;
-    setUploadingDesktop(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', e.target.files[0]);
-      const result = await uploadHomepageImageAction(campaign.id, 'desktop', fd);
-      if (!result.success) {
-        setError((result as { success: false; error: string }).error);
-      } else {
-        const c = (result as { success: true; data: Campaign }).data;
-        setDesktopImageUrl(c.desktopImageUrl ?? '');
-        setCampaign(c);
-      }
-    } finally {
-      setUploadingDesktop(false);
-    }
-  };
-
-  const handleMobileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!campaign?.id || !e.target.files?.[0]) return;
-    setUploadingMobile(true);
-    try {
-      const fd = new FormData();
-      fd.append('file', e.target.files[0]);
-      const result = await uploadHomepageImageAction(campaign.id, 'mobile', fd);
-      if (!result.success) {
-        setError((result as { success: false; error: string }).error);
-      } else {
-        const c = (result as { success: true; data: Campaign }).data;
-        setMobileImageUrl(c.mobileImageUrl ?? '');
-        setCampaign(c);
-      }
-    } finally {
-      setUploadingMobile(false);
-    }
-  };
 
   const tabBtn = (tab: 'en' | 'vi') =>
     `px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
@@ -421,10 +523,10 @@ export default function HomepageClient() {
           </a>
           <button
             onClick={handleSave}
-            disabled={isPending}
+            disabled={isPending || uploadingDesktop || uploadingMobile}
             className="flex items-center gap-2 px-4 py-2 bg-[#111827] text-white text-sm rounded-lg font-medium hover:bg-[#1F2937] transition-colors disabled:opacity-50"
           >
-            {isPending ? (
+            {isPending || uploadingDesktop || uploadingMobile ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Save className="w-4 h-4" />
@@ -446,25 +548,20 @@ export default function HomepageClient() {
                 label="Desktop Image"
                 value={desktopImageUrl}
                 onChange={setDesktopImageUrl}
-                onUpload={handleDesktopUpload}
+                onFileSelect={handleDesktopFileSelect}
+                previewUrl={desktopObjectUrl}
                 uploading={uploadingDesktop}
-                campaignId={campaign?.id ?? null}
                 isDark={isDark}
               />
               <ImageField
                 label="Mobile Image"
                 value={mobileImageUrl}
                 onChange={setMobileImageUrl}
-                onUpload={handleMobileUpload}
+                onFileSelect={handleMobileFileSelect}
+                previewUrl={mobileObjectUrl}
                 uploading={uploadingMobile}
-                campaignId={campaign?.id ?? null}
                 isDark={isDark}
               />
-              {!campaign && (
-                <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
-                  Save the campaign first to enable image uploads from device.
-                </p>
-              )}
             </div>
           </div>
 
@@ -562,7 +659,7 @@ export default function HomepageClient() {
 
             {/* Language tabs */}
             <div
-              className={`flex border-b mb-5 -mx-5 px-5 ${
+              className={`flex items-center border-b mb-5 -mx-5 px-5 ${
                 isDark ? 'border-gray-700' : 'border-[#E5E7EB]'
               }`}
             >
@@ -572,6 +669,40 @@ export default function HomepageClient() {
               <button className={tabBtn('vi')} onClick={() => setActiveContentTab('vi')}>
                 🇻🇳 Vietnamese
               </button>
+              <div className="ml-auto pb-1 flex gap-1.5">
+                <button
+                  onClick={() => handleTranslate('en')}
+                  disabled={translating}
+                  title="Translate English → Vietnamese"
+                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded border transition-colors disabled:opacity-50 ${
+                    isDark
+                      ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
+                      : 'border-[#E5E7EB] text-[#6B7280] hover:bg-[#F9FAFB]'
+                  }`}
+                >
+                  {translating ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <span>EN→VI</span>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleTranslate('vi')}
+                  disabled={translating}
+                  title="Translate Vietnamese → English"
+                  className={`flex items-center gap-1 px-2 py-1 text-xs rounded border transition-colors disabled:opacity-50 ${
+                    isDark
+                      ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
+                      : 'border-[#E5E7EB] text-[#6B7280] hover:bg-[#F9FAFB]'
+                  }`}
+                >
+                  {translating ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <span>VI→EN</span>
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
