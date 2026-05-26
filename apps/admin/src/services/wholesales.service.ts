@@ -12,6 +12,7 @@ import type {
   NewsletterSubscriber,
   UpdateAccountPayload,
   UpdateEnquiryPayload,
+  CreateTierPayload,
   UpdateTierPayload,
   ApproveEnquiryPayload,
   ApproveEnquiryResult,
@@ -115,6 +116,12 @@ export async function listTiers(): Promise<WholesaleTier[]> {
 export async function getTier(id: string): Promise<WholesaleTier> {
   const client = await createApiClient();
   const { data } = await client.get<WholesaleTier>(`/admin-api/wholesales/tiers/${id}`);
+  return data;
+}
+
+export async function createTier(payload: CreateTierPayload): Promise<WholesaleTier> {
+  const client = await createApiClient();
+  const { data } = await client.post<WholesaleTier>('/admin-api/wholesales/tiers', payload);
   return data;
 }
 

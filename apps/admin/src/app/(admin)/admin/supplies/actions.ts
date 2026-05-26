@@ -5,6 +5,10 @@ import {
   createSupply,
   updateSupply,
   deleteSupply,
+  getProductDetail,
+  uploadProductImage,
+  deleteProductImage,
+  setMainProductImage,
   listProductVariants,
   createProductVariant,
   updateProductVariant,
@@ -14,6 +18,7 @@ import type {
   CreateProductPayload,
   UpdateProductPayload,
   Product,
+  ApiProductImage,
   ApiProductVariant,
   CreateVariantPayload,
   UpdateVariantPayload,
@@ -53,6 +58,59 @@ export async function deleteSupplyAction(id: string): Promise<ActionResult<void>
     return { success: true, data: undefined };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to delete supply' };
+  }
+}
+
+// ─── Supply Images ────────────────────────────────────────────────────────────
+
+export async function listSupplyImagesAction(
+  supplyId: string,
+): Promise<ActionResult<ApiProductImage[]>> {
+  try {
+    const detail = await getProductDetail(supplyId);
+    return { success: true, data: detail.images };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to load images' };
+  }
+}
+
+export async function uploadSupplyImageAction(
+  supplyId: string,
+  formData: FormData,
+): Promise<ActionResult<ApiProductImage>> {
+  try {
+    const file = formData.get('file') as File;
+    const image = await uploadProductImage(supplyId, file);
+    revalidatePath('/admin/supplies');
+    return { success: true, data: image };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to upload image' };
+  }
+}
+
+export async function deleteSupplyImageAction(
+  supplyId: string,
+  imageId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await deleteProductImage(supplyId, imageId);
+    revalidatePath('/admin/supplies');
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to delete image' };
+  }
+}
+
+export async function setMainSupplyImageAction(
+  supplyId: string,
+  imageId: string,
+): Promise<ActionResult<void>> {
+  try {
+    await setMainProductImage(supplyId, imageId);
+    revalidatePath('/admin/supplies');
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to set main image' };
   }
 }
 

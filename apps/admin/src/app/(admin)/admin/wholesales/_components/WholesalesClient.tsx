@@ -8,6 +8,7 @@ import {
   Users,
   Mail,
   Award,
+  Plus,
   ChevronLeft,
   ChevronRight,
   type LucideIcon,
@@ -20,6 +21,7 @@ import type {
   WholesaleAccount,
   WholesaleEnquiry,
   WholesaleTier,
+  WholesaleTierName,
   WholesaleStats,
   NewsletterListResponse,
 } from '../types';
@@ -89,6 +91,7 @@ export function WholesalesClient({
   // Tiers state
   const [tiers, setTiers] = useState(initialTiers);
   const [selectedTier, setSelectedTier] = useState<WholesaleTier | null>(null);
+  const [showCreateTier, setShowCreateTier] = useState(false);
 
   // Newsletter state
   const [newsletter, setNewsletter] = useState<NewsletterListResponse | null>(null);
@@ -286,7 +289,9 @@ export function WholesalesClient({
       )}
 
       {/* Tab: Tiers */}
-      {tab === 'tiers' && <TiersTab tiers={tiers} onSelect={setSelectedTier} />}
+      {tab === 'tiers' && (
+        <TiersTab tiers={tiers} onSelect={setSelectedTier} onAdd={() => setShowCreateTier(true)} />
+      )}
 
       {/* Tab: Newsletter */}
       {tab === 'newsletter' && (
@@ -324,9 +329,20 @@ export function WholesalesClient({
         <TierFormDrawer
           tier={selectedTier}
           onClose={() => setSelectedTier(null)}
-          onUpdated={(updated) => {
+          onSaved={(updated) => {
             setTiers((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             setSelectedTier(null);
+          }}
+        />
+      )}
+
+      {showCreateTier && (
+        <TierFormDrawer
+          existingNames={tiers.map((t) => t.name as WholesaleTierName)}
+          onClose={() => setShowCreateTier(false)}
+          onSaved={(created) => {
+            setTiers((prev) => [...prev, created]);
+            setShowCreateTier(false);
           }}
         />
       )}
@@ -560,50 +576,74 @@ function EnquiriesTab({
 
 // ─── TiersTab ─────────────────────────────────────────────────────────────────
 
+const ALL_TIER_NAMES = ['Bronze', 'Silver', 'Gold'];
+
 function TiersTab({
   tiers,
   onSelect,
+  onAdd,
 }: {
   tiers: WholesaleTier[];
   onSelect: (t: WholesaleTier) => void;
+  onAdd: () => void;
 }) {
+  const missingNames = ALL_TIER_NAMES.filter((n) => !tiers.some((t) => t.name === n));
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {tiers.map((tier) => {
-        const ts = TIER_STYLES[tier.name] ?? TIER_STYLES['Bronze'];
-        return (
-          <div
-            key={tier.id}
-            className="bg-white rounded-xl border border-[#E5E7EB] p-6 cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => onSelect(tier)}
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-xs text-[#6B7280]">{tiers.length} of 3 tiers configured</p>
+        {missingNames.length > 0 && (
+          <button
+            onClick={onAdd}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#111827] text-white text-xs rounded-lg hover:bg-[#374151] transition-colors"
           >
+            <Plus className="w-3.5 h-3.5" />
+            Add Tier
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {tiers.map((tier) => {
+          const ts = TIER_STYLES[tier.name] ?? TIER_STYLES['Bronze'];
+          return (
             <div
-              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border mb-4 ${ts.bg} ${ts.text} ${ts.border}`}
+              key={tier.id}
+              className="bg-white rounded-xl border border-[#E5E7EB] p-6 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => onSelect(tier)}
             >
-              {tier.name}
+              <div
+                className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border mb-4 ${ts.bg} ${ts.text} ${ts.border}`}
+              >
+                {tier.name}
+              </div>
+              <div className="space-y-3">
+                <TierRow label="Discount" value={`${tier.discountPercent}%`} />
+                {tier.maxDiscountAmount && (
+                  <TierRow label="Max Discount" value={`$${tier.maxDiscountAmount}`} />
+                )}
+                <TierRow label="Min Monthly Qty" value={`${tier.minMonthlyQty} sets`} />
+                <TierRow label="Min Order" value={`$${tier.minOrderAmount}`} />
+                <TierRow label="Free Shipping" value={tier.freeShipping ? 'Yes' : 'No'} />
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(tier);
+                }}
+                className="mt-4 w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-xs font-medium text-[#374151] hover:border-[#111827] transition-colors"
+              >
+                Edit Settings
+              </button>
             </div>
-            <div className="space-y-3">
-              <TierRow label="Discount" value={`${tier.discountPercent}%`} />
-              {tier.maxDiscountAmount && (
-                <TierRow label="Max Discount" value={`$${tier.maxDiscountAmount}`} />
-              )}
-              <TierRow label="Min Monthly Qty" value={`${tier.minMonthlyQty} sets`} />
-              <TierRow label="Min Order" value={`$${tier.minOrderAmount}`} />
-              <TierRow label="Free Shipping" value={tier.freeShipping ? 'Yes' : 'No'} />
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(tier);
-              }}
-              className="mt-4 w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-xs font-medium text-[#374151] hover:border-[#111827] transition-colors"
-            >
-              Edit Settings
-            </button>
+          );
+        })}
+        {tiers.length === 0 && (
+          <div className="col-span-3">
+            <EmptyState icon={Award} text="No tiers configured — click Add Tier to get started" />
           </div>
-        );
-      })}
-      {tiers.length === 0 && <EmptyState icon={Award} text="No tiers configured" />}
+        )}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Param, Body, Query, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, HttpCode } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -13,6 +13,7 @@ import { UpdateWholesaleAccountDto } from './dto/update-wholesale-account.dto';
 import { EnquiryListQueryDto } from './dto/enquiry-list-query.dto';
 import { UpdateWholesaleEnquiryDto } from './dto/update-wholesale-enquiry.dto';
 import { UpdateWholesaleTierDto } from './dto/update-wholesale-tier.dto';
+import { CreateWholesaleTierDto } from './dto/create-wholesale-tier.dto';
 import { NewsletterListQueryDto } from './dto/newsletter-list-query.dto';
 import { UpdateNewsletterSubscriberDto } from './dto/update-newsletter-subscriber.dto';
 import { ApproveEnquiryDto } from './dto/approve-enquiry.dto';
@@ -110,6 +111,11 @@ export class WholesaleTiersController {
   @ApiOkResponse({ description: 'List of all wholesale tiers' })
   list() {
     return this.wholesalesService.listTiers();
+  }
+
+  @Post()
+  create(@Body() dto: CreateWholesaleTierDto) {
+    return this.wholesalesService.createTier(dto);
   }
 
   @Get(':id')

@@ -2,14 +2,17 @@
 
 import { useState, useTransition } from 'react';
 import { X } from 'lucide-react';
-import type { WholesaleTier, UpdateTierPayload } from '../types';
-import { updateTierAction } from '../actions';
+import type { WholesaleTier, WholesaleTierName, CreateTierPayload, UpdateTierPayload } from '../types';
+import { createTierAction, updateTierAction } from '../actions';
 
 interface Props {
-  tier: WholesaleTier;
+  tier?: WholesaleTier | null;
+  existingNames?: WholesaleTierName[];
   onClose: () => void;
-  onUpdated: (tier: WholesaleTier) => void;
+  onSaved: (tier: WholesaleTier) => void;
 }
+
+const ALL_TIER_NAMES: WholesaleTierName[] = ['Bronze', 'Silver', 'Gold'];
 
 const TIER_STYLES: Record<string, { bg: string; text: string; border: string }> = {
   Bronze: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
@@ -20,19 +23,26 @@ const TIER_STYLES: Record<string, { bg: string; text: string; border: string }> 
 type ErrResult = { success: false; error: string };
 const getErr = (r: unknown) => (r as ErrResult).error ?? 'Unknown error';
 
-export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
+export function TierFormDrawer({ tier, existingNames = [], onClose, onSaved }: Props) {
+  const isCreate = !tier;
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
 
-  const [discountPercent, setDiscountPercent] = useState(String(tier.discountPercent));
-  const [maxDiscountAmount, setMaxDiscountAmount] = useState(
-    tier.maxDiscountAmount !== null ? String(tier.maxDiscountAmount) : '',
+  const availableNames = ALL_TIER_NAMES.filter((n) => !existingNames.includes(n));
+  const [selectedName, setSelectedName] = useState<WholesaleTierName>(
+    availableNames[0] ?? 'Bronze',
   );
-  const [minMonthlyQty, setMinMonthlyQty] = useState(String(tier.minMonthlyQty));
-  const [minOrderAmount, setMinOrderAmount] = useState(String(tier.minOrderAmount));
-  const [freeShipping, setFreeShipping] = useState(tier.freeShipping);
 
-  const ts = TIER_STYLES[tier.name] ?? TIER_STYLES['Bronze'];
+  const [discountPercent, setDiscountPercent] = useState(String(tier?.discountPercent ?? 0));
+  const [maxDiscountAmount, setMaxDiscountAmount] = useState(
+    tier?.maxDiscountAmount != null ? String(tier.maxDiscountAmount) : '',
+  );
+  const [minMonthlyQty, setMinMonthlyQty] = useState(String(tier?.minMonthlyQty ?? 0));
+  const [minOrderAmount, setMinOrderAmount] = useState(String(tier?.minOrderAmount ?? 0));
+  const [freeShipping, setFreeShipping] = useState(tier?.freeShipping ?? false);
+
+  const displayName = isCreate ? selectedName : tier.name;
+  const ts = TIER_STYLES[displayName] ?? TIER_STYLES['Bronze'];
 
   const handleSave = () => {
     const pct = parseFloat(discountPercent);
@@ -42,19 +52,28 @@ export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
     }
     setError('');
     startTransition(async () => {
-      const payload: UpdateTierPayload = {
+      const sharedFields = {
         discountPercent: pct,
         maxDiscountAmount: maxDiscountAmount ? parseFloat(maxDiscountAmount) : null,
         minMonthlyQty: parseInt(minMonthlyQty, 10) || 0,
         minOrderAmount: parseFloat(minOrderAmount) || 0,
         freeShipping,
       };
-      const result = await updateTierAction(tier.id, payload);
+
+      let result;
+      if (isCreate) {
+        const payload: CreateTierPayload = { name: selectedName, ...sharedFields };
+        result = await createTierAction(payload);
+      } else {
+        const payload: UpdateTierPayload = sharedFields;
+        result = await updateTierAction(tier.id, payload);
+      }
+
       if (!result.success) {
         setError(getErr(result));
         return;
       }
-      onUpdated(result.data);
+      onSaved(result.data);
     });
   };
 
@@ -68,9 +87,11 @@ export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${ts.bg} ${ts.text} ${ts.border}`}
             >
-              {tier.name}
+              {displayName}
             </span>
-            <h2 className="text-sm font-semibold text-[#111827]">Edit Tier Settings</h2>
+            <h2 className="text-sm font-semibold text-[#111827]">
+              {isCreate ? 'Add New Tier' : 'Edit Tier Settings'}
+            </h2>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#F3F4F6]">
             <X className="w-4 h-4" />
@@ -78,6 +99,35 @@ export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+          {/* Tier name selector (create only) */}
+          {isCreate && (
+            <div>
+              <label className="block text-xs font-medium text-[#374151] mb-1">Tier Name</label>
+              {availableNames.length === 0 ? (
+                <p className="text-sm text-red-600">All tiers already exist.</p>
+              ) : (
+                <div className="flex gap-2">
+                  {availableNames.map((name) => {
+                    const s = TIER_STYLES[name];
+                    return (
+                      <button
+                        key={name}
+                        onClick={() => setSelectedName(name)}
+                        className={`flex-1 px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                          selectedName === name
+                            ? `${s.bg} ${s.text} ${s.border} border-2`
+                            : 'border-[#E5E7EB] text-[#374151] hover:border-[#111827]'
+                        }`}
+                      >
+                        {name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Discount */}
           <div>
             <label className="block text-xs font-medium text-[#374151] mb-1">
@@ -179,10 +229,10 @@ export function TierFormDrawer({ tier, onClose, onUpdated }: Props) {
             </button>
             <button
               onClick={handleSave}
-              disabled={isPending}
+              disabled={isPending || (isCreate && availableNames.length === 0)}
               className="flex-1 px-4 py-2.5 rounded-lg bg-[#111827] text-white text-xs font-medium hover:bg-[#374151] transition-colors disabled:opacity-60"
             >
-              {isPending ? 'Saving...' : 'Save Changes'}
+              {isPending ? 'Saving...' : isCreate ? 'Create Tier' : 'Save Changes'}
             </button>
           </div>
         </div>
