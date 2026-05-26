@@ -274810,7 +274810,7 @@ let CollectionsService = class CollectionsService {
         const skip = (page - 1) * limit;
         const qb = this.collectionRepo
             .createQueryBuilder('c')
-            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.where('p.deleted_at IS NULL AND p.is_active = true'))
+            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.andWhere('p.isActive = :pActive', { pActive: true }))
             .skip(skip)
             .take(limit)
             .orderBy('c.sortOrder', 'ASC')
@@ -301575,8 +301575,8 @@ let ClientCollectionsService = class ClientCollectionsService {
         const skip = (page - 1) * limit;
         const qb = this.collectionRepo
             .createQueryBuilder('c')
-            .where('c.isActive = true')
-            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.where('p.deleted_at IS NULL AND p.is_active = true'))
+            .where('c.isActive = :active', { active: true })
+            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.andWhere('p.isActive = :pActive', { pActive: true }))
             .orderBy('c.sortOrder', 'ASC')
             .addOrderBy('c.name', 'ASC')
             .skip(skip)
@@ -301591,8 +301591,9 @@ let ClientCollectionsService = class ClientCollectionsService {
     async getFeaturedCollections(locale = translation_constants_1.FALLBACK_LOCALE) {
         const collections = await this.collectionRepo
             .createQueryBuilder('c')
-            .where('c.isActive = true AND c.isFeatured = true')
-            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.where('p.deleted_at IS NULL AND p.is_active = true'))
+            .where('c.isActive = :active', { active: true })
+            .andWhere('c.isFeatured = :featured', { featured: true })
+            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.andWhere('p.isActive = :pActive', { pActive: true }))
             .orderBy('c.sortOrder', 'ASC')
             .getMany();
         const translations = await this.loadCollectionTranslations(collections.map((c) => c.id), locale);
@@ -301601,8 +301602,9 @@ let ClientCollectionsService = class ClientCollectionsService {
     async getCollectionBySlug(slug, locale = translation_constants_1.FALLBACK_LOCALE) {
         const collection = await this.collectionRepo
             .createQueryBuilder('c')
-            .where('c.slug = :slug AND c.isActive = true', { slug })
-            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.where('p.deleted_at IS NULL AND p.is_active = true'))
+            .where('c.slug = :slug', { slug })
+            .andWhere('c.isActive = :active', { active: true })
+            .loadRelationCountAndMap('c.productCount', 'c.products', 'p', (pb) => pb.andWhere('p.isActive = :pActive', { pActive: true }))
             .getOne();
         if (!collection)
             throw new common_1.NotFoundException('Collection not found');
@@ -301641,8 +301643,28 @@ let ClientCollectionsService = class ClientCollectionsService {
         }
         qb.addOrderBy('images.sortOrder', 'ASC');
         const [products, total] = await qb.getManyAndCount();
-        const productTranslations = await this.loadProductTranslations(products.map((p) => p.id), locale);
-        const collectionTranslation = await this.loadCollectionTranslation(collection.id, locale);
+        // Batch all translations in a single query (products + collection)
+        const allIds = [collection.id, ...products.map((p) => p.id)];
+        const allTranslations = await this.translationRepo
+            .createQueryBuilder('t')
+            .where('t.entity_id IN (:...ids)', { ids: allIds })
+            .andWhere('t.locale IN (:...locales)', {
+            locales: locale === translation_constants_1.FALLBACK_LOCALE ? [locale] : [locale, translation_constants_1.FALLBACK_LOCALE],
+        })
+            .getMany();
+        const productTranslations = new Map();
+        let collectionTranslation = null;
+        for (const tr of allTranslations) {
+            if (tr.entityId === collection.id) {
+                if (!collectionTranslation || tr.locale === locale)
+                    collectionTranslation = tr;
+            }
+            else {
+                const existing = productTranslations.get(tr.entityId);
+                if (!existing || tr.locale === locale)
+                    productTranslations.set(tr.entityId, tr);
+            }
+        }
         return {
             collection: {
                 id: collection.id,
