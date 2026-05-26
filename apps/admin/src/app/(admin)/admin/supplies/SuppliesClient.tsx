@@ -75,7 +75,7 @@ export function SuppliesClient({
   const { items: supplies, pagination } = initialSupplies;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -124,8 +124,8 @@ export function SuppliesClient({
       </form>
 
       {/* Table */}
-      <div className={`rounded-xl border overflow-hidden ${isDark ? 'border-gray-800 bg-gray-900' : 'border-[#E5E7EB] bg-white'}`}>
-        <table className="w-full text-sm">
+      <div className={`rounded-xl border overflow-hidden overflow-x-auto ${isDark ? 'border-gray-800 bg-gray-900' : 'border-[#E5E7EB] bg-white'}`}>
+        <table className="w-full min-w-[560px] text-sm">
           <thead>
             <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
               {[t('table.supply'), t('table.sku'), t('table.price'), t('table.stock'), t('table.status'), ''].map((h) => (

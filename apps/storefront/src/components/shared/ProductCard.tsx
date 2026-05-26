@@ -35,11 +35,13 @@ export function ProductCard({ product, className = '' }: ProductCardProps) {
       className={`group ${className}`}
     >
       <LinkBase href={`/products/${product.slug}`} className="block">
-        <div className="relative overflow-hidden bg-[#F5F5F5] aspect-[3/4]">
+        <div className="relative aspect-square overflow-hidden bg-white">
           <ImageWithFallback
             src={product.thumbnail ?? ''}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
           />
 
           <button

@@ -35,15 +35,15 @@ export default async function CollectionsPage() {
                 href={`/collections/${collection.slug}`}
                 className="group block"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#F8F8F8]">
+                <div className="relative aspect-square overflow-hidden bg-white">
                   {collection.image ? (
                     <img
                       src={collection.image}
                       alt={collection.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center">
                       <Package className="size-12 text-[#D1D5DB]" />
                     </div>
                   )}

@@ -96,7 +96,7 @@ export function CollectionsClient({
   const { data, meta } = collections;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -128,8 +128,8 @@ export function CollectionsClient({
       </div>
 
       {/* Table */}
-      <div className="rounded border border-[#E5E7EB] overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="rounded border border-[#E5E7EB] overflow-hidden overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
           <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB]">
             <tr>
               <th className="text-left px-4 py-3 text-xs font-medium text-[#6B7280] uppercase tracking-wider">

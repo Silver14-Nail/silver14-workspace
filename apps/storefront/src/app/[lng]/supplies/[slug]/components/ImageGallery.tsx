@@ -10,11 +10,13 @@ interface Props {
 export function ImageGallery({ images, productName, selectedIndex, onSelect }: Props) {
   return (
     <div className="space-y-4">
-      <div className="aspect-square bg-[#F8F8F8] overflow-hidden">
+      <div className="relative aspect-square overflow-hidden bg-white">
         <ImageWithFallback
           src={images[selectedIndex]}
           alt={productName}
-          className="w-full h-full object-cover"
+          fill
+          sizes="(max-width: 640px) 100vw, 50vw"
+          className="object-cover object-center"
         />
       </div>
 
@@ -24,7 +26,7 @@ export function ImageGallery({ images, productName, selectedIndex, onSelect }: P
             <button
               key={idx}
               onClick={() => onSelect(idx)}
-              className={`aspect-square bg-[#F8F8F8] overflow-hidden border-2 transition-all ${
+              className={`relative aspect-square bg-white overflow-hidden border-2 transition-all ${
                 selectedIndex === idx
                   ? 'border-[#1A1A1A]'
                   : 'border-transparent hover:border-[#C0C0C0]'
@@ -33,7 +35,9 @@ export function ImageGallery({ images, productName, selectedIndex, onSelect }: P
               <ImageWithFallback
                 src={img}
                 alt={`${productName} - View ${idx + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                sizes="20vw"
+                className="object-contain object-center"
               />
             </button>
           ))}

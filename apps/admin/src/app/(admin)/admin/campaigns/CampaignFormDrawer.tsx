@@ -252,7 +252,7 @@ export default function CampaignFormDrawer({
 
       {/* Drawer */}
       <div
-        className={`fixed inset-y-0 right-0 w-full max-w-lg z-50 flex flex-col shadow-2xl ${
+        className={`fixed bottom-0 sm:inset-y-0 right-0 w-full sm:max-w-lg h-[90vh] sm:h-full z-50 flex flex-col shadow-2xl rounded-t-2xl sm:rounded-none overflow-hidden ${
           isDark ? 'bg-gray-900' : 'bg-white'
         }`}
       >
@@ -306,7 +306,7 @@ export default function CampaignFormDrawer({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass(isDark)}>{t('form.type')}</label>
                     <select
@@ -337,7 +337,7 @@ export default function CampaignFormDrawer({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass(isDark)}>{t('form.status')}</label>
                     <select
@@ -375,7 +375,7 @@ export default function CampaignFormDrawer({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass(isDark)}>{t('form.startsAt')}</label>
                     <input

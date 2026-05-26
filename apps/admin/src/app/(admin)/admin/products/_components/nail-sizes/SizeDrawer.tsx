@@ -49,7 +49,7 @@ export default function SizeDrawer({ size, onClose, onSuccess }: SizeDrawerProps
   return (
     <>
       <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-[480px] z-50 flex flex-col shadow-2xl bg-white">
+      <div className="fixed bottom-0 right-0 sm:top-0 w-full sm:w-[480px] h-[90vh] sm:h-full z-50 flex flex-col shadow-2xl bg-white rounded-t-2xl sm:rounded-none overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
           <h2 className="text-sm font-semibold text-[#111827]">
             {isEdit ? 'Edit Nail Size' : 'Add Nail Size'}

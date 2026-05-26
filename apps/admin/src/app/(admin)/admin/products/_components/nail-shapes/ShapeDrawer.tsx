@@ -72,7 +72,7 @@ export default function ShapeDrawer({ shape, onClose, onSuccess }: ShapeDrawerPr
     <>
       <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
       <div
-        className={`fixed right-0 top-0 h-full w-[480px] z-50 flex flex-col shadow-2xl ${
+        className={`fixed bottom-0 right-0 sm:top-0 w-full sm:w-[480px] h-[90vh] sm:h-full z-50 flex flex-col shadow-2xl rounded-t-2xl sm:rounded-none overflow-hidden ${
           dark ? 'bg-[#1C1E26]' : 'bg-white'
         }`}
       >
@@ -111,7 +111,7 @@ export default function ShapeDrawer({ shape, onClose, onSuccess }: ShapeDrawerPr
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Length (mm) *</label>
               <input
@@ -139,7 +139,7 @@ export default function ShapeDrawer({ shape, onClose, onSuccess }: ShapeDrawerPr
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Price Adjustment</label>
               <input

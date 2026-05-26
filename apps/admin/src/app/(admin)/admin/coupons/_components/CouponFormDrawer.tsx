@@ -181,7 +181,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               <Loader2 className="w-6 h-6 animate-spin text-[#9CA3AF]" />
             </div>
           ) : (
-            <form id="coupon-form" onSubmit={handleSubmit} className="p-6 space-y-5">
+            <form id="coupon-form" onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-5">
               {error && (
                 <div className="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
                   {error}
@@ -285,7 +285,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               )}
 
               {/* Min Order / Max Uses Per User */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
                     {t('form.minOrder')}
@@ -330,7 +330,7 @@ export function CouponFormDrawer({ couponId, onClose, onSuccess }: CouponFormDra
               </div>
 
               {/* Schedule */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#374151] mb-1.5">
                     {t('form.startsAt')}

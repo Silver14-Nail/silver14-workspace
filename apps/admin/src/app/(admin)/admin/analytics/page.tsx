@@ -115,7 +115,7 @@ export default function AdminAnalyticsPage() {
   const [range, setRange] = useState<'7d' | '30d' | '6m' | '1y'>('6m');
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -151,7 +151,7 @@ export default function AdminAnalyticsPage() {
       {/* Revenue Tab */}
       {activeTab === 'Revenue' && (
         <>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Total Revenue" value="$28,100" change="+18.4%" up={true} />
             <MetricCard label="Avg. Order Value" value="$74.93" change="+5.2%" up={true} />
             <MetricCard label="Net Revenue" value="$22,480" change="+20.1%" up={true} />
@@ -262,7 +262,7 @@ export default function AdminAnalyticsPage() {
       {/* Products Tab */}
       {activeTab === 'Products' && (
         <>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Total Units Sold" value="1,325" change="+22.3%" up={true} />
             <MetricCard label="Top Product" value="Pearl Blanc" change="+321 units" up={true} />
             <MetricCard label="Avg. Product Revenue" value="$6,674" change="+14.2%" up={true} />
@@ -305,7 +305,7 @@ export default function AdminAnalyticsPage() {
       {/* Customers Tab */}
       {activeTab === 'Customers' && (
         <>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Total Customers" value="284" change="+31 this month" up={true} />
             <MetricCard label="Returning Rate" value="28.4%" change="+3.2%" up={true} />
             <MetricCard label="Avg. LTV" value="$98.95" change="+8.7%" up={true} />
@@ -345,7 +345,7 @@ export default function AdminAnalyticsPage() {
       {/* Wholesale Tab */}
       {activeTab === 'Wholesale' && (
         <>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Wholesale Revenue" value="$6,960" change="+24.3%" up={true} />
             <MetricCard label="Active Accounts" value="3" change="+2 this quarter" up={true} />
             <MetricCard label="Avg. Order Value" value="$312" change="+18.5%" up={true} />
@@ -398,7 +398,7 @@ export default function AdminAnalyticsPage() {
       {/* Payments Tab */}
       {activeTab === 'Payments' && (
         <>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Success Rate" value="96.2%" change="+1.3%" up={true} />
             <MetricCard label="Failed Payments" value="2" change="-3 vs last month" up={true} />
             <MetricCard label="Avg. Transaction" value="$74.93" change="+5.1%" up={true} />
@@ -475,7 +475,7 @@ export default function AdminAnalyticsPage() {
       {/* Cart Abandonment Tab */}
       {activeTab === 'Cart Abandonment' && (
         <>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <MetricCard label="Abandonment Rate" value="79.2%" change="-2.3%" up={true} />
             <MetricCard label="Recovered Revenue" value="$1,240" change="+34.1%" up={true} />
             <MetricCard label="Abandoned Carts" value="271" change="-18" up={true} />

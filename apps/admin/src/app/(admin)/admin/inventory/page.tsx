@@ -64,7 +64,7 @@ export default function AdminInventoryPage() {
   const totalUnits = mockProducts.reduce((s, p) => s + p.stock, 0);
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-[#111827]">Inventory</h1>
@@ -76,7 +76,7 @@ export default function AdminInventoryPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           {
             label: 'Total Units',

@@ -73,9 +73,9 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-stretch justify-center sm:justify-end">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative ml-auto flex h-full w-full max-w-xl flex-col bg-white shadow-2xl">
+      <div className="relative flex h-[90vh] sm:h-full w-full sm:max-w-xl flex-col bg-white shadow-2xl rounded-t-2xl sm:rounded-none overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
           <div className="min-w-0">
