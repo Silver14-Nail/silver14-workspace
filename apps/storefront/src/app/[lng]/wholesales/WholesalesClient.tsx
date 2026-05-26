@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, Globe, Package, Star } from 'lucide-react';
+import { Check, ArrowRight, Globe, Package/*, Star*/ } from 'lucide-react';
 import { LinkBase } from '@/components/shared/LinkBase';
 import { useWholesaleEnquiry } from '@/features/wholesale/hooks/useWholesaleEnquiry';
-import { useWholesaleTiers } from '@/features/wholesale/hooks/useWholesaleTiers';
-import { useCurrency } from '@/hooks/useCurrency';
+// import { useWholesaleTiers } from '@/features/wholesale/hooks/useWholesaleTiers';
+// import { useCurrency } from '@/hooks/useCurrency';
 import { COUNTRIES } from '../checkout/constants';
 
 const FALLBACK_INTERESTS = [
@@ -18,11 +18,11 @@ const FALLBACK_INTERESTS = [
   'All Collections',
 ];
 
-const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  Bronze: { bg: '#FDF6EC', text: '#92400E', border: '#D97706' },
-  Silver: { bg: '#F8F8F8', text: '#374151', border: '#9CA3AF' },
-  Gold: { bg: '#FFFBEB', text: '#78350F', border: '#F59E0B' },
-};
+// const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+//   Bronze: { bg: '#FDF6EC', text: '#92400E', border: '#D97706' },
+//   Silver: { bg: '#F8F8F8', text: '#374151', border: '#9CA3AF' },
+//   Gold: { bg: '#FFFBEB', text: '#78350F', border: '#F59E0B' },
+// };
 
 function InputField({
   label,
@@ -65,8 +65,8 @@ interface Props {
 
 export default function WholesalesClient({ collections }: Props) {
   const { submit, isSubmitting, error } = useWholesaleEnquiry();
-  const { data: tiers = [] } = useWholesaleTiers();
-  const { format } = useCurrency();
+  // const { data: tiers = [] } = useWholesaleTiers();
+  // const { format } = useCurrency();
 
   const interests = collections.length > 0
     ? [...collections, 'All Collections']
@@ -168,48 +168,30 @@ export default function WholesalesClient({ collections }: Props) {
         </div>
       </div>
 
-      {/* Tier comparison */}
-      {tiers.length > 0 && (
+      {/* Tier comparison — commented out, uncomment to re-enable */}
+      {/* {tiers.length > 0 && (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-10">
-            <p
-              className="text-[#9A9A9A] uppercase tracking-[0.2em] text-xs mb-3"
-              style={{ letterSpacing: '0.2em' }}
-            >
+            <p className="text-[#9A9A9A] uppercase tracking-[0.2em] text-xs mb-3" style={{ letterSpacing: '0.2em' }}>
               Partnership Tiers
             </p>
-            <h2
-              className="text-[#1A1A1A]"
-              style={{ fontWeight: 400, fontSize: 'clamp(1.4rem, 3vw, 2rem)' }}
-            >
+            <h2 className="text-[#1A1A1A]" style={{ fontWeight: 400, fontSize: 'clamp(1.4rem, 3vw, 2rem)' }}>
               Wholesale Pricing Tiers
             </h2>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {tiers.map((tier) => {
               const colors = TIER_COLORS[tier.name] ?? TIER_COLORS['Bronze'];
               return (
-                <div
-                  key={tier.id}
-                  className="border p-6 flex flex-col gap-4"
-                  style={{ borderColor: colors.border, backgroundColor: colors.bg }}
-                >
+                <div key={tier.id} className="border p-6 flex flex-col gap-4" style={{ borderColor: colors.border, backgroundColor: colors.bg }}>
                   <div className="flex items-center gap-2">
                     <Star className="size-4" style={{ color: colors.border }} aria-hidden />
-                    <span
-                      className="text-xs uppercase tracking-widest font-medium"
-                      style={{ color: colors.text, letterSpacing: '0.12em' }}
-                    >
-                      {tier.name}
-                    </span>
+                    <span className="text-xs uppercase tracking-widest font-medium" style={{ color: colors.text, letterSpacing: '0.12em' }}>{tier.name}</span>
                   </div>
-
                   <p className="text-[#1A1A1A]" style={{ fontSize: '2rem' }}>
                     {Number(tier.discountPercent)}%
                     <span className="text-sm font-normal text-[#6A6A6A] ml-1">off retail</span>
                   </p>
-
                   <ul className="space-y-2 text-[#6A6A6A] text-xs">
                     {tier.minMonthlyQty > 0 && (
                       <li className="flex items-center gap-2">
@@ -241,7 +223,7 @@ export default function WholesalesClient({ collections }: Props) {
             })}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Form */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

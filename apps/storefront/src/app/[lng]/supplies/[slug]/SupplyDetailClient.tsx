@@ -118,7 +118,7 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
                         style={v.colorHex ? { backgroundColor: v.colorHex } : undefined}
                         disabled={!v.isAvailable}
                       >
-                        {!v.colorHex && (v.colorName ?? '?')}
+                        {!v.colorHex && (v.colorName ?? t('detail.colorDefault'))}
                       </button>
                     );
                   })}

@@ -11,13 +11,14 @@
     "usageGuide": "Hướng dẫn sử dụng",
     "features": "Tính năng",
     "color": "Màu sắc",
+    "colorDefault": "Mặc định",
     "quantity": "Số lượng",
     "addToCart": "Thêm vào giỏ",
     "outOfStock": "Hết hàng",
     "insufficientStock": "Chỉ còn {{max}} sản phẩm",
     "shipping": {
       "title": "Miễn phí vận chuyển toàn cầu",
-      "subtitle": "Giao hàng trong 5–7 ngày làm việc"
+      "subtitle": "Miễn phí vận chuyển đơn hàng từ $100"
     },
     "packaging": {
       "title": "Đóng gói an toàn",
@@ -25,7 +26,7 @@
     },
     "returns": {
       "title": "Đổi trả trong 14 ngày",
-      "subtitle": "Đổi trả dễ dàng trong vòng 14 ngày"
+      "subtitle": "Vui lòng quay video khi mở kiện hàng để chúng tôi có thể hỗ trợ bạn"
     }
   }
 }
