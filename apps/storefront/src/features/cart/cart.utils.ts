@@ -37,6 +37,7 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
     productName: product.name,
     productSlug: product.slug ?? product.id,
     thumbnail: pickThumbnail(product.images),
+    colorName: variant.colorName ?? null,
     shapeName: shape?.name ?? '',
     sizeName,
     price: effectivePrice,

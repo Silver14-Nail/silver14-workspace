@@ -4,7 +4,7 @@ import { adaptListItem } from '@/lib/product.adapter';
 import { ProductCard } from '@/components/shared/ProductCard';
 import { LinkBase } from '@/components/shared/LinkBase';
 
-const REVALIDATE = { cache: 'no-store' } satisfies RequestInit;
+const REVALIDATE = { next: { revalidate: 120 } } satisfies RequestInit;
 
 export function HomeSectionsSkeleton() {
   return (

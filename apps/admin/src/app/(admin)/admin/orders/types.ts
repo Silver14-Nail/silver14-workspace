@@ -30,7 +30,7 @@ export interface ShippingSnapshot {
   city: string;
   country: string;
   postalCode?: string;
-  shippingMethodName: string;
+  shippingMethodName: string | null;
 }
 
 export interface OrderVariant {
@@ -47,8 +47,9 @@ export interface OrderItem {
   unitPrice: number;
   shapeSurcharge: number;
   itemDiscount: number;
-  shapeName: string;
-  sizeLabel: string;
+  shapeName: string | null;
+  sizeLabel: string | null;
+  colorName: string | null;
   isCustomSize: boolean;
   productId: string | null;
   productName: string | null;

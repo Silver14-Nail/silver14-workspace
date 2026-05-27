@@ -160,7 +160,7 @@ export default function AccountOrdersPage() {
                         className="px-6 py-3 text-left font-normal"
                         style={{ letterSpacing: '0.08em' }}
                       >
-                        Status
+                        {t('orders.status')}
                       </th>
                       <th className="px-6 py-3" />
                     </tr>
@@ -190,7 +190,7 @@ export default function AccountOrdersPage() {
                             href={`/account/orders/${order.id}`}
                             className="text-[#1A1A1A] text-xs hover:underline inline-flex items-center gap-1"
                           >
-                            View <ArrowRight className="size-3" />
+                            {t('orders.view')} <ArrowRight className="size-3" />
                           </LinkBase>
                         </td>
                       </tr>

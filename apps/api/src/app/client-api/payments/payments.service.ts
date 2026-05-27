@@ -360,6 +360,7 @@ export class ClientPaymentsService {
         itemDiscount: 0,
         shapeName: cartItem.variant.shape?.name ?? null,
         sizeLabel: cartItem.variant.size?.label ?? null,
+        colorName: cartItem.variant.colorName ?? null,
         isCustomSize: cartItem.isCustomSize,
         productType: cartItem.variant.product?.type ?? null,
         productId: cartItem.variant.product?.id ?? null,

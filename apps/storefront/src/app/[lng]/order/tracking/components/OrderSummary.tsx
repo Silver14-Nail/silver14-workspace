@@ -30,7 +30,7 @@ export default function OrderSummary({
       ) : (
         <div className="space-y-3 mb-4">
           {items.map((item, i) => {
-            const details = [item.variantName, item.sizeName, item.shapeName]
+            const details = [item.colorName, item.variantName, item.sizeName, item.shapeName]
               .filter(Boolean)
               .join(', ');
             return (

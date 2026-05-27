@@ -70,6 +70,7 @@ export class ClientOrdersService {
         return {
           productName: item.productName ?? 'Product',
           variantName: item.sku ?? null,
+          colorName: item.colorName ?? null,
           sizeName: item.sizeLabel,
           shapeName: item.shapeName,
           quantity: item.quantity,
@@ -155,9 +156,11 @@ export class ClientOrdersService {
         const unitCost =
           Number(item.unitPrice) + Number(item.shapeSurcharge) - Number(item.itemDiscount);
         return {
-          productName: item.variant?.product?.name ?? 'Product',
+          productName: item.productName ?? item.variant?.product?.name ?? 'Product',
           sizeName: item.sizeLabel,
           shapeName: item.shapeName,
+          colorName: item.colorName ?? item.variant?.colorName ?? null,
+          thumbnail: item.thumbnail ?? null,
           quantity: item.quantity,
           price: unitCost,
           lineTotal: unitCost * item.quantity,

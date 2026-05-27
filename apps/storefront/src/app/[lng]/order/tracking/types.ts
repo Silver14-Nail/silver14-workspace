@@ -3,6 +3,7 @@ export type OrderTrackingStatus = 'Processing' | 'Crafting' | 'Shipped' | 'Deliv
 export interface TrackedOrderItem {
   productName: string;
   variantName: string | null;
+  colorName: string | null;
   sizeName: string | null;
   shapeName: string | null;
   quantity: number;
