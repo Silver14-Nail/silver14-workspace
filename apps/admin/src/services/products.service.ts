@@ -183,6 +183,29 @@ export async function uploadProductImage(productId: string, file: File): Promise
   return res.json() as Promise<ApiProductImage>;
 }
 
+export async function presignProductImageUpload(
+  productId: string,
+  mime: string,
+): Promise<{ presignedUrl: string; publicUrl: string; key: string }> {
+  const client = await createApiClient();
+  const { data } = await client.get(`/admin-api/products/${productId}/images/presign`, {
+    params: { mime },
+  });
+  return data;
+}
+
+export async function confirmProductImageUpload(
+  productId: string,
+  publicUrl: string,
+): Promise<ApiProductImage> {
+  const client = await createApiClient();
+  const { data } = await client.post<ApiProductImage>(
+    `/admin-api/products/${productId}/images/confirm`,
+    { url: publicUrl },
+  );
+  return data;
+}
+
 
 export async function addProductImage(
   productId: string,

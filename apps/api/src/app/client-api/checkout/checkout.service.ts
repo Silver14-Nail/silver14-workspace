@@ -27,6 +27,8 @@ import {
 import { CurrencyService } from '@/shared/currency/currency.service';
 import { getShippingZone } from '@/shared/shipping/shipping-zones.constant';
 
+import { effectiveUnitPrice } from '@/shared/pricing/pricing.utils';
+
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
@@ -217,7 +219,10 @@ export class ClientCheckoutService {
     }
 
     const userId = (session.user as any)?.id;
-    if (userId && coupon.maxUsesPerUser > 0) {
+    if (coupon.maxUsesPerUser > 0) {
+      if (!userId) {
+        throw new BadRequestException('Please log in to use this coupon');
+      }
       const usageCount = await this.couponUsageRepo.count({
         where: { coupon: { id: coupon.id }, user: { id: userId } },
       });
@@ -244,6 +249,7 @@ export class ClientCheckoutService {
     const discountAmountUSD = this.computeDiscount(coupon, subtotalUSD);
 
     session.couponCode = coupon.code;
+    session.couponDiscountType = coupon.discountType;
     session.discountAmount = discountAmountUSD;
 
     const saved = await this.sessionRepo.save(session);
@@ -254,6 +260,7 @@ export class ClientCheckoutService {
     const session = await this.findActiveSession(sessionId);
 
     session.couponCode = null;
+    session.couponDiscountType = null;
     session.discountAmount = 0;
 
     const saved = await this.sessionRepo.save(session);
@@ -355,8 +362,30 @@ export class ClientCheckoutService {
         break;
       }
 
-      case CouponRestrictionType.CATEGORY:
+      case CouponRestrictionType.CATEGORY: {
+        if (!restriction.refId) break;
+        const productIds = items
+          .map((item) => (item.variant as any).product?.id)
+          .filter((id): id is string => Boolean(id));
+        if (!productIds.length) {
+          throw new BadRequestException(
+            `This coupon is only valid for "${restriction.refLabel ?? 'a specific collection'}" products`,
+          );
+        }
+        const hit = await this.cartRepo.manager
+          .createQueryBuilder()
+          .select('COUNT(*)', 'cnt')
+          .from('product_collections', 'pc')
+          .where('pc.collection_id = :collectionId', { collectionId: restriction.refId })
+          .andWhere('pc.product_id IN (:...productIds)', { productIds })
+          .getRawOne<{ cnt: string }>();
+        if (Number(hit?.cnt ?? 0) === 0) {
+          throw new BadRequestException(
+            `This coupon is only valid for "${restriction.refLabel ?? 'a specific collection'}" products`,
+          );
+        }
         break;
+      }
 
       case CouponRestrictionType.PRODUCT_TYPE: {
         if (!restriction.refId) break;
@@ -375,7 +404,7 @@ export class ClientCheckoutService {
 
   private async calculateSubtotalUSD(session: CheckoutSessionEntity): Promise<number> {
     return (await this.loadCartItemsWithProduct(session.cart.id)).reduce(
-      (sum, item) => sum + this.effectiveUnitPrice(item.variant) * item.quantity,
+      (sum, item) => sum + effectiveUnitPrice(item.variant) * item.quantity,
       0,
     );
   }
@@ -386,20 +415,6 @@ export class ClientCheckoutService {
       relations: ['items', 'items.variant', 'items.variant.product'],
     });
     return cart?.items ?? [];
-  }
-
-  /** Apply sale ratio to computedPrice — mirrors the frontend adaptCartItem logic. */
-  private effectiveUnitPrice(variant: {
-    computedPrice: number | string;
-    product?: { basePrice: number | string; salePrice: number | string | null } | null;
-  }): number {
-    const computed = Number(variant.computedPrice);
-    const base = Number(variant.product?.basePrice ?? 0);
-    const sale = variant.product?.salePrice != null ? Number(variant.product.salePrice) : null;
-    if (sale !== null && sale < base && base > 0) {
-      return computed * (sale / base);
-    }
-    return computed;
   }
 
   private computeDiscount(coupon: CouponEntity, subtotalUSD: number): number {
@@ -425,7 +440,7 @@ export class ClientCheckoutService {
 
     // All DB amounts are in USD; apply sale ratio so computedPrice reflects actual charge
     const subtotalUSD = loadedItems.reduce(
-      (sum, item) => sum + this.effectiveUnitPrice(item.variant) * item.quantity,
+      (sum, item) => sum + effectiveUnitPrice(item.variant) * item.quantity,
       0,
     );
     const shippingFeeUSD = session.shippingSnapshot
@@ -436,7 +451,7 @@ export class ClientCheckoutService {
     const isFreeShipping =
       shippingFeeUSD !== null &&
       (subtotalUSD >= FREE_SHIPPING_THRESHOLD_USD ||
-        (session.couponCode !== null && session.discountAmount === 0));
+        session.couponDiscountType === DiscountType.FREE_SHIPPING);
     const effectiveShippingUSD = isFreeShipping ? 0 : (shippingFeeUSD ?? 0);
 
     const currency = (session.currency as string) || SupportedCurrency.USD;

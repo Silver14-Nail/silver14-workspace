@@ -13,6 +13,8 @@ import {
   deleteNailSize,
   getProductDetail,
   uploadProductImage,
+  presignProductImageUpload,
+  confirmProductImageUpload,
   deleteProductImage,
   reorderProductImages,
   setMainProductImage,
@@ -202,6 +204,31 @@ export async function uploadProductImageAction(
   }
 }
 
+
+export async function presignProductImageUploadAction(
+  productId: string,
+  mime: string,
+): Promise<ActionResult<{ presignedUrl: string; publicUrl: string; key: string }>> {
+  try {
+    const result = await presignProductImageUpload(productId, mime);
+    return { success: true, data: result };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to get upload URL' };
+  }
+}
+
+export async function confirmProductImageUploadAction(
+  productId: string,
+  publicUrl: string,
+): Promise<ActionResult<ApiProductImage>> {
+  try {
+    const image = await confirmProductImageUpload(productId, publicUrl);
+    revalidatePath('/admin/products');
+    return { success: true, data: image };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to save image' };
+  }
+}
 
 export async function deleteProductImageAction(
   productId: string,

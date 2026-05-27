@@ -10,6 +10,8 @@ import {
   deleteSupplyVariantAction,
   listSupplyImagesAction,
   uploadSupplyImageAction,
+  presignSupplyImageUploadAction,
+  confirmSupplyImageUploadAction,
   deleteSupplyImageAction,
   setMainSupplyImageAction,
 } from './actions';
@@ -201,18 +203,53 @@ export default function SupplyFormDrawer({
   async function handleImageUpload(files: FileList) {
     if (!supply?.id || files.length === 0) return;
     setImagesError('');
-    const total = files.length;
-    for (let i = 0; i < total; i++) {
-      setUploadProgress({ current: i + 1, total });
-      const fd = new FormData();
-      fd.append('file', files[i]);
-      const result = await uploadSupplyImageAction(supply.id, fd);
-      if (!result.success) {
-        setImagesError((result as { error: string }).error);
-        break;
-      }
-      await loadImages();
-    }
+
+    const fileArray = Array.from(files);
+    setUploadProgress({ current: 0, total: fileArray.length });
+
+    // Upload all files in parallel using presigned URLs for direct browser→R2 upload
+    const results = await Promise.allSettled(
+      fileArray.map(async (file) => {
+        // 1. Get a short-lived presigned PUT URL from the API
+        const presignResult = await presignSupplyImageUploadAction(supply!.id, file.type);
+        if (!presignResult.success) throw new Error((presignResult as { error: string }).error);
+        const { presignedUrl, publicUrl } = presignResult.data!;
+
+        // 2. PUT directly to R2; fall back to server-proxied upload if CORS blocks it
+        let finalResult;
+        try {
+          const putRes = await fetch(presignedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file,
+          });
+          if (!putRes.ok) throw new Error(`Storage returned ${putRes.status}`);
+          // 3a. Confirm — ask API to save the DB record
+          const confirmResult = await confirmSupplyImageUploadAction(supply!.id, publicUrl);
+          if (!confirmResult.success) throw new Error((confirmResult as { error: string }).error);
+          finalResult = confirmResult;
+        } catch {
+          // CORS not configured or direct upload unavailable — fall back via server
+          const fd = new FormData();
+          fd.append('file', file);
+          const fallback = await uploadSupplyImageAction(supply!.id, fd);
+          if (!fallback.success) throw new Error((fallback as { error: string }).error);
+          finalResult = fallback;
+        }
+
+        setUploadProgress((prev) => (prev ? { ...prev, current: prev.current + 1 } : null));
+        return finalResult;
+      }),
+    );
+
+    const failures = results
+      .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+      .map((r) => (r.reason instanceof Error ? r.reason.message : 'Upload failed'));
+    if (failures.length) setImagesError(failures.join(' | '));
+
+    // Single refresh after all uploads settle — only if at least one succeeded
+    if (results.some((r) => r.status === 'fulfilled')) await loadImages();
+
     setUploadProgress(null);
   }
 

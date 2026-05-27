@@ -19,6 +19,9 @@ export interface EnvConfiguration {
   mysqlPassword: string;
   mysqlRootPassword: string;
   mysqlPort: number;
+
+  resendApiKey?: string;
+  appUrl: string;
 }
 
 const validationSchema = Joi.object<any, EnvConfiguration>({
@@ -39,6 +42,9 @@ const validationSchema = Joi.object<any, EnvConfiguration>({
   mysqlPassword: Joi.string().required(),
   mysqlRootPassword: Joi.string().required(),
   mysqlPort: Joi.number().required(),
+
+  resendApiKey: Joi.string().optional(),
+  appUrl: Joi.string().default('http://localhost:4200'),
 });
 
 export default () => {
@@ -65,6 +71,9 @@ export default () => {
     mysqlPassword: env.MYSQL_PASSWORD,
     mysqlRootPassword: env.MYSQL_ROOT_PASSWORD,
     mysqlPort: parseInt(env.MYSQL_PORT),
+
+    resendApiKey: env.RESEND_API_KEY,
+    appUrl: env.APP_URL || 'http://localhost:4200',
   };
 
   const { error } = validationSchema.validate(envConfiguration);

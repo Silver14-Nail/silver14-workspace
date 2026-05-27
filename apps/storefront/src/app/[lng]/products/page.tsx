@@ -4,7 +4,7 @@ import { getCollections } from '@/features/collections/collections.api';
 import { ProductsPageClient } from './ProductsPageClient';
 import type { CollectionFilter } from './hooks/useProductFilters';
 
-const REVALIDATE = { next: { revalidate: 60 } } satisfies RequestInit;
+const REVALIDATE = { cache: 'no-store' } satisfies RequestInit;
 const ALL_COLLECTION: CollectionFilter = { id: 'all', slug: 'all', label: 'All' };
 
 function mapSortToApiParams(sort: string | null, filter: string | null) {
@@ -48,7 +48,8 @@ export default async function ProductsPage({
     getCollections({ limit: 50, locale: lng }).catch(() => null),
   ]);
 
-  const initialProducts = (productsData?.items ?? []).map(adaptListItem);
+  // Pass undefined (not []) when fetch fails so useProducts knows to retry client-side.
+  const initialProducts = productsData ? productsData.items.map(adaptListItem) : undefined;
   const initialCollections: CollectionFilter[] = [
     ALL_COLLECTION,
     ...(collectionsData?.data ?? []).map((c) => ({ id: c.id, slug: c.slug, label: c.name })),

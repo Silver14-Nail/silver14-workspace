@@ -17,12 +17,15 @@ import {
   CardBrand,
   CardProcessor,
   CheckoutSessionStatus,
+  DiscountType,
   OrderStatus,
   PaymentGateway,
   PaymentStatus,
 } from '@/common/enums/entity.enum';
 import { StripeService } from '@/shared/payments/stripe.service';
 import { PaypalService } from '@/shared/payments/paypal.service';
+
+import { effectiveUnitPrice } from '@/shared/pricing/pricing.utils';
 
 import { InitiateStripePaymentDto } from './dto/initiate-stripe-payment.dto';
 import { CreatePaypalOrderDto } from './dto/create-paypal-order.dto';
@@ -210,8 +213,8 @@ export class ClientPaymentsService {
       const paypalDetail = manager.create(PaypalDetailEntity, {
         payment,
         paypalOrderId: dto.paypalOrderId,
-        payerEmail: null,
-        payerId: null,
+        payerEmail: capture.payer?.email_address ?? null,
+        payerId: capture.payer?.payer_id ?? null,
         captureId: captureDetail?.id ?? null,
       });
       await manager.save(PaypalDetailEntity, paypalDetail);
@@ -264,17 +267,10 @@ export class ClientPaymentsService {
   private calculateTotals(session: CheckoutSessionEntity): SessionTotals {
     const items = session.cart?.items ?? [];
     // All variant prices are stored in USD; apply sale ratio to match checkout display pricing
-    const subtotalUSD = items.reduce((sum, item) => {
-      const computed = Number(item.variant.computedPrice);
-      const base = Number((item.variant as any).product?.basePrice ?? 0);
-      const sale =
-        (item.variant as any).product?.salePrice != null
-          ? Number((item.variant as any).product.salePrice)
-          : null;
-      const effectivePrice =
-        sale !== null && sale < base && base > 0 ? computed * (sale / base) : computed;
-      return sum + effectivePrice * item.quantity;
-    }, 0);
+    const subtotalUSD = items.reduce(
+      (sum, item) => sum + effectiveUnitPrice(item.variant) * item.quantity,
+      0,
+    );
 
     const shippingSnapshot = session.shippingSnapshot as Record<string, any>;
     const rawShippingFeeUSD = Number(shippingSnapshot?.shippingFee ?? 0);
@@ -286,7 +282,7 @@ export class ClientPaymentsService {
     const isFreeShipping =
       rawShippingFeeUSD > 0 &&
       (subtotalUSD >= FREE_SHIPPING_THRESHOLD_USD ||
-        (session.couponCode !== null && discountAmountUSD === 0));
+        session.couponDiscountType === DiscountType.FREE_SHIPPING);
     const effectiveShippingUSD = isFreeShipping ? 0 : rawShippingFeeUSD;
 
     const convert = (usd: number) =>
@@ -379,19 +375,28 @@ export class ClientPaymentsService {
 
     await manager.save(OrderItemEntity, orderItems);
 
-    // Decrement stock for each ordered variant so inventory stays consistent
+    // Decrement stock atomically — raw SQL prevents going below zero under concurrent orders
     for (const cartItem of session.cart?.items ?? []) {
-      await manager.decrement(
-        ProductVariantEntity,
-        { id: cartItem.variant.id },
-        'stockQty',
-        cartItem.quantity,
+      const result: { affectedRows: number } = await manager.query(
+        `UPDATE product_variants SET stock_qty = stock_qty - ? WHERE id = ? AND stock_qty >= ? AND deleted_at IS NULL`,
+        [cartItem.quantity, cartItem.variant.id, cartItem.quantity],
       );
+      if (result.affectedRows === 0) {
+        throw new BadRequestException(
+          `Insufficient stock for "${cartItem.variant.sku ?? cartItem.variant.id}"`,
+        );
+      }
     }
 
+    // Zip cart items with their saved order items to avoid index assumption bugs
+    const cartItemPairs = (session.cart?.items ?? []).map((cartItem, i) => ({
+      cartItem,
+      orderItem: orderItems[i],
+    }));
+
     // Persist customization notes from cart items
-    const customSizeRequests = (session.cart?.items ?? [])
-      .map((cartItem, index) => {
+    const customSizeRequests = cartItemPairs
+      .map(({ cartItem, orderItem }) => {
         const measurements = cartItem.customMeasurements;
         if (!measurements) return null;
         const hasData =
@@ -403,7 +408,7 @@ export class ClientPaymentsService {
           measurements['notes'];
         if (!hasData) return null;
         return manager.create(CustomSizeRequestEntity, {
-          orderItem: orderItems[index],
+          orderItem,
           thumb: measurements['thumb'] ?? null,
           indexFinger: measurements['index'] ?? null,
           middleFinger: measurements['middle'] ?? null,

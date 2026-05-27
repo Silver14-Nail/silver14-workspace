@@ -17,7 +17,7 @@ export class AdminAuthService {
   ) {}
 
   async login(email: string, password: string) {
-    const user = await this.userRepo.findOneBy({ email });
+    const user = await this.userRepo.findOneBy({ email: email.toLowerCase().trim() });
 
     if (!user || user.role !== UserRole.ADMIN) {
       throw new UnauthorizedException('Invalid credentials');
