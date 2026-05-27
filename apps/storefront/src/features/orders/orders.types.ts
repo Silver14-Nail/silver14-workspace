@@ -15,6 +15,8 @@ export interface CustomerOrderItem {
   productName: string;
   sizeName: string | null;
   shapeName: string | null;
+  colorName: string | null;
+  thumbnail: string | null;
   quantity: number;
   price: number;
   lineTotal: number;
@@ -29,7 +31,7 @@ export interface CustomerOrderDetail extends CustomerOrderSummary {
     city: string;
     postalCode: string;
     country: string;
-    shippingMethodName: string;
+    shippingMethodName: string | null;
   };
   items: CustomerOrderItem[];
 }

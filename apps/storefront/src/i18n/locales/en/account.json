@@ -14,6 +14,7 @@
   "password": "Password",
   "pleaseWait": "Please wait...",
   "createAccount": "Create Account",
+  "forgotPassword": "Forgot password?",
   "errors": {
     "registerFailed": "Unable to create this account.",
     "invalidCredentials": "Invalid email or password."
@@ -25,6 +26,8 @@
     "browse": "Browse collections",
     "orderId": "Order ID",
     "date": "Date",
+    "status": "Status",
+    "view": "View",
     "total": "Total",
     "itemCount": "Items",
     "previous": "← Previous",
@@ -48,6 +51,8 @@
       "shippingAddress": "Shipping Address",
       "shippingMethod": "Shipping Method",
       "orderItems": "Items",
+      "summary": "Summary",
+      "free": "Free",
       "subtotal": "Subtotal",
       "discount": "Discount",
       "shippingFee": "Shipping",

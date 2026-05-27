@@ -19,6 +19,7 @@ export interface ApiCartVariant {
   stockQty: number;
   computedPrice: string;
   isAvailable: boolean;
+  colorName: string | null;
   product: ApiCartProduct;
   shape: { id: string; name: string } | null;
   size: { id: string; label: string; sizeCode: string; measurements: string | null } | null;
@@ -52,6 +53,7 @@ export interface CartDisplayItem {
   productName: string;
   productSlug: string;
   thumbnail: string | null;
+  colorName: string | null;
   shapeName: string;
   sizeName: string;
   /** Effective unit price (computedPrice, adjusted proportionally if product is on sale) */

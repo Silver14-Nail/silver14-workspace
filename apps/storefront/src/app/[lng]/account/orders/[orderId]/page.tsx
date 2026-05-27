@@ -277,12 +277,21 @@ export default function OrderDetailPage() {
               </div>
               <ul className="divide-y divide-[#F0F0F0]">
                 {order.items.map((item, i) => (
-                  <li key={i} className="px-6 py-4 flex justify-between items-start gap-4">
+                  <li key={i} className="px-6 py-4 flex items-start gap-4">
+                    {item.thumbnail && (
+                      <div className="size-16 flex-shrink-0 overflow-hidden bg-[#F8F8F8]">
+                        <img
+                          src={item.thumbnail}
+                          alt={item.productName}
+                          className="w-full h-full object-cover object-center"
+                        />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-[#1A1A1A] text-sm truncate">{item.productName}</p>
                       <p className="text-[#9A9A9A] text-xs mt-0.5">
-                        {[item.shapeName, item.sizeName].filter(Boolean).join(' · ')}
-                        {(item.shapeName || item.sizeName) ? ' · ' : ''}×{item.quantity}
+                        {[item.colorName, item.shapeName, item.sizeName].filter(Boolean).join(' · ')}
+                        {(item.colorName || item.shapeName || item.sizeName) ? ' · ' : ''}×{item.quantity}
                       </p>
                       {item.customization && (
                         <p className="text-[#6A6A6A] text-xs mt-1 italic">
@@ -300,7 +309,7 @@ export default function OrderDetailPage() {
           {/* Right: price summary */}
           <div className="bg-white p-6 h-fit">
             <p className="text-[#1A1A1A] text-xs uppercase mb-4" style={{ letterSpacing: '0.12em' }}>
-              Summary
+              {t('orders.detail.summary')}
             </p>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between text-[#6A6A6A]">
@@ -315,7 +324,7 @@ export default function OrderDetailPage() {
               )}
               <div className="flex justify-between text-[#6A6A6A]">
                 <span>{t('orders.detail.shippingFee')}</span>
-                <span>{Number(order.shippingFee) === 0 ? 'Free' : fmt(order.shippingFee)}</span>
+                <span>{Number(order.shippingFee) === 0 ? t('orders.detail.free') : fmt(order.shippingFee)}</span>
               </div>
               <div className="flex justify-between text-[#1A1A1A] font-medium border-t border-[#F0F0F0] pt-3">
                 <span>{t('orders.detail.total')}</span>

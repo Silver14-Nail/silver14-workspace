@@ -83,6 +83,15 @@ export class OrderItemEntity extends AbstractEntity {
   sizeLabel: string | null;
 
   @Column({
+    name: 'color_name',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    default: null,
+  })
+  colorName: string | null;
+
+  @Column({
     name: 'is_custom_size',
     type: 'boolean',
     default: false,

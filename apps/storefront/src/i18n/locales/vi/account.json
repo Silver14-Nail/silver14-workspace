@@ -14,6 +14,7 @@
   "password": "Mật khẩu",
   "pleaseWait": "Vui lòng chờ...",
   "createAccount": "Tạo tài khoản",
+  "forgotPassword": "Quên mật khẩu?",
   "errors": {
     "registerFailed": "Không thể tạo tài khoản này.",
     "invalidCredentials": "Email hoặc mật khẩu không đúng."
@@ -25,6 +26,8 @@
     "browse": "Duyệt bộ sưu tập",
     "orderId": "Mã đơn hàng",
     "date": "Ngày",
+    "status": "Trạng thái",
+    "view": "Xem",
     "total": "Tổng cộng",
     "itemCount": "Sản phẩm",
     "previous": "← Trước",
@@ -48,6 +51,8 @@
       "shippingAddress": "Địa chỉ giao hàng",
       "shippingMethod": "Phương thức vận chuyển",
       "orderItems": "Sản phẩm",
+      "summary": "Tóm tắt",
+      "free": "Miễn phí",
       "subtotal": "Tạm tính",
       "discount": "Giảm giá",
       "shippingFee": "Vận chuyển",

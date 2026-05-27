@@ -79,9 +79,9 @@ function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
           >
             {item.productName}
           </Link>
-          {(item.sizeName || item.shapeName) && (
+          {(item.colorName || item.sizeName || item.shapeName) && (
             <p className="text-[#9A9A9A] text-xs mt-1">
-              {[item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
+              {[item.colorName, item.sizeName, item.shapeName].filter(Boolean).join(' / ')}
             </p>
           )}
           {item.adjustment > 0 && (

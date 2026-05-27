@@ -407,7 +407,7 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                           </p>
                         )}
                         <p className="text-xs text-[#6B7280]">
-                          {item.shapeName} · {item.sizeLabel}
+                          {[item.colorName, item.shapeName, item.sizeLabel].filter(Boolean).join(' · ')}
                           {item.sku && <span className="text-[#9CA3AF]"> · {item.sku}</span>}
                         </p>
                         <p className="text-xs text-[#9CA3AF]">
