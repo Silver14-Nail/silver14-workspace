@@ -22,7 +22,9 @@ export function useProducts(params?: UseProductsParams): UseProductsResult {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<ApiPagination | null>(null);
 
-  const skipFirst = useRef(!!initialData);
+  // Only skip initial fetch when server provided non-null data (even empty array is valid SSR state).
+  // !!initialData would be true for [], causing client to never fetch when server returned nothing.
+  const skipFirst = useRef(initialData != null);
 
   useEffect(() => {
     if (skipFirst.current) {

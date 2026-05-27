@@ -15,6 +15,7 @@ import { PasswordResetEntity } from '@/db/entities/auths/password-resets.entity'
 import { UserRole } from '@/common/enums/entity.enum';
 import { EncryptUtils, TokenUtils } from '@/common/utils';
 import type { EnvConfiguration } from '@/config/configuration';
+import { EmailService } from '@/shared/email/email.service';
 
 const REFRESH_COOKIE = 'customer_rt';
 const AUTH_HINT_COOKIE = 'customer_auth';
@@ -28,6 +29,7 @@ export class ClientAuthService {
     @InjectRepository(PasswordResetEntity)
     private readonly resetRepo: Repository<PasswordResetEntity>,
     private readonly configService: ConfigService<EnvConfiguration>,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(email: string, password: string, name: string, res: Response) {
@@ -133,10 +135,7 @@ export class ClientAuthService {
 
     await this.resetRepo.save(reset);
 
-    // TODO: Integrate email provider (Resend / SendGrid) to send reset link
-    if (this.configService.get('nodeEnv') !== 'production') {
-      console.log(`[DEV] Reset token for ${email}: ${rawToken}`);
-    }
+    await this.emailService.sendPasswordReset(user.email, rawToken);
 
     return { message: 'If that email is registered, a reset link has been sent' };
   }

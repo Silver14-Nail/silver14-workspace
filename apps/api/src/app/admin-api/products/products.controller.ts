@@ -172,6 +172,17 @@ export class ProductImagesController {
     return this.productsService.uploadProductImage(productId, file);
   }
 
+  @Get('presign')
+  presignUpload(@Param('productId') productId: string, @Query('mime') mime: string) {
+    return this.productsService.presignProductImageUpload(productId, mime);
+  }
+
+  @Post('confirm')
+  @HttpCode(HttpStatus.CREATED)
+  confirmUpload(@Param('productId') productId: string, @Body() dto: AddImageDto) {
+    return this.productsService.confirmProductImageUpload(productId, dto.url);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   addImage(@Param('productId') productId: string, @Body() dto: AddImageDto) {

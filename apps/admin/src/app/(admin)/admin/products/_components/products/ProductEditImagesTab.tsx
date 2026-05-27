@@ -6,6 +6,8 @@ import { Upload, Trash2, Star, ChevronUp, ChevronDown, Loader2, Package } from '
 import type { ApiProductImage } from '../../types';
 import {
   uploadProductImageAction,
+  presignProductImageUploadAction,
+  confirmProductImageUploadAction,
   deleteProductImageAction,
   reorderProductImagesAction,
   setMainProductImageAction,
@@ -30,6 +32,7 @@ export default function ProductEditImagesTab({
   const { t } = useTranslation('products');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ completed: number; total: number } | null>(null);
   const [uploadError, setUploadError] = useState('');
   const [actionError, setActionError] = useState('');
   const [settingMainId, setSettingMainId] = useState<string | null>(null);
@@ -42,35 +45,71 @@ export default function ProductEditImagesTab({
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
     e.target.value = '';
-
     setUploadError('');
 
+    // Validate all files first, collect valid ones and validation errors separately
+    const validFiles: File[] = [];
+    const validationErrors: string[] = [];
     for (const file of files) {
       if (!ACCEPTED_TYPES.includes(file.type)) {
-        setUploadError(t('images.errorType', { name: file.name }));
-        continue;
+        validationErrors.push(t('images.errorType', { name: file.name }));
+      } else if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        validationErrors.push(t('images.errorSize', { name: file.name, max: MAX_SIZE_MB }));
+      } else {
+        validFiles.push(file);
       }
-      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        setUploadError(t('images.errorSize', { name: file.name, max: MAX_SIZE_MB }));
-        continue;
-      }
-
-      setUploading(true);
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        const result = await uploadProductImageAction(productId, formData);
-        if (!result.success) {
-          setUploadError((result as { error: string }).error);
-          setUploading(false);
-          return;
-        }
-        await onRefresh();
-      } catch (err) {
-        setUploadError(err instanceof Error ? err.message : t('images.errorUnexpected'));
-      }
-      setUploading(false);
     }
+    if (validationErrors.length) setUploadError(validationErrors.join('\n'));
+    if (!validFiles.length) return;
+
+    setUploading(true);
+    setUploadProgress({ completed: 0, total: validFiles.length });
+
+    // Upload all valid files in parallel using presigned URLs for direct browser→R2 upload
+    const results = await Promise.allSettled(
+      validFiles.map(async (file) => {
+        // 1. Get a short-lived presigned PUT URL from the API
+        const presignResult = await presignProductImageUploadAction(productId, file.type);
+        if (!presignResult.success) throw new Error((presignResult as { error: string }).error);
+        const { presignedUrl, publicUrl } = presignResult.data!;
+
+        // 2. PUT directly to R2; fall back to server-proxied upload if CORS blocks it
+        let finalResult;
+        try {
+          const putRes = await fetch(presignedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file,
+          });
+          if (!putRes.ok) throw new Error(`Storage returned ${putRes.status}`);
+          // 3a. Confirm — ask API to save the DB record
+          const confirmResult = await confirmProductImageUploadAction(productId, publicUrl);
+          if (!confirmResult.success) throw new Error((confirmResult as { error: string }).error);
+          finalResult = confirmResult;
+        } catch {
+          // CORS not configured or direct upload unavailable — fall back via server
+          const formData = new FormData();
+          formData.append('file', file);
+          const fallback = await uploadProductImageAction(productId, formData);
+          if (!fallback.success) throw new Error((fallback as { error: string }).error);
+          finalResult = fallback;
+        }
+
+        setUploadProgress((prev) => (prev ? { ...prev, completed: prev.completed + 1 } : null));
+        return finalResult;
+      }),
+    );
+
+    const failures = results
+      .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+      .map((r) => (r.reason instanceof Error ? r.reason.message : t('images.errorUnexpected')));
+    if (failures.length) setUploadError(failures.join('\n'));
+
+    // Single refresh after all uploads settle — only if at least one succeeded
+    if (results.some((r) => r.status === 'fulfilled')) await onRefresh();
+
+    setUploadProgress(null);
+    setUploading(false);
   };
 
   const handleDelete = (img: ApiProductImage) => {
@@ -138,7 +177,11 @@ export default function ProductEditImagesTab({
           ) : (
             <Upload className="w-3.5 h-3.5" />
           )}
-          {uploading ? t('images.uploading') : t('images.upload')}
+          {uploading && uploadProgress
+            ? `${t('images.uploading')} ${uploadProgress.completed}/${uploadProgress.total}`
+            : uploading
+              ? t('images.uploading')
+              : t('images.upload')}
         </button>
         <input
           ref={fileInputRef}

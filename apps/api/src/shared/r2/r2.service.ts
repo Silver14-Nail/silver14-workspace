@@ -1,11 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  PutBucketCorsCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { randomUUID } from 'crypto';
 
 @Injectable()
-export class R2Service {
+export class R2Service implements OnModuleInit {
   private readonly logger = new Logger(R2Service.name);
   private readonly client: S3Client;
   private readonly bucket: string;
@@ -32,6 +37,37 @@ export class R2Service {
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',
     });
+  }
+
+  async onModuleInit() {
+    // Configure CORS so the admin app can PUT files directly from the browser.
+    // Runs on every start but is idempotent. Best-effort — failure is logged, not thrown.
+    const appUrl = this.config.get<string>('APP_URL') ?? '';
+    const origins = ['http://localhost:4201', 'http://localhost:4200'];
+    if (appUrl && !origins.includes(appUrl)) origins.push(appUrl);
+
+    try {
+      await this.client.send(
+        new PutBucketCorsCommand({
+          Bucket: this.bucket,
+          CORSConfiguration: {
+            CORSRules: [
+              {
+                AllowedOrigins: origins,
+                AllowedMethods: ['PUT'],
+                AllowedHeaders: ['Content-Type'],
+                MaxAgeSeconds: 3600,
+              },
+            ],
+          },
+        }),
+      );
+      this.logger.debug('R2 CORS configured for direct browser uploads');
+    } catch (err) {
+      this.logger.warn(
+        `Could not configure R2 CORS automatically — direct uploads will fall back to server proxy. Error: ${(err as Error).message}`,
+      );
+    }
   }
 
   /**

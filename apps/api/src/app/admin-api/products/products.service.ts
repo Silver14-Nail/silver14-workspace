@@ -384,35 +384,58 @@ export class ProductsService {
         ? (p: ProductEntity) => Number(p.basePrice) * (Number(shape.priceAdjustment) / 100)
         : () => Number(shape.priceAdjustment) || 0;
 
-    await this.productShapePricingRepo.insert(
-      products.map((product) =>
-        this.productShapePricingRepo.create({
-          product,
-          shape,
-          priceOverride: null,
-          priceAdjustment: null,
-          adjustmentType: null,
-          isEnabled: true,
-        }),
-      ),
-    );
+    // Check which product-shape pricing records already exist (including soft-deleted)
+    const existingPricing = await this.productShapePricingRepo.find({
+      where: { shape: { id: shape.id } },
+      relations: ['product'],
+      withDeleted: true,
+    });
+    const pricedProductIds = new Set(existingPricing.map((p) => (p.product as any)?.id));
 
-    if (sizes.length > 0) {
-      await this.productVariantRepo.insert(
-        products.flatMap((product) =>
-          sizes.map((size) =>
-            this.productVariantRepo.create({
-              product,
-              shape,
-              size,
-              sku: null,
-              stockQty: 999,
-              computedPrice: Number(product.basePrice) + baseAdjustment(product),
-              isAvailable: true,
-            }),
-          ),
+    const newPricingProducts = products.filter((p) => !pricedProductIds.has(p.id));
+    if (newPricingProducts.length > 0) {
+      await this.productShapePricingRepo.insert(
+        newPricingProducts.map((product) =>
+          this.productShapePricingRepo.create({
+            product,
+            shape,
+            priceOverride: null,
+            priceAdjustment: null,
+            adjustmentType: null,
+            isEnabled: true,
+          }),
         ),
       );
+    }
+
+    // Check which product-size combinations for this shape already have a variant (including soft-deleted)
+    const existingVariants = await this.productVariantRepo.find({
+      where: { shape: { id: shape.id } },
+      relations: ['product', 'size'],
+      withDeleted: true,
+    });
+    const existingVariantKeys = new Set(
+      existingVariants.map((v) => `${(v.product as any)?.id}_${(v.size as any)?.id}`),
+    );
+
+    const newVariants = products.flatMap((product) =>
+      sizes
+        .filter((size) => !existingVariantKeys.has(`${product.id}_${size.id}`))
+        .map((size) =>
+          this.productVariantRepo.create({
+            product,
+            shape,
+            size,
+            sku: null,
+            stockQty: 999,
+            computedPrice: Number(product.basePrice) + baseAdjustment(product),
+            isAvailable: true,
+          }),
+        ),
+    );
+
+    if (newVariants.length > 0) {
+      await this.productVariantRepo.insert(newVariants);
     }
   }
 
@@ -534,31 +557,49 @@ export class ProductsService {
     if (!product) throw new NotFoundException(`Product #${productId} not found`);
 
     const publicUrl = await this.r2.upload(file.buffer, file.mimetype, 'products');
+    return this.insertProductImage(product, { url: publicUrl });
+  }
 
-    return this.addProductImage(productId, { url: publicUrl });
+  async presignProductImageUpload(productId: string, mime: string) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+
+    const VALID_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    const contentType = VALID_MIMES.has(mime) ? mime : 'image/jpeg';
+    return this.r2.getPresignedUploadUrl(contentType, 'products');
+  }
+
+  async confirmProductImageUpload(productId: string, publicUrl: string) {
+    const product = await this.productRepo.findOneBy({ id: productId });
+    if (!product) throw new NotFoundException(`Product #${productId} not found`);
+    return this.insertProductImage(product, { url: publicUrl });
   }
 
   async addProductImage(productId: string, dto: AddImageDto) {
     const product = await this.productRepo.findOneBy({ id: productId });
     if (!product) throw new NotFoundException(`Product #${productId} not found`);
+    return this.insertProductImage(product, dto);
+  }
 
-    const maxSortOrder = await this.productImageRepo
+  private async insertProductImage(product: ProductEntity, dto: AddImageDto) {
+    // Single query: get count + max sortOrder together to avoid two round-trips
+    const stat = await this.productImageRepo
       .createQueryBuilder('img')
-      .select('MAX(img.sortOrder)', 'max')
-      .where('img.product_id = :productId', { productId })
-      .getRawOne<{ max: number | null }>();
+      .select('COUNT(*)', 'count')
+      .addSelect('MAX(img.sortOrder)', 'maxSort')
+      .where('img.product_id = :productId', { productId: product.id })
+      .getRawOne<{ count: string; maxSort: number | null }>();
 
-    const sortOrder = (maxSortOrder?.max ?? -1) + 1;
+    const sortOrder = (stat?.maxSort ?? -1) + 1;
 
     if (dto.isMain) {
-      await this.productImageRepo.update({ product: { id: productId } }, { isMain: false });
+      await this.productImageRepo.update({ product: { id: product.id } }, { isMain: false });
     }
 
-    const hasImages = await this.productImageRepo.count({ where: { product: { id: productId } } });
     const image = this.productImageRepo.create({
       product,
       url: dto.url,
-      isMain: dto.isMain ?? hasImages === 0,
+      isMain: dto.isMain ?? Number(stat?.count ?? 0) === 0,
       sortOrder,
     });
 

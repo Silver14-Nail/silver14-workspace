@@ -7,6 +7,8 @@ import {
   deleteSupply,
   getProductDetail,
   uploadProductImage,
+  presignProductImageUpload,
+  confirmProductImageUpload,
   deleteProductImage,
   setMainProductImage,
   listProductVariants,
@@ -94,6 +96,31 @@ export async function uploadSupplyImageAction(
     return { success: true, data: image };
   } catch (err: unknown) {
     return { success: false, error: err instanceof Error ? err.message : 'Failed to upload image' };
+  }
+}
+
+export async function presignSupplyImageUploadAction(
+  supplyId: string,
+  mime: string,
+): Promise<ActionResult<{ presignedUrl: string; publicUrl: string; key: string }>> {
+  try {
+    const result = await presignProductImageUpload(supplyId, mime);
+    return { success: true, data: result };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to get upload URL' };
+  }
+}
+
+export async function confirmSupplyImageUploadAction(
+  supplyId: string,
+  publicUrl: string,
+): Promise<ActionResult<ApiProductImage>> {
+  try {
+    const image = await confirmProductImageUpload(supplyId, publicUrl);
+    revalidatePath('/admin/supplies');
+    return { success: true, data: image };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to save image' };
   }
 }
 

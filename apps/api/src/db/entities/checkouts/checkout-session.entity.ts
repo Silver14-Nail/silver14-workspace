@@ -61,6 +61,14 @@ export class CheckoutSessionEntity extends SoftDeleteAbstractEntity {
   couponCode: string | null;
 
   @Column({
+    name: 'coupon_discount_type',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
+  couponDiscountType: string | null;
+
+  @Column({
     name: 'discount_amount',
     type: 'numeric',
     precision: 10,
