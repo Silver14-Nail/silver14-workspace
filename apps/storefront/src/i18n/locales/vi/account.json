@@ -23,6 +23,7 @@
     "title": "Lịch sử đơn hàng",
     "viewAll": "Đơn hàng của tôi",
     "empty": "Chưa có đơn hàng nào.",
+    "loadError": "Không thể tải đơn hàng. Vui lòng thử lại.",
     "browse": "Duyệt bộ sưu tập",
     "orderId": "Mã đơn hàng",
     "date": "Ngày",

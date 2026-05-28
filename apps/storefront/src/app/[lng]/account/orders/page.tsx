@@ -34,7 +34,7 @@ export default function AccountOrdersPage() {
   const [page, setPage] = useState(1);
 
   const { status: authStatus } = useAppSelector((s) => s.auth);
-  const { data: ordersData, isLoading } = useCustomerOrders({ page, limit: 10 });
+  const { data: ordersData, isLoading, isError } = useCustomerOrders({ page, limit: 10 });
 
   if (authStatus === 'checking') {
     return (
@@ -114,6 +114,16 @@ export default function AccountOrdersPage() {
           {isLoading ? (
             <div className="p-12 text-center">
               <div className="size-6 border-2 border-[#E0E0E0] border-t-[#1A1A1A] rounded-full animate-spin mx-auto" />
+            </div>
+          ) : isError ? (
+            <div className="p-12 text-center">
+              <p className="text-[#9A9A9A] text-sm mb-4">{t('orders.loadError')}</p>
+              <LinkBase
+                href="/account"
+                className="inline-flex items-center gap-1.5 text-[#1A1A1A] text-xs hover:underline"
+              >
+                ← {t('customerAccount')}
+              </LinkBase>
             </div>
           ) : !ordersData?.items.length ? (
             <div className="p-12 text-center">

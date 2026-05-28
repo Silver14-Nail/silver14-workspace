@@ -23,6 +23,7 @@
     "title": "Order History",
     "viewAll": "My Orders",
     "empty": "No orders yet.",
+    "loadError": "Unable to load your orders. Please try again.",
     "browse": "Browse collections",
     "orderId": "Order ID",
     "date": "Date",
