@@ -208910,6 +208910,16 @@ tslib_1.__decorate([
 ], OrderItemEntity.prototype, "sizeLabel", void 0);
 tslib_1.__decorate([
     (0, typeorm_1.Column)({
+        name: 'color_name',
+        type: 'varchar',
+        length: 100,
+        nullable: true,
+        default: null,
+    }),
+    tslib_1.__metadata("design:type", String)
+], OrderItemEntity.prototype, "colorName", void 0);
+tslib_1.__decorate([
+    (0, typeorm_1.Column)({
         name: 'is_custom_size',
         type: 'boolean',
         default: false,
@@ -297185,6 +297195,7 @@ let ClientPaymentsService = class ClientPaymentsService {
             itemDiscount: 0,
             shapeName: cartItem.variant.shape?.name ?? null,
             sizeLabel: cartItem.variant.size?.label ?? null,
+            colorName: cartItem.variant.colorName ?? null,
             isCustomSize: cartItem.isCustomSize,
             productType: cartItem.variant.product?.type ?? null,
             productId: cartItem.variant.product?.id ?? null,
@@ -300721,6 +300732,7 @@ let ClientOrdersService = class ClientOrdersService {
                 return {
                     productName: item.productName ?? 'Product',
                     variantName: item.sku ?? null,
+                    colorName: item.colorName ?? null,
                     sizeName: item.sizeLabel,
                     shapeName: item.shapeName,
                     quantity: item.quantity,
@@ -300798,9 +300810,11 @@ let ClientOrdersService = class ClientOrdersService {
             items: order.items.map((item) => {
                 const unitCost = Number(item.unitPrice) + Number(item.shapeSurcharge) - Number(item.itemDiscount);
                 return {
-                    productName: item.variant?.product?.name ?? 'Product',
+                    productName: item.productName ?? item.variant?.product?.name ?? 'Product',
                     sizeName: item.sizeLabel,
                     shapeName: item.shapeName,
+                    colorName: item.colorName ?? item.variant?.colorName ?? null,
+                    thumbnail: item.thumbnail ?? null,
                     quantity: item.quantity,
                     price: unitCost,
                     lineTotal: unitCost * item.quantity,
