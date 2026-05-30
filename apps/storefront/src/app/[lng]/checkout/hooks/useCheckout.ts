@@ -51,19 +51,14 @@ export function useCheckout() {
   const selectedCurrency = useAppSelector((s) => s.currency.code);
   const { user } = useAppSelector((s) => s.auth);
 
-  // Only restore a previous session for logged-in users.
-  // Guests always start fresh — avoids the jarring step-jump that occurs when
-  // a stored guest session loads asynchronously after the user has already
-  // started typing into the empty form.
-  //
-  // wasStoredSession: true only when we started with an existing session in storage.
-  // Used to gate the loading skeleton — a brand-new session creation must NOT
-  // show the skeleton (user is already filling the form while the session
-  // is created silently in the background).
-  const [wasStoredSession] = useState(() => !!getToken() && !!getCheckoutSessionId());
+  const [wasStoredSession] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !!getToken() && !!getCheckoutSessionId();
+  });
   const [sessionId, setSessionId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
     if (getToken()) return getCheckoutSessionId();
-    clearCheckoutSessionId();
+    // Do NOT clear here — the ?payment=success useEffect must read it first for guest LS redirects
     return null;
   });
   const [step, setStep] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>('contact');
@@ -71,15 +66,15 @@ export function useCheckout() {
   const [error, setError] = useState<string | null>(null);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
   const [orderPollingDone, setOrderPollingDone] = useState(false);
+  const [isLsPayment, setIsLsPayment] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState('');
   const [confirmFirstName, setConfirmFirstName] = useState('');
   const [confirmPhone, setConfirmPhone] = useState('');
 
-  // Contact defaults — updated on session restore so the form can reset with pre-filled data
   const [contactDefaults, setContactDefaults] = useState<ContactFormData>(DEFAULT_CONTACT);
 
   const [selectedMethodId, setSelectedMethodId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('lemon_squeezy');
 
   // ── Server state ──────────────────────────────────────────────────────────
 
@@ -92,9 +87,6 @@ export function useCheckout() {
     retry: false,
   });
 
-  // True only while RESTORING an existing session (not while creating a new one).
-  // A new-session creation happens silently in the background — we must not hide the
-  // form while it runs, or the user loses everything they've already typed.
   const isSessionLoading = wasStoredSession && !!sessionId && isSessionPending;
 
   const { data: shippingMethods = [] } = useQuery<ShippingMethod[]>({
@@ -103,10 +95,59 @@ export function useCheckout() {
     staleTime: 10 * 60 * 1000,
   });
 
+  // ── Post-redirect: detect return from Lemon Squeezy ──────────────────────
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get('payment') !== 'success') {
+      // Clean up stale guest session on normal checkout load
+      if (!getToken()) clearCheckoutSessionId();
+      return;
+    }
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Restore contact info saved before navigating to LS (survives page reload)
+    try {
+      const saved = sessionStorage.getItem('__checkout_contact');
+      if (saved) {
+        const { email, phone, firstName } = JSON.parse(saved) as {
+          email: string;
+          phone: string;
+          firstName: string;
+        };
+        setConfirmEmail(email);
+        setConfirmPhone(phone);
+        setConfirmFirstName(firstName);
+        sessionStorage.removeItem('__checkout_contact');
+      }
+    } catch {}
+
+    setIsLsPayment(true);
+    setStep('confirmation');
+    // LS sends their own confirmation email — show confirmation immediately, don't block on our internal order ID
+    setOrderPollingDone(true);
+
+    const storedSessionId = getCheckoutSessionId();
+    clearCheckoutSessionId();
+    setSessionId(null);
+
+    // Clear cart — page reloaded so clearCart must fire-and-forget here
+    clearCart().catch(() => {});
+
+    if (storedSessionId) {
+      const token = getToken();
+      // Poll silently in background to get our internal order reference (for tracking)
+      pollForOrder(storedSessionId, token).then((id) => {
+        if (id) setCompletedOrderId(id);
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Session lifecycle ─────────────────────────────────────────────────────
 
-  // Creates a new checkout session if one doesn't exist yet.
-  // Returns the session id on success, null on failure.
   const ensureSession = useCallback(async (): Promise<string | null> => {
     if (sessionId) return sessionId;
     if (!cartId) return null;
@@ -132,34 +173,25 @@ export function useCheckout() {
     }
   }, [cartId, sessionId, selectedCurrency, queryClient]);
 
-  // Logged-in users: eagerly create/restore session on mount so the step can
-  // be restored and the form pre-filled before the user starts typing.
-  // Guests: session is created lazily in handleContactNext — no API calls on mount.
   useEffect(() => {
     if (!getToken()) return;
     ensureSession();
   }, [ensureSession]);
 
-  // Auto-select first shipping method once loaded
   useEffect(() => {
     if (shippingMethods.length > 0 && !selectedMethodId) {
       setSelectedMethodId(shippingMethods[0].id);
     }
   }, [shippingMethods, selectedMethodId]);
 
-  // For logged-in users: pre-fill contact from their profile before the session
-  // even loads. This ensures the form is not blank on first checkout and avoids
-  // the user having to re-enter their email/name every time.
   useEffect(() => {
     if (!user) return;
     setContactDefaults((prev) => {
-      // Don't overwrite if already populated (e.g. by a session restore below)
       if (prev.email) return prev;
       return { email: user.email, fullName: user.name, phone: '' };
     });
   }, [user]);
 
-  // Restore step + form defaults from a resumed session
   useEffect(() => {
     if (!session) return;
 
@@ -196,8 +228,6 @@ export function useCheckout() {
 
   const handleContactNext = useCallback(
     async (data: ContactFormData) => {
-      // For guests: lazily create the session on first submit.
-      // For logged-in: session already exists from eager init.
       const sid = sessionId ?? (await ensureSession());
       if (!sid) return;
 
@@ -209,6 +239,13 @@ export function useCheckout() {
         setConfirmPhone(data.phone);
         const [first = ''] = data.fullName.split(' ');
         setConfirmFirstName(first);
+        // Persist so LS redirect can restore after page reload
+        try {
+          sessionStorage.setItem(
+            '__checkout_contact',
+            JSON.stringify({ email: data.email, phone: data.phone, firstName: first }),
+          );
+        } catch {}
         queryClient.invalidateQueries({ queryKey: ['checkout-session', sid] });
         setStep('shipping');
       } catch (e: unknown) {
@@ -278,9 +315,6 @@ export function useCheckout() {
           setSessionId(null);
           setStep('confirmation');
 
-          // Confirm directly with API — creates the order and returns orderId immediately.
-          // clearCart() must run AFTER confirmStripePayment so the cart items still exist
-          // in the DB when the API snapshots them into order_items.
           try {
             const result = await checkoutApi.confirmStripePayment(
               paymentIntent.id,
@@ -289,14 +323,15 @@ export function useCheckout() {
             );
             setCompletedOrderId(result.orderId);
             await clearCart();
+            setOrderPollingDone(true);
           } catch {
-            // Fallback: poll in case order was already created by a webhook
+            await clearCart();
+            // Fallback: poll in case order was already created by a webhook.
+            // Only mark polling done after the poll resolves — not before.
             pollForOrder(capturedSessionId!, capturedToken).then((id) => {
               if (id) setCompletedOrderId(id);
+              setOrderPollingDone(true);
             });
-            await clearCart();
-          } finally {
-            setOrderPollingDone(true);
           }
         }
       } catch (e: unknown) {
@@ -307,6 +342,32 @@ export function useCheckout() {
     },
     [sessionId, clearCart],
   );
+
+  // ── Payment: Lemon Squeezy ────────────────────────────────────────────────
+
+  const handleLsCheckout = useCallback(async () => {
+    if (!sessionId) return;
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const redirectUrl =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}${window.location.pathname}?payment=success`
+          : '';
+
+      const { checkoutUrl } = await checkoutApi.initiateLsCheckout(
+        sessionId,
+        redirectUrl,
+        getToken(),
+      );
+
+      window.location.href = checkoutUrl;
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Failed to initiate checkout. Please try again.');
+      setIsSubmitting(false);
+    }
+    // isSubmitting stays true — page is navigating away
+  }, [sessionId]);
 
   // ── Payment: PayPal ───────────────────────────────────────────────────────
 
@@ -327,6 +388,7 @@ export function useCheckout() {
         await clearCart();
         clearCheckoutSessionId();
         setSessionId(null);
+        setOrderPollingDone(true);
         setStep('confirmation');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'PayPal payment failed');
@@ -359,16 +421,11 @@ export function useCheckout() {
   const totals = session?.totals ?? null;
   const shippingCost: number | null = totals?.shippingFee ?? null;
   const discountAmount = totals?.discountAmount ?? 0;
-  // Use session currency (authoritative — set from Redux at session creation time).
-  // Fall back to 'USD' before a session exists so SSR and the first client render match.
   const currency = totals?.currency ?? 'USD';
-  // Prefer session-authoritative subtotal (now correctly applies sale ratio server-side).
-  // Fall back to cartSubtotal before a session is created.
   const subtotal = totals?.subtotal ?? cartSubtotal;
   const finalTotal = totals?.total ?? cartSubtotal + (shippingCost ?? 0);
 
   return {
-    // State
     step,
     session,
     sessionId,
@@ -377,31 +434,27 @@ export function useCheckout() {
     error,
     completedOrderId,
     orderPollingDone,
+    isLsPayment,
     confirmEmail,
     confirmFirstName,
     confirmPhone,
-    // Form defaults (for RHF initialization + session restore reset)
     contactDefaults,
-    // Shipping method (outside RHF form)
     selectedMethodId,
     shippingMethods,
-    // Payment
     paymentMethod,
-    // Cart / totals
     cartItems: items,
     subtotal,
     discountAmount,
     shippingCost,
     finalTotal,
     currency,
-    // Setters
     setStep,
     setPaymentMethod,
     setSelectedMethodId,
-    // Handlers
     handleContactNext,
     handleShippingNext,
     handleStripeConfirm,
+    handleLsCheckout,
     handlePaypalCreate,
     handlePaypalCapture,
     handleApplyCoupon,

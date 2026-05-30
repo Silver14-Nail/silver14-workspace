@@ -54,6 +54,12 @@ export interface StripeIntentResponse {
   currency: string;
 }
 
+export interface LsCheckoutResponse {
+  checkoutUrl: string;
+  amount: number;
+  currency: string;
+}
+
 export interface PaypalCreateResponse {
   paypalOrderId: string;
   amount: number;

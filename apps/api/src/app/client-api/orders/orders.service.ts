@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 
 import { OrderEntity } from '@/db/entities/orders/order.entity';
+import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 import { OrderStatus } from '@/common/enums/entity.enum';
 import type { AuthenticatedUser } from '@/shared/auth/auth.types';
 
@@ -29,14 +30,30 @@ export class ClientOrdersService {
   constructor(
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
+    @InjectRepository(PaymentEntity)
+    private readonly paymentRepo: Repository<PaymentEntity>,
   ) {}
 
-  async trackOrder(dto: TrackOrderQueryDto) {
-    const prefix = dto.orderId.trim().toLowerCase();
-    const order = await this.orderRepo.findOne({
+  private async findOrderForTracking(orderId: string): Promise<OrderEntity | null> {
+    const prefix = orderId.trim().toLowerCase().replace(/[%_\\]/g, '\\$&');
+
+    // Primary: UUID prefix lookup (our internal short reference)
+    const byUuid = await this.orderRepo.findOne({
       where: { id: Like(`${prefix}%`) },
       relations: ['items', 'items.customSizeRequest'],
     });
+    if (byUuid) return byUuid;
+
+    // Fallback: gateway transaction ID (e.g. Lemon Squeezy order number from their email)
+    const payment = await this.paymentRepo.findOne({
+      where: { gatewayTxnId: orderId.trim() },
+      relations: ['order', 'order.items', 'order.items.customSizeRequest'],
+    });
+    return payment?.order ?? null;
+  }
+
+  async trackOrder(dto: TrackOrderQueryDto) {
+    const order = await this.findOrderForTracking(dto.orderId);
 
     if (!order || !order.contactSnapshot || order.contactSnapshot.phone !== dto.phone) {
       throw new NotFoundException('Order not found');

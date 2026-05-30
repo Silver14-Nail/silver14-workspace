@@ -34,6 +34,7 @@ export default function CheckoutPage() {
     error,
     completedOrderId,
     orderPollingDone,
+    isLsPayment,
     confirmEmail,
     confirmFirstName,
     confirmPhone,
@@ -53,6 +54,7 @@ export default function CheckoutPage() {
     handleContactNext,
     handleShippingNext,
     handleStripeConfirm,
+    handleLsCheckout,
     handlePaypalCreate,
     handlePaypalCapture,
     handleApplyCoupon,
@@ -123,6 +125,7 @@ export default function CheckoutPage() {
                     currency={currency}
                     onPaymentChange={setPaymentMethod}
                     onStripeConfirm={handleStripeConfirm}
+                    onLsCheckout={handleLsCheckout}
                     onPaypalCreate={handlePaypalCreate}
                     onPaypalCapture={handlePaypalCapture}
                     onBack={() => setStep('shipping')}
@@ -134,6 +137,7 @@ export default function CheckoutPage() {
                 <ConfirmationStep
                   orderId={completedOrderId ?? ''}
                   orderPollingDone={orderPollingDone}
+                  isLsPayment={isLsPayment}
                   firstName={confirmFirstName}
                   email={confirmEmail}
                   phone={confirmPhone}

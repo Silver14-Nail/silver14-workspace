@@ -3,7 +3,7 @@ exports.id = 7;
 exports.ids = [7];
 exports.modules = {
 
-/***/ 2458
+/***/ 2461
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 // ESM COMPAT FLAG
@@ -27,7 +27,7 @@ __webpack_require__.d(__webpack_exports__, {
 // EXTERNAL MODULE: external "node:url"
 var external_node_url_ = __webpack_require__(1419);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/property-provider/CredentialsProviderError.js
-var CredentialsProviderError = __webpack_require__(1956);
+var CredentialsProviderError = __webpack_require__(1957);
 ;// ../../node_modules/.pnpm/@smithy+credential-provider-imds@4.3.3/node_modules/@smithy/credential-provider-imds/dist-es/remoteProvider/ImdsCredentials.js
 const isImdsCredentials = (arg) => Boolean(arg) &&
     typeof arg === "object" &&
@@ -51,7 +51,7 @@ const providerConfigFromInit = ({ maxRetries = DEFAULT_MAX_RETRIES, timeout = DE
 // EXTERNAL MODULE: external "node:http"
 var external_node_http_ = __webpack_require__(799);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/property-provider/ProviderError.js
-var ProviderError = __webpack_require__(1954);
+var ProviderError = __webpack_require__(1955);
 ;// ../../node_modules/.pnpm/@smithy+credential-provider-imds@4.3.3/node_modules/@smithy/credential-provider-imds/dist-es/remoteProvider/httpRequest.js
 
 
@@ -178,7 +178,7 @@ const getCmdsUri = async ({ logger }) => {
 };
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/node-config-provider/configLoader.js + 5 modules
-var configLoader = __webpack_require__(1952);
+var configLoader = __webpack_require__(1953);
 ;// ../../node_modules/.pnpm/@smithy+credential-provider-imds@4.3.3/node_modules/@smithy/credential-provider-imds/dist-es/error/InstanceMetadataV1FallbackError.js
 
 class InstanceMetadataV1FallbackError extends CredentialsProviderError.CredentialsProviderError {
@@ -192,7 +192,7 @@ class InstanceMetadataV1FallbackError extends CredentialsProviderError.Credentia
 }
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/url-parser/parseUrl.js + 1 modules
-var parseUrl = __webpack_require__(1968);
+var parseUrl = __webpack_require__(1969);
 ;// ../../node_modules/.pnpm/@smithy+credential-provider-imds@4.3.3/node_modules/@smithy/credential-provider-imds/dist-es/config/Endpoint.js
 var Endpoint;
 (function (Endpoint) {

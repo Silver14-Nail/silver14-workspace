@@ -87,7 +87,7 @@ export function CheckoutSidebar({
       </h3>
 
       <ul className="space-y-4 mb-5" aria-label={t('sidebar.itemsAriaLabel')}>
-        {items.map((item) => {
+        {mounted && items.map((item) => {
           const isOnSale =
             item.salePrice !== null &&
             item.salePrice < item.basePrice &&

@@ -8,12 +8,13 @@ import { useT } from 'next-i18next/client';
 interface ConfirmationStepProps {
   orderId: string;
   orderPollingDone?: boolean;
+  isLsPayment?: boolean;
   firstName: string;
   email: string;
   phone: string;
 }
 
-export function ConfirmationStep({ orderId, orderPollingDone, firstName, email, phone }: ConfirmationStepProps) {
+export function ConfirmationStep({ orderId, orderPollingDone, isLsPayment, firstName, email, phone }: ConfirmationStepProps) {
   const { t } = useT('checkout');
 
   return (
@@ -48,36 +49,50 @@ export function ConfirmationStep({ orderId, orderPollingDone, firstName, email, 
           {t('confirmation.description', { email })}
         </p>
 
-        {/* Order ID */}
-        <div className="bg-[#F8F8F8] p-6 mb-8 max-w-xs mx-auto">
-          <p
-            className="text-[#9A9A9A] text-xs uppercase tracking-widest mb-2"
-            style={{ letterSpacing: '0.12em' }}
-          >
-            {t('confirmation.orderIdLabel')}
-          </p>
-          {orderId ? (
+        {/* Order info block */}
+        {isLsPayment ? (
+          <div className="bg-[#F8F8F8] p-6 mb-8 max-w-sm mx-auto text-left">
+            <p className="text-[#6A6A6A] text-sm leading-relaxed">
+              {t('confirmation.lsEmailSent')}
+            </p>
+            {orderId && (
+              <p className="text-[#9A9A9A] text-xs mt-3">
+                {t('confirmation.lsInternalRef')}{' '}
+                <span className="font-mono text-[#1A1A1A]">{orderId.slice(0, 8).toUpperCase()}</span>
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="bg-[#F8F8F8] p-6 mb-8 max-w-xs mx-auto">
             <p
-              className="text-[#1A1A1A] text-lg font-mono tracking-widest"
-              style={{ fontWeight: 500 }}
+              className="text-[#9A9A9A] text-xs uppercase tracking-widest mb-2"
+              style={{ letterSpacing: '0.12em' }}
             >
-              {orderId.slice(0, 8).toUpperCase()}
+              {t('confirmation.orderIdLabel')}
             </p>
-          ) : orderPollingDone ? (
-            <p className="text-[#9A9A9A] text-sm py-1">
-              {t('confirmation.orderIdPending')}
-            </p>
-          ) : (
-            <div className="flex items-center justify-center gap-2 py-1">
-              <span
-                className="size-3.5 border-2 border-[#C0C0C0] border-t-[#1A1A1A] rounded-full animate-spin"
-                aria-hidden
-              />
-              <span className="text-[#9A9A9A] text-sm">Processing...</span>
-            </div>
-          )}
-          <p className="text-[#9A9A9A] text-xs mt-2">{t('confirmation.orderIdHint')}</p>
-        </div>
+            {orderId ? (
+              <p
+                className="text-[#1A1A1A] text-lg font-mono tracking-widest"
+                style={{ fontWeight: 500 }}
+              >
+                {orderId.slice(0, 8).toUpperCase()}
+              </p>
+            ) : orderPollingDone ? (
+              <p className="text-[#9A9A9A] text-sm py-1">
+                {t('confirmation.orderIdPending')}
+              </p>
+            ) : (
+              <div className="flex items-center justify-center gap-2 py-1">
+                <span
+                  className="size-3.5 border-2 border-[#C0C0C0] border-t-[#1A1A1A] rounded-full animate-spin"
+                  aria-hidden
+                />
+                <span className="text-[#9A9A9A] text-sm">Processing...</span>
+              </div>
+            )}
+            <p className="text-[#9A9A9A] text-xs mt-2">{t('confirmation.orderIdHint')}</p>
+          </div>
+        )}
 
         <p className="text-[#9A9A9A] text-xs mb-8 p-3 bg-[#F8F8F8] max-w-sm mx-auto">
           {t('confirmation.trackHint', { phone })}

@@ -22,8 +22,9 @@ const statusColors: Record<string, string> = {
 };
 
 const gatewayColors: Record<string, { bg: string; text: string; icon: string }> = {
-  stripe: { bg: 'bg-indigo-50', text: 'text-indigo-700', icon: '⚡' },
+  lemon_squeezy: { bg: 'bg-yellow-50', text: 'text-yellow-700', icon: '🍋' },
   paypal: { bg: 'bg-blue-50', text: 'text-blue-700', icon: '🅿' },
+  stripe: { bg: 'bg-indigo-50', text: 'text-indigo-700', icon: '⚡' },
   braintree: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '🌿' },
 };
 
@@ -299,8 +300,9 @@ export default function AdminPaymentsPage() {
           className="px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none cursor-pointer"
         >
           <option value="all">All Gateways</option>
-          <option value="stripe">Stripe</option>
+          <option value="lemon_squeezy">Lemon Squeezy</option>
           <option value="paypal">PayPal</option>
+          <option value="stripe">Stripe</option>
           <option value="braintree">Braintree</option>
         </select>
       </div>

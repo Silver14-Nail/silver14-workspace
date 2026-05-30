@@ -3,6 +3,7 @@ import type {
   CheckoutSession,
   ShippingMethod,
   StripeIntentResponse,
+  LsCheckoutResponse,
   PaypalCreateResponse,
   CompletedOrderRef,
   UpdateShippingInput,
@@ -79,6 +80,8 @@ export const checkoutApi = {
       })
       .then((r) => r.data),
 
+  // ─── Stripe ──────────────────────────────────────────────────────────────────
+
   initiateStripe: (checkoutSessionId: string, token?: string | null) =>
     http
       .post<StripeIntentResponse>(
@@ -100,6 +103,23 @@ export const checkoutApi = {
         { headers: authHeaders(token) },
       )
       .then((r) => r.data),
+
+  // ─── Lemon Squeezy ───────────────────────────────────────────────────────────
+
+  initiateLsCheckout: (
+    checkoutSessionId: string,
+    redirectUrl: string,
+    token?: string | null,
+  ) =>
+    http
+      .post<LsCheckoutResponse>(
+        '/client-api/payments/lemon-squeezy/checkout',
+        { checkoutSessionId, redirectUrl },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
+
+  // ─── PayPal ──────────────────────────────────────────────────────────────────
 
   createPaypalOrder: (checkoutSessionId: string, token?: string | null) =>
     http

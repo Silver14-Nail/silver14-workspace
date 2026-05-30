@@ -47,8 +47,9 @@ export class ClientApiModule implements NestModule {
     consumer
       .apply(UserApiMiddleware)
       .exclude(
-        // Webhooks are called by Stripe/PayPal — no user token
+        // Webhooks are called by payment gateways — no user token
         { path: 'client-api/webhooks/stripe', method: RequestMethod.POST },
+        { path: 'client-api/webhooks/lemon-squeezy', method: RequestMethod.POST },
         { path: 'client-api/webhooks/paypal', method: RequestMethod.POST },
       )
       .forRoutes({ path: 'client-api', method: RequestMethod.ALL });

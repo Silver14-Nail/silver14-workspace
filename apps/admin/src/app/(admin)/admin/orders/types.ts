@@ -9,7 +9,7 @@ export type OrderStatus =
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'partially_refunded';
 
-export type PaymentGateway = 'paypal' | 'stripe' | 'braintree';
+export type PaymentGateway = 'paypal' | 'stripe' | 'braintree' | 'lemon_squeezy';
 
 export interface OrderUser {
   id: string;
