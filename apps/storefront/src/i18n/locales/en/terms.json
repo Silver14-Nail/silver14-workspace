@@ -1,0 +1,81 @@
+{
+  "hero": {
+    "subtitle": "Legal",
+    "title": "Terms of Service",
+    "description": "Please read the following terms carefully before placing an order. By clicking \"Place Order\" or \"Checkout,\" you acknowledge that you have read, understood, and agreed to all of the terms outlined below."
+  },
+  "sections": [
+    {
+      "number": "01",
+      "title": "NAILBOX PRODUCT POLICY",
+      "paragraphs": [
+        "All Nailbox products sold on this website are handmade and custom-made based on the nail measurements, nail shape, and length provided by the customer during the ordering process.",
+        "Actual product colors may vary slightly (approximately 5%–10%) due to photography lighting conditions and differences in screen displays. However, we guarantee that the design, style, and included accessories will match the product description and photos as closely as possible."
+      ],
+      "list": []
+    },
+    {
+      "number": "02",
+      "title": "NO RETURN – NO REFUND POLICY",
+      "paragraphs": [
+        "For hygiene, health, and safety reasons, and because all Nailbox products are custom-made according to each customer's personal measurements, Silver14 Nail maintains a strict NO RETURN and NO REFUND policy under all circumstances.",
+        "We reserve the right to decline any request for returns, refunds, exchanges, or remakes in cases including, but not limited to:"
+      ],
+      "list": [
+        "Incorrect nail measurements provided by the customer.",
+        "Incorrect selection of nail shape or nail length.",
+        "Ordering the wrong design.",
+        "Change of mind after purchase.",
+        "Dissatisfaction with color preferences after delivery.",
+        "Products that have been used, glued, worn, altered, or damaged due to improper handling, storage, or usage by the customer."
+      ]
+    },
+    {
+      "number": "03",
+      "title": "EXCEPTIONS & SUPPORT POLICY",
+      "paragraphs": [
+        "We will take full responsibility and provide a replacement or remake if the issue is caused by our error, including:"
+      ],
+      "list": [
+        "Incorrect design sent compared to the confirmed order.",
+        "Incorrect nail shape or size compared to the measurements provided.",
+        "Severe damage such as cracks, breakage, missing rhinestones, or detached accessories caused by packaging defects or shipping damage."
+      ],
+      "subTitle": "Requirements for Support",
+      "subParagraphs": [
+        "To qualify for support, customers must provide:",
+        "A clear and uninterrupted unboxing video showing the package from the moment it is still sealed until the product defect is discovered. The video must not be edited, cut, or altered in any way.",
+        "Support requests must be submitted within 48 hours after the shipping carrier marks the package as \"Delivered.\" Requests submitted after this period, or without valid video evidence, may be declined."
+      ]
+    },
+    {
+      "number": "04",
+      "title": "PRODUCTION & SHIPPING TIMES",
+      "paragraphs": [],
+      "list": [],
+      "subSections": [
+        {
+          "label": "Production Time",
+          "text": "Since all Nailbox products are handmade, production typically requires 2–4 business days after payment has been successfully confirmed."
+        },
+        {
+          "label": "Shipping Time",
+          "text": "Estimated delivery times range from 7–28 days depending on your country and location. For destinations in Africa and South America, delivery may take longer due to customs procedures and local logistics conditions. Silver14 Nail is not responsible for shipping delays caused by carriers, customs inspections, weather conditions, or other circumstances beyond our control."
+        }
+      ]
+    },
+    {
+      "number": "05",
+      "title": "CONTACT INFORMATION",
+      "paragraphs": [
+        "If you have any questions regarding these Terms of Service, please contact us:"
+      ],
+      "list": [],
+      "contact": {
+        "email": "hello@silver14nail.com",
+        "website": "www.silver14nail.com"
+      }
+    }
+  ],
+  "lastUpdated": "Last updated: May 2026"
+}

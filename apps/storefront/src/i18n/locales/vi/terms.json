@@ -1,0 +1,81 @@
+{
+  "hero": {
+    "subtitle": "Pháp lý",
+    "title": "Điều Khoản Dịch Vụ",
+    "description": "Vui lòng đọc kỹ các điều khoản sau trước khi đặt hàng. Bằng cách nhấn \"Đặt hàng\" hoặc \"Thanh toán\", bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý với tất cả các điều khoản được nêu dưới đây."
+  },
+  "sections": [
+    {
+      "number": "01",
+      "title": "CHÍNH SÁCH SẢN PHẨM NAILBOX",
+      "paragraphs": [
+        "Tất cả sản phẩm Nailbox được bán trên website này đều là sản phẩm thủ công và được làm theo yêu cầu dựa trên số đo móng, hình dáng móng và độ dài móng do khách hàng cung cấp trong quá trình đặt hàng.",
+        "Màu sắc sản phẩm thực tế có thể chênh lệch nhẹ (khoảng 5%–10%) do điều kiện ánh sáng chụp ảnh và sự khác biệt về màn hình hiển thị. Tuy nhiên, chúng tôi đảm bảo rằng thiết kế, kiểu dáng và phụ kiện đi kèm sẽ khớp với mô tả và hình ảnh sản phẩm một cách tối đa."
+      ],
+      "list": []
+    },
+    {
+      "number": "02",
+      "title": "CHÍNH SÁCH KHÔNG ĐỔI TRẢ – KHÔNG HOÀN TIỀN",
+      "paragraphs": [
+        "Vì lý do vệ sinh, sức khỏe và an toàn, đồng thời vì tất cả sản phẩm Nailbox được làm riêng theo số đo cá nhân của từng khách hàng, Silver14 Nail duy trì chính sách KHÔNG ĐỔI TRẢ và KHÔNG HOÀN TIỀN trong mọi trường hợp.",
+        "Chúng tôi có quyền từ chối mọi yêu cầu đổi trả, hoàn tiền, đổi hàng hoặc làm lại trong các trường hợp bao gồm nhưng không giới hạn:"
+      ],
+      "list": [
+        "Khách hàng cung cấp số đo móng không chính xác.",
+        "Chọn sai hình dạng móng hoặc độ dài móng.",
+        "Đặt nhầm thiết kế.",
+        "Thay đổi ý kiến sau khi mua hàng.",
+        "Không hài lòng với màu sắc sau khi nhận hàng.",
+        "Sản phẩm đã được sử dụng, gắn keo, đeo, thay đổi hoặc bị hỏng do khách hàng bảo quản, sử dụng không đúng cách."
+      ]
+    },
+    {
+      "number": "03",
+      "title": "NGOẠI LỆ & CHÍNH SÁCH HỖ TRỢ",
+      "paragraphs": [
+        "Chúng tôi sẽ chịu toàn bộ trách nhiệm và cung cấp sản phẩm thay thế hoặc làm lại nếu vấn đề xuất phát từ lỗi của chúng tôi, bao gồm:"
+      ],
+      "list": [
+        "Giao sai thiết kế so với đơn hàng đã xác nhận.",
+        "Sai hình dạng hoặc kích thước móng so với số đo đã cung cấp.",
+        "Hư hỏng nghiêm trọng như nứt, gãy, mất đá hoặc phụ kiện rơi ra do lỗi đóng gói hoặc hư hỏng trong quá trình vận chuyển."
+      ],
+      "subTitle": "Yêu cầu để được hỗ trợ",
+      "subParagraphs": [
+        "Để đủ điều kiện được hỗ trợ, khách hàng phải cung cấp:",
+        "Video mở hộp rõ ràng và liên tục từ khi kiện hàng vẫn còn nguyên seal cho đến khi phát hiện lỗi sản phẩm. Video không được chỉnh sửa, cắt ghép hoặc thay đổi dưới bất kỳ hình thức nào.",
+        "Yêu cầu hỗ trợ phải được gửi trong vòng 48 giờ sau khi đơn vị vận chuyển cập nhật trạng thái \"Đã giao hàng\". Yêu cầu gửi sau thời hạn này hoặc không có video bằng chứng hợp lệ có thể bị từ chối."
+      ]
+    },
+    {
+      "number": "04",
+      "title": "THỜI GIAN SẢN XUẤT & VẬN CHUYỂN",
+      "paragraphs": [],
+      "list": [],
+      "subSections": [
+        {
+          "label": "Thời gian sản xuất",
+          "text": "Vì tất cả sản phẩm Nailbox đều được làm thủ công, thời gian sản xuất thường mất 2–4 ngày làm việc sau khi thanh toán được xác nhận thành công."
+        },
+        {
+          "label": "Thời gian vận chuyển",
+          "text": "Thời gian giao hàng dự kiến từ 7–28 ngày tùy theo quốc gia và địa điểm của bạn. Đối với các điểm đến ở Châu Phi và Nam Mỹ, việc giao hàng có thể mất nhiều thời gian hơn do thủ tục hải quan và điều kiện logistics địa phương. Silver14 Nail không chịu trách nhiệm về sự chậm trễ vận chuyển do đơn vị vận chuyển, kiểm tra hải quan, thời tiết hoặc các tình huống ngoài tầm kiểm soát của chúng tôi."
+        }
+      ]
+    },
+    {
+      "number": "05",
+      "title": "THÔNG TIN LIÊN HỆ",
+      "paragraphs": [
+        "Nếu bạn có bất kỳ câu hỏi nào về Điều khoản Dịch vụ này, vui lòng liên hệ với chúng tôi:"
+      ],
+      "list": [],
+      "contact": {
+        "email": "hello@silver14nail.com",
+        "website": "www.silver14nail.com"
+      }
+    }
+  ],
+  "lastUpdated": "Cập nhật lần cuối: Tháng 5 năm 2026"
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, MessageCircle, MapPin, Clock } from 'lucide-react';
+import { Mail, MessageCircle, MapPin, Clock, Phone } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 
 type ContactInfoItem = {
@@ -16,6 +16,7 @@ const iconMap = {
   MessageCircle,
   MapPin,
   Clock,
+  Phone,
 };
 
 export default function ContactPage() {
