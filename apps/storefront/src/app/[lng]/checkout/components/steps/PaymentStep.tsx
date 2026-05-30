@@ -3,7 +3,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
-import { Shield } from 'lucide-react';
+import { CreditCard, Shield } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import { BackButton, PayButton } from '../ui/Buttons';
 import { PAYMENT_METHODS } from '../../constants';
@@ -101,6 +101,7 @@ interface PaymentStepProps {
   currency: string;
   onPaymentChange: (method: PaymentMethod) => void;
   onStripeConfirm: (stripe: Stripe, cardElement: StripeCardElement) => Promise<void>;
+  onLsCheckout: () => Promise<void>;
   onPaypalCreate: () => Promise<string>;
   onPaypalCapture: (paypalOrderId: string) => Promise<void>;
   onBack: () => void;
@@ -114,12 +115,18 @@ export function PaymentStep({
   currency,
   onPaymentChange,
   onStripeConfirm,
+  onLsCheckout,
   onPaypalCreate,
   onPaypalCapture,
   onBack,
 }: PaymentStepProps) {
   const { t } = useT('checkout');
   const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '';
+
+  const formattedAmount = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency || 'USD',
+  }).format(finalTotal);
 
   return (
     <div className="bg-white p-6 sm:p-8">
@@ -161,18 +168,9 @@ export function PaymentStep({
               </span>
             </span>
             <span className="ml-auto flex gap-1.5">
-              {method === 'card' &&
-                ['VISA', 'MC'].map((b) => (
-                  <span
-                    key={b}
-                    className="text-[10px] border border-[#E0E0E0] px-1.5 py-0.5 text-[#6A6A6A]"
-                  >
-                    {b}
-                  </span>
-                ))}
-              {method === 'paypal' && (
-                <span className="text-[10px] border border-[#E0E0E0] px-1.5 py-0.5 text-[#0070ba]">
-                  PayPal
+              {method === 'lemon_squeezy' && (
+                <span className="text-[10px] border border-[#E0E0E0] px-1.5 py-0.5 text-[#F59E0B]">
+                  🍋 LS
                 </span>
               )}
             </span>
@@ -191,6 +189,37 @@ export function PaymentStep({
             onConfirm={onStripeConfirm}
           />
         </Elements>
+      )}
+
+      {/* Lemon Squeezy */}
+      {payment === 'lemon_squeezy' && (
+        <>
+          <p className="text-[#9A9A9A] text-xs mb-4">{t('payment.lsHint')}</p>
+
+          {error && <p className="text-red-600 text-xs mb-4 px-1">{error}</p>}
+
+          <SecurityNote />
+
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={onLsCheckout}
+            className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors disabled:bg-[#6A6A6A] disabled:cursor-not-allowed"
+            style={{ letterSpacing: '0.15em' }}
+          >
+            {isSubmitting ? (
+              <>
+                <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {t('payment.processing')}
+              </>
+            ) : (
+              <>
+                <CreditCard className="size-4" />
+                {t('payment.cta')} {formattedAmount}
+              </>
+            )}
+          </button>
+        </>
       )}
 
       {/* PayPal */}

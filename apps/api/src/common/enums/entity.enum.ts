@@ -110,6 +110,7 @@ export enum PaymentGateway {
   PAYPAL = 'paypal',
   STRIPE = 'stripe',
   BRAINTREE = 'braintree',
+  LEMON_SQUEEZY = 'lemon_squeezy',
 }
 
 export enum PaymentStatus {

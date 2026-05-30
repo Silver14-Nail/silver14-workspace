@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { IncomingHttpHeaders } from 'http';
 
 import { StripeService } from '@/shared/payments/stripe.service';
+import { LemonSqueezyService } from '@/shared/payments/lemon-squeezy.service';
 import { PaypalService } from '@/shared/payments/paypal.service';
 import { ClientPaymentsService } from '../payments/payments.service';
 
@@ -12,12 +13,33 @@ interface StripePaymentIntent {
   last_payment_error?: { message?: string } | null;
 }
 
+interface LsWebhookMeta {
+  event_name: string;
+  custom_data?: Record<string, string> | null;
+}
+
+interface LsOrderAttributes {
+  status: string;
+  total: number;
+  currency: string;
+}
+
+interface LsWebhookPayload {
+  meta: LsWebhookMeta;
+  data: {
+    id: string;
+    type: string;
+    attributes: LsOrderAttributes;
+  };
+}
+
 @Injectable()
 export class WebhooksService {
   private readonly logger = new Logger(WebhooksService.name);
 
   constructor(
     private readonly stripeService: StripeService,
+    private readonly lsService: LemonSqueezyService,
     private readonly paypalService: PaypalService,
     private readonly clientPaymentsService: ClientPaymentsService,
   ) {}
@@ -59,6 +81,50 @@ export class WebhooksService {
 
       default:
         this.logger.log(`Unhandled Stripe event type: ${event.type}`);
+    }
+  }
+
+  async handleLsWebhook(rawBody: string, signature: string): Promise<void> {
+    if (!this.lsService.verifyWebhookSignature(rawBody, signature)) {
+      this.logger.error('Lemon Squeezy webhook signature verification failed');
+      throw new Error('Invalid Lemon Squeezy webhook signature');
+    }
+
+    const payload = JSON.parse(rawBody) as LsWebhookPayload;
+    const eventName = payload.meta?.event_name;
+    this.logger.log(`Lemon Squeezy webhook received: ${eventName}`);
+
+    switch (eventName) {
+      case 'order_created': {
+        if (payload.data.attributes.status !== 'paid') {
+          this.logger.warn(
+            `order_created with non-paid status: ${payload.data.attributes.status}`,
+          );
+          break;
+        }
+
+        const checkoutSessionId = payload.meta.custom_data?.checkoutSessionId;
+        if (!checkoutSessionId) {
+          this.logger.warn('order_created missing checkoutSessionId in custom_data');
+          break;
+        }
+
+        await this.clientPaymentsService.fulfillLsOrder(
+          payload.data.id,
+          checkoutSessionId,
+          payload.data.attributes as Record<string, any>,
+        );
+        this.logger.log(`Order fulfilled for LS order ${payload.data.id}`);
+        break;
+      }
+
+      case 'order_refunded': {
+        this.logger.warn(`LS order refunded: ${payload.data.id}`);
+        break;
+      }
+
+      default:
+        this.logger.log(`Unhandled Lemon Squeezy event type: ${eventName}`);
     }
   }
 

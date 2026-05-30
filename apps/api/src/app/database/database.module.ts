@@ -2,6 +2,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration, { EnvConfiguration } from '@/config/configuration';
 import stripeConfig from '@/config/stripe.config';
+import lemonSqueezyConfig from '@/config/lemon-squeezy.config';
 import paypalConfig from '@/config/paypal.config';
 
 import { Module } from '@nestjs/common';
@@ -16,7 +17,7 @@ import { ENTITIES } from '@/db/entities';
       isGlobal: true,
       // Load order: environment-specific overrides first, then base .env
       envFilePath: [`.env.${process.env.NODE_ENV}.local`, `.env.${process.env.NODE_ENV}`, '.env'],
-      load: [configuration, stripeConfig, paypalConfig],
+      load: [configuration, stripeConfig, lemonSqueezyConfig, paypalConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
