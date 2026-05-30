@@ -13,9 +13,15 @@
       "description": "We typically respond within 24 hours"
     },
     {
+      "icon": "Phone",
+      "title": "WhatsApp / Hotline",
+      "content": "+84 344 399 881",
+      "description": "Available Mon – Fri, 9 AM – 6 PM"
+    },
+    {
       "icon": "MapPin",
       "title": "Location",
-      "content": "91A2 Nguyễn Khoái, Phường 1, Quận 4, Hồ Chí Minh, Việt Nam",
+      "content": "91A2 Nguyen Khoai Street, Vinh Hoi Ward, District 4, Ho Chi Minh City, Vietnam",
       "description": "Shipping worldwide"
     },
     {

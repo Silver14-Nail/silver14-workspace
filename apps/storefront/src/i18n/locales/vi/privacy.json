@@ -1,0 +1,104 @@
+{
+  "hero": {
+    "subtitle": "Pháp lý",
+    "title": "Chính Sách Bảo Mật",
+    "description": "Silver14 Nail cam kết bảo vệ quyền riêng tư và thông tin cá nhân của bạn. Chính sách Bảo mật này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ thông tin của bạn khi bạn truy cập và mua sắm trên website của chúng tôi."
+  },
+  "sections": [
+    {
+      "number": "01",
+      "title": "THÔNG TIN CHÚNG TÔI THU THẬP",
+      "intro": "Khi bạn đặt hàng hoặc tạo tài khoản trên website của chúng tôi, chúng tôi thu thập các thông tin cá nhân cần thiết, bao gồm:",
+      "groups": [
+        {
+          "label": "Thông tin cá nhân",
+          "items": [
+            "Họ và tên đầy đủ",
+            "Quốc gia",
+            "Địa chỉ giao hàng",
+            "Địa chỉ thanh toán",
+            "Số điện thoại",
+            "Địa chỉ email"
+          ]
+        },
+        {
+          "label": "Thông tin giao dịch",
+          "items": [
+            "Chi tiết sản phẩm Nailbox bạn mua",
+            "Kích thước móng",
+            "Hình dạng móng",
+            "Lịch sử đơn hàng"
+          ]
+        },
+        {
+          "label": "Thông tin kỹ thuật",
+          "items": [
+            "Địa chỉ IP",
+            "Loại trình duyệt",
+            "Thời gian truy cập",
+            "Dữ liệu thu thập qua cookie để cải thiện trải nghiệm mua sắm của bạn trên website"
+          ]
+        }
+      ],
+      "notice": {
+        "label": "Lưu ý quan trọng",
+        "text": "Chúng tôi KHÔNG lưu trữ thông tin thẻ tín dụng hoặc tài khoản ngân hàng của bạn. Tất cả các khoản thanh toán được xử lý an toàn thông qua các nhà cung cấp thanh toán quốc tế độc lập như PayPal, Stripe hoặc Lemon Squeezy."
+      }
+    },
+    {
+      "number": "02",
+      "title": "CÁCH CHÚNG TÔI SỬ DỤNG THÔNG TIN",
+      "intro": "Chúng tôi sử dụng thông tin của bạn chỉ cho các mục đích kinh doanh hợp pháp, bao gồm:",
+      "items": [
+        "Xác nhận đơn hàng và tạo sản phẩm Nailbox thủ công theo số đo bạn yêu cầu.",
+        "Sắp xếp vận chuyển quốc tế và cung cấp thông tin theo dõi đơn hàng.",
+        "Gửi thông báo trạng thái đơn hàng và cung cấp dịch vụ hỗ trợ khách hàng.",
+        "Ngăn chặn gian lận thanh toán và truy cập trái phép vào hệ thống website của chúng tôi."
+      ]
+    },
+    {
+      "number": "03",
+      "title": "CHIA SẺ THÔNG TIN VỚI BÊN THỨ BA",
+      "paragraphs": [
+        "Chúng tôi không bán, trao đổi hoặc cho thuê thông tin cá nhân của bạn cho bên thứ ba vì mục đích tiếp thị hoặc thương mại.",
+        "Thông tin của bạn chỉ được chia sẻ với các đối tác đáng tin cậy trực tiếp tham gia vào việc thực hiện đơn hàng của bạn, bao gồm:"
+      ],
+      "partners": [
+        {
+          "label": "Nhà cung cấp vận chuyển",
+          "text": "Các dịch vụ chuyển phát quốc tế như DHL, FedEx, UPS, EMS và các đối tác vận chuyển khác để giao hàng đến cho bạn."
+        },
+        {
+          "label": "Nhà cung cấp thanh toán",
+          "text": "Các tổ chức tài chính và đơn vị xử lý thanh toán được ủy quyền, xử lý giao dịch thanh toán một cách an toàn."
+        }
+      ]
+    },
+    {
+      "number": "04",
+      "title": "BẢO MẬT DỮ LIỆU",
+      "paragraphs": [
+        "Chúng tôi triển khai các biện pháp bảo mật nghiêm ngặt, bao gồm công nghệ mã hóa SSL, để bảo vệ thông tin cá nhân của bạn khỏi bị mất, lạm dụng, truy cập trái phép, tiết lộ, thay đổi hoặc phá hủy.",
+        "Tuy nhiên, không có phương thức truyền dữ liệu qua internet hay lưu trữ điện tử nào là hoàn toàn an toàn. Do đó, dù chúng tôi cố gắng bảo vệ thông tin của bạn, chúng tôi không thể đảm bảo an ninh tuyệt đối trong mọi trường hợp."
+      ]
+    },
+    {
+      "number": "05",
+      "title": "QUYỀN CỦA KHÁCH HÀNG",
+      "paragraphs": [
+        "Bạn có quyền truy cập, cập nhật, chỉnh sửa hoặc yêu cầu xóa dữ liệu cá nhân của mình bất cứ lúc nào bằng cách đăng nhập vào tài khoản hoặc liên hệ trực tiếp với chúng tôi theo thông tin được cung cấp bên dưới."
+      ]
+    },
+    {
+      "number": "06",
+      "title": "THÔNG TIN LIÊN HỆ",
+      "intro": "Nếu bạn có bất kỳ câu hỏi hoặc thắc mắc nào về Chính sách Bảo mật này, vui lòng liên hệ với chúng tôi:",
+      "contact": {
+        "email": "Silver14nail@gmail.com",
+        "phone": "+84 344 399 881",
+        "phoneLabel": "Hotline / WhatsApp"
+      }
+    }
+  ],
+  "lastUpdated": "Cập nhật lần cuối: Tháng 5 năm 2026"
+}

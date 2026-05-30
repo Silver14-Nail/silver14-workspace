@@ -110,7 +110,7 @@ export function Footer() {
                 <img src="/images/icons/pinterest.png" alt="Pinterest" className="size-4" />
               </a>
               <a
-                href="https://wa.me/qr/QDIWYSN7N6TSD1"
+                href="https://wa.me/84344399881"
                 className="text-[#6A6A6A] hover:text-white transition-colors"
                 target="blank"
               >
@@ -224,6 +224,8 @@ export function Footer() {
               {[
                 { label: t('policies.shipping'), href: '/shipping-policy' },
                 { label: t('policies.returns'), href: '/returns' },
+                { label: t('policies.privacy'), href: '/privacy' },
+                { label: t('policies.terms'), href: '/terms' },
               ].map((l) => (
                 <li key={l.label}>
                   <LinkBase

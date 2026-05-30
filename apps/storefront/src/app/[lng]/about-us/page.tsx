@@ -166,11 +166,11 @@ export default function AboutPage() {
           <p>
             Instagram:{' '}
             <a
-              href="https://instagram.com/silver14nail"
+              href="https://www.instagram.com/silver14.nail"
               target="_blank"
               className="text-[#1A1A1A] hover:opacity-70 transition-opacity"
             >
-              @silver14nail
+              @silver14.nail
             </a>
           </p>
 

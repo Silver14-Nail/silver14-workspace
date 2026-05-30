@@ -24,6 +24,8 @@ const i18nConfig: I18nConfig = {
     'trust',
     'wholesale',
     'supplies',
+    'terms',
+    'privacy',
   ],
   resourceLoader: (language: string, namespace: string) =>
     import(`./i18n/locales/${language}/${namespace}.json`),
