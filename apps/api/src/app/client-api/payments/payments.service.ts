@@ -267,6 +267,16 @@ export class ClientPaymentsService {
     });
     if (existingOrder) return { order: existingOrder, payment: null };
 
+    // Verify the PayPal order belongs to this checkout session before capturing
+    const paypalOrder = await this.paypalService.getOrder(dto.paypalOrderId);
+    if (!paypalOrder) {
+      throw new BadRequestException('Could not retrieve PayPal order — please retry');
+    }
+    const orderRefId = paypalOrder.purchase_units?.[0]?.reference_id;
+    if (orderRefId !== dto.checkoutSessionId) {
+      throw new BadRequestException('PayPal order does not belong to this checkout session');
+    }
+
     const session = await this.loadSessionOrFail(dto.checkoutSessionId);
 
     if (session.status === CheckoutSessionStatus.COMPLETED) {
@@ -316,6 +326,78 @@ export class ClientPaymentsService {
       await manager.save(CheckoutSessionEntity, session);
 
       return { order, payment };
+    });
+  }
+
+  // Called by PayPal webhook PAYMENT.CAPTURE.COMPLETED — fallback if client never called capturePaypalOrder
+  async fulfillPaypalWebhookCapture(
+    paypalOrderId: string,
+    checkoutSessionId: string,
+    captureResource: Record<string, any>,
+  ): Promise<void> {
+    const existingOrder = await this.paymentRepo.manager.findOne(OrderEntity, {
+      where: { checkoutSession: { id: checkoutSessionId } },
+      select: ['id'],
+    });
+    if (existingOrder) return; // Already fulfilled by the client path — idempotent
+
+    const session = await this.sessionRepo.findOne({
+      where: { id: checkoutSessionId },
+      relations: [
+        'cart', 'cart.items', 'cart.items.variant', 'cart.items.variant.shape',
+        'cart.items.variant.size', 'cart.items.variant.product',
+        'cart.items.variant.product.images', 'user', 'guest',
+      ],
+    });
+    if (!session) {
+      // Session not found — PayPal charged the customer but we have no session.
+      // MANUAL ACTION REQUIRED: refund via PayPal dashboard.
+      throw new Error(`fulfillPaypalWebhookCapture: session ${checkoutSessionId} not found for PayPal order ${paypalOrderId} — MANUAL REFUND REQUIRED`);
+    }
+    // If session was already completed by another path, the idempotency check at the top handles it.
+    // Only skip for truly terminal states (abandoned/expired) where we cannot fulfill.
+    if (
+      session.status === CheckoutSessionStatus.ABANDONED ||
+      session.status === CheckoutSessionStatus.EXPIRED
+    ) {
+      throw new Error(`fulfillPaypalWebhookCapture: session ${checkoutSessionId} is ${session.status} — MANUAL REFUND REQUIRED`);
+    }
+
+    const totals = this.calculateTotals(session);
+
+    await this.paymentRepo.manager.transaction(async (manager) => {
+      const duplicate = await manager.findOne(OrderEntity, {
+        where: { checkoutSession: { id: checkoutSessionId } },
+        select: ['id'],
+      });
+      if (duplicate) return;
+
+      const order = await this.createOrder(manager, session, totals);
+
+      const payment = manager.create(PaymentEntity, {
+        order,
+        gateway: PaymentGateway.PAYPAL,
+        gatewayTxnId: paypalOrderId,
+        status: PaymentStatus.PAID,
+        amount: totals.total,
+        currency: totals.currency,
+        gatewayResponse: captureResource,
+        paidAt: new Date(),
+      });
+      await manager.save(PaymentEntity, payment);
+
+      const captureDetail = captureResource?.purchase_units?.[0]?.payments?.captures?.[0];
+      const paypalDetail = manager.create(PaypalDetailEntity, {
+        payment,
+        paypalOrderId,
+        payerEmail: captureResource?.payer?.email_address ?? null,
+        payerId: captureResource?.payer?.payer_id ?? null,
+        captureId: captureDetail?.id ?? null,
+      });
+      await manager.save(PaypalDetailEntity, paypalDetail);
+
+      session.status = CheckoutSessionStatus.COMPLETED;
+      await manager.save(CheckoutSessionEntity, session);
     });
   }
 

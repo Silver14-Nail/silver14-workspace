@@ -4,6 +4,8 @@ import type { IncomingHttpHeaders } from 'http';
 import { StripeService } from '@/shared/payments/stripe.service';
 import { LemonSqueezyService } from '@/shared/payments/lemon-squeezy.service';
 import { PaypalService } from '@/shared/payments/paypal.service';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyRecord = Record<string, any>;
 import { ClientPaymentsService } from '../payments/payments.service';
 
 // Minimal shape of Stripe objects we extract from webhook events
@@ -97,9 +99,7 @@ export class WebhooksService {
     switch (eventName) {
       case 'order_created': {
         if (payload.data.attributes.status !== 'paid') {
-          this.logger.warn(
-            `order_created with non-paid status: ${payload.data.attributes.status}`,
-          );
+          this.logger.warn(`order_created with non-paid status: ${payload.data.attributes.status}`);
           break;
         }
 
@@ -136,12 +136,47 @@ export class WebhooksService {
       throw new BadRequestException('Invalid PayPal webhook signature');
     }
 
-    const event = JSON.parse(rawBody) as { event_type: string; resource: Record<string, any> };
+    let event: { event_type: string; resource: AnyRecord };
+    try {
+      event = JSON.parse(rawBody) as { event_type: string; resource: AnyRecord };
+    } catch {
+      this.logger.error('PayPal webhook: failed to parse JSON body');
+      return; // Acknowledge to PayPal (return 200) — malformed body is not retryable
+    }
     this.logger.log(`PayPal webhook received: ${event.event_type}`);
 
     switch (event.event_type) {
       case 'PAYMENT.CAPTURE.COMPLETED': {
-        this.logger.log(`PayPal PAYMENT.CAPTURE.COMPLETED received — handled by capture endpoint`);
+        // Fallback fulfillment: handles the case where client never called our capture endpoint
+        // (e.g. browser crash after PayPal approval). Idempotent — no-op if order already exists.
+        const captureResource = event.resource;
+        const paypalOrderId = captureResource?.supplementary_data?.related_ids?.order_id as string | undefined;
+
+        if (!paypalOrderId) {
+          this.logger.warn('PAYMENT.CAPTURE.COMPLETED: missing order_id in supplementary_data — MANUAL ACTION REQUIRED');
+          break;
+        }
+
+        try {
+          const paypalOrder = await this.paypalService.getOrder(paypalOrderId);
+          const checkoutSessionId = paypalOrder?.purchase_units?.[0]?.reference_id;
+
+          if (!checkoutSessionId) {
+            this.logger.error(`PAYMENT.CAPTURE.COMPLETED: cannot resolve checkoutSessionId for PayPal order ${paypalOrderId} — MANUAL ACTION REQUIRED`);
+            break; // Acknowledge — retrying won't help without reference_id
+          }
+
+          await this.clientPaymentsService.fulfillPaypalWebhookCapture(
+            paypalOrderId,
+            checkoutSessionId,
+            captureResource,
+          );
+          this.logger.log(`PayPal PAYMENT.CAPTURE.COMPLETED fulfilled for session ${checkoutSessionId}`);
+        } catch (err) {
+          // Log but return 200 so PayPal does not retry non-transient failures (e.g. out-of-stock).
+          // Transient DB failures will be re-delivered by PayPal on the next retry cycle.
+          this.logger.error(`PAYMENT.CAPTURE.COMPLETED fulfillment error for PayPal order ${paypalOrderId}: ${err}`);
+        }
         break;
       }
 

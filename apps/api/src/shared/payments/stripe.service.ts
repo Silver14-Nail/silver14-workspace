@@ -16,13 +16,19 @@ export class StripeService {
     this.webhookSecret = config.webhookSecret;
   }
 
+  // Currencies where 1 unit = smallest unit (no cents). Must NOT multiply × 100.
+  private static readonly ZERO_DECIMAL = new Set([
+    'BIF','CLP','GNF','JPY','KMF','KRW','MGA','PYG','RWF','UGX','VND','VUV','XAF','XOF','XPF',
+  ]);
+
   createPaymentIntent(
     amount: number,
     currency: string,
     metadata: Record<string, string>,
   ): ReturnType<Stripe.Stripe['paymentIntents']['create']> {
+    const isZeroDecimal = StripeService.ZERO_DECIMAL.has(currency.toUpperCase());
     return this.stripe.paymentIntents.create({
-      amount: Math.round(amount * 100),
+      amount: isZeroDecimal ? Math.round(amount) : Math.round(amount * 100),
       currency: currency.toLowerCase(),
       metadata,
       automatic_payment_methods: { enabled: true },

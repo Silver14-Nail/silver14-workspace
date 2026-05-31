@@ -63,10 +63,7 @@ export function ShippingStep({
       <div className="bg-white p-6 sm:p-8">
         <BackButton label={t('shipping.back')} onClick={onBack} />
 
-        <h2
-          className="text-[#1A1A1A] mb-6"
-          style={{ fontWeight: 400, fontSize: '1.4rem' }}
-        >
+        <h2 className="text-[#1A1A1A] mb-6" style={{ fontWeight: 400, fontSize: '1.4rem' }}>
           {t('shipping.title')}
         </h2>
 
@@ -123,7 +120,9 @@ export function ShippingStep({
               style={{ letterSpacing: '0.1em' }}
             >
               {t('shipping.country')}{' '}
-              <span className="text-[#C0C0C0]" aria-hidden>*</span>
+              <span className="text-[#C0C0C0]" aria-hidden>
+                *
+              </span>
             </label>
             <select
               {...register('country')}
@@ -145,7 +144,9 @@ export function ShippingStep({
                 style={{ letterSpacing: '0.1em' }}
               >
                 {t('shipping.method')}{' '}
-                <span className="text-[#C0C0C0]" aria-hidden>*</span>
+                <span className="text-[#C0C0C0]" aria-hidden>
+                  *
+                </span>
               </label>
               <div
                 className="space-y-2"
