@@ -8,6 +8,7 @@ import { WholesaleTierEntity } from '@/db/entities/wholesales/wholesale-tier.ent
 import { NewsletterSubscriberEntity } from '@/db/entities/wholesales/newsletter-subscribers.entity';
 import { UserEntity } from '@/db/entities/auths/user.entity';
 import { AuthModule } from '@/shared/auth/auth.module';
+import { EmailModule } from '@/shared/email/email.module';
 
 import { ClientWholesalesService } from './wholesales.service';
 import {
@@ -27,6 +28,7 @@ import {
       UserEntity,
     ]),
     AuthModule,
+    EmailModule,
   ],
   providers: [ClientWholesalesService],
   controllers: [WholesaleEnquiryController, WholesaleAccountController, NewsletterController],

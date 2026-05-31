@@ -157,7 +157,9 @@ export function SuppliesClient({
               </tr>
             ) : (
               supplies.map((supply) => {
-                const defaultVariant = (supply as any).variants?.[0];
+                // API returns variants relation even though ProductListResponse type doesn't declare it
+                const supplyWithVariants = supply as Product & { variants?: { stockQty?: number; sku?: string }[] };
+                const defaultVariant = supplyWithVariants.variants?.[0];
                 const stockQty: number = defaultVariant?.stockQty ?? 0;
                 const sku: string | null = defaultVariant?.sku ?? null;
 

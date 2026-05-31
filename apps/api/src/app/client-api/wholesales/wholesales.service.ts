@@ -20,6 +20,7 @@ import {
   WholesaleEnquiryStatus,
 } from '@/common/enums/entity.enum';
 import type { AuthenticatedUser } from '@/shared/auth/auth.types';
+import { EmailService } from '@/shared/email/email.service';
 
 import { SubmitEnquiryDto } from './dto/submit-enquiry.dto';
 import { SubscribeNewsletterDto } from './dto/subscribe-newsletter.dto';
@@ -41,6 +42,7 @@ export class ClientWholesalesService {
     private readonly newsletterRepo: Repository<NewsletterSubscriberEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
+    private readonly emailService: EmailService,
   ) {}
 
   // ─── Public tier listing ──────────────────────────────────────────────────────
@@ -151,7 +153,9 @@ export class ClientWholesalesService {
       // Re-subscribe if previously unsubscribed
       existing.status = NewsletterStatus.ACTIVE;
       existing.unsubscribedAt = null;
-      return this.newsletterRepo.save(existing);
+      const reactivated = await this.newsletterRepo.save(existing);
+      this.emailService.sendNewsletterWelcome(dto.email).catch(() => undefined);
+      return reactivated;
     }
 
     let user: UserEntity | null = null;
@@ -166,7 +170,9 @@ export class ClientWholesalesService {
       source: dto.source ?? NewsletterSource.FOOTER,
     });
 
-    return this.newsletterRepo.save(subscriber);
+    const saved = await this.newsletterRepo.save(subscriber);
+    this.emailService.sendNewsletterWelcome(dto.email).catch(() => undefined);
+    return saved;
   }
 
   async unsubscribe(dto: UnsubscribeNewsletterDto) {

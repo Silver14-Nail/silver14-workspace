@@ -78703,7 +78703,7 @@ let AppService = class AppService {
         return {
             name: 'nail-commerce-api',
             status: 'ok',
-            version: 'v0.0.6',
+            version: 'v1.0.0',
         };
     }
 };
@@ -275894,6 +275894,13 @@ let EmailService = EmailService_1 = class EmailService {
         this.configService = configService;
         this.logger = new common_1.Logger(EmailService_1.name);
     }
+    async sendNewsletterWelcome(to) {
+        await this.send({
+            to,
+            subject: 'Welcome to Silver14 Nail ✨',
+            html: this.newsletterWelcomeHtml(),
+        });
+    }
     async sendPasswordReset(to, rawToken) {
         const appUrl = this.configService.getOrThrow('appUrl');
         const resetUrl = `${appUrl}/reset-password?token=${rawToken}`;
@@ -275927,6 +275934,62 @@ let EmailService = EmailService_1 = class EmailService {
             this.logger.error(`Resend API error ${response.status}: ${body}`);
             // Non-fatal — forgotPassword always returns the same success message to avoid enumeration
         }
+    }
+    newsletterWelcomeHtml() {
+        const appUrl = this.configService.get('appUrl') ?? 'https://silver14nail.com';
+        return `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#FAFAFA;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAFAFA;padding:40px 16px">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#FFFFFF;border:1px solid #E8E8E8">
+
+        <!-- Header -->
+        <tr>
+          <td align="center" style="padding:40px 40px 32px;border-bottom:1px solid #F0F0F0">
+            <p style="margin:0;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;color:#9A9A9A">Handcrafted Press-On Nails</p>
+            <h1 style="margin:8px 0 0;font-size:28px;font-weight:300;letter-spacing:0.06em;color:#1A1A1A">Silver14 Nail</h1>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px 40px 32px">
+            <p style="margin:0 0 16px;font-size:15px;color:#1A1A1A;font-weight:500">Thank you for subscribing.</p>
+            <p style="margin:0 0 24px;font-size:14px;color:#5A5A5A;line-height:1.7">
+              You're now part of the Silver14 Nail circle. We'll keep you in the loop on new collections,
+              limited drops, and exclusive offers — delivered straight to your inbox.
+            </p>
+            <p style="margin:0 0 32px;font-size:14px;color:#5A5A5A;line-height:1.7">
+              In the meantime, feel free to browse our latest press-on nail sets — each one handcrafted
+              and made to order just for you.
+            </p>
+            <table cellpadding="0" cellspacing="0"><tr><td>
+              <a href="${appUrl}/products"
+                 style="display:inline-block;padding:13px 28px;background:#1A1A1A;color:#FFFFFF;text-decoration:none;font-size:11px;letter-spacing:0.18em;text-transform:uppercase">
+                Explore Collection
+              </a>
+            </td></tr></table>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding:24px 40px;border-top:1px solid #F0F0F0;background:#FAFAFA">
+            <p style="margin:0;font-size:11px;color:#ADADAD;line-height:1.6">
+              You're receiving this because you subscribed at silver14nail.com.<br>
+              If this wasn't you, you can safely ignore this email.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
     }
     passwordResetHtml(resetUrl) {
         return `
@@ -276500,6 +276563,7 @@ exports.PaymentsSharedModule = PaymentsSharedModule = tslib_1.__decorate([
 
 "use strict";
 
+var StripeService_1;
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.StripeService = void 0;
@@ -276508,6 +276572,7 @@ const common_1 = __webpack_require__(3);
 const config_1 = __webpack_require__(913);
 const stripe_1 = tslib_1.__importDefault(__webpack_require__(2191));
 let StripeService = class StripeService {
+    static { StripeService_1 = this; }
     constructor(configService) {
         const config = configService.getOrThrow('stripe');
         this.stripe = new stripe_1.default(config.secretKey, {
@@ -276515,9 +276580,14 @@ let StripeService = class StripeService {
         });
         this.webhookSecret = config.webhookSecret;
     }
+    // Currencies where 1 unit = smallest unit (no cents). Must NOT multiply × 100.
+    static { this.ZERO_DECIMAL = new Set([
+        'BIF', 'CLP', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+    ]); }
     createPaymentIntent(amount, currency, metadata) {
+        const isZeroDecimal = StripeService_1.ZERO_DECIMAL.has(currency.toUpperCase());
         return this.stripe.paymentIntents.create({
-            amount: Math.round(amount * 100),
+            amount: isZeroDecimal ? Math.round(amount) : Math.round(amount * 100),
             currency: currency.toLowerCase(),
             metadata,
             automatic_payment_methods: { enabled: true },
@@ -276533,7 +276603,7 @@ let StripeService = class StripeService {
     }
 };
 exports.StripeService = StripeService;
-exports.StripeService = StripeService = tslib_1.__decorate([
+exports.StripeService = StripeService = StripeService_1 = tslib_1.__decorate([
     (0, common_1.Injectable)(),
     tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof config_1.ConfigService !== "undefined" && config_1.ConfigService) === "function" ? _a : Object])
 ], StripeService);
@@ -297003,8 +297073,23 @@ let PaypalService = class PaypalService {
             },
         });
         if (!res.ok) {
-            throw new common_1.InternalServerErrorException('Failed to capture PayPal order');
+            let detail = '';
+            try {
+                const err = await res.json();
+                detail = err.message ?? err.details?.[0]?.issue ?? '';
+            }
+            catch { /* ignore parse error */ }
+            throw new common_1.InternalServerErrorException(`PayPal capture failed (HTTP ${res.status})${detail ? `: ${detail}` : ''}`);
         }
+        return res.json();
+    }
+    async getOrder(paypalOrderId) {
+        const token = await this.getAccessToken();
+        const res = await fetch(`${this.baseUrl}/v2/checkout/orders/${paypalOrderId}`, {
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        });
+        if (!res.ok)
+            return null;
         return res.json();
     }
     async verifyWebhookSignature(headers, rawBody) {
@@ -297013,6 +297098,13 @@ let PaypalService = class PaypalService {
             const val = headers[key];
             return Array.isArray(val) ? val[0] : (val ?? '');
         };
+        let webhookEvent;
+        try {
+            webhookEvent = JSON.parse(rawBody);
+        }
+        catch {
+            return false;
+        }
         const payload = {
             transmission_id: h('paypal-transmission-id'),
             transmission_time: h('paypal-transmission-time'),
@@ -297020,7 +297112,7 @@ let PaypalService = class PaypalService {
             auth_algo: h('paypal-auth-algo'),
             transmission_sig: h('paypal-transmission-sig'),
             webhook_id: this.config.webhookId,
-            webhook_event: JSON.parse(rawBody),
+            webhook_event: webhookEvent,
         };
         const res = await fetch(`${this.baseUrl}/v1/notifications/verify-webhook-signature`, {
             method: 'POST',
@@ -297240,6 +297332,15 @@ let ClientPaymentsService = class ClientPaymentsService {
         });
         if (existingOrder)
             return { order: existingOrder, payment: null };
+        // Verify the PayPal order belongs to this checkout session before capturing
+        const paypalOrder = await this.paypalService.getOrder(dto.paypalOrderId);
+        if (!paypalOrder) {
+            throw new common_1.BadRequestException('Could not retrieve PayPal order — please retry');
+        }
+        const orderRefId = paypalOrder.purchase_units?.[0]?.reference_id;
+        if (orderRefId !== dto.checkoutSessionId) {
+            throw new common_1.BadRequestException('PayPal order does not belong to this checkout session');
+        }
         const session = await this.loadSessionOrFail(dto.checkoutSessionId);
         if (session.status === entity_enum_1.CheckoutSessionStatus.COMPLETED) {
             throw new common_1.BadRequestException('Checkout session already completed');
@@ -297280,6 +297381,66 @@ let ClientPaymentsService = class ClientPaymentsService {
             session.status = entity_enum_1.CheckoutSessionStatus.COMPLETED;
             await manager.save(checkout_session_entity_1.CheckoutSessionEntity, session);
             return { order, payment };
+        });
+    }
+    // Called by PayPal webhook PAYMENT.CAPTURE.COMPLETED — fallback if client never called capturePaypalOrder
+    async fulfillPaypalWebhookCapture(paypalOrderId, checkoutSessionId, captureResource) {
+        const existingOrder = await this.paymentRepo.manager.findOne(order_entity_1.OrderEntity, {
+            where: { checkoutSession: { id: checkoutSessionId } },
+            select: ['id'],
+        });
+        if (existingOrder)
+            return; // Already fulfilled by the client path — idempotent
+        const session = await this.sessionRepo.findOne({
+            where: { id: checkoutSessionId },
+            relations: [
+                'cart', 'cart.items', 'cart.items.variant', 'cart.items.variant.shape',
+                'cart.items.variant.size', 'cart.items.variant.product',
+                'cart.items.variant.product.images', 'user', 'guest',
+            ],
+        });
+        if (!session) {
+            // Session not found — PayPal charged the customer but we have no session.
+            // MANUAL ACTION REQUIRED: refund via PayPal dashboard.
+            throw new Error(`fulfillPaypalWebhookCapture: session ${checkoutSessionId} not found for PayPal order ${paypalOrderId} — MANUAL REFUND REQUIRED`);
+        }
+        // If session was already completed by another path, the idempotency check at the top handles it.
+        // Only skip for truly terminal states (abandoned/expired) where we cannot fulfill.
+        if (session.status === entity_enum_1.CheckoutSessionStatus.ABANDONED ||
+            session.status === entity_enum_1.CheckoutSessionStatus.EXPIRED) {
+            throw new Error(`fulfillPaypalWebhookCapture: session ${checkoutSessionId} is ${session.status} — MANUAL REFUND REQUIRED`);
+        }
+        const totals = this.calculateTotals(session);
+        await this.paymentRepo.manager.transaction(async (manager) => {
+            const duplicate = await manager.findOne(order_entity_1.OrderEntity, {
+                where: { checkoutSession: { id: checkoutSessionId } },
+                select: ['id'],
+            });
+            if (duplicate)
+                return;
+            const order = await this.createOrder(manager, session, totals);
+            const payment = manager.create(payment_entity_1.PaymentEntity, {
+                order,
+                gateway: entity_enum_1.PaymentGateway.PAYPAL,
+                gatewayTxnId: paypalOrderId,
+                status: entity_enum_1.PaymentStatus.PAID,
+                amount: totals.total,
+                currency: totals.currency,
+                gatewayResponse: captureResource,
+                paidAt: new Date(),
+            });
+            await manager.save(payment_entity_1.PaymentEntity, payment);
+            const captureDetail = captureResource?.purchase_units?.[0]?.payments?.captures?.[0];
+            const paypalDetail = manager.create(paypal_detail_entity_1.PaypalDetailEntity, {
+                payment,
+                paypalOrderId,
+                payerEmail: captureResource?.payer?.email_address ?? null,
+                payerId: captureResource?.payer?.payer_id ?? null,
+                captureId: captureDetail?.id ?? null,
+            });
+            await manager.save(paypal_detail_entity_1.PaypalDetailEntity, paypalDetail);
+            session.status = entity_enum_1.CheckoutSessionStatus.COMPLETED;
+            await manager.save(checkout_session_entity_1.CheckoutSessionEntity, session);
         });
     }
     // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -297800,7 +297961,7 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
     async handleLsWebhook(rawBody, signature) {
         if (!this.lsService.verifyWebhookSignature(rawBody, signature)) {
             this.logger.error('Lemon Squeezy webhook signature verification failed');
-            throw new Error('Invalid Lemon Squeezy webhook signature');
+            throw new common_1.BadRequestException('Invalid Lemon Squeezy webhook signature');
         }
         const payload = JSON.parse(rawBody);
         const eventName = payload.meta?.event_name;
@@ -297832,13 +297993,42 @@ let WebhooksService = WebhooksService_1 = class WebhooksService {
         const isValid = await this.paypalService.verifyWebhookSignature(headers, rawBody);
         if (!isValid) {
             this.logger.error('PayPal webhook signature verification failed');
-            throw new Error('Invalid PayPal webhook signature');
+            throw new common_1.BadRequestException('Invalid PayPal webhook signature');
         }
-        const event = JSON.parse(rawBody);
+        let event;
+        try {
+            event = JSON.parse(rawBody);
+        }
+        catch {
+            this.logger.error('PayPal webhook: failed to parse JSON body');
+            return; // Acknowledge to PayPal (return 200) — malformed body is not retryable
+        }
         this.logger.log(`PayPal webhook received: ${event.event_type}`);
         switch (event.event_type) {
             case 'PAYMENT.CAPTURE.COMPLETED': {
-                this.logger.log(`PayPal PAYMENT.CAPTURE.COMPLETED received — handled by capture endpoint`);
+                // Fallback fulfillment: handles the case where client never called our capture endpoint
+                // (e.g. browser crash after PayPal approval). Idempotent — no-op if order already exists.
+                const captureResource = event.resource;
+                const paypalOrderId = captureResource?.supplementary_data?.related_ids?.order_id;
+                if (!paypalOrderId) {
+                    this.logger.warn('PAYMENT.CAPTURE.COMPLETED: missing order_id in supplementary_data — MANUAL ACTION REQUIRED');
+                    break;
+                }
+                try {
+                    const paypalOrder = await this.paypalService.getOrder(paypalOrderId);
+                    const checkoutSessionId = paypalOrder?.purchase_units?.[0]?.reference_id;
+                    if (!checkoutSessionId) {
+                        this.logger.error(`PAYMENT.CAPTURE.COMPLETED: cannot resolve checkoutSessionId for PayPal order ${paypalOrderId} — MANUAL ACTION REQUIRED`);
+                        break; // Acknowledge — retrying won't help without reference_id
+                    }
+                    await this.clientPaymentsService.fulfillPaypalWebhookCapture(paypalOrderId, checkoutSessionId, captureResource);
+                    this.logger.log(`PayPal PAYMENT.CAPTURE.COMPLETED fulfilled for session ${checkoutSessionId}`);
+                }
+                catch (err) {
+                    // Log but return 200 so PayPal does not retry non-transient failures (e.g. out-of-stock).
+                    // Transient DB failures will be re-delivered by PayPal on the next retry cycle.
+                    this.logger.error(`PAYMENT.CAPTURE.COMPLETED fulfillment error for PayPal order ${paypalOrderId}: ${err}`);
+                }
                 break;
             }
             case 'PAYMENT.CAPTURE.DENIED':
@@ -298521,6 +298711,7 @@ const wholesale_tier_entity_1 = __webpack_require__(1770);
 const newsletter_subscribers_entity_1 = __webpack_require__(1767);
 const user_entity_1 = __webpack_require__(1731);
 const auth_module_1 = __webpack_require__(1923);
+const email_module_1 = __webpack_require__(2178);
 const wholesales_service_1 = __webpack_require__(2396);
 const wholesales_controller_1 = __webpack_require__(2397);
 let ClientWholesalesModule = class ClientWholesalesModule {
@@ -298538,6 +298729,7 @@ exports.ClientWholesalesModule = ClientWholesalesModule = tslib_1.__decorate([
                 user_entity_1.UserEntity,
             ]),
             auth_module_1.AuthModule,
+            email_module_1.EmailModule,
         ],
         providers: [wholesales_service_1.ClientWholesalesService],
         controllers: [wholesales_controller_1.WholesaleEnquiryController, wholesales_controller_1.WholesaleAccountController, wholesales_controller_1.NewsletterController],
@@ -298551,7 +298743,7 @@ exports.ClientWholesalesModule = ClientWholesalesModule = tslib_1.__decorate([
 
 "use strict";
 
-var _a, _b, _c, _d, _e, _f;
+var _a, _b, _c, _d, _e, _f, _g;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientWholesalesService = void 0;
 const tslib_1 = __webpack_require__(1);
@@ -298565,14 +298757,16 @@ const wholesale_tier_entity_1 = __webpack_require__(1770);
 const newsletter_subscribers_entity_1 = __webpack_require__(1767);
 const user_entity_1 = __webpack_require__(1731);
 const entity_enum_1 = __webpack_require__(1732);
+const email_service_1 = __webpack_require__(2179);
 let ClientWholesalesService = class ClientWholesalesService {
-    constructor(enquiryRepo, accountRepo, wholesaleOrderRepo, tierRepo, newsletterRepo, userRepo) {
+    constructor(enquiryRepo, accountRepo, wholesaleOrderRepo, tierRepo, newsletterRepo, userRepo, emailService) {
         this.enquiryRepo = enquiryRepo;
         this.accountRepo = accountRepo;
         this.wholesaleOrderRepo = wholesaleOrderRepo;
         this.tierRepo = tierRepo;
         this.newsletterRepo = newsletterRepo;
         this.userRepo = userRepo;
+        this.emailService = emailService;
     }
     // ─── Public tier listing ──────────────────────────────────────────────────────
     async getPublicTiers() {
@@ -298663,7 +298857,9 @@ let ClientWholesalesService = class ClientWholesalesService {
             // Re-subscribe if previously unsubscribed
             existing.status = entity_enum_1.NewsletterStatus.ACTIVE;
             existing.unsubscribedAt = null;
-            return this.newsletterRepo.save(existing);
+            const reactivated = await this.newsletterRepo.save(existing);
+            this.emailService.sendNewsletterWelcome(dto.email).catch(() => undefined);
+            return reactivated;
         }
         let user = null;
         if (userId) {
@@ -298675,7 +298871,9 @@ let ClientWholesalesService = class ClientWholesalesService {
             status: entity_enum_1.NewsletterStatus.ACTIVE,
             source: dto.source ?? entity_enum_1.NewsletterSource.FOOTER,
         });
-        return this.newsletterRepo.save(subscriber);
+        const saved = await this.newsletterRepo.save(subscriber);
+        this.emailService.sendNewsletterWelcome(dto.email).catch(() => undefined);
+        return saved;
     }
     async unsubscribe(dto) {
         const subscriber = await this.newsletterRepo.findOneBy({ email: dto.email });
@@ -298697,7 +298895,7 @@ exports.ClientWholesalesService = ClientWholesalesService = tslib_1.__decorate([
     tslib_1.__param(3, (0, typeorm_1.InjectRepository)(wholesale_tier_entity_1.WholesaleTierEntity)),
     tslib_1.__param(4, (0, typeorm_1.InjectRepository)(newsletter_subscribers_entity_1.NewsletterSubscriberEntity)),
     tslib_1.__param(5, (0, typeorm_1.InjectRepository)(user_entity_1.UserEntity)),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _a : Object, typeof (_b = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _b : Object, typeof (_c = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _c : Object, typeof (_d = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _d : Object, typeof (_e = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _e : Object, typeof (_f = typeof typeorm_2.Repository !== "undefined" && typeorm_2.Repository) === "function" ? _f : Object, typeof (_g = typeof email_service_1.EmailService !== "undefined" && email_service_1.EmailService) === "function" ? _g : Object])
 ], ClientWholesalesService);
 
 
