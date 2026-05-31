@@ -229,6 +229,7 @@ export function PaymentStep({
             clientId: paypalClientId,
             currency: currency || 'USD',
             intent: 'capture',
+            environment: 'production',
           }}
         >
           <div className="mb-4">
