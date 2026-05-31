@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 import { listCollections, getCollectionStats } from '../../../../services/collections.service';
 import { CollectionsClient } from './_components/CollectionsClient';
 
@@ -30,11 +32,19 @@ export default async function AdminCollectionsPage({ searchParams }: Collections
       : { total: 0, active: 0, featured: 0 };
 
   return (
-    <CollectionsClient
-      initialCollections={initialCollections}
-      initialStats={initialStats}
-      currentPage={page}
-      currentSearch={search}
-    />
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center p-20">
+          <Loader2 className="size-6 animate-spin text-[#9CA3AF]" />
+        </div>
+      }
+    >
+      <CollectionsClient
+        initialCollections={initialCollections}
+        initialStats={initialStats}
+        currentPage={page}
+        currentSearch={search}
+      />
+    </Suspense>
   );
 }

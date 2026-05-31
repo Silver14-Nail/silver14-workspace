@@ -1,7 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Loader2, Star, StarOff, Eye, EyeOff, Trash2, Edit2, Package } from 'lucide-react';
+import { X, Loader2, Star, StarOff, Eye, EyeOff, Trash2, Edit2, Package, ChevronDown, ChevronUp } from 'lucide-react';
+
+function CollapsibleText({ text, maxLines = 3 }: { text: string; maxLines?: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const lineClamp = `line-clamp-${maxLines}`;
+  return (
+    <div>
+      <p className={`text-sm text-[#374151] leading-relaxed ${expanded ? '' : lineClamp}`}>
+        {text}
+      </p>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="mt-1 flex items-center gap-1 text-xs text-[#9CA3AF] hover:text-[#374151] transition-colors"
+      >
+        {expanded ? <><ChevronUp className="size-3" /> Show less</> : <><ChevronDown className="size-3" /> Show more</>}
+      </button>
+    </div>
+  );
+}
 import { useTranslation } from 'react-i18next';
 import ConfirmDialog from '../../shared/ConfirmDialog';
 import { useConfirmDialog } from '../../shared/useConfirmDialog';
@@ -178,7 +196,7 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
           {collection.description && (
             <div>
               <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-1">{t('detail.description')}</p>
-              <p className="text-sm text-[#374151]">{collection.description}</p>
+              <CollapsibleText text={collection.description} />
             </div>
           )}
 
@@ -187,10 +205,12 @@ export function CollectionDetailDrawer({ collection, onClose, onEdit, onDelete, 
             <div className="rounded border border-[#E5E7EB] p-4">
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-2">{t('detail.seo')}</p>
               {collection.seoTitle && (
-                <p className="text-sm font-medium text-[#111827]">{collection.seoTitle}</p>
+                <p className="text-sm font-medium text-[#111827] line-clamp-1">{collection.seoTitle}</p>
               )}
               {collection.seoDescription && (
-                <p className="text-xs text-[#6B7280] mt-1">{collection.seoDescription}</p>
+                <div className="mt-1">
+                  <CollapsibleText text={collection.seoDescription} maxLines={2} />
+                </div>
               )}
             </div>
           )}

@@ -366,7 +366,7 @@ export default function SupplyFormDrawer({
 
         {/* ── Details Tab ── */}
         {activeTab === 'details' && (
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          <form id="supply-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {error && (
               <div className="text-sm text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">
                 {error}
@@ -835,7 +835,8 @@ export default function SupplyFormDrawer({
               {t('form.cancel')}
             </button>
             <button
-              onClick={handleSubmit as any}
+              type="submit"
+              form="supply-form"
               disabled={loading || detailLoading}
               className="flex-1 px-4 py-2.5 bg-[#111827] text-white rounded-lg text-sm font-medium hover:bg-[#1F2937] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
             >

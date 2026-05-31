@@ -252,7 +252,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
       {/* Main */}
       <div
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        className={`flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300 ${
           collapsed ? 'lg:ml-16' : 'lg:ml-60'
         }`}
       >

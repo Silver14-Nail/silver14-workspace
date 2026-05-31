@@ -98,8 +98,8 @@ export function CollectionsClient({
   return (
     <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="min-w-0">
           <h1 className="text-xl font-semibold text-[#111827]">{t('title')}</h1>
           <p className="text-sm text-[#6B7280] mt-0.5">
             {t('subtitle', { total: stats.total, active: stats.active, featured: stats.featured })}
@@ -107,7 +107,7 @@ export function CollectionsClient({
         </div>
         <button
           onClick={() => setEditingCollection(null)}
-          className="flex items-center gap-2 rounded bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-[#1F2937]"
+          className="flex items-center gap-2 rounded bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-[#1F2937] whitespace-nowrap shrink-0"
         >
           <Plus className="size-4" /> {t('addCollection')}
         </button>
@@ -163,8 +163,8 @@ export function CollectionsClient({
                   onClick={() => setSelectedCollection(c)}
                   className="cursor-pointer hover:bg-[#F9FAFB] transition-colors"
                 >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                  <td className="px-4 py-3 max-w-[260px]">
+                    <div className="flex items-center gap-3 min-w-0">
                       {c.image ? (
                         <img
                           src={c.image}
@@ -176,7 +176,7 @@ export function CollectionsClient({
                           <Package className="size-4 text-[#D1D5DB]" />
                         </div>
                       )}
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium text-[#111827] truncate">{c.name}</p>
                         {c.shortDescription && (
                           <p className="text-xs text-[#9CA3AF] truncate">{c.shortDescription}</p>
