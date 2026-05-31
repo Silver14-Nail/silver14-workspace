@@ -19,12 +19,10 @@ import {
   Legend,
 } from 'recharts';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import {
-  revenueData,
-  cartAbandonmentData,
-  paymentMethodData,
-  topCountriesData,
-} from '../../../../MOCK_DATAS/mockData';
+const revenueData: Record<string, unknown>[] = [];
+const cartAbandonmentData: { step: string; count: number }[] = [];
+const paymentMethodData: { color: string; value: number; name: string }[] = [];
+const topCountriesData: { country: string; revenue: number }[] = [];
 
 const tabs = [
   'Revenue',

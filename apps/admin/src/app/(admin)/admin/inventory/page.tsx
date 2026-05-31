@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Package, AlertTriangle, TrendingDown, Plus, Edit, Search } from 'lucide-react';
-import { mockProducts } from '../../../../MOCK_DATAS/mockData';
+const mockProducts: { id: string; name: string; sku: string; stock: number; category: string; basePrice: number; sales: number; createdAt: string }[] = [];
 
 const stockMovements = [
   {

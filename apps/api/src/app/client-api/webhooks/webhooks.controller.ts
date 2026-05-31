@@ -34,10 +34,7 @@ export class WebhooksController {
 
   @Post('lemon-squeezy')
   @HttpCode(200)
-  async lsWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('x-signature') signature: string,
-  ) {
+  async lsWebhook(@Req() req: RawBodyRequest<Request>, @Headers('x-signature') signature: string) {
     if (!signature) {
       throw new BadRequestException('Missing X-Signature header for Lemon Squeezy webhook');
     }

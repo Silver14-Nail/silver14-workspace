@@ -6,16 +6,33 @@ import { CreditCard, MapPin } from 'lucide-react';
 
 import { LinkBase } from '@/components/shared/LinkBase';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
 export function Footer() {
   const { t } = useT('footer');
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    if (!email.trim()) return;
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE}/client-api/wholesales/newsletter/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), source: 'footer' }),
+      });
+      if (!res.ok && res.status !== 409) throw new Error('Failed to subscribe');
       setSubscribed(true);
       setEmail('');
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,26 +63,31 @@ export function Footer() {
           {subscribed ? (
             <div className="text-[#C0C0C0] text-sm tracking-wide">{t('newsletter.success')}</div>
           ) : (
-            <form
-              onSubmit={handleSubscribe}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('newsletter.placeholder')}
-                required
-                className="flex-1 bg-transparent border border-white/20 px-4 py-3 text-white text-sm placeholder:text-[#5A5A5A] outline-none focus:border-white/50 transition-colors"
-              />
-              <button
-                type="submit"
-                className="bg-white text-[#1A1A1A] px-8 py-3 text-xs uppercase tracking-widest hover:bg-[#E8E8E8] transition-colors whitespace-nowrap"
-                style={{ letterSpacing: '0.15em' }}
+            <>
+              <form
+                onSubmit={handleSubscribe}
+                className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
               >
-                {t('newsletter.submit')}
-              </button>
-            </form>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t('newsletter.placeholder')}
+                  required
+                  disabled={loading}
+                  className="flex-1 bg-transparent border border-white/20 px-4 py-3 text-white text-sm placeholder:text-[#5A5A5A] outline-none focus:border-white/50 transition-colors disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-white text-[#1A1A1A] px-8 py-3 text-xs uppercase tracking-widest hover:bg-[#E8E8E8] transition-colors whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ letterSpacing: '0.15em' }}
+                >
+                  {loading ? '...' : t('newsletter.submit')}
+                </button>
+              </form>
+              {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
+            </>
           )}
         </div>
       </div>
@@ -89,30 +111,34 @@ export function Footer() {
             <p className="text-[#6A6A6A] text-sm leading-relaxed mb-6">{t('brandDescription')}</p>
             <div className="flex gap-4">
               <a
-                href="https://www.instagram.com/silver14.nail?igsh=MWI2OHYxaXN6aXFmaQ%3D%3D&utm_source=qr "
+                href="https://www.instagram.com/silver14.nail?igsh=MWI2OHYxaXN6aXFmaQ%3D%3D&utm_source=qr"
                 className="text-[#6A6A6A] hover:text-white transition-colors"
-                target="blank"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <img src="/images/icons/instagram.png" alt="Instagram" className="size-4" />
               </a>
               <a
                 href="https://www.tiktok.com/@silver14nails"
                 className="text-[#6A6A6A] hover:text-white transition-colors"
-                target="blank"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <img src="/images/icons/tiktok.png" alt="TikTok" className="size-4" />
               </a>
               <a
                 href="https://pin.it/67LetbRkT"
                 className="text-[#6A6A6A] hover:text-white transition-colors"
-                target="blank"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <img src="/images/icons/pinterest.png" alt="Pinterest" className="size-4" />
               </a>
               <a
                 href="https://wa.me/84344399881"
                 className="text-[#6A6A6A] hover:text-white transition-colors"
-                target="blank"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <img src="/images/icons/whatsapp.png" alt="WhatsApp" className="size-4" />
               </a>

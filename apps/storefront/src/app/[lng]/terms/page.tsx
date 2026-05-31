@@ -25,7 +25,8 @@ interface Section {
 
 export default function TermsPage() {
   const { t } = useT('terms');
-  const sections = t('sections', { returnObjects: true }) as Section[];
+  const rawSections = t('sections', { returnObjects: true });
+  const sections: Section[] = Array.isArray(rawSections) ? rawSections : [];
 
   return (
     <div className="min-h-screen pt-20 pb-24 bg-[#FAFAFA]">

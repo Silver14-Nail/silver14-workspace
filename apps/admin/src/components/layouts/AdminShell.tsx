@@ -60,7 +60,7 @@ const navItems: NavItem[] = [
   { key: 'payments', icon: CreditCard, path: '/admin/payments', enabled: false },
   { key: 'coupons', icon: Tag, path: '/admin/coupons', enabled: true },
   { key: 'wholesale', icon: Building2, path: '/admin/wholesales', enabled: true },
-  { key: 'newsletter', icon: Mail, path: '/admin/newsletters', enabled: false },
+  { key: 'newsletter', icon: Mail, path: '/admin/newsletters', enabled: true },
   { key: 'analytics', icon: BarChart3, path: '/admin/analytics', enabled: false },
   { key: 'settings', icon: Settings, path: '/admin/settings', enabled: false },
 ];

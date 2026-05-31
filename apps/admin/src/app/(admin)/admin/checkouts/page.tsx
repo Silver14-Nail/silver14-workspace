@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Eye, Send, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
-import { mockAbandonedCarts } from '../../../../MOCK_DATAS/mockData';
+const mockAbandonedCarts: { id: string; customer: string; items: number; value: number; step: string; abandonedAt: string }[] = [];
 
 type CartTab = 'abandoned' | 'active' | 'sessions' | 'guest';
 
