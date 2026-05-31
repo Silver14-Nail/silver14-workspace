@@ -15,12 +15,7 @@ interface ContactStepProps {
   onNext: (data: ContactFormData) => Promise<void>;
 }
 
-export function ContactStep({
-  defaultValues,
-  isSubmitting,
-  error,
-  onNext,
-}: ContactStepProps) {
+export function ContactStep({ defaultValues, isSubmitting, error, onNext }: ContactStepProps) {
   const { t } = useT('checkout');
 
   const {
@@ -46,16 +41,12 @@ export function ContactStep({
     if (!isDirtyRef.current) {
       reset(defaultValues);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultValues.email, defaultValues.fullName, defaultValues.phone]);
 
   return (
     <form onSubmit={handleSubmit(onNext)} noValidate>
       <div className="bg-white p-6 sm:p-8">
-        <h2
-          className="text-[#1A1A1A] mb-6"
-          style={{ fontWeight: 400, fontSize: '1.4rem' }}
-        >
+        <h2 className="text-[#1A1A1A] mb-6" style={{ fontWeight: 400, fontSize: '1.4rem' }}>
           {t('contact.title')}
         </h2>
 

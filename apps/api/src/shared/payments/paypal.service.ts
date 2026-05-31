@@ -17,7 +17,9 @@ interface PaypalOrderUnit {
 interface PaypalCaptureResult {
   id: string;
   status: string;
+  payer?: { email_address?: string; payer_id?: string };
   purchase_units: Array<{
+    reference_id?: string;
     payments: {
       captures: Array<{
         id: string;
@@ -25,6 +27,15 @@ interface PaypalCaptureResult {
         amount: { currency_code: string; value: string };
       }>;
     };
+  }>;
+}
+
+interface PaypalOrderResult {
+  id: string;
+  status: string;
+  purchase_units: Array<{
+    reference_id?: string;
+    amount: { currency_code: string; value: string };
   }>;
 }
 
@@ -107,10 +118,26 @@ export class PaypalService {
     });
 
     if (!res.ok) {
-      throw new InternalServerErrorException('Failed to capture PayPal order');
+      let detail = '';
+      try {
+        const err = await res.json() as { message?: string; details?: { issue?: string }[] };
+        detail = err.message ?? err.details?.[0]?.issue ?? '';
+      } catch { /* ignore parse error */ }
+      throw new InternalServerErrorException(
+        `PayPal capture failed (HTTP ${res.status})${detail ? `: ${detail}` : ''}`,
+      );
     }
 
     return res.json() as Promise<PaypalCaptureResult>;
+  }
+
+  async getOrder(paypalOrderId: string): Promise<PaypalOrderResult | null> {
+    const token = await this.getAccessToken();
+    const res = await fetch(`${this.baseUrl}/v2/checkout/orders/${paypalOrderId}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) return null;
+    return res.json() as Promise<PaypalOrderResult>;
   }
 
   async verifyWebhookSignature(headers: IncomingHttpHeaders, rawBody: string): Promise<boolean> {
@@ -120,6 +147,13 @@ export class PaypalService {
       return Array.isArray(val) ? val[0] : (val ?? '');
     };
 
+    let webhookEvent: unknown;
+    try {
+      webhookEvent = JSON.parse(rawBody);
+    } catch {
+      return false;
+    }
+
     const payload = {
       transmission_id: h('paypal-transmission-id'),
       transmission_time: h('paypal-transmission-time'),
@@ -127,7 +161,7 @@ export class PaypalService {
       auth_algo: h('paypal-auth-algo'),
       transmission_sig: h('paypal-transmission-sig'),
       webhook_id: this.config.webhookId,
-      webhook_event: JSON.parse(rawBody),
+      webhook_event: webhookEvent,
     };
 
     const res = await fetch(`${this.baseUrl}/v1/notifications/verify-webhook-signature`, {

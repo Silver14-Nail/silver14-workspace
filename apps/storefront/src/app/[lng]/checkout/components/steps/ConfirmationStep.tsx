@@ -14,7 +14,14 @@ interface ConfirmationStepProps {
   phone: string;
 }
 
-export function ConfirmationStep({ orderId, orderPollingDone, isLsPayment, firstName, email, phone }: ConfirmationStepProps) {
+export function ConfirmationStep({
+  orderId,
+  orderPollingDone,
+  isLsPayment,
+  firstName,
+  email,
+  phone,
+}: ConfirmationStepProps) {
   const { t } = useT('checkout');
 
   return (
@@ -58,7 +65,9 @@ export function ConfirmationStep({ orderId, orderPollingDone, isLsPayment, first
             {orderId && (
               <p className="text-[#9A9A9A] text-xs mt-3">
                 {t('confirmation.lsInternalRef')}{' '}
-                <span className="font-mono text-[#1A1A1A]">{orderId.slice(0, 8).toUpperCase()}</span>
+                <span className="font-mono text-[#1A1A1A]">
+                  {orderId.slice(0, 8).toUpperCase()}
+                </span>
               </p>
             )}
           </div>
@@ -78,9 +87,7 @@ export function ConfirmationStep({ orderId, orderPollingDone, isLsPayment, first
                 {orderId.slice(0, 8).toUpperCase()}
               </p>
             ) : orderPollingDone ? (
-              <p className="text-[#9A9A9A] text-sm py-1">
-                {t('confirmation.orderIdPending')}
-              </p>
+              <p className="text-[#9A9A9A] text-sm py-1">{t('confirmation.orderIdPending')}</p>
             ) : (
               <div className="flex items-center justify-center gap-2 py-1">
                 <span

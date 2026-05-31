@@ -43,7 +43,9 @@ function LoginContent() {
     setError('');
 
     const result = await login(email.trim(), password);
-    if (!result.ok) {
+    if (result.ok) {
+      router.replace(destination);
+    } else {
       setError(result.error ?? 'Invalid credentials');
     }
   }
