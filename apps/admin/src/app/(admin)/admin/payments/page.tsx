@@ -11,7 +11,8 @@ import {
   CheckCircle,
   XCircle,
 } from 'lucide-react';
-import { mockPayments, type AdminPayment } from '../../../../MOCK_DATAS/mockData';
+type AdminPayment = { id: string; gateway: string; status: string; amount: number; currency: string; customer: { name: string; email: string }; orderId: string; createdAt: string; refundedAt?: string | null; paidAt: string; transactionId: string; cardBrand?: string | null; last4?: string | null };
+const mockPayments: AdminPayment[] = [];
 
 const statusColors: Record<string, string> = {
   paid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -260,7 +261,7 @@ export default function AdminPaymentsPage() {
           { label: 'Failed Payments', value: String(failedCount), color: 'text-red-600' },
           {
             label: 'Success Rate',
-            value: `${Math.round((mockPayments.filter((p) => p.status === 'paid').length / mockPayments.length) * 100)}%`,
+            value: mockPayments.length > 0 ? `${Math.round((mockPayments.filter((p) => p.status === 'paid').length / mockPayments.length) * 100)}%` : '—',
             color: 'text-emerald-600',
           },
         ].map((stat) => (

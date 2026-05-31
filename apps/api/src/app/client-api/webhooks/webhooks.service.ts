@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import type { IncomingHttpHeaders } from 'http';
 
 import { StripeService } from '@/shared/payments/stripe.service';
@@ -87,7 +87,7 @@ export class WebhooksService {
   async handleLsWebhook(rawBody: string, signature: string): Promise<void> {
     if (!this.lsService.verifyWebhookSignature(rawBody, signature)) {
       this.logger.error('Lemon Squeezy webhook signature verification failed');
-      throw new Error('Invalid Lemon Squeezy webhook signature');
+      throw new BadRequestException('Invalid Lemon Squeezy webhook signature');
     }
 
     const payload = JSON.parse(rawBody) as LsWebhookPayload;
@@ -133,7 +133,7 @@ export class WebhooksService {
 
     if (!isValid) {
       this.logger.error('PayPal webhook signature verification failed');
-      throw new Error('Invalid PayPal webhook signature');
+      throw new BadRequestException('Invalid PayPal webhook signature');
     }
 
     const event = JSON.parse(rawBody) as { event_type: string; resource: Record<string, any> };
