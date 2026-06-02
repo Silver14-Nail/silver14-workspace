@@ -2,9 +2,6 @@ import axios from 'axios';
 import type {
   CheckoutSession,
   ShippingMethod,
-  StripeIntentResponse,
-  LsCheckoutResponse,
-  PaypalCreateResponse,
   CompletedOrderRef,
   UpdateShippingInput,
 } from './checkout.types';
@@ -48,20 +45,16 @@ export const checkoutApi = {
     token?: string | null,
   ) =>
     http
-      .patch<CheckoutSession>(
-        `/client-api/checkout/${sessionId}/contact`,
-        data,
-        { headers: authHeaders(token) },
-      )
+      .patch<CheckoutSession>(`/client-api/checkout/${sessionId}/contact`, data, {
+        headers: authHeaders(token),
+      })
       .then((r) => r.data),
 
   updateShipping: (sessionId: string, data: UpdateShippingInput, token?: string | null) =>
     http
-      .patch<CheckoutSession>(
-        `/client-api/checkout/${sessionId}/shipping`,
-        data,
-        { headers: authHeaders(token) },
-      )
+      .patch<CheckoutSession>(`/client-api/checkout/${sessionId}/shipping`, data, {
+        headers: authHeaders(token),
+      })
       .then((r) => r.data),
 
   applyCoupon: (sessionId: string, code: string, token?: string | null) =>
@@ -80,69 +73,23 @@ export const checkoutApi = {
       })
       .then((r) => r.data),
 
-  // ─── Stripe ──────────────────────────────────────────────────────────────────
-
-  initiateStripe: (checkoutSessionId: string, token?: string | null) =>
-    http
-      .post<StripeIntentResponse>(
-        '/client-api/payments/stripe/intent',
-        { checkoutSessionId },
-        { headers: authHeaders(token) },
-      )
-      .then((r) => r.data),
-
-  confirmStripePayment: (
-    paymentIntentId: string,
-    checkoutSessionId: string,
-    token?: string | null,
-  ) =>
-    http
-      .post<{ orderId: string }>(
-        '/client-api/payments/stripe/confirm',
-        { paymentIntentId, checkoutSessionId },
-        { headers: authHeaders(token) },
-      )
-      .then((r) => r.data),
-
-  // ─── Lemon Squeezy ───────────────────────────────────────────────────────────
-
-  initiateLsCheckout: (
-    checkoutSessionId: string,
-    redirectUrl: string,
-    token?: string | null,
-  ) =>
-    http
-      .post<LsCheckoutResponse>(
-        '/client-api/payments/lemon-squeezy/checkout',
-        { checkoutSessionId, redirectUrl },
-        { headers: authHeaders(token) },
-      )
-      .then((r) => r.data),
-
-  // ─── PayPal ──────────────────────────────────────────────────────────────────
-
-  createPaypalOrder: (checkoutSessionId: string, token?: string | null) =>
-    http
-      .post<PaypalCreateResponse>(
-        '/client-api/payments/paypal/create-order',
-        { checkoutSessionId },
-        { headers: authHeaders(token) },
-      )
-      .then((r) => r.data),
-
-  capturePaypalOrder: (paypalOrderId: string, checkoutSessionId: string, token?: string | null) =>
-    http
-      .post<{ order: CompletedOrderRef }>(
-        '/client-api/payments/paypal/capture',
-        { paypalOrderId, checkoutSessionId },
-        { headers: authHeaders(token) },
-      )
-      .then((r) => r.data),
-
   getSessionOrder: (sessionId: string, token?: string | null) =>
     http
       .get<CompletedOrderRef | null>(`/client-api/checkout/${sessionId}/order`, {
         headers: authHeaders(token),
       })
+      .then((r) => r.data),
+
+  // ─── Airwallex ────────────────────────────────────────────────────────────────
+
+  verifyAirwallexPayment: (
+    paymentIntentId: string,
+    checkoutSessionId: string,
+    token?: string | null,
+  ) =>
+    http
+      .post<{
+        orderId: string;
+      }>('/client-api/payments/airwallex/confirm', { paymentIntentId, checkoutSessionId }, { headers: authHeaders(token) })
       .then((r) => r.data),
 };

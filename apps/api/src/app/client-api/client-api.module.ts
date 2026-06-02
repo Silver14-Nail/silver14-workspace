@@ -17,6 +17,7 @@ import { ClientCollectionsModule } from './collections/client-collections.module
 import { ClientCurrencyModule } from './currency/currency.module';
 import { ClientSuppliesModule } from './supplies/supplies.module';
 import { ClientMarketingModule } from './marketing/client-marketing.module';
+import { PaymentsSharedModule } from '../../shared/payments/payments-shared.module';
 
 const clientModules = [
   ClientAuthModule,
@@ -33,6 +34,7 @@ const clientModules = [
   ClientCurrencyModule,
   ClientSuppliesModule,
   ClientMarketingModule,
+  PaymentsSharedModule,
 ];
 
 @Module({
@@ -51,6 +53,8 @@ export class ClientApiModule implements NestModule {
         { path: 'client-api/webhooks/stripe', method: RequestMethod.POST },
         { path: 'client-api/webhooks/lemon-squeezy', method: RequestMethod.POST },
         { path: 'client-api/webhooks/paypal', method: RequestMethod.POST },
+        // Airwallex webhook — called by Airwallex servers, authenticated by HMAC-SHA256 signature
+        { path: 'client-api/webhooks/airwallex', method: RequestMethod.POST },
       )
       .forRoutes({ path: 'client-api', method: RequestMethod.ALL });
   }
