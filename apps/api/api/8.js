@@ -3,7 +3,7 @@ exports.id = 8;
 exports.ids = [8];
 exports.modules = {
 
-/***/ 2462
+/***/ 2473
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 // ESM COMPAT FLAG
@@ -15,11 +15,11 @@ __webpack_require__.d(__webpack_exports__, {
 });
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/setCredentialFeature.js
-var setCredentialFeature = __webpack_require__(2027);
+var setCredentialFeature = __webpack_require__(2029);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/property-provider/CredentialsProviderError.js
-var CredentialsProviderError = __webpack_require__(1957);
+var CredentialsProviderError = __webpack_require__(1959);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+node-http-handler@4.7.3/node_modules/@smithy/node-http-handler/dist-es/node-http-handler.js + 10 modules
-var node_http_handler = __webpack_require__(2062);
+var node_http_handler = __webpack_require__(2064);
 // EXTERNAL MODULE: external "node:fs/promises"
 var promises_ = __webpack_require__(1422);
 var promises_default = /*#__PURE__*/__webpack_require__.n(promises_);
@@ -68,11 +68,11 @@ const checkUrl = (url, logger) => {
 };
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/protocol-http/httpRequest.js
-var httpRequest = __webpack_require__(1930);
+var httpRequest = __webpack_require__(1932);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/date-utils.js
-var date_utils = __webpack_require__(1997);
+var date_utils = __webpack_require__(1999);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-stream/sdk-stream-mixin.js + 5 modules
-var sdk_stream_mixin = __webpack_require__(2017);
+var sdk_stream_mixin = __webpack_require__(2019);
 ;// ../../node_modules/.pnpm/@aws-sdk+credential-provider-http@3.972.40/node_modules/@aws-sdk/credential-provider-http/dist-es/fromHttp/requestHelpers.js
 
 
