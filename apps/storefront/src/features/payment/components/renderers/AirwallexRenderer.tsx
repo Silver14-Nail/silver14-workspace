@@ -37,8 +37,8 @@ declare global {
   }
 }
 
-const AIRWALLEX_ENV =
-  (process.env.NEXT_PUBLIC_AIRWALLEX_ENV as 'demo' | 'prod' | undefined) ?? 'demo';
+const RAW_ENV = process.env.NEXT_PUBLIC_AIRWALLEX_ENV?.toLowerCase() ?? 'demo';
+const AIRWALLEX_SDK_ENV = RAW_ENV === 'sandbox' ? 'demo' : RAW_ENV === 'prod' ? 'prod' : 'demo';
 
 const SDK_URLS: Record<string, string> = {
   demo: 'https://checkout-demo.airwallex.com/assets/elements.bundle.min.js',
@@ -47,7 +47,7 @@ const SDK_URLS: Record<string, string> = {
 };
 
 function sdkUrl(): string {
-  return SDK_URLS[AIRWALLEX_ENV] ?? SDK_URLS['demo'];
+  return SDK_URLS[AIRWALLEX_SDK_ENV] ?? SDK_URLS['demo'];
 }
 
 // ── Auth token helper ─────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ async function loadAirwallexSdk(): Promise<AirwallexSDK> {
     script.async = true;
     script.onload = async () => {
       if (!window.Airwallex) return reject(new Error('Airwallex SDK not found after load'));
-      await window.Airwallex.init({ env: AIRWALLEX_ENV, origin: window.location.origin });
+      await window.Airwallex.init({ env: AIRWALLEX_SDK_ENV, origin: window.location.origin });
       resolve(window.Airwallex);
     };
     script.onerror = () => reject(new Error('Failed to load Airwallex SDK'));

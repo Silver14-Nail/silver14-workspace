@@ -13,8 +13,17 @@ export interface AirwallexConfig {
 
 const fromEnv = (key: string): string => (process.env[key] ?? '').replace(/\s*#.*$/, '').trim();
 
+/** Normalises friendly env names ("sandbox") to Airwallex's official env keys. */
+function normalizeEnv(raw: string): AirwallexConfig['env'] {
+  const lower = raw.trim().toLowerCase();
+  if (lower === 'sandbox') return 'demo';
+  if (lower === 'production' || lower === 'prod') return 'production';
+  if (lower === 'staging') return 'staging';
+  return 'demo';
+}
+
 export default registerAs('airwallex', (): AirwallexConfig => {
-  const env = (fromEnv('AIRWALLEX_ENV') as AirwallexConfig['env']) || 'demo';
+  const env = normalizeEnv(fromEnv('AIRWALLEX_ENV'));
 
   const baseUrls: Record<AirwallexConfig['env'], string> = {
     demo: 'https://api-demo.airwallex.com',
