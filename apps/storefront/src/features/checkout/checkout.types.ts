@@ -47,25 +47,6 @@ export interface CheckoutSession {
   totals: SessionTotals;
 }
 
-export interface StripeIntentResponse {
-  clientSecret: string;
-  paymentIntentId: string;
-  amount: number;
-  currency: string;
-}
-
-export interface LsCheckoutResponse {
-  checkoutUrl: string;
-  amount: number;
-  currency: string;
-}
-
-export interface PaypalCreateResponse {
-  paypalOrderId: string;
-  amount: number;
-  currency: string;
-}
-
 export interface CompletedOrderRef {
   id: string;
   status: string;

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 import { PaypalDetailEntity } from '@/db/entities/payments/paypal-detail.entity';
 import { CardDetailEntity } from '@/db/entities/payments/card-detail.entity';
+import { AirwallexDetailEntity } from '@/db/entities/payments/airwallex-detail.entity';
 import { PaginationDTO } from '@/common/dtos/pagination';
 import { PaymentGateway } from '@/common/enums/entity.enum';
 
@@ -19,6 +20,8 @@ export class PaymentsService {
     private readonly paypalRepo: Repository<PaypalDetailEntity>,
     @InjectRepository(CardDetailEntity)
     private readonly cardRepo: Repository<CardDetailEntity>,
+    @InjectRepository(AirwallexDetailEntity)
+    private readonly airwallexRepo: Repository<AirwallexDetailEntity>,
   ) {}
 
   async listPayments(query: PaymentListQueryDto) {
@@ -72,10 +75,14 @@ export class PaymentsService {
     }
 
     // Load gateway-specific detail based on payment gateway type
-    let gatewayDetail: PaypalDetailEntity | CardDetailEntity | null = null;
+    let gatewayDetail: PaypalDetailEntity | CardDetailEntity | AirwallexDetailEntity | null = null;
 
     if (payment.gateway === PaymentGateway.PAYPAL) {
       gatewayDetail = await this.paypalRepo.findOne({
+        where: { payment: { id } },
+      });
+    } else if (payment.gateway === PaymentGateway.AIRWALLEX) {
+      gatewayDetail = await this.airwallexRepo.findOne({
         where: { payment: { id } },
       });
     } else {

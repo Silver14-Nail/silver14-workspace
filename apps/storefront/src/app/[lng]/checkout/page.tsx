@@ -29,6 +29,7 @@ export default function CheckoutPage() {
   const {
     step,
     session,
+    sessionId,
     isSessionLoading,
     isSubmitting,
     error,
@@ -41,7 +42,6 @@ export default function CheckoutPage() {
     contactDefaults,
     selectedMethodId,
     shippingMethods,
-    paymentMethod,
     cartItems,
     subtotal,
     discountAmount,
@@ -49,14 +49,10 @@ export default function CheckoutPage() {
     finalTotal,
     currency,
     setStep,
-    setPaymentMethod,
     setSelectedMethodId,
     handleContactNext,
     handleShippingNext,
-    handleStripeConfirm,
-    handleLsCheckout,
-    handlePaypalCreate,
-    handlePaypalCapture,
+    handlePaymentSuccess,
     handleApplyCoupon,
     handleRemoveCoupon,
   } = useCheckout();
@@ -88,62 +84,61 @@ export default function CheckoutPage() {
                 <div className="h-11 bg-gray-200 rounded w-36 ml-auto mt-2" />
               </div>
             ) : (
-            <AnimatePresence mode="wait">
-              {step === 'contact' && (
-                <motion.div key="contact" {...SLIDE} transition={{ duration: 0.3 }}>
-                  <ContactStep
-                    defaultValues={contactDefaults}
-                    isSubmitting={isSubmitting}
-                    error={error}
-                    onNext={handleContactNext}
-                  />
-                </motion.div>
-              )}
+              <AnimatePresence mode="wait">
+                {step === 'contact' && (
+                  <motion.div key="contact" {...SLIDE} transition={{ duration: 0.3 }}>
+                    <ContactStep
+                      defaultValues={contactDefaults}
+                      isSubmitting={isSubmitting}
+                      error={error}
+                      onNext={handleContactNext}
+                    />
+                  </motion.div>
+                )}
 
-              {step === 'shipping' && (
-                <motion.div key="shipping" {...SLIDE} transition={{ duration: 0.3 }}>
-                  <ShippingStep
-                    defaultValues={DEFAULT_SHIPPING}
-                    shippingMethods={shippingMethods}
-                    selectedMethodId={selectedMethodId}
-                    isSubmitting={isSubmitting}
-                    error={error}
-                    onMethodChange={setSelectedMethodId}
-                    onBack={() => setStep('contact')}
-                    onNext={handleShippingNext}
-                  />
-                </motion.div>
-              )}
+                {step === 'shipping' && (
+                  <motion.div key="shipping" {...SLIDE} transition={{ duration: 0.3 }}>
+                    <ShippingStep
+                      defaultValues={DEFAULT_SHIPPING}
+                      shippingMethods={shippingMethods}
+                      selectedMethodId={selectedMethodId}
+                      isSubmitting={isSubmitting}
+                      error={error}
+                      onMethodChange={setSelectedMethodId}
+                      onBack={() => setStep('contact')}
+                      onNext={handleShippingNext}
+                    />
+                  </motion.div>
+                )}
 
-              {step === 'payment' && (
-                <motion.div key="payment" {...SLIDE} transition={{ duration: 0.3 }}>
-                  <PaymentStep
-                    payment={paymentMethod}
-                    isSubmitting={isSubmitting}
-                    error={error}
-                    finalTotal={finalTotal}
-                    currency={currency}
-                    onPaymentChange={setPaymentMethod}
-                    onStripeConfirm={handleStripeConfirm}
-                    onLsCheckout={handleLsCheckout}
-                    onPaypalCreate={handlePaypalCreate}
-                    onPaypalCapture={handlePaypalCapture}
-                    onBack={() => setStep('shipping')}
-                  />
-                </motion.div>
-              )}
+                {step === 'payment' && (
+                  <motion.div key="payment" {...SLIDE} transition={{ duration: 0.3 }}>
+                    {/*
+                     * PaymentStep receives only session context + callbacks.
+                     * All provider selection, session creation, and renderer
+                     * dispatch happens inside PaymentStep via useCheckoutPayment.
+                     */}
+                    <PaymentStep
+                      sessionId={sessionId}
+                      finalTotal={finalTotal}
+                      currency={currency}
+                      onBack={() => setStep('shipping')}
+                      onSuccess={handlePaymentSuccess}
+                    />
+                  </motion.div>
+                )}
 
-              {step === 'confirmation' && (
-                <ConfirmationStep
-                  orderId={completedOrderId ?? ''}
-                  orderPollingDone={orderPollingDone}
-                  isLsPayment={isLsPayment}
-                  firstName={confirmFirstName}
-                  email={confirmEmail}
-                  phone={confirmPhone}
-                />
-              )}
-            </AnimatePresence>
+                {step === 'confirmation' && (
+                  <ConfirmationStep
+                    orderId={completedOrderId ?? ''}
+                    orderPollingDone={orderPollingDone}
+                    isLsPayment={isLsPayment}
+                    firstName={confirmFirstName}
+                    email={confirmEmail}
+                    phone={confirmPhone}
+                  />
+                )}
+              </AnimatePresence>
             )}
           </main>
 

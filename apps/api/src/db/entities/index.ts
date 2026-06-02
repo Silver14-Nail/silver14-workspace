@@ -32,6 +32,7 @@ import { CustomSizeRequestEntity } from './orders/custom-size-request.entity';
 import { PaymentEntity } from './payments/payment.entity';
 import { PaypalDetailEntity } from './payments/paypal-detail.entity';
 import { CardDetailEntity } from './payments/card-detail.entity';
+import { AirwallexDetailEntity } from './payments/airwallex-detail.entity';
 
 import { MarketingCampaignEntity } from './marketing/marketing-campaign.entity';
 import { MarketingCampaignTranslationEntity } from './marketing/marketing-campaign-translation.entity';
@@ -73,6 +74,7 @@ export {
   PaymentEntity,
   PaypalDetailEntity,
   CardDetailEntity,
+  AirwallexDetailEntity,
   NewsletterSubscriberEntity,
   WholesaleEnquiryEntity,
   WholesaleAccountEntity,
@@ -129,12 +131,14 @@ export const WHOLESALE_ENTITIES = [
   WholesaleOrderEntity,
 ];
 
-export const PAYMENT_ENTITIES = [PaymentEntity, PaypalDetailEntity, CardDetailEntity];
-
-export const MARKETING_ENTITIES = [
-  MarketingCampaignEntity,
-  MarketingCampaignTranslationEntity,
+export const PAYMENT_ENTITIES = [
+  PaymentEntity,
+  PaypalDetailEntity,
+  CardDetailEntity,
+  AirwallexDetailEntity,
 ];
+
+export const MARKETING_ENTITIES = [MarketingCampaignEntity, MarketingCampaignTranslationEntity];
 
 export const ENTITIES = [
   ...AUTH_ENTITIES,

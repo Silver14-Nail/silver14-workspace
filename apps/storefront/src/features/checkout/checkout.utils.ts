@@ -16,4 +16,4 @@ export type ShippingDetails = {
   country: string;
 };
 
-export type PaymentMethod = 'card' | 'lemon_squeezy' | 'paypal';
+export type PaymentMethod = 'card';

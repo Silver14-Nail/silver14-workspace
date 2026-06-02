@@ -1,260 +1,173 @@
 'use client';
 
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
-import { CreditCard, Shield } from 'lucide-react';
-import { useT } from 'next-i18next/client';
-import { BackButton, PayButton } from '../ui/Buttons';
-import { PAYMENT_METHODS } from '../../constants';
-import type { PaymentMethod } from '../../types';
-import type { Stripe, StripeCardElement } from '@stripe/stripe-js';
+import { Shield, ArrowRight, RefreshCw } from 'lucide-react';
+import { BackButton } from '../ui/Buttons';
+import { PaymentMethodSelector } from '@/features/payment/components/PaymentMethodSelector';
+import { ProviderRenderer } from '@/features/payment/components/ProviderRenderer';
+import { useCheckoutPayment } from '@/features/payment/hooks/useCheckoutPayment';
+import { PAYMENT_METHOD_OPTIONS } from '@/features/payment/payment-options';
+import type { PaymentMethodOption } from '@/features/payment/types';
 
-// Initialised once at module level — never recreated on re-render
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '');
+// ── Visible options ───────────────────────────────────────────────────────────
+//
+// Show all registered Airwallex options.
+// To add options from another provider, append to PAYMENT_METHOD_OPTIONS in payment-options.ts.
 
-const CARD_ELEMENT_OPTIONS = {
-  style: {
-    base: {
-      fontSize: '14px',
-      color: '#1A1A1A',
-      '::placeholder': { color: '#B0B0B0' },
-    },
-    invalid: { color: '#E53E3E' },
-  },
-};
+const VISIBLE_OPTIONS = PAYMENT_METHOD_OPTIONS.filter((o) => o.provider === 'airwallex');
 
-// ── Stripe card sub-form (must live inside <Elements>) ────────────────────────
+const OPTION_GROUPS = [
+  { label: 'Card', ids: ['airwallex_card', 'airwallex_applepay', 'airwallex_googlepay'] },
+  { label: 'Hosted', ids: ['airwallex_hosted'] },
+];
 
-interface StripeCardFormProps {
-  isSubmitting: boolean;
-  error: string | null;
+// ── Props ─────────────────────────────────────────────────────────────────────
+
+interface PaymentStepProps {
+  /** Checkout session UUID — passed to the payment API and renderers. */
+  sessionId: string | null;
   finalTotal: number;
   currency: string;
-  onConfirm: (stripe: Stripe, cardElement: StripeCardElement) => Promise<void>;
-}
-
-function StripeCardForm({
-  isSubmitting,
-  error,
-  finalTotal,
-  currency,
-  onConfirm,
-}: StripeCardFormProps) {
-  const { t } = useT('checkout');
-  const stripe = useStripe();
-  const elements = useElements();
-
-  const handlePay = async () => {
-    if (!stripe || !elements) return;
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) return;
-    await onConfirm(stripe, cardElement);
-  };
-
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-  }).format(finalTotal);
-
-  return (
-    <>
-      <p className="text-[#9A9A9A] text-xs mb-3">{t('payment.cardHint')}</p>
-      <div className="p-4 border border-[#E0E0E0] bg-[#FAFAFA] mb-4">
-        <CardElement options={CARD_ELEMENT_OPTIONS} />
-      </div>
-
-      {error && <p className="text-red-600 text-xs mb-4 px-1">{error}</p>}
-
-      <SecurityNote />
-
-      <PayButton
-        label={t('payment.cta')}
-        processingLabel={t('payment.processing')}
-        amount={formattedAmount}
-        isProcessing={isSubmitting}
-        onClick={handlePay}
-      />
-    </>
-  );
-}
-
-// ── Shared security note ──────────────────────────────────────────────────────
-
-function SecurityNote() {
-  const { t } = useT('checkout');
-  return (
-    <div className="flex items-center gap-2 text-[#9A9A9A] text-xs mb-6">
-      <Shield className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
-      <span>{t('payment.securityNote')}</span>
-    </div>
-  );
+  onBack: () => void;
+  /** Called after payment succeeds and cart is cleared. */
+  onSuccess: (orderId: string) => void;
 }
 
 // ── PaymentStep ───────────────────────────────────────────────────────────────
 
-interface PaymentStepProps {
-  payment: PaymentMethod;
-  isSubmitting: boolean;
-  error: string | null;
-  finalTotal: number;
-  currency: string;
-  onPaymentChange: (method: PaymentMethod) => void;
-  onStripeConfirm: (stripe: Stripe, cardElement: StripeCardElement) => Promise<void>;
-  onLsCheckout: () => Promise<void>;
-  onPaypalCreate: () => Promise<string>;
-  onPaypalCapture: (paypalOrderId: string) => Promise<void>;
-  onBack: () => void;
-}
+/**
+ * Payment step — fully provider-agnostic.
+ *
+ * This component does NOT contain any provider-specific logic.
+ * Adding a new payment provider requires ONLY:
+ *   1. Adding to PAYMENT_METHOD_OPTIONS (payment-options.ts)
+ *   2. Adding a case to createPaymentSession (payment.api.ts)
+ *   3. Adding a renderer to RENDERER_MAP (ProviderRenderer.tsx)
+ *
+ * This file never changes for new providers.
+ */
+export function PaymentStep({ sessionId, onBack, onSuccess }: PaymentStepProps) {
+  const {
+    selectedOption,
+    setSelectedOption,
+    status,
+    providerSession,
+    error,
+    requestSession,
+    handleProviderSuccess,
+    handleProviderError,
+    handleProviderCancel,
+    retry,
+  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess });
 
-export function PaymentStep({
-  payment,
-  isSubmitting,
-  error,
-  finalTotal,
-  currency,
-  onPaymentChange,
-  onStripeConfirm,
-  onLsCheckout,
-  onPaypalCreate,
-  onPaypalCapture,
-  onBack,
-}: PaymentStepProps) {
-  const { t } = useT('checkout');
-  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '';
+  // ── Derived booleans ────────────────────────────────────────────────────────
 
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-  }).format(finalTotal);
+  const isIdle = status === 'idle';
+  const isRequesting = status === 'requesting';
+  const isReady = status === 'ready' && !!providerSession;
+  const isError = status === 'error' || status === 'failed';
+  const showSelector = isIdle || isError;
+  const canContinue = !!selectedOption && isIdle;
 
   return (
-    <div className="bg-white p-6 sm:p-8">
-      <BackButton label={t('payment.back')} onClick={onBack} />
+    <div className="bg-white dark:bg-[#141414] p-6 sm:p-8">
+      <BackButton label="Back to shipping" onClick={onBack} />
 
-      <h2 className="text-[#1A1A1A] mb-6" style={{ fontWeight: 400, fontSize: '1.4rem' }}>
-        {t('payment.title')}
+      <h2
+        className="text-[#1A1A1A] dark:text-white mb-6"
+        style={{ fontWeight: 400, fontSize: '1.4rem' }}
+      >
+        Payment
       </h2>
 
-      {/* Method selector */}
-      <div className="space-y-3 mb-6" role="radiogroup" aria-label={t('payment.methodAriaLabel')}>
-        {PAYMENT_METHODS.map((method) => (
-          <button
-            key={method}
-            type="button"
-            role="radio"
-            aria-checked={payment === method}
-            onClick={() => onPaymentChange(method)}
-            className={`w-full flex items-center gap-4 p-4 border transition-all ${
-              payment === method
-                ? 'border-[#1A1A1A] bg-[#FAFAFA]'
-                : 'border-[#E0E0E0] hover:border-[#C0C0C0]'
-            }`}
-          >
-            <span
-              className={`size-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                payment === method ? 'border-[#1A1A1A]' : 'border-[#D0D0D0]'
-              }`}
-              aria-hidden
-            >
-              {payment === method && <span className="size-2 rounded-full bg-[#1A1A1A]" />}
-            </span>
-            <span className="text-left">
-              <span className="block text-[#1A1A1A] text-sm">
-                {t(`payment.methods.${method}.label`)}
-              </span>
-              <span className="block text-[#9A9A9A] text-xs">
-                {t(`payment.methods.${method}.description`)}
-              </span>
-            </span>
-            <span className="ml-auto flex gap-1.5">
-              {method === 'lemon_squeezy' && (
-                <span className="text-[10px] border border-[#E0E0E0] px-1.5 py-0.5 text-[#F59E0B]">
-                  🍋 LS
-                </span>
-              )}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Stripe card form */}
-      {payment === 'card' && (
-        <Elements stripe={stripePromise}>
-          <StripeCardForm
-            isSubmitting={isSubmitting}
-            error={error}
-            finalTotal={finalTotal}
-            currency={currency}
-            onConfirm={onStripeConfirm}
-          />
-        </Elements>
-      )}
-
-      {/* Lemon Squeezy */}
-      {payment === 'lemon_squeezy' && (
+      {/* ── Method selector ───────────────────────────────────────────────── */}
+      {showSelector && (
         <>
-          <p className="text-[#9A9A9A] text-xs mb-4">{t('payment.lsHint')}</p>
+          <PaymentMethodSelector
+            options={VISIBLE_OPTIONS}
+            groups={OPTION_GROUPS}
+            selected={selectedOption?.id ?? null}
+            onChange={(opt: PaymentMethodOption) => setSelectedOption(opt)}
+            disabled={isRequesting}
+          />
 
-          {error && <p className="text-red-600 text-xs mb-4 px-1">{error}</p>}
+          {/* Error banner */}
+          {isError && error && (
+            <div className="mt-4 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2] dark:bg-[#2E1A1A]">
+              <span className="flex-shrink-0 mt-0.5">⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
 
-          <SecurityNote />
-
-          <button
-            type="button"
-            disabled={isSubmitting}
-            onClick={onLsCheckout}
-            className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors disabled:bg-[#6A6A6A] disabled:cursor-not-allowed"
-            style={{ letterSpacing: '0.15em' }}
-          >
-            {isSubmitting ? (
-              <>
-                <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {t('payment.processing')}
-              </>
+          {/* CTA */}
+          <div className="mt-6 space-y-2.5">
+            {isError ? (
+              <button
+                type="button"
+                onClick={retry}
+                className="w-full flex items-center justify-center gap-2 border border-[#1A1A1A] dark:border-white text-[#1A1A1A] dark:text-white py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#1A1A1A] hover:text-white dark:hover:bg-white dark:hover:text-[#1A1A1A] transition-all"
+                style={{ letterSpacing: '0.15em' }}
+              >
+                <RefreshCw className="size-3.5" aria-hidden />
+                Try again
+              </button>
             ) : (
-              <>
-                <CreditCard className="size-4" />
-                {t('payment.cta')} {formattedAmount}
-              </>
+              <button
+                type="button"
+                disabled={!canContinue}
+                onClick={requestSession}
+                className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] dark:bg-white text-white dark:text-[#1A1A1A] py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#333] dark:hover:bg-[#E0E0E0] transition-colors disabled:bg-[#D0D0D0] dark:disabled:bg-[#3A3A3A] disabled:cursor-not-allowed"
+                style={{ letterSpacing: '0.15em' }}
+              >
+                Continue to payment
+                <ArrowRight className="size-4" aria-hidden />
+              </button>
             )}
-          </button>
+          </div>
         </>
       )}
 
-      {/* PayPal */}
-      {payment === 'paypal' && (
-        <PayPalScriptProvider
-          options={{
-            clientId: paypalClientId,
-            currency: currency || 'USD',
-            intent: 'capture',
-            environment: 'production',
-          }}
-        >
-          <div className="mb-4">
-            {isSubmitting && (
-              <div className="flex items-center justify-center gap-2 py-4 text-[#6A6A6A] text-sm">
-                <span
-                  className="size-4 border-2 border-[#D0D0D0] border-t-[#1A1A1A] rounded-full animate-spin"
-                  aria-hidden
-                />
-                {t('payment.processing')}
-              </div>
-            )}
-            {!isSubmitting && (
-              <PayPalButtons
-                style={{ layout: 'vertical', shape: 'rect', color: 'black', label: 'pay' }}
-                createOrder={onPaypalCreate}
-                onApprove={async (data) => {
-                  await onPaypalCapture(data.orderID);
-                }}
-              />
-            )}
-            {error && <p className="text-red-600 text-xs mt-3 px-1">{error}</p>}
+      {/* ── Loading (session creation in flight) ──────────────────────────── */}
+      {isRequesting && (
+        <div className="flex flex-col items-center gap-4 py-12">
+          <div className="size-10 border-2 border-[#E0E0E0] dark:border-[#3A3A3A] border-t-[#4A7A5A] rounded-full animate-spin" />
+          <p className="text-[#9A9A9A] dark:text-[#6A6A6A] text-sm">
+            Preparing secure payment&hellip;
+          </p>
+        </div>
+      )}
+
+      {/* ── Provider-specific UI ──────────────────────────────────────────── */}
+      {isReady && (
+        <div className="mt-2">
+          {/* Breadcrumb: selected method + change link */}
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-[#1A1A1A] dark:text-white text-sm font-medium">
+              {selectedOption?.label}
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedOption(null)}
+              className="text-[#9A9A9A] dark:text-[#6A6A6A] text-xs hover:text-[#1A1A1A] dark:hover:text-white transition-colors"
+            >
+              Change
+            </button>
           </div>
-          <SecurityNote />
-        </PayPalScriptProvider>
+
+          <ProviderRenderer
+            session={providerSession!}
+            onSuccess={handleProviderSuccess}
+            onError={handleProviderError}
+            onCancel={handleProviderCancel}
+          />
+        </div>
+      )}
+
+      {/* ── Security footer ───────────────────────────────────────────────── */}
+      {!isReady && (
+        <div className="flex items-center justify-center gap-2 text-[#9A9A9A] dark:text-[#6A6A6A] text-[11px] mt-6">
+          <Shield className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
+          <span>All transactions are encrypted and processed securely.</span>
+        </div>
       )}
     </div>
   );

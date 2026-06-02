@@ -111,6 +111,7 @@ export enum PaymentGateway {
   STRIPE = 'stripe',
   BRAINTREE = 'braintree',
   LEMON_SQUEEZY = 'lemon_squeezy',
+  AIRWALLEX = 'airwallex',
 }
 
 export enum PaymentStatus {
@@ -126,6 +127,7 @@ export enum CardBrand {
   MASTERCARD = 'mastercard',
   AMEX = 'amex',
   DISCOVER = 'discover',
+  JCB = 'jcb',
 }
 
 export enum CardProcessor {

@@ -6,6 +6,7 @@ import { SoftDeleteAbstractEntity } from '../../../common/entities';
 import { OrderEntity } from '../orders/order.entity';
 import { PaypalDetailEntity } from './paypal-detail.entity';
 import { CardDetailEntity } from './card-detail.entity';
+import { AirwallexDetailEntity } from './airwallex-detail.entity';
 
 @Entity('payments')
 export class PaymentEntity extends SoftDeleteAbstractEntity {
@@ -72,4 +73,7 @@ export class PaymentEntity extends SoftDeleteAbstractEntity {
 
   @OneToOne(() => CardDetailEntity, (d) => d.payment)
   cardDetail: CardDetailEntity;
+
+  @OneToOne(() => AirwallexDetailEntity, (d) => d.payment)
+  airwallexDetail: AirwallexDetailEntity;
 }
