@@ -10,15 +10,11 @@ import type { PaymentMethodOption } from '@/features/payment/types';
 
 // ── Visible options ───────────────────────────────────────────────────────────
 //
-// Show all registered Airwallex options.
-// To add options from another provider, append to PAYMENT_METHOD_OPTIONS in payment-options.ts.
+// All options registered in payment-options.ts are shown.
 
-const VISIBLE_OPTIONS = PAYMENT_METHOD_OPTIONS.filter((o) => o.provider === 'airwallex');
+const VISIBLE_OPTIONS = PAYMENT_METHOD_OPTIONS;
 
-const OPTION_GROUPS = [
-  { label: 'Card', ids: ['airwallex_card', 'airwallex_applepay', 'airwallex_googlepay'] },
-  { label: 'Hosted', ids: ['airwallex_hosted'] },
-];
+const OPTION_GROUPS: { label: string; ids: string[] }[] = [];
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
