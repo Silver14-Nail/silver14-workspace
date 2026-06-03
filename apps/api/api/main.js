@@ -297490,10 +297490,9 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
             amount: params.amount,
             currency: params.currency.toUpperCase(),
         };
+        body.merchant_order_id = params.merchantOrderId; // required by Airwallex
         if (params.requestId)
             body.request_id = params.requestId;
-        if (params.merchantOrderId)
-            body.merchant_order_id = params.merchantOrderId;
         if (params.metadata)
             body.metadata = params.metadata;
         if (params.returnUrl)
@@ -297550,10 +297549,9 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
             currency: params.currency.toUpperCase(),
             return_url: params.returnUrl,
         };
+        body.merchant_order_id = params.merchantOrderId; // required by Airwallex
         if (params.requestId)
             body.request_id = params.requestId;
-        if (params.merchantOrderId)
-            body.merchant_order_id = params.merchantOrderId;
         if (params.cancelUrl)
             body.cancel_url = params.cancelUrl;
         if (params.metadata)
@@ -297940,9 +297938,7 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
             merchantOrderId: checkoutSessionId,
             returnUrl,
             cancelUrl,
-            ...(allowSaveCard !== undefined
-                ? { paymentMethodOptions: { card: { allowSaveCard } } }
-                : {}),
+            ...(allowSaveCard !== undefined ? { paymentMethodOptions: { card: { allowSaveCard } } } : {}),
             customerId,
             customer,
             metadata: {

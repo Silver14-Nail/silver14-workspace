@@ -10,7 +10,7 @@ export interface AirwallexAuthToken {
 export interface AirwallexCreatePaymentIntentParams {
   amount: number;
   currency: string;
-  merchantOrderId?: string;
+  merchantOrderId: string; // required by Airwallex, max 64 chars
   requestId?: string;
   /** Per-method options — keys are method names (e.g. "card"), NOT a type array */
   paymentMethodOptions?: {
@@ -109,7 +109,7 @@ export interface AirwallexCreateCheckoutSessionParams {
   amount: number;
   currency: string;
   requestId?: string;
-  merchantOrderId?: string;
+  merchantOrderId: string; // required by Airwallex, max 64 chars
   returnUrl: string;
   cancelUrl?: string;
   /** Per-method options — keys are method names (e.g. "card"), NOT a type array */

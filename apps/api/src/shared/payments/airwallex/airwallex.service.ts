@@ -106,8 +106,8 @@ export class AirwallexService {
       currency: params.currency.toUpperCase(),
     };
 
+    body.merchant_order_id = params.merchantOrderId; // required by Airwallex
     if (params.requestId) body.request_id = params.requestId;
-    if (params.merchantOrderId) body.merchant_order_id = params.merchantOrderId;
     if (params.metadata) body.metadata = params.metadata;
     if (params.returnUrl) body.return_url = params.returnUrl;
     // payment_method_options keys must be method names (e.g. "card"), not a "type" array
@@ -198,8 +198,8 @@ export class AirwallexService {
       return_url: params.returnUrl,
     };
 
+    body.merchant_order_id = params.merchantOrderId; // required by Airwallex
     if (params.requestId) body.request_id = params.requestId;
-    if (params.merchantOrderId) body.merchant_order_id = params.merchantOrderId;
     if (params.cancelUrl) body.cancel_url = params.cancelUrl;
     if (params.metadata) body.metadata = params.metadata;
     if (params.customerId) body.customer_id = params.customerId;
