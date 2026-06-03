@@ -18,8 +18,14 @@ import type { ProviderRendererProps } from '../../types';
 export function OnepayRenderer({ session, onError, onCancel }: ProviderRendererProps) {
   const { sessionData } = session;
 
+  // Guard: must be redirect mode — report error via effect to avoid calling side-effects during render
+  useEffect(() => {
+    if (sessionData.mode !== 'redirect') {
+      onError('OnePAY renderer received unexpected mode: ' + (sessionData as any).mode);
+    }
+  }, [sessionData, onError]);
+
   if (sessionData.mode !== 'redirect') {
-    onError('OnePAY renderer received unexpected mode: ' + sessionData.mode);
     return null;
   }
 

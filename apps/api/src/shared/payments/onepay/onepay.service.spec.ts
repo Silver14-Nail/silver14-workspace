@@ -257,7 +257,8 @@ describe('OnepayService amount helpers', () => {
     const service = await createService();
     expect(service.toOnepayAmount(25000)).toBe(2500000);
     expect(service.toOnepayAmount(100)).toBe(10000);
-    expect(service.toOnepayAmount(25000.7)).toBe(2500070); // rounds then * 100
+    // Math.round(25000.7) = 25001 → * 100 = 2500100
+    expect(service.toOnepayAmount(25000.7)).toBe(2500100);
   });
 
   it('fromOnepayAmount divides by 100', async () => {

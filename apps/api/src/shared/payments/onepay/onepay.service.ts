@@ -188,9 +188,11 @@ export class OnepayService {
    *  4. HMAC-SHA256 with hashKey → hex (64 chars)
    */
   computeHash(params: Record<string, string>): string {
+    // Per spec §II.8 + PHP ksort: use ASCII/binary comparison
+    // (uppercase letters U+0041–U+005A are less-than lowercase U+0061–U+007A)
     const filtered = Object.entries(params)
       .filter(([k]) => (k.startsWith('vpc_') || k.startsWith('user_')) && k !== 'vpc_SecureHash')
-      .sort(([a], [b]) => a.localeCompare(b));
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
     const data = filtered.map(([k, v]) => `${k}=${v}`).join('&');
 
