@@ -11,18 +11,15 @@ export interface AirwallexCreatePaymentIntentParams {
   amount: number;
   currency: string;
   merchantOrderId?: string;
-  /** Requested payment method types */
+  requestId?: string;
+  /** Per-method options — keys are method names (e.g. "card"), NOT a type array */
   paymentMethodOptions?: {
-    /** e.g. 'card', 'apple_pay', 'google_pay' */
-    type: string[];
     card?: {
-      /** Enable saving the card for future payments */
       saveCard?: boolean;
     };
   };
   metadata?: Record<string, string>;
   returnUrl?: string;
-  requestId?: string;
 }
 
 export interface AirwallexPaymentIntent {
@@ -115,8 +112,8 @@ export interface AirwallexCreateCheckoutSessionParams {
   merchantOrderId?: string;
   returnUrl: string;
   cancelUrl?: string;
+  /** Per-method options — keys are method names (e.g. "card"), NOT a type array */
   paymentMethodOptions?: {
-    type: string[];
     card?: {
       allowSaveCard?: boolean;
     };

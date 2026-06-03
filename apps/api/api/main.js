@@ -297490,16 +297490,18 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
             amount: params.amount,
             currency: params.currency.toUpperCase(),
         };
+        if (params.requestId)
+            body.request_id = params.requestId;
         if (params.merchantOrderId)
             body.merchant_order_id = params.merchantOrderId;
-        if (params.paymentMethodOptions)
-            body.payment_method_options = params.paymentMethodOptions;
         if (params.metadata)
             body.metadata = params.metadata;
         if (params.returnUrl)
             body.return_url = params.returnUrl;
-        if (params.requestId)
-            body.request_id = params.requestId;
+        // payment_method_options keys must be method names (e.g. "card"), not a "type" array
+        if (params.paymentMethodOptions?.card) {
+            body.payment_method_options = { card: params.paymentMethodOptions.card };
+        }
         return this.httpRequest('POST', `${this.config.baseUrl}/api/v1/pa/payment_intents/create`, JSON.stringify(body), {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -297560,13 +297562,16 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
             body.customer_id = params.customerId;
         if (params.customer)
             body.customer = params.customer;
-        // Default to card if no types specified
-        body.payment_method_options = {
-            type: params.paymentMethodOptions?.type ?? ['card'],
-            ...(params.paymentMethodOptions?.card?.allowSaveCard !== undefined
-                ? { card: { allow_save_card: params.paymentMethodOptions.card.allowSaveCard } }
-                : {}),
-        };
+        // payment_method_options keys must be method names (e.g. "card"), not a "type" array
+        if (params.paymentMethodOptions?.card !== undefined) {
+            body.payment_method_options = {
+                card: {
+                    ...(params.paymentMethodOptions.card.allowSaveCard !== undefined
+                        ? { allow_save_card: params.paymentMethodOptions.card.allowSaveCard }
+                        : {}),
+                },
+            };
+        }
         return this.httpRequest('POST', `${this.config.baseUrl}/api/v1/pa/checkout_sessions/create`, JSON.stringify(body), {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -297883,15 +297888,11 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
             allowSaveCard: false,
         });
         await this.detailRepo.save(detail);
-        const pmTypes = paymentMethodTypes ?? ['card'];
         const intent = await this.airwallexService.createPaymentIntent({
             amount: parseFloat(amount.toFixed(2)),
             currency,
             requestId: detail.id,
             merchantOrderId: checkoutSessionId,
-            paymentMethodOptions: {
-                type: pmTypes,
-            },
             metadata: {
                 checkoutSessionId,
                 detailId: detail.id,
@@ -297932,7 +297933,6 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
             allowSaveCard: allowSaveCard ?? false,
         });
         await this.detailRepo.save(detail);
-        const pmTypes = paymentMethodTypes ?? ['card'];
         const awxSession = await this.airwallexService.createCheckoutSession({
             amount: parseFloat(amount.toFixed(2)),
             currency,
@@ -297940,12 +297940,9 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
             merchantOrderId: checkoutSessionId,
             returnUrl,
             cancelUrl,
-            paymentMethodOptions: {
-                type: pmTypes,
-                card: {
-                    allowSaveCard: allowSaveCard ?? false,
-                },
-            },
+            ...(allowSaveCard !== undefined
+                ? { paymentMethodOptions: { card: { allowSaveCard } } }
+                : {}),
             customerId,
             customer,
             metadata: {

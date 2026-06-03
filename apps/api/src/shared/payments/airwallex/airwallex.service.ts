@@ -106,11 +106,14 @@ export class AirwallexService {
       currency: params.currency.toUpperCase(),
     };
 
+    if (params.requestId) body.request_id = params.requestId;
     if (params.merchantOrderId) body.merchant_order_id = params.merchantOrderId;
-    if (params.paymentMethodOptions) body.payment_method_options = params.paymentMethodOptions;
     if (params.metadata) body.metadata = params.metadata;
     if (params.returnUrl) body.return_url = params.returnUrl;
-    if (params.requestId) body.request_id = params.requestId;
+    // payment_method_options keys must be method names (e.g. "card"), not a "type" array
+    if (params.paymentMethodOptions?.card) {
+      body.payment_method_options = { card: params.paymentMethodOptions.card };
+    }
 
     return this.httpRequest<AirwallexPaymentIntent>(
       'POST',
@@ -202,13 +205,16 @@ export class AirwallexService {
     if (params.customerId) body.customer_id = params.customerId;
     if (params.customer) body.customer = params.customer;
 
-    // Default to card if no types specified
-    body.payment_method_options = {
-      type: params.paymentMethodOptions?.type ?? ['card'],
-      ...(params.paymentMethodOptions?.card?.allowSaveCard !== undefined
-        ? { card: { allow_save_card: params.paymentMethodOptions.card.allowSaveCard } }
-        : {}),
-    };
+    // payment_method_options keys must be method names (e.g. "card"), not a "type" array
+    if (params.paymentMethodOptions?.card !== undefined) {
+      body.payment_method_options = {
+        card: {
+          ...(params.paymentMethodOptions.card.allowSaveCard !== undefined
+            ? { allow_save_card: params.paymentMethodOptions.card.allowSaveCard }
+            : {}),
+        },
+      };
+    }
 
     return this.httpRequest<AirwallexCheckoutSession>(
       'POST',

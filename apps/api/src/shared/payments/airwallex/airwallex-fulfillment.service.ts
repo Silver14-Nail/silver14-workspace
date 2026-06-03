@@ -79,15 +79,11 @@ export class AirwallexFulfillmentService {
     });
     await this.detailRepo.save(detail);
 
-    const pmTypes = paymentMethodTypes ?? ['card'];
     const intent = await this.airwallexService.createPaymentIntent({
       amount: parseFloat(amount.toFixed(2)),
       currency,
       requestId: detail.id,
       merchantOrderId: checkoutSessionId,
-      paymentMethodOptions: {
-        type: pmTypes,
-      },
       metadata: {
         checkoutSessionId,
         detailId: detail.id,
@@ -158,7 +154,6 @@ export class AirwallexFulfillmentService {
     });
     await this.detailRepo.save(detail);
 
-    const pmTypes = paymentMethodTypes ?? ['card'];
     const awxSession = await this.airwallexService.createCheckoutSession({
       amount: parseFloat(amount.toFixed(2)),
       currency,
@@ -166,12 +161,9 @@ export class AirwallexFulfillmentService {
       merchantOrderId: checkoutSessionId,
       returnUrl,
       cancelUrl,
-      paymentMethodOptions: {
-        type: pmTypes,
-        card: {
-          allowSaveCard: allowSaveCard ?? false,
-        },
-      },
+      ...(allowSaveCard !== undefined
+        ? { paymentMethodOptions: { card: { allowSaveCard } } }
+        : {}),
       customerId,
       customer,
       metadata: {
