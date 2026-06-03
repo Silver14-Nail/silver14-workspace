@@ -49,7 +49,7 @@ export class OnepayService {
     const staticParams: Record<string, string> = {
       vpc_Version: '2',
       vpc_Command: 'pay',
-      vpc_Currency: (params.currency ?? 'VND').toUpperCase(),
+      vpc_Currency: (params.vpc_Currency ?? 'VND').toUpperCase(),
       vpc_Locale: params.locale ?? 'vn',
       vpc_AccessCode: this.config.accessCode,
       vpc_Merchant: this.config.merchantId,

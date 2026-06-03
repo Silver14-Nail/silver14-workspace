@@ -75,6 +75,13 @@
         "description": "Quét mã QR hoặc ứng dụng ngân hàng — qua OnePAY"
       }
     },
+    "onepay": {
+      "redirecting": "Đang chuyển đến OnePAY…",
+      "redirectDescription": "Bạn sẽ được chuyển hướng đến trang thanh toán OnePAY an toàn.",
+      "redirectManual": "Nhấn vào đây nếu không được chuyển hướng",
+      "cancel": "Hủy và chọn phương thức khác",
+      "securedBy": "Bảo mật bởi OnePAY"
+    },
     "cardHint": "Thông tin thẻ được xử lý bảo mật bởi Stripe.",
     "lsHint": "Bạn sẽ được chuyển đến trang thanh toán bảo mật của Lemon Squeezy để hoàn tất giao dịch.",
     "securityNote": "Thông tin thanh toán được mã hóa và bảo mật. Chúng tôi không lưu trữ thông tin thẻ.",

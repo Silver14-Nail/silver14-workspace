@@ -63,6 +63,7 @@ export class OnepayFulfillmentService {
     cardList?: string,
     vndRate?: number,
     locale?: 'en' | 'vn',
+    currencyOverride?: string,
   ): Promise<{
     redirectUrl: string;
     merchTxnRef: string;
@@ -73,13 +74,15 @@ export class OnepayFulfillmentService {
 
     // Domestic ATM / QR only support VND — convert if session currency differs.
     // International cards support multi-currency (USD, EUR, etc.).
+    // currencyOverride from frontend takes precedence over session currency.
+    const sessionCurrency = (currencyOverride ?? totals.currency).toUpperCase();
     const isDomesticOnly = cardList === 'DOMESTIC' || cardList === 'QR';
-    const paymentCurrency = isDomesticOnly ? 'VND' : totals.currency.toUpperCase();
+    const paymentCurrency = isDomesticOnly ? 'VND' : sessionCurrency;
 
     let paymentAmount: number;
-    if (paymentCurrency === 'VND' && totals.currency.toUpperCase() !== 'VND') {
+    if (paymentCurrency === 'VND' && sessionCurrency !== 'VND') {
       // Need to convert from session currency → VND
-      const rate = vndRate ?? 25_000;
+      const rate = vndRate ?? 27_000;
       paymentAmount = totals.total * rate;
     } else {
       paymentAmount = totals.total;
@@ -115,7 +118,7 @@ export class OnepayFulfillmentService {
       vpc_Customer_Email: contactSnapshot.email,
       vpc_Customer_Id: session.user?.id ?? undefined,
       locale,
-      currency: paymentCurrency,
+      vpc_Currency: paymentCurrency,
     });
 
     // Mark as processing
@@ -275,6 +278,8 @@ export class OnepayFulfillmentService {
     transactionNo: string,
     amountOnepay: number,
   ): Promise<{ orderId?: string }> {
+    console.log('amountOnepay', amountOnepay);
+
     // Idempotency guard
     const existingOrder = await this.dataSource.manager.findOne(OrderEntity, {
       where: { checkoutSession: { id: checkoutSessionId } },

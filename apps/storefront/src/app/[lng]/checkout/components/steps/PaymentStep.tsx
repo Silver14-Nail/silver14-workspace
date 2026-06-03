@@ -37,7 +37,7 @@ interface PaymentStepProps {
  *
  * This file never changes for new providers.
  */
-export function PaymentStep({ sessionId, onBack, onSuccess }: PaymentStepProps) {
+export function PaymentStep({ sessionId, currency, onBack, onSuccess }: PaymentStepProps) {
   const { t } = useT('checkout');
   const params = useParams();
   const lng = (params?.lng as string) ?? 'en';
@@ -60,7 +60,7 @@ export function PaymentStep({ sessionId, onBack, onSuccess }: PaymentStepProps) 
     handleProviderError,
     handleProviderCancel,
     retry,
-  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess, locale: lng });
+  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess, locale: lng, currency });
 
   // ── Derived booleans ────────────────────────────────────────────────────────
 

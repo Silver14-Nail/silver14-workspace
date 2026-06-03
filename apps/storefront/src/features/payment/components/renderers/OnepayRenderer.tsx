@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { ExternalLink, Shield } from 'lucide-react';
+import { useT } from 'next-i18next/client';
 import type { ProviderRendererProps } from '../../types';
 
 /**
@@ -41,6 +42,8 @@ function OnepayRedirect({
   onError: (err: string) => void;
   onCancel: () => void;
 }) {
+  const { t } = useT('checkout');
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.location.href = url;
@@ -57,10 +60,10 @@ function OnepayRedirect({
       />
       <div>
         <p className="text-[#1A1A1A] dark:text-white text-sm font-medium mb-1">
-          Đang chuyển đến OnePAY…
+          {t('payment.onepay.redirecting')}
         </p>
         <p className="text-[#9A9A9A] dark:text-[#6A6A6A] text-xs max-w-xs">
-          Bạn sẽ được chuyển hướng đến trang thanh toán OnePAY an toàn.
+          {t('payment.onepay.redirectDescription')}
         </p>
       </div>
       <div className="flex flex-col gap-2 mt-2">
@@ -68,7 +71,7 @@ function OnepayRedirect({
           href={url}
           className="inline-flex items-center gap-1.5 text-[#4A7A5A] text-sm hover:underline"
         >
-          Nhấn vào đây nếu không được chuyển hướng
+          {t('payment.onepay.redirectManual')}
           <ExternalLink className="size-3.5" aria-hidden />
         </a>
         <button
@@ -76,12 +79,12 @@ function OnepayRedirect({
           onClick={onCancel}
           className="text-[#9A9A9A] dark:text-[#6A6A6A] text-xs hover:text-[#1A1A1A] dark:hover:text-white transition-colors"
         >
-          Hủy và chọn phương thức khác
+          {t('payment.onepay.cancel')}
         </button>
       </div>
       <div className="flex items-center justify-center gap-2 text-[#9A9A9A] dark:text-[#6A6A6A] text-[11px] mt-4">
         <Shield className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
-        <span>Bảo mật bởi OnePAY</span>
+        <span>{t('payment.onepay.securedBy')}</span>
       </div>
     </div>
   );

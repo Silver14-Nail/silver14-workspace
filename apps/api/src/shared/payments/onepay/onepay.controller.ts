@@ -6,9 +6,9 @@ import { OnepayFulfillmentService } from './onepay-fulfillment.service';
 
 // ─── In-memory exchange rate cache (USD → VND) ───────────────────────────────
 let cachedRate: number | null = null;
-let rateExpiry: number = 0;
+let rateExpiry = 0;
 const RATE_TTL_MS = 60 * 60 * 1000; // 1 hour
-const FALLBACK_RATE = 25_000;
+const FALLBACK_RATE = 27_000;
 
 function fetchUsdToVnd(): Promise<number> {
   return new Promise((resolve) => {
@@ -26,7 +26,10 @@ function fetchUsdToVnd(): Promise<number> {
       });
     });
     req.on('error', () => resolve(FALLBACK_RATE));
-    req.setTimeout(4000, () => { req.destroy(); resolve(FALLBACK_RATE); });
+    req.setTimeout(4000, () => {
+      req.destroy();
+      resolve(FALLBACK_RATE);
+    });
   });
 }
 
@@ -71,6 +74,8 @@ export class OnepayController {
       cardList?: string;
       /** Site locale — maps to OnePAY vpc_Locale ('en' or 'vn') */
       locale?: string;
+      /** Selected currency from storefront (e.g. 'USD', 'EUR') */
+      currency?: string;
     },
     @Ip() clientIp: string,
   ) {
@@ -84,6 +89,7 @@ export class OnepayController {
       body.cardList,
       vndRate,
       onepayLocale,
+      body.currency,
     );
   }
 

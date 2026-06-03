@@ -80,6 +80,13 @@
         "description": "Scan QR or pay via banking app — via OnePAY"
       }
     },
+    "onepay": {
+      "redirecting": "Redirecting to OnePAY…",
+      "redirectDescription": "You will be redirected to the secure OnePAY payment page.",
+      "redirectManual": "Click here if not redirected",
+      "cancel": "Cancel and choose another method",
+      "securedBy": "Secured by OnePAY"
+    },
     "cardHint": "Your card details are securely handled by Stripe.",
     "lsHint": "You'll be redirected to Lemon Squeezy's secure checkout page to complete your payment.",
     "securityNote": "Your payment information is encrypted and secure. We never store card details.",

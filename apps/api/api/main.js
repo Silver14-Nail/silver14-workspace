@@ -300731,7 +300731,7 @@ let OnepayService = OnepayService_1 = class OnepayService {
         const staticParams = {
             vpc_Version: '2',
             vpc_Command: 'pay',
-            vpc_Currency: (params.currency ?? 'VND').toUpperCase(),
+            vpc_Currency: (params.vpc_Currency ?? 'VND').toUpperCase(),
             vpc_Locale: params.locale ?? 'vn',
             vpc_AccessCode: this.config.accessCode,
             vpc_Merchant: this.config.merchantId,
@@ -300999,17 +300999,19 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
      *  3. Persist a pending OnepayDetailEntity
      *  4. Build signed redirect URL
      */
-    async createPayment(checkoutSessionId, clientIp, cardList, vndRate, locale) {
+    async createPayment(checkoutSessionId, clientIp, cardList, vndRate, locale, currencyOverride) {
         const session = await this.loadAndValidateSession(checkoutSessionId);
         const totals = this.calculateTotals(session);
         // Domestic ATM / QR only support VND — convert if session currency differs.
         // International cards support multi-currency (USD, EUR, etc.).
+        // currencyOverride from frontend takes precedence over session currency.
+        const sessionCurrency = (currencyOverride ?? totals.currency).toUpperCase();
         const isDomesticOnly = cardList === 'DOMESTIC' || cardList === 'QR';
-        const paymentCurrency = isDomesticOnly ? 'VND' : totals.currency.toUpperCase();
+        const paymentCurrency = isDomesticOnly ? 'VND' : sessionCurrency;
         let paymentAmount;
-        if (paymentCurrency === 'VND' && totals.currency.toUpperCase() !== 'VND') {
+        if (paymentCurrency === 'VND' && sessionCurrency !== 'VND') {
             // Need to convert from session currency → VND
-            const rate = vndRate ?? 25_000;
+            const rate = vndRate ?? 27_000;
             paymentAmount = totals.total * rate;
         }
         else {
@@ -301038,7 +301040,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
             vpc_Customer_Email: contactSnapshot.email,
             vpc_Customer_Id: session.user?.id ?? undefined,
             locale,
-            currency: paymentCurrency,
+            vpc_Currency: paymentCurrency,
         });
         // Mark as processing
         await this.detailRepo.update(detail.id, { status: 'processing' });
@@ -301143,6 +301145,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
     }
     // ─── Private: Fulfill Order ──────────────────────────────────────────────
     async fulfillOrder(checkoutSessionId, merchTxnRef, transactionNo, amountOnepay) {
+        console.log('amountOnepay', amountOnepay);
         // Idempotency guard
         const existingOrder = await this.dataSource.manager.findOne(order_entity_1.OrderEntity, {
             where: { checkoutSession: { id: checkoutSessionId } },
@@ -301372,7 +301375,7 @@ const onepay_fulfillment_service_1 = __webpack_require__(2408);
 let cachedRate = null;
 let rateExpiry = 0;
 const RATE_TTL_MS = 60 * 60 * 1000; // 1 hour
-const FALLBACK_RATE = 25_000;
+const FALLBACK_RATE = 27_000;
 function fetchUsdToVnd() {
     return new Promise((resolve) => {
         const req = https.get('https://open.er-api.com/v6/latest/USD', (res) => {
@@ -301390,7 +301393,10 @@ function fetchUsdToVnd() {
             });
         });
         req.on('error', () => resolve(FALLBACK_RATE));
-        req.setTimeout(4000, () => { req.destroy(); resolve(FALLBACK_RATE); });
+        req.setTimeout(4000, () => {
+            req.destroy();
+            resolve(FALLBACK_RATE);
+        });
     });
 }
 async function getUsdToVndRate() {
@@ -301425,7 +301431,7 @@ let OnepayController = OnepayController_1 = class OnepayController {
         // Fetch live USD→VND rate (cached 1 hour); OnePAY only accepts VND
         const vndRate = await getUsdToVndRate();
         const onepayLocale = body.locale === 'en' ? 'en' : 'vn';
-        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, vndRate, onepayLocale);
+        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, vndRate, onepayLocale, body.currency);
     }
     /**
      * GET /client-api/payments/onepay/inquiry/:ref

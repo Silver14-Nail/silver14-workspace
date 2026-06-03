@@ -33,7 +33,7 @@ export interface OnepayPaymentParams {
   /** Locale for OnePAY UI: 'en' or 'vn' (default 'vn') */
   locale?: 'en' | 'vn';
   /** Billing currency — e.g. 'VND', 'USD', 'EUR' (default 'VND') */
-  currency?: string;
+  vpc_Currency?: string;
 }
 
 // ─── Payment Response (Return URL + IPN) ────────────────────────────────────
