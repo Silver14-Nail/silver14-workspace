@@ -142,6 +142,11 @@ export function AirwallexRenderer({
     return AirwallexHostedRedirect(sessionData.hostedUrl, onError);
   }
 
+  // ── Redirect mode (e.g. 2Checkout fallback) ───────────────────────────────
+  if (sessionData.mode === 'redirect') {
+    return AirwallexHostedRedirect(sessionData.redirectUrl, onError);
+  }
+
   // ── Client SDK mode ───────────────────────────────────────────────────────
   const { providerRef: intentId, clientSecret, amount, currency } = sessionData;
 
