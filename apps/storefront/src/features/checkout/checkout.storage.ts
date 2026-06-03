@@ -1,4 +1,5 @@
 const SESSION_KEY = 'silver14-checkout-session';
+const STEP_KEY = 'silver14-checkout-step';
 const PENDING_COUPON_KEY = 'silver14-pending-coupon';
 
 // ─── Checkout session ─────────────────────────────────────────────────────────
@@ -12,6 +13,25 @@ export const setCheckoutSessionId = (id: string): void => {
 
 export const clearCheckoutSessionId = (): void => {
   sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(STEP_KEY);
+};
+
+// ─── Checkout step ────────────────────────────────────────────────────────────
+
+type CheckoutStep = 'contact' | 'shipping' | 'payment' | 'confirmation';
+
+export const getCheckoutStep = (): CheckoutStep | null => {
+  if (typeof window === 'undefined') return null;
+  const v = sessionStorage.getItem(STEP_KEY);
+  return (v as CheckoutStep) ?? null;
+};
+
+export const setCheckoutStep = (step: CheckoutStep): void => {
+  sessionStorage.setItem(STEP_KEY, step);
+};
+
+export const clearCheckoutStep = (): void => {
+  sessionStorage.removeItem(STEP_KEY);
 };
 
 // ─── Pending coupon (entered at cart, applied at checkout init) ───────────────

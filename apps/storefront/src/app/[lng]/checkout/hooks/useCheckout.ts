@@ -13,6 +13,8 @@ import {
   getCheckoutSessionId,
   setCheckoutSessionId,
   clearCheckoutSessionId,
+  getCheckoutStep,
+  setCheckoutStep,
   getPendingCoupon,
   clearPendingCoupon,
 } from '@/features/checkout/checkout.storage';
@@ -59,7 +61,17 @@ export function useCheckout() {
     return null;
   });
 
-  const [step, setStep] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>('contact');
+  const [step, setStepRaw] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>(() => {
+    // Restore step only if there is an active checkout session — prevents
+    // jumping to a later step when the user starts a fresh checkout.
+    const hasSession = typeof window !== 'undefined' && !!getCheckoutSessionId();
+    return hasSession ? (getCheckoutStep() ?? 'contact') : 'contact';
+  });
+
+  const setStep = useCallback((s: 'contact' | 'shipping' | 'payment' | 'confirmation') => {
+    setStepRaw(s);
+    setCheckoutStep(s);
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
