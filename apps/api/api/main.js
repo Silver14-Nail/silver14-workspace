@@ -297468,15 +297468,11 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
     }
     async acquireToken() {
         this.logger.debug('Acquiring Airwallex OAuth token');
-        const body = new URLSearchParams({
-            grant_type: 'client_credentials',
-            client_id: this.config.clientId,
-            client_secret: this.config.apiKey,
-        }).toString();
-        const response = await this.httpRequest('POST', `${this.config.baseUrl}/api/v1/authentication/login`, body, {
-            'Content-Type': 'application/x-www-form-urlencoded',
+        const response = await this.httpRequest('POST', `${this.config.baseUrl}/api/v1/authentication/login`, '', {
+            'x-client-id': this.config.clientId,
+            'x-api-key': this.config.apiKey,
         });
-        const expiresAt = new Date(Date.now() + (response.expires_in - 60) * 1000); // 1min buffer
+        const expiresAt = new Date(Date.now() + (response.expiresIn - 60) * 1000); // 1min buffer
         this.logger.debug('Airwallex OAuth token acquired');
         return {
             token: response.token,
@@ -297785,7 +297781,7 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
                     try {
                         const parsed = JSON.parse(data);
                         if (statusCode >= 200 && statusCode < 300) {
-                            resolve(parsed);
+                            resolve(this.snakeToCamel(parsed));
                         }
                         else {
                             const errorMsg = parsed?.message ?? parsed?.error ?? `Airwallex API error — status ${statusCode}`;
@@ -297808,6 +297804,20 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
                 req.write(body);
             req.end();
         });
+    }
+    // Recursively converts snake_case keys to camelCase so our typed interfaces work
+    // against the raw Airwallex JSON response.
+    snakeToCamel(value) {
+        if (Array.isArray(value)) {
+            return value.map((v) => this.snakeToCamel(v));
+        }
+        if (value !== null && typeof value === 'object') {
+            return Object.fromEntries(Object.entries(value).map(([k, v]) => [
+                k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+                this.snakeToCamel(v),
+            ]));
+        }
+        return value;
     }
 };
 exports.AirwallexService = AirwallexService;
@@ -297873,7 +297883,7 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
         await this.detailRepo.save(detail);
         const pmTypes = paymentMethodTypes ?? ['card'];
         const intent = await this.airwallexService.createPaymentIntent({
-            amount: Math.round(amount * 100),
+            amount: parseFloat(amount.toFixed(2)),
             currency,
             merchantOrderId: checkoutSessionId,
             paymentMethodOptions: {
@@ -297921,7 +297931,7 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
         await this.detailRepo.save(detail);
         const pmTypes = paymentMethodTypes ?? ['card'];
         const awxSession = await this.airwallexService.createCheckoutSession({
-            amount: Math.round(amount * 100),
+            amount: parseFloat(amount.toFixed(2)),
             currency,
             merchantOrderId: checkoutSessionId,
             returnUrl,

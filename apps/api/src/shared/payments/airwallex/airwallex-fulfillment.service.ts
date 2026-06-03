@@ -81,7 +81,7 @@ export class AirwallexFulfillmentService {
 
     const pmTypes = paymentMethodTypes ?? ['card'];
     const intent = await this.airwallexService.createPaymentIntent({
-      amount: Math.round(amount * 100),
+      amount: parseFloat(amount.toFixed(2)),
       currency,
       merchantOrderId: checkoutSessionId,
       paymentMethodOptions: {
@@ -159,7 +159,7 @@ export class AirwallexFulfillmentService {
 
     const pmTypes = paymentMethodTypes ?? ['card'];
     const awxSession = await this.airwallexService.createCheckoutSession({
-      amount: Math.round(amount * 100),
+      amount: parseFloat(amount.toFixed(2)),
       currency,
       merchantOrderId: checkoutSessionId,
       returnUrl,

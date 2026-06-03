@@ -71,21 +71,16 @@ export class AirwallexService {
   private async acquireToken(): Promise<AirwallexAuthToken> {
     this.logger.debug('Acquiring Airwallex OAuth token');
 
-    const body = new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: this.config.clientId,
-      client_secret: this.config.apiKey,
-    }).toString();
-
     const response = await this.httpRequest<{
       token: string;
-      expires_in: number;
-      token_type: string;
-    }>('POST', `${this.config.baseUrl}/api/v1/authentication/login`, body, {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      expiresIn: number;
+      tokenType: string;
+    }>('POST', `${this.config.baseUrl}/api/v1/authentication/login`, '', {
+      'x-client-id': this.config.clientId,
+      'x-api-key': this.config.apiKey,
     });
 
-    const expiresAt = new Date(Date.now() + (response.expires_in - 60) * 1000); // 1min buffer
+    const expiresAt = new Date(Date.now() + (response.expiresIn - 60) * 1000); // 1min buffer
 
     this.logger.debug('Airwallex OAuth token acquired');
 
@@ -525,7 +520,7 @@ export class AirwallexService {
             const parsed = JSON.parse(data);
 
             if (statusCode >= 200 && statusCode < 300) {
-              resolve(parsed as T);
+              resolve(this.snakeToCamel(parsed) as T);
             } else {
               const errorMsg =
                 parsed?.message ?? parsed?.error ?? `Airwallex API error — status ${statusCode}`;
@@ -551,5 +546,22 @@ export class AirwallexService {
       if (body) req.write(body);
       req.end();
     });
+  }
+
+  // Recursively converts snake_case keys to camelCase so our typed interfaces work
+  // against the raw Airwallex JSON response.
+  private snakeToCamel(value: unknown): unknown {
+    if (Array.isArray(value)) {
+      return value.map((v) => this.snakeToCamel(v));
+    }
+    if (value !== null && typeof value === 'object') {
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>).map(([k, v]) => [
+          k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()),
+          this.snakeToCamel(v),
+        ]),
+      );
+    }
+    return value;
   }
 }
