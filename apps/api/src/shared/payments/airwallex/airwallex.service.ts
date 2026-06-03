@@ -195,6 +195,7 @@ export class AirwallexService {
       return_url: params.returnUrl,
     };
 
+    if (params.requestId) body.request_id = params.requestId;
     if (params.merchantOrderId) body.merchant_order_id = params.merchantOrderId;
     if (params.cancelUrl) body.cancel_url = params.cancelUrl;
     if (params.metadata) body.metadata = params.metadata;

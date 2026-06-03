@@ -297548,6 +297548,8 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
             currency: params.currency.toUpperCase(),
             return_url: params.returnUrl,
         };
+        if (params.requestId)
+            body.request_id = params.requestId;
         if (params.merchantOrderId)
             body.merchant_order_id = params.merchantOrderId;
         if (params.cancelUrl)
@@ -297885,6 +297887,7 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
         const intent = await this.airwallexService.createPaymentIntent({
             amount: parseFloat(amount.toFixed(2)),
             currency,
+            requestId: detail.id,
             merchantOrderId: checkoutSessionId,
             paymentMethodOptions: {
                 type: pmTypes,
@@ -297933,6 +297936,7 @@ let AirwallexFulfillmentService = AirwallexFulfillmentService_1 = class Airwalle
         const awxSession = await this.airwallexService.createCheckoutSession({
             amount: parseFloat(amount.toFixed(2)),
             currency,
+            requestId: detail.id,
             merchantOrderId: checkoutSessionId,
             returnUrl,
             cancelUrl,

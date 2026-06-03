@@ -111,6 +111,7 @@ export interface AirwallexCustomer {
 export interface AirwallexCreateCheckoutSessionParams {
   amount: number;
   currency: string;
+  requestId?: string;
   merchantOrderId?: string;
   returnUrl: string;
   cancelUrl?: string;
