@@ -1,8 +1,11 @@
-import { Controller, Get, HttpCode, Logger, Post, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, Logger, Post, Query, Res } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
+import type { Response } from 'express';
 
 import { OnepayFulfillmentService } from './onepay-fulfillment.service';
 import type { OnepayReturnParams } from './types/onepay.types';
+import type { OnepayConfig } from '@/config/onepay.config';
 
 /**
  * Receives callbacks from OnePAY — excluded from Swagger.
@@ -22,7 +25,14 @@ import type { OnepayReturnParams } from './types/onepay.types';
 export class OnepayIpnController {
   private readonly logger = new Logger(OnepayIpnController.name);
 
-  constructor(private readonly fulfillmentService: OnepayFulfillmentService) {}
+  private readonly storefrontUrl: string;
+
+  constructor(
+    private readonly fulfillmentService: OnepayFulfillmentService,
+    private readonly configService: ConfigService,
+  ) {
+    this.storefrontUrl = this.configService.getOrThrow<OnepayConfig>('onepay').storefrontUrl;
+  }
 
   /**
    * GET /client-api/webhooks/onepay/ipn
@@ -61,24 +71,48 @@ export class OnepayIpnController {
    * GET /client-api/webhooks/onepay/return
    *
    * OnePAY return URL — user's browser is redirected here after payment.
-   * Verifies the callback, then returns JSON result to frontend.
+   * Verifies the callback, then redirects the user to the storefront.
    *
-   * The frontend uses the result to show success/failure UI.
+   * Success → /en/order/tracking?orderId=xxx
+   * Failure → /en/checkout?error=payment_failed
    */
   @Get('return')
   async handleReturn(
     @Query() query: OnepayReturnParams,
-  ): Promise<{ success: boolean; orderId?: string; pending?: boolean; error?: string }> {
+    @Res() res: Response,
+  ): Promise<void> {
     this.logger.log(
       `OnePAY return — ref: ${query.vpc_MerchTxnRef}, code: ${query.vpc_TxnResponseCode}`,
     );
 
-    const result = await this.fulfillmentService.fulfillFromCallback(query);
+    try {
+      const result = await this.fulfillmentService.fulfillFromCallback(query);
 
-    this.logger.log(
-      `OnePAY return result — success: ${result.success}, orderId: ${result.orderId}`,
-    );
+      this.logger.log(
+        `OnePAY return result — success: ${result.success}, orderId: ${result.orderId}`,
+      );
 
-    return result;
+      if (result.success && result.orderId) {
+        return res.redirect(
+          `${this.storefrontUrl}/en/order/tracking?orderId=${encodeURIComponent(result.orderId)}&status=success`,
+        );
+      }
+
+      if (result.pending) {
+        return res.redirect(
+          `${this.storefrontUrl}/en/order/tracking?status=pending`,
+        );
+      }
+
+      return res.redirect(
+        `${this.storefrontUrl}/en/checkout?error=payment_failed`,
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'unknown';
+      this.logger.error(`OnePAY return error: ${msg}`);
+      return res.redirect(
+        `${this.storefrontUrl}/en/checkout?error=payment_failed`,
+      );
+    }
   }
 }

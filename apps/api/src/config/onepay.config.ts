@@ -17,6 +17,8 @@ export interface OnepayConfig {
   ipnUrl: string;
   /** Page title shown on OnePAY checkout */
   title: string;
+  /** Storefront base URL — used to redirect user after payment */
+  storefrontUrl: string;
 }
 
 const fromEnv = (key: string): string => (process.env[key] ?? '').replace(/\s*#.*$/, '').trim();
@@ -43,5 +45,6 @@ export default registerAs('onepay', (): OnepayConfig => {
     returnUrl: `${apiUrl}/client-api/webhooks/onepay/return`,
     ipnUrl: `${apiUrl}/client-api/webhooks/onepay/ipn`,
     title: fromEnv('ONEPAY_TITLE') || 'Silver14 Nail — OnePAY',
+    storefrontUrl: fromEnv('STOREFRONT_URL') || 'https://silver14nail.com',
   };
 });
