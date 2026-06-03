@@ -52,7 +52,7 @@ export class OnepayService {
       vpc_Command: 'pay',
       vpc_AccessCode: this.config.accessCode,
       vpc_Merchant: this.config.merchantId,
-      vpc_Locale: 'vn',
+      vpc_Locale: params.locale ?? 'vn',
       vpc_ReturnURL: this.config.returnUrl,
       Title: this.config.title,
       AgainLink: params.AgainLink ?? this.config.returnUrl,

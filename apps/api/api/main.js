@@ -300734,7 +300734,7 @@ let OnepayService = OnepayService_1 = class OnepayService {
             vpc_Command: 'pay',
             vpc_AccessCode: this.config.accessCode,
             vpc_Merchant: this.config.merchantId,
-            vpc_Locale: 'vn',
+            vpc_Locale: params.locale ?? 'vn',
             vpc_ReturnURL: this.config.returnUrl,
             Title: this.config.title,
             AgainLink: params.AgainLink ?? this.config.returnUrl,
@@ -301000,7 +301000,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
      *  3. Persist a pending OnepayDetailEntity
      *  4. Build signed redirect URL
      */
-    async createPayment(checkoutSessionId, clientIp, cardList, vndRate) {
+    async createPayment(checkoutSessionId, clientIp, cardList, vndRate, locale) {
         const session = await this.loadAndValidateSession(checkoutSessionId);
         const totals = this.calculateTotals(session);
         // Convert to VND
@@ -301025,13 +301025,14 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
         // Build redirect URL
         const redirectUrl = this.onepayService.buildRedirectUrl({
             vpc_MerchTxnRef: merchTxnRef,
-            vpc_OrderInfo: checkoutSessionId.slice(0, 34),
+            vpc_OrderInfo: checkoutSessionId.slice(0, 8), // short ref shown on OnePay page
             vpc_Amount: String(amountOnepay),
             vpc_TicketNo: clientIp,
             vpc_CardList: cardList,
             vpc_Customer_Phone: contactSnapshot.phone,
             vpc_Customer_Email: contactSnapshot.email,
             vpc_Customer_Id: session.user?.id ?? undefined,
+            locale,
         });
         // Mark as processing (redirect has been built)
         await this.detailRepo.update(detail.id, { status: 'processing' });
@@ -301357,9 +301358,43 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OnepayController = void 0;
 const tslib_1 = __webpack_require__(1);
+const https = tslib_1.__importStar(__webpack_require__(831));
 const common_1 = __webpack_require__(3);
 const swagger_1 = __webpack_require__(1786);
 const onepay_fulfillment_service_1 = __webpack_require__(2408);
+// ─── In-memory exchange rate cache (USD → VND) ───────────────────────────────
+let cachedRate = null;
+let rateExpiry = 0;
+const RATE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const FALLBACK_RATE = 25_000;
+function fetchUsdToVnd() {
+    return new Promise((resolve) => {
+        const req = https.get('https://open.er-api.com/v6/latest/USD', (res) => {
+            let data = '';
+            res.on('data', (chunk) => (data += chunk));
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    const rate = json.rates?.['VND'];
+                    resolve(rate && rate > 0 ? rate : FALLBACK_RATE);
+                }
+                catch {
+                    resolve(FALLBACK_RATE);
+                }
+            });
+        });
+        req.on('error', () => resolve(FALLBACK_RATE));
+        req.setTimeout(4000, () => { req.destroy(); resolve(FALLBACK_RATE); });
+    });
+}
+async function getUsdToVndRate() {
+    if (cachedRate && Date.now() < rateExpiry)
+        return cachedRate;
+    const rate = await fetchUsdToVnd();
+    cachedRate = rate;
+    rateExpiry = Date.now() + RATE_TTL_MS;
+    return rate;
+}
 /**
  * OnePAY client-facing endpoints (all require JWT auth).
  *
@@ -301381,7 +301416,10 @@ let OnepayController = OnepayController_1 = class OnepayController {
      * Frontend must redirect the browser (window.location.href) to `redirectUrl`.
      */
     async initiate(body, clientIp) {
-        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, body.vndRate);
+        // Fetch live USD→VND rate (cached 1 hour); OnePAY only accepts VND
+        const vndRate = await getUsdToVndRate();
+        const onepayLocale = body.locale === 'en' ? 'en' : 'vn';
+        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, vndRate, onepayLocale);
     }
     /**
      * GET /client-api/payments/onepay/inquiry/:ref
@@ -301497,7 +301535,9 @@ let OnepayIpnController = OnepayIpnController_1 = class OnepayIpnController {
             const result = await this.fulfillmentService.fulfillFromCallback(query);
             this.logger.log(`OnePAY return result — success: ${result.success}, orderId: ${result.orderId}`);
             if (result.success && result.orderId) {
-                return res.redirect(`${this.storefrontUrl}/en/order/tracking?orderId=${encodeURIComponent(result.orderId)}&status=success`);
+                // Use first 8 chars of UUID — tracking API supports prefix LIKE lookup
+                const shortId = result.orderId.slice(0, 8);
+                return res.redirect(`${this.storefrontUrl}/en/order/tracking?orderId=${encodeURIComponent(shortId)}&status=success`);
             }
             if (result.pending) {
                 return res.redirect(`${this.storefrontUrl}/en/order/tracking?status=pending`);

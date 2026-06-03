@@ -30,6 +30,8 @@ export interface OnepayPaymentParams {
   vpc_Customer_Id?: string;
   /** Page back link — merchant checkout page */
   AgainLink?: string;
+  /** Locale for OnePAY UI: 'en' or 'vn' (default 'vn') */
+  locale?: 'en' | 'vn';
 }
 
 // ─── Payment Response (Return URL + IPN) ────────────────────────────────────

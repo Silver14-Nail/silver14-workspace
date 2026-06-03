@@ -3,7 +3,7 @@ exports.id = 12;
 exports.ids = [12];
 exports.modules = {
 
-/***/ 2487
+/***/ 2500
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 // ESM COMPAT FLAG
@@ -51,57 +51,57 @@ __webpack_require__.d(__webpack_exports__, {
 });
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/middleware-user-agent/configurations.js
-var configurations = __webpack_require__(1937);
+var configurations = __webpack_require__(1941);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/middleware-host-header/hostHeaderMiddleware.js
-var hostHeaderMiddleware = __webpack_require__(1933);
+var hostHeaderMiddleware = __webpack_require__(1937);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/middleware-user-agent/user-agent-middleware.js + 3 modules
-var user_agent_middleware = __webpack_require__(1939);
+var user_agent_middleware = __webpack_require__(1943);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/middleware-logger/loggerMiddleware.js
-var loggerMiddleware = __webpack_require__(1935);
+var loggerMiddleware = __webpack_require__(1939);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/middleware-recursion-detection/getRecursionDetectionPlugin.js + 3 modules
-var getRecursionDetectionPlugin = __webpack_require__(1936);
+var getRecursionDetectionPlugin = __webpack_require__(1940);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/getHttpAuthSchemeEndpointRuleSetPlugin.js + 2 modules
-var getHttpAuthSchemeEndpointRuleSetPlugin = __webpack_require__(1951);
+var getHttpAuthSchemeEndpointRuleSetPlugin = __webpack_require__(1955);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/util-identity-and-auth/DefaultIdentityProviderConfig.js
-var DefaultIdentityProviderConfig = __webpack_require__(1950);
+var DefaultIdentityProviderConfig = __webpack_require__(1954);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/middleware-http-signing/getHttpSigningMiddleware.js + 1 modules
-var getHttpSigningMiddleware = __webpack_require__(1947);
+var getHttpSigningMiddleware = __webpack_require__(1951);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/client.js
-var client = __webpack_require__(1952);
+var client = __webpack_require__(1956);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/config-resolver/regionConfig/resolveRegionConfig.js + 3 modules
-var resolveRegionConfig = __webpack_require__(1954);
+var resolveRegionConfig = __webpack_require__(1958);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/endpoints/index.js + 12 modules
-var endpoints = __webpack_require__(1956);
+var endpoints = __webpack_require__(1960);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/middleware-content-length/contentLengthMiddleware.js
-var contentLengthMiddleware = __webpack_require__(1990);
+var contentLengthMiddleware = __webpack_require__(1994);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/retry/middleware-retry/configurations.js
-var middleware_retry_configurations = __webpack_require__(2027);
+var middleware_retry_configurations = __webpack_require__(2031);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/retry/index.js + 11 modules
-var retry = __webpack_require__(1991);
+var retry = __webpack_require__(1995);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/schema/middleware/getSchemaSerdePlugin.js + 3 modules
-var getSchemaSerdePlugin = __webpack_require__(2028);
+var getSchemaSerdePlugin = __webpack_require__(2032);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4Config.js + 1 modules
-var resolveAwsSdkSigV4Config = __webpack_require__(2030);
+var resolveAwsSdkSigV4Config = __webpack_require__(2034);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4AConfig.js
-var resolveAwsSdkSigV4AConfig = __webpack_require__(2029);
+var resolveAwsSdkSigV4AConfig = __webpack_require__(2033);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+signature-v4-multi-region@3.996.27/node_modules/@aws-sdk/signature-v4-multi-region/dist-es/SignatureV4MultiRegion.js + 3 modules
-var SignatureV4MultiRegion = __webpack_require__(2034);
+var SignatureV4MultiRegion = __webpack_require__(2038);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/util-middleware/getSmithyContext.js
-var getSmithyContext = __webpack_require__(1948);
+var getSmithyContext = __webpack_require__(1952);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/util-middleware/normalizeProvider.js
-var normalizeProvider = __webpack_require__(1944);
+var normalizeProvider = __webpack_require__(1948);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/endpoints/middleware-endpoint/adaptors/getEndpointFromInstructions.js + 2 modules
-var getEndpointFromInstructions = __webpack_require__(1971);
+var getEndpointFromInstructions = __webpack_require__(1975);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/util-endpoints/aws.js + 2 modules
-var aws = __webpack_require__(2035);
+var aws = __webpack_require__(2039);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/cache/EndpointCache.js
-var EndpointCache = __webpack_require__(1975);
+var EndpointCache = __webpack_require__(1979);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/decideEndpoint.js
-var decideEndpoint = __webpack_require__(1976);
+var decideEndpoint = __webpack_require__(1980);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/utils/customEndpointFunctions.js
-var customEndpointFunctions = __webpack_require__(1982);
+var customEndpointFunctions = __webpack_require__(1986);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/endpoints/util-endpoints/bdd/BinaryDecisionDiagram.js
-var BinaryDecisionDiagram = __webpack_require__(1974);
+var BinaryDecisionDiagram = __webpack_require__(1978);
 ;// ../../node_modules/.pnpm/@aws-sdk+nested-clients@3.997.10/node_modules/@aws-sdk/nested-clients/dist-es/submodules/sts/endpoint/bdd.js
 
 const q = "ref";
@@ -421,53 +421,53 @@ const commonParams = {
 };
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+nested-clients@3.997.10/node_modules/@aws-sdk/nested-clients/package.json
-var nested_clients_package = __webpack_require__(2483);
+var nested_clients_package = __webpack_require__(2496);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/emitWarningIfUnsupportedVersion.js
-var emitWarningIfUnsupportedVersion = __webpack_require__(2042);
+var emitWarningIfUnsupportedVersion = __webpack_require__(2046);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/defaultUserAgent.js + 8 modules
-var defaultUserAgent = __webpack_require__(2043);
+var defaultUserAgent = __webpack_require__(2047);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/util-user-agent-node/nodeAppIdConfigOptions.js
-var nodeAppIdConfigOptions = __webpack_require__(2044);
+var nodeAppIdConfigOptions = __webpack_require__(2048);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/NODE_AUTH_SCHEME_PREFERENCE_OPTIONS.js + 2 modules
-var NODE_AUTH_SCHEME_PREFERENCE_OPTIONS = __webpack_require__(2045);
+var NODE_AUTH_SCHEME_PREFERENCE_OPTIONS = __webpack_require__(2049);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/AwsSdkSigV4Signer.js + 3 modules
-var AwsSdkSigV4Signer = __webpack_require__(2069);
+var AwsSdkSigV4Signer = __webpack_require__(2073);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/AwsSdkSigV4ASigner.js
-var AwsSdkSigV4ASigner = __webpack_require__(2071);
+var AwsSdkSigV4ASigner = __webpack_require__(2075);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/noAuth.js
-var noAuth = __webpack_require__(2485);
+var noAuth = __webpack_require__(2498);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/emitWarningIfUnsupportedVersion.js
-var smithy_client_emitWarningIfUnsupportedVersion = __webpack_require__(2048);
+var smithy_client_emitWarningIfUnsupportedVersion = __webpack_require__(2052);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/defaults-mode.js
-var defaults_mode = __webpack_require__(2047);
+var defaults_mode = __webpack_require__(2051);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/defaults-mode/resolveDefaultsModeConfig.js + 2 modules
-var resolveDefaultsModeConfig = __webpack_require__(2052);
+var resolveDefaultsModeConfig = __webpack_require__(2056);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/node-config-provider/configLoader.js + 5 modules
-var configLoader = __webpack_require__(1957);
+var configLoader = __webpack_require__(1961);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/config-resolver/regionConfig/config.js
-var regionConfig_config = __webpack_require__(2051);
+var regionConfig_config = __webpack_require__(2055);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/config-resolver/endpointsConfig/NodeUseDualstackEndpointConfigOptions.js
-var NodeUseDualstackEndpointConfigOptions = __webpack_require__(2049);
+var NodeUseDualstackEndpointConfigOptions = __webpack_require__(2053);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/config/config-resolver/endpointsConfig/NodeUseFipsEndpointConfigOptions.js
-var NodeUseFipsEndpointConfigOptions = __webpack_require__(2050);
+var NodeUseFipsEndpointConfigOptions = __webpack_require__(2054);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/retry/util-retry/config.js
-var util_retry_config = __webpack_require__(1941);
+var util_retry_config = __webpack_require__(1945);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-body-length/calculateBodyLength.js
-var calculateBodyLength = __webpack_require__(2010);
+var calculateBodyLength = __webpack_require__(2014);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/hash-node/hash-node.js
-var hash_node = __webpack_require__(2013);
+var hash_node = __webpack_require__(2017);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+node-http-handler@4.7.3/node_modules/@smithy/node-http-handler/dist-es/node-http-handler.js + 10 modules
-var node_http_handler = __webpack_require__(2066);
+var node_http_handler = __webpack_require__(2070);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+node-http-handler@4.7.3/node_modules/@smithy/node-http-handler/dist-es/stream-collector/index.js + 1 modules
-var stream_collector = __webpack_require__(2068);
+var stream_collector = __webpack_require__(2072);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/schema/schemas/NormalizedSchema.js
-var NormalizedSchema = __webpack_require__(2037);
+var NormalizedSchema = __webpack_require__(2041);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/HttpProtocol.js
-var HttpProtocol = __webpack_require__(2073);
+var HttpProtocol = __webpack_require__(2077);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/collect-stream-body.js
-var collect_stream_body = __webpack_require__(2075);
+var collect_stream_body = __webpack_require__(2079);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/protocol-http/httpRequest.js
-var httpRequest = __webpack_require__(1934);
+var httpRequest = __webpack_require__(1938);
 ;// ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/RpcProtocol.js
 
 
@@ -563,25 +563,25 @@ class RpcProtocol extends HttpProtocol.HttpProtocol {
 }
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/schema/deref.js
-var deref = __webpack_require__(2038);
+var deref = __webpack_require__(2042);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/protocols/ProtocolLib.js
-var ProtocolLib = __webpack_require__(2081);
+var ProtocolLib = __webpack_require__(2085);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlShapeDeserializer.js
-var XmlShapeDeserializer = __webpack_require__(2086);
+var XmlShapeDeserializer = __webpack_require__(2090);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/serde/determineTimestampFormat.js
-var determineTimestampFormat = __webpack_require__(2079);
+var determineTimestampFormat = __webpack_require__(2083);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/extended-encode-uri-component.js
-var extended_encode_uri_component = __webpack_require__(2076);
+var extended_encode_uri_component = __webpack_require__(2080);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/date-utils.js
-var date_utils = __webpack_require__(2001);
+var date_utils = __webpack_require__(2005);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-base64/toBase64.js
-var toBase64 = __webpack_require__(1998);
+var toBase64 = __webpack_require__(2002);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/index.js + 10 modules
-var serde = __webpack_require__(1993);
+var serde = __webpack_require__(1997);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/value/NumericValue.js
-var NumericValue = __webpack_require__(2008);
+var NumericValue = __webpack_require__(2012);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/protocols/ConfigurableSerdeContext.js
-var ConfigurableSerdeContext = __webpack_require__(2085);
+var ConfigurableSerdeContext = __webpack_require__(2089);
 ;// ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/protocols/query/QueryShapeSerializer.js
 
 
@@ -909,19 +909,19 @@ class AwsQueryProtocol extends RpcProtocol {
 }
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/NoOpLogger.js
-var NoOpLogger = __webpack_require__(1992);
+var NoOpLogger = __webpack_require__(1996);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/url-parser/parseUrl.js + 1 modules
-var parseUrl = __webpack_require__(1973);
+var parseUrl = __webpack_require__(1977);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-base64/fromBase64.js
-var fromBase64 = __webpack_require__(1995);
+var fromBase64 = __webpack_require__(1999);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-utf8/fromUtf8.js
-var fromUtf8 = __webpack_require__(1999);
+var fromUtf8 = __webpack_require__(2003);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-utf8/toUtf8.js
-var toUtf8 = __webpack_require__(2000);
+var toUtf8 = __webpack_require__(2004);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/schema/TypeRegistry.js
-var TypeRegistry = __webpack_require__(2040);
+var TypeRegistry = __webpack_require__(2044);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/exceptions.js
-var exceptions = __webpack_require__(2041);
+var exceptions = __webpack_require__(2045);
 ;// ../../node_modules/.pnpm/@aws-sdk+nested-clients@3.997.10/node_modules/@aws-sdk/nested-clients/dist-es/submodules/sts/models/STSServiceException.js
 
 
@@ -1335,11 +1335,11 @@ const runtimeConfig_getRuntimeConfig = (config) => {
 };
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/region-config-resolver/extensions.js
-var region_config_resolver_extensions = __webpack_require__(2088);
+var region_config_resolver_extensions = __webpack_require__(2092);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/extensions/defaultExtensionConfiguration.js + 3 modules
-var defaultExtensionConfiguration = __webpack_require__(2089);
+var defaultExtensionConfiguration = __webpack_require__(2093);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/protocols/protocol-http/extensions/httpExtensionConfiguration.js
-var httpExtensionConfiguration = __webpack_require__(2090);
+var httpExtensionConfiguration = __webpack_require__(2094);
 ;// ../../node_modules/.pnpm/@aws-sdk+nested-clients@3.997.10/node_modules/@aws-sdk/nested-clients/dist-es/submodules/sts/auth/httpAuthExtensionConfiguration.js
 const getHttpAuthExtensionConfiguration = (runtimeConfig) => {
     const _httpAuthSchemes = runtimeConfig.httpAuthSchemes;
@@ -1442,9 +1442,9 @@ class STSClient extends client.Client {
 }
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/create-aggregated-client.js
-var create_aggregated_client = __webpack_require__(2091);
+var create_aggregated_client = __webpack_require__(2095);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/client/smithy-client/command.js + 1 modules
-var command = __webpack_require__(2036);
+var command = __webpack_require__(2040);
 ;// ../../node_modules/.pnpm/@aws-sdk+nested-clients@3.997.10/node_modules/@aws-sdk/nested-clients/dist-es/submodules/sts/commands/AssumeRoleCommand.js
 
 
@@ -1516,7 +1516,7 @@ const warning = {
 };
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@aws-sdk+core@3.974.12/node_modules/@aws-sdk/core/dist-es/submodules/client/setCredentialFeature.js
-var setCredentialFeature = __webpack_require__(2031);
+var setCredentialFeature = __webpack_require__(2035);
 ;// ../../node_modules/.pnpm/@aws-sdk+nested-clients@3.997.10/node_modules/@aws-sdk/nested-clients/dist-es/submodules/sts/defaultStsRoleAssumers.js
 
 
@@ -1657,7 +1657,7 @@ const decorateDefaultCredentialProvider = (provider) => (input) => provider({
 
 /***/ },
 
-/***/ 2485
+/***/ 2498
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
@@ -1673,7 +1673,7 @@ class NoAuthSigner {
 
 /***/ },
 
-/***/ 2483
+/***/ 2496
 (module) {
 
 module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/nested-clients","version":"3.997.10","description":"Nested clients for AWS SDK packages.","main":"./dist-cjs/index.js","module":"./dist-es/index.js","types":"./dist-types/index.d.ts","scripts":{"build":"yarn lint && concurrently \'yarn:build:types\' \'yarn:build:es\' && yarn build:cjs","build:cjs":"node ../../scripts/compilation/inline nested-clients","build:es":"tsc -p tsconfig.es.json","build:include:deps":"yarn g:turbo run build -F=\\"$npm_package_name\\"","build:types":"tsc -p tsconfig.types.json","build:types:downlevel":"downlevel-dts dist-types dist-types/ts3.4","clean":"premove dist-cjs dist-es dist-types tsconfig.cjs.tsbuildinfo tsconfig.es.tsbuildinfo tsconfig.types.tsbuildinfo","lint":"node ../../scripts/validation/submodules-linter.js --pkg nested-clients","test":"yarn g:vitest run","test:watch":"yarn g:vitest watch"},"engines":{"node":">=20.0.0"},"sideEffects":false,"author":{"name":"AWS SDK for JavaScript Team","url":"https://aws.amazon.com/javascript/"},"license":"Apache-2.0","dependencies":{"@aws-crypto/sha256-browser":"5.2.0","@aws-crypto/sha256-js":"5.2.0","@aws-sdk/core":"^3.974.12","@aws-sdk/signature-v4-multi-region":"^3.996.27","@aws-sdk/types":"^3.973.8","@smithy/core":"^3.24.2","@smithy/fetch-http-handler":"^5.4.2","@smithy/node-http-handler":"^4.7.2","@smithy/types":"^4.14.1","tslib":"^2.6.2"},"devDependencies":{"concurrently":"7.0.0","downlevel-dts":"0.10.1","premove":"4.0.0","typescript":"~5.8.3"},"typesVersions":{"<4.5":{"dist-types/*":["dist-types/ts3.4/*"]}},"files":["./cognito-identity.d.ts","./cognito-identity.js","./signin.d.ts","./signin.js","./sso-oidc.d.ts","./sso-oidc.js","./sso.d.ts","./sso.js","./sts.d.ts","./sts.js","dist-*/**"],"browser":{"./dist-es/submodules/cognito-identity/runtimeConfig":"./dist-es/submodules/cognito-identity/runtimeConfig.browser","./dist-es/submodules/signin/runtimeConfig":"./dist-es/submodules/signin/runtimeConfig.browser","./dist-es/submodules/sso-oidc/runtimeConfig":"./dist-es/submodules/sso-oidc/runtimeConfig.browser","./dist-es/submodules/sso/runtimeConfig":"./dist-es/submodules/sso/runtimeConfig.browser","./dist-es/submodules/sts/runtimeConfig":"./dist-es/submodules/sts/runtimeConfig.browser"},"react-native":{},"homepage":"https://github.com/aws/aws-sdk-js-v3/tree/main/packages/nested-clients","repository":{"type":"git","url":"https://github.com/aws/aws-sdk-js-v3.git","directory":"packages/nested-clients"},"exports":{"./package.json":"./package.json","./sso-oidc":{"types":"./dist-types/submodules/sso-oidc/index.d.ts","module":"./dist-es/submodules/sso-oidc/index.js","node":"./dist-cjs/submodules/sso-oidc/index.js","import":"./dist-es/submodules/sso-oidc/index.js","require":"./dist-cjs/submodules/sso-oidc/index.js"},"./sts":{"types":"./dist-types/submodules/sts/index.d.ts","module":"./dist-es/submodules/sts/index.js","node":"./dist-cjs/submodules/sts/index.js","import":"./dist-es/submodules/sts/index.js","require":"./dist-cjs/submodules/sts/index.js"},"./signin":{"types":"./dist-types/submodules/signin/index.d.ts","module":"./dist-es/submodules/signin/index.js","node":"./dist-cjs/submodules/signin/index.js","import":"./dist-es/submodules/signin/index.js","require":"./dist-cjs/submodules/signin/index.js"},"./cognito-identity":{"types":"./dist-types/submodules/cognito-identity/index.d.ts","module":"./dist-es/submodules/cognito-identity/index.js","node":"./dist-cjs/submodules/cognito-identity/index.js","import":"./dist-es/submodules/cognito-identity/index.js","require":"./dist-cjs/submodules/cognito-identity/index.js"},"./sso":{"types":"./dist-types/submodules/sso/index.d.ts","module":"./dist-es/submodules/sso/index.js","node":"./dist-cjs/submodules/sso/index.js","import":"./dist-es/submodules/sso/index.js","require":"./dist-cjs/submodules/sso/index.js"}}}');

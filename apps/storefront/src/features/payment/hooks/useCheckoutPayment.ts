@@ -22,6 +22,8 @@ interface UseCheckoutPaymentOptions {
    * The parent (useCheckout) navigates to the confirmation step here.
    */
   onComplete: (orderId: string) => void;
+  /** Current site locale — passed to payment providers that need it (e.g. OnePAY) */
+  locale?: string;
 }
 
 export interface UseCheckoutPaymentReturn {
@@ -66,6 +68,7 @@ export interface UseCheckoutPaymentReturn {
 export function useCheckoutPayment({
   checkoutSessionId,
   onComplete,
+  locale,
 }: UseCheckoutPaymentOptions): UseCheckoutPaymentReturn {
   const { clearCart } = useCart();
 
@@ -97,6 +100,7 @@ export function useCheckoutPayment({
         paymentMethod: selectedOption.paymentMethod,
         preferredMode: selectedOption.preferredMode,
         token: getToken(),
+        locale,
       });
       setProviderSession(session);
       setStatus('ready');

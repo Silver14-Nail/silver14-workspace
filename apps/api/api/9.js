@@ -3,7 +3,7 @@ exports.id = 9;
 exports.ids = [9];
 exports.modules = {
 
-/***/ 2481
+/***/ 2494
 (__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 // ESM COMPAT FLAG
@@ -32,21 +32,21 @@ __webpack_require__.d(__webpack_exports__, {
 });
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/EventStreamCodec.js + 1 modules
-var EventStreamCodec = __webpack_require__(2055);
+var EventStreamCodec = __webpack_require__(2059);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/HeaderMarshaller.js
-var HeaderMarshaller = __webpack_require__(2058);
+var HeaderMarshaller = __webpack_require__(2062);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/Int64.js
-var Int64 = __webpack_require__(2059);
+var Int64 = __webpack_require__(2063);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/MessageDecoderStream.js
-var MessageDecoderStream = __webpack_require__(2060);
+var MessageDecoderStream = __webpack_require__(2064);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/MessageEncoderStream.js
-var MessageEncoderStream = __webpack_require__(2061);
+var MessageEncoderStream = __webpack_require__(2065);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/SmithyMessageDecoderStream.js
-var SmithyMessageDecoderStream = __webpack_require__(2062);
+var SmithyMessageDecoderStream = __webpack_require__(2066);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-codec/SmithyMessageEncoderStream.js
-var SmithyMessageEncoderStream = __webpack_require__(2063);
+var SmithyMessageEncoderStream = __webpack_require__(2067);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde/EventStreamMarshaller.js
-var EventStreamMarshaller = __webpack_require__(2053);
+var EventStreamMarshaller = __webpack_require__(2057);
 ;// ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde/utils.js
 const readableStreamToIterable = (readableStream) => ({
     [Symbol.asyncIterator]: async function* () {
@@ -78,17 +78,17 @@ const iterableToReadableStream = (asyncIterable) => {
 };
 
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde-universal/EventStreamMarshaller.js
-var eventstream_serde_universal_EventStreamMarshaller = __webpack_require__(2054);
+var eventstream_serde_universal_EventStreamMarshaller = __webpack_require__(2058);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde-universal/getChunkedStream.js
-var getChunkedStream = __webpack_require__(2064);
+var getChunkedStream = __webpack_require__(2068);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde-universal/getUnmarshalledStream.js
-var getUnmarshalledStream = __webpack_require__(2065);
+var getUnmarshalledStream = __webpack_require__(2069);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/eventstream-serde-config-resolver/EventStreamSerdeConfig.js
-var EventStreamSerdeConfig = __webpack_require__(1989);
+var EventStreamSerdeConfig = __webpack_require__(1993);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-utf8/toUtf8.js
-var toUtf8 = __webpack_require__(2000);
+var toUtf8 = __webpack_require__(2004);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/serde/util-utf8/fromUtf8.js
-var fromUtf8 = __webpack_require__(1999);
+var fromUtf8 = __webpack_require__(2003);
 ;// ../../node_modules/.pnpm/@smithy+core@3.24.3/node_modules/@smithy/core/dist-es/submodules/event-streams/EventStreamSerde.js
 
 class EventStreamSerde {

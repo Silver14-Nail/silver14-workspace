@@ -1,18 +1,14 @@
 'use client';
 
 import { Shield, ArrowRight, RefreshCw } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useT } from 'next-i18next/client';
 import { BackButton } from '../ui/Buttons';
 import { PaymentMethodSelector } from '@/features/payment/components/PaymentMethodSelector';
 import { ProviderRenderer } from '@/features/payment/components/ProviderRenderer';
 import { useCheckoutPayment } from '@/features/payment/hooks/useCheckoutPayment';
 import { PAYMENT_METHOD_OPTIONS } from '@/features/payment/payment-options';
 import type { PaymentMethodOption } from '@/features/payment/types';
-
-// ── Visible options ───────────────────────────────────────────────────────────
-//
-// All options registered in payment-options.ts are shown.
-
-const VISIBLE_OPTIONS = PAYMENT_METHOD_OPTIONS;
 
 const OPTION_GROUPS: { label: string; ids: string[] }[] = [];
 
@@ -42,6 +38,17 @@ interface PaymentStepProps {
  * This file never changes for new providers.
  */
 export function PaymentStep({ sessionId, onBack, onSuccess }: PaymentStepProps) {
+  const { t } = useT('checkout');
+  const params = useParams();
+  const lng = (params?.lng as string) ?? 'en';
+
+  // Apply i18n translations to payment options
+  const visibleOptions = PAYMENT_METHOD_OPTIONS.map((o) => ({
+    ...o,
+    label: t(`payment.methods.${o.id}.label`, { defaultValue: o.label }),
+    description: t(`payment.methods.${o.id}.description`, { defaultValue: o.description }),
+  }));
+
   const {
     selectedOption,
     setSelectedOption,
@@ -53,7 +60,7 @@ export function PaymentStep({ sessionId, onBack, onSuccess }: PaymentStepProps) 
     handleProviderError,
     handleProviderCancel,
     retry,
-  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess });
+  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess, locale: lng });
 
   // ── Derived booleans ────────────────────────────────────────────────────────
 
@@ -79,7 +86,7 @@ export function PaymentStep({ sessionId, onBack, onSuccess }: PaymentStepProps) 
       {showSelector && (
         <>
           <PaymentMethodSelector
-            options={VISIBLE_OPTIONS}
+            options={visibleOptions}
             groups={OPTION_GROUPS}
             selected={selectedOption?.id ?? null}
             onChange={(opt: PaymentMethodOption) => setSelectedOption(opt)}

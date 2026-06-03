@@ -62,6 +62,7 @@ export class OnepayFulfillmentService {
     clientIp: string,
     cardList?: string,
     vndRate?: number,
+    locale?: 'en' | 'vn',
   ): Promise<{
     redirectUrl: string;
     merchTxnRef: string;
@@ -101,13 +102,14 @@ export class OnepayFulfillmentService {
     // Build redirect URL
     const redirectUrl = this.onepayService.buildRedirectUrl({
       vpc_MerchTxnRef: merchTxnRef,
-      vpc_OrderInfo: checkoutSessionId.slice(0, 34),
+      vpc_OrderInfo: checkoutSessionId.slice(0, 8), // short ref shown on OnePay page
       vpc_Amount: String(amountOnepay),
       vpc_TicketNo: clientIp,
       vpc_CardList: cardList,
       vpc_Customer_Phone: contactSnapshot.phone,
       vpc_Customer_Email: contactSnapshot.email,
       vpc_Customer_Id: session.user?.id ?? undefined,
+      locale,
     });
 
     // Mark as processing (redirect has been built)

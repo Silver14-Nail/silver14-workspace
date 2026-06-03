@@ -77,10 +77,7 @@ export class OnepayIpnController {
    * Failure → /en/checkout?error=payment_failed
    */
   @Get('return')
-  async handleReturn(
-    @Query() query: OnepayReturnParams,
-    @Res() res: Response,
-  ): Promise<void> {
+  async handleReturn(@Query() query: OnepayReturnParams, @Res() res: Response): Promise<void> {
     this.logger.log(
       `OnePAY return — ref: ${query.vpc_MerchTxnRef}, code: ${query.vpc_TxnResponseCode}`,
     );
@@ -93,26 +90,22 @@ export class OnepayIpnController {
       );
 
       if (result.success && result.orderId) {
+        // Use first 8 chars of UUID — tracking API supports prefix LIKE lookup
+        const shortId = result.orderId.slice(0, 8);
         return res.redirect(
-          `${this.storefrontUrl}/en/order/tracking?orderId=${encodeURIComponent(result.orderId)}&status=success`,
+          `${this.storefrontUrl}/en/order/tracking?orderId=${encodeURIComponent(shortId)}&status=success`,
         );
       }
 
       if (result.pending) {
-        return res.redirect(
-          `${this.storefrontUrl}/en/order/tracking?status=pending`,
-        );
+        return res.redirect(`${this.storefrontUrl}/en/order/tracking?status=pending`);
       }
 
-      return res.redirect(
-        `${this.storefrontUrl}/en/checkout?error=payment_failed`,
-      );
+      return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'unknown';
       this.logger.error(`OnePAY return error: ${msg}`);
-      return res.redirect(
-        `${this.storefrontUrl}/en/checkout?error=payment_failed`,
-      );
+      return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed`);
     }
   }
 }
