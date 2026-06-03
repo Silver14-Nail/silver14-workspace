@@ -297790,7 +297790,10 @@ let AirwallexService = AirwallexService_1 = class AirwallexService {
                         }
                         else {
                             const errorMsg = parsed?.message ?? parsed?.error ?? `Airwallex API error — status ${statusCode}`;
-                            reject(new Error(`Airwallex (${method} ${rawUrl}): ${errorMsg}`));
+                            const errorCode = parsed?.code ? ` [code: ${parsed.code}]` : '';
+                            const errorSource = parsed?.source ? ` [source: ${parsed.source}]` : '';
+                            this.logger.error(`Airwallex error response: ${JSON.stringify(parsed)}`);
+                            reject(new Error(`Airwallex (${method} ${rawUrl})${errorCode}${errorSource}: ${errorMsg}`));
                         }
                     }
                     catch {
