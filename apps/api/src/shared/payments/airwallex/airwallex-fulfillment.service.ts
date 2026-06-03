@@ -161,9 +161,7 @@ export class AirwallexFulfillmentService {
       merchantOrderId: checkoutSessionId,
       returnUrl,
       cancelUrl,
-      ...(allowSaveCard !== undefined
-        ? { paymentMethodOptions: { card: { allowSaveCard } } }
-        : {}),
+      ...(allowSaveCard !== undefined ? { paymentMethodOptions: { card: { allowSaveCard } } } : {}),
       customerId,
       customer,
       metadata: {

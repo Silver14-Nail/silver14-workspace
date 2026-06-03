@@ -55,6 +55,8 @@ export class ClientApiModule implements NestModule {
         { path: 'client-api/webhooks/paypal', method: RequestMethod.POST },
         // Airwallex webhook — called by Airwallex servers, authenticated by HMAC-SHA256 signature
         { path: 'client-api/webhooks/airwallex', method: RequestMethod.POST },
+        // 2Checkout IPN — called by 2Checkout servers, authenticated by HMAC-MD5 signature
+        { path: 'client-api/webhooks/twocheckout', method: RequestMethod.POST },
       )
       .forRoutes({ path: 'client-api', method: RequestMethod.ALL });
   }

@@ -112,6 +112,7 @@ export enum PaymentGateway {
   BRAINTREE = 'braintree',
   LEMON_SQUEEZY = 'lemon_squeezy',
   AIRWALLEX = 'airwallex',
+  TWOCHECKOUT = 'twocheckout',
 }
 
 export enum PaymentStatus {
