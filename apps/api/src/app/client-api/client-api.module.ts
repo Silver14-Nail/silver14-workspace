@@ -60,6 +60,10 @@ export class ClientApiModule implements NestModule {
         // Ngân Lượng notify/return — called by NL servers and user browser
         { path: 'client-api/webhooks/nganluong', method: RequestMethod.GET },
         { path: 'client-api/webhooks/nganluong', method: RequestMethod.POST },
+        // OnePAY IPN + return — called by OnePAY servers (HMAC-SHA256 verified)
+        { path: 'client-api/webhooks/onepay/ipn', method: RequestMethod.GET },
+        { path: 'client-api/webhooks/onepay/ipn', method: RequestMethod.POST },
+        { path: 'client-api/webhooks/onepay/return', method: RequestMethod.GET },
       )
       .forRoutes({ path: 'client-api', method: RequestMethod.ALL });
   }

@@ -35,6 +35,7 @@ import { CardDetailEntity } from './payments/card-detail.entity';
 import { AirwallexDetailEntity } from './payments/airwallex-detail.entity';
 import { TwocheckoutDetailEntity } from './payments/twocheckout-detail.entity';
 import { NgLuongDetailEntity } from './payments/nganluong-detail.entity';
+import { OnepayDetailEntity } from './payments/onepay-detail.entity';
 
 import { MarketingCampaignEntity } from './marketing/marketing-campaign.entity';
 import { MarketingCampaignTranslationEntity } from './marketing/marketing-campaign-translation.entity';
@@ -79,6 +80,7 @@ export {
   AirwallexDetailEntity,
   TwocheckoutDetailEntity,
   NgLuongDetailEntity,
+  OnepayDetailEntity,
   NewsletterSubscriberEntity,
   WholesaleEnquiryEntity,
   WholesaleAccountEntity,
@@ -142,6 +144,7 @@ export const PAYMENT_ENTITIES = [
   AirwallexDetailEntity,
   TwocheckoutDetailEntity,
   NgLuongDetailEntity,
+  OnepayDetailEntity,
 ];
 
 export const MARKETING_ENTITIES = [MarketingCampaignEntity, MarketingCampaignTranslationEntity];

@@ -38,6 +38,47 @@ export const PAYMENT_METHOD_OPTIONS: PaymentMethodOption[] = [
     badges: ['VISA', 'MC', 'Apple Pay', 'Google Pay'],
   },
 
+  // ─── OnePAY ──────────────────────────────────────────────────────────────────
+  {
+    id: 'onepay_all',
+    provider: 'onepay',
+    preferredMode: 'redirect',
+    label: 'OnePAY (Tất cả phương thức)',
+    description: 'Thẻ quốc tế · ATM · QR · Ví điện tử — qua OnePAY',
+    badges: ['VISA', 'MC', 'ATM', 'QR'],
+    tags: ['vn'],
+  },
+  {
+    id: 'onepay_international',
+    provider: 'onepay',
+    paymentMethod: 'INTERNATIONAL',
+    preferredMode: 'redirect',
+    label: 'OnePAY — Thẻ quốc tế',
+    description: 'Visa · Mastercard · AMEX · JCB — qua OnePAY',
+    badges: ['VISA', 'MC', 'AMEX', 'JCB'],
+    tags: ['vn'],
+  },
+  {
+    id: 'onepay_domestic',
+    provider: 'onepay',
+    paymentMethod: 'DOMESTIC',
+    preferredMode: 'redirect',
+    label: 'OnePAY — Thẻ ATM Nội địa',
+    description: 'Thẻ ATM nội địa liên kết — qua OnePAY',
+    badges: ['ATM', 'Napas'],
+    tags: ['vn'],
+  },
+  {
+    id: 'onepay_qr',
+    provider: 'onepay',
+    paymentMethod: 'QR',
+    preferredMode: 'redirect',
+    label: 'OnePAY — QR / Ví điện tử',
+    description: 'Quét mã QR hoặc ứng dụng ngân hàng — qua OnePAY',
+    badges: ['QR', 'MoMo', 'ZaloPay'],
+    tags: ['vn'],
+  },
+
   // ─── Ngân Lượng ─────────────────────────────────────────────────────────────
   {
     id: 'ngluong_visa',

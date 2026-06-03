@@ -7,6 +7,7 @@ import paypalConfig from '@/config/paypal.config';
 import airwallexConfig from '@/config/airwallex.config';
 import twocheckoutConfig from '@/config/twocheckout.config';
 import nganluongConfig from '@/config/nganluong.config';
+import onepayConfig from '@/config/onepay.config';
 
 import { Module } from '@nestjs/common';
 import { DatabaseController } from './database.controller';
@@ -28,6 +29,7 @@ import { ENTITIES } from '@/db/entities';
         airwallexConfig,
         twocheckoutConfig,
         nganluongConfig,
+        onepayConfig,
       ],
     }),
     TypeOrmModule.forRootAsync({

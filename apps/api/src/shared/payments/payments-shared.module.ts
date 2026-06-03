@@ -28,6 +28,13 @@ import { NgLuongController } from './nganluong/nganluong.controller';
 import { NgLuongWebhookController } from './nganluong/nganluong-webhook.controller';
 import { NgLuongDetailEntity } from '@/db/entities/payments/nganluong-detail.entity';
 
+// ─── OnePAY provider ────────────────────────────────────────────────────────
+import { OnepayService } from './onepay/onepay.service';
+import { OnepayFulfillmentService } from './onepay/onepay-fulfillment.service';
+import { OnepayController } from './onepay/onepay.controller';
+import { OnepayIpnController } from './onepay/onepay-ipn.controller';
+import { OnepayDetailEntity } from '@/db/entities/payments/onepay-detail.entity';
+
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 
 /**
@@ -45,6 +52,7 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
       AirwallexDetailEntity,
       TwocheckoutDetailEntity,
       NgLuongDetailEntity,
+      OnepayDetailEntity,
       PaymentEntity,
     ]),
   ],
@@ -63,6 +71,9 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
     // Ngân Lượng
     NgLuongService,
     NgLuongFulfillmentService,
+    // OnePAY
+    OnepayService,
+    OnepayFulfillmentService,
   ],
   controllers: [
     AirwallexController,
@@ -71,6 +82,8 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
     TwocheckoutWebhookController,
     NgLuongController,
     NgLuongWebhookController,
+    OnepayController,
+    OnepayIpnController,
   ],
   exports: [
     // Legacy
@@ -87,6 +100,9 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
     // Ngân Lượng
     NgLuongService,
     NgLuongFulfillmentService,
+    // OnePAY
+    OnepayService,
+    OnepayFulfillmentService,
   ],
 })
 export class PaymentsSharedModule {}

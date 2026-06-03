@@ -1,6 +1,6 @@
 // ─── Provider identity ────────────────────────────────────────────────────────
 
-export type PaymentProviderName = 'airwallex' | 'ngan_luong';
+export type PaymentProviderName = 'airwallex' | 'ngan_luong' | 'onepay';
 
 export type PaymentFlowMode =
   | 'client_sdk' // Airwallex Elements

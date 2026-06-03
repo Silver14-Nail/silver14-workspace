@@ -77,6 +77,27 @@ export async function createPaymentSession(
       break;
     }
 
+    case 'onepay': {
+      const res = await http.post<{
+        redirectUrl: string;
+        merchTxnRef: string;
+        amountOnepay: number;
+      }>(
+        '/client-api/payments/onepay/initiate',
+        {
+          checkoutSessionId,
+          cardList: paymentMethod ?? undefined,
+        },
+        { headers },
+      );
+      sessionData = {
+        mode: 'redirect',
+        providerRef: res.data.merchTxnRef,
+        redirectUrl: res.data.redirectUrl,
+      };
+      break;
+    }
+
     case 'ngan_luong': {
       const pm = paymentMethod ?? 'ATM_ONLINE';
       const bankCode = pm === 'VISA' ? 'VISA' : pm === 'QRCODE' ? 'VCB' : 'EXB';

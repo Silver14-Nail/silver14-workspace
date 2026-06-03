@@ -114,6 +114,7 @@ export enum PaymentGateway {
   AIRWALLEX = 'airwallex',
   TWOCHECKOUT = 'twocheckout',
   NGAN_LUONG = 'ngan_luong',
+  ONEPAY = 'onepay',
 }
 
 export enum PaymentStatus {

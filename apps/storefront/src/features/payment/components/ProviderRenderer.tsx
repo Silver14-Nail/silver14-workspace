@@ -10,10 +10,14 @@ const AirwallexRenderer = lazy(() =>
 const NgLuongRenderer = lazy(() =>
   import('./renderers/NgLuongRenderer').then((m) => ({ default: m.NgLuongRenderer })),
 );
+const OnepayRenderer = lazy(() =>
+  import('./renderers/OnepayRenderer').then((m) => ({ default: m.OnepayRenderer })),
+);
 
 const RENDERER_MAP: Record<PaymentProviderName, React.ComponentType<ProviderRendererProps>> = {
   airwallex: AirwallexRenderer as React.ComponentType<ProviderRendererProps>,
   ngan_luong: NgLuongRenderer as React.ComponentType<ProviderRendererProps>,
+  onepay: OnepayRenderer as React.ComponentType<ProviderRendererProps>,
 };
 
 function RendererSkeleton() {
