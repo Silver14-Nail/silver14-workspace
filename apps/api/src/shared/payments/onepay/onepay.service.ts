@@ -48,11 +48,11 @@ export class OnepayService {
   buildRedirectUrl(params: OnepayPaymentParams): string {
     const staticParams: Record<string, string> = {
       vpc_Version: '2',
-      vpc_Currency: 'VND',
       vpc_Command: 'pay',
+      vpc_Currency: (params.currency ?? 'VND').toUpperCase(),
+      vpc_Locale: params.locale ?? 'vn',
       vpc_AccessCode: this.config.accessCode,
       vpc_Merchant: this.config.merchantId,
-      vpc_Locale: params.locale ?? 'vn',
       vpc_ReturnURL: this.config.returnUrl,
       Title: this.config.title,
       AgainLink: params.AgainLink ?? this.config.returnUrl,
@@ -151,19 +151,18 @@ export class OnepayService {
   }
 
   /**
-   * Converts a real VND amount to OnePAY wire amount (multiply by 100).
-   * e.g. 25,000 ₫ → 2500000
+   * Converts a currency amount to OnePAY wire amount (smallest unit × 100).
+   * Works for any currency: VND 25,000 → 2,500,000 | USD 17.50 → 1,750
    */
-  toOnepayAmount(vndAmount: number): number {
-    return Math.round(vndAmount) * 100;
+  toOnepayAmount(amount: number): number {
+    return Math.round(amount * 100);
   }
 
   /**
-   * Converts OnePAY wire amount back to real VND.
-   * e.g. 2500000 → 25000
+   * Converts OnePAY wire amount back to real amount.
    */
   fromOnepayAmount(onepayAmount: number): number {
-    return Math.round(onepayAmount / 100);
+    return onepayAmount / 100;
   }
 
   /**

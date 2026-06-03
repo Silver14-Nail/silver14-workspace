@@ -300730,11 +300730,11 @@ let OnepayService = OnepayService_1 = class OnepayService {
     buildRedirectUrl(params) {
         const staticParams = {
             vpc_Version: '2',
-            vpc_Currency: 'VND',
             vpc_Command: 'pay',
+            vpc_Currency: (params.currency ?? 'VND').toUpperCase(),
+            vpc_Locale: params.locale ?? 'vn',
             vpc_AccessCode: this.config.accessCode,
             vpc_Merchant: this.config.merchantId,
-            vpc_Locale: params.locale ?? 'vn',
             vpc_ReturnURL: this.config.returnUrl,
             Title: this.config.title,
             AgainLink: params.AgainLink ?? this.config.returnUrl,
@@ -300817,18 +300817,17 @@ let OnepayService = OnepayService_1 = class OnepayService {
         return txnResponseCode === onepay_types_1.ONEPAY_SUCCESS_CODE;
     }
     /**
-     * Converts a real VND amount to OnePAY wire amount (multiply by 100).
-     * e.g. 25,000 ₫ → 2500000
+     * Converts a currency amount to OnePAY wire amount (smallest unit × 100).
+     * Works for any currency: VND 25,000 → 2,500,000 | USD 17.50 → 1,750
      */
-    toOnepayAmount(vndAmount) {
-        return Math.round(vndAmount) * 100;
+    toOnepayAmount(amount) {
+        return Math.round(amount * 100);
     }
     /**
-     * Converts OnePAY wire amount back to real VND.
-     * e.g. 2500000 → 25000
+     * Converts OnePAY wire amount back to real amount.
      */
     fromOnepayAmount(onepayAmount) {
-        return Math.round(onepayAmount / 100);
+        return onepayAmount / 100;
     }
     /**
      * Generates a unique vpc_MerchTxnRef from a checkoutSessionId.
@@ -301003,14 +301002,20 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
     async createPayment(checkoutSessionId, clientIp, cardList, vndRate, locale) {
         const session = await this.loadAndValidateSession(checkoutSessionId);
         const totals = this.calculateTotals(session);
-        // Convert to VND
-        const rate = vndRate ?? 0;
-        const amountVnd = totals.currency === 'VND'
-            ? Math.round(totals.total)
-            : rate > 0
-                ? Math.round(totals.total * rate)
-                : Math.round(totals.total * 25000); // fallback USD→VND
-        const amountOnepay = this.onepayService.toOnepayAmount(amountVnd);
+        // Domestic ATM / QR only support VND — convert if session currency differs.
+        // International cards support multi-currency (USD, EUR, etc.).
+        const isDomesticOnly = cardList === 'DOMESTIC' || cardList === 'QR';
+        const paymentCurrency = isDomesticOnly ? 'VND' : totals.currency.toUpperCase();
+        let paymentAmount;
+        if (paymentCurrency === 'VND' && totals.currency.toUpperCase() !== 'VND') {
+            // Need to convert from session currency → VND
+            const rate = vndRate ?? 25_000;
+            paymentAmount = totals.total * rate;
+        }
+        else {
+            paymentAmount = totals.total;
+        }
+        const amountOnepay = this.onepayService.toOnepayAmount(paymentAmount);
         const merchTxnRef = this.onepayService.buildMerchTxnRef(checkoutSessionId);
         const contactSnapshot = session.contactSnapshot;
         // Persist pending record
@@ -301025,7 +301030,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
         // Build redirect URL
         const redirectUrl = this.onepayService.buildRedirectUrl({
             vpc_MerchTxnRef: merchTxnRef,
-            vpc_OrderInfo: checkoutSessionId.slice(0, 8), // short ref shown on OnePay page
+            vpc_OrderInfo: checkoutSessionId.slice(0, 8),
             vpc_Amount: String(amountOnepay),
             vpc_TicketNo: clientIp,
             vpc_CardList: cardList,
@@ -301033,10 +301038,11 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
             vpc_Customer_Email: contactSnapshot.email,
             vpc_Customer_Id: session.user?.id ?? undefined,
             locale,
+            currency: paymentCurrency,
         });
-        // Mark as processing (redirect has been built)
+        // Mark as processing
         await this.detailRepo.update(detail.id, { status: 'processing' });
-        this.logger.log(`OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (VND*100)`);
+        this.logger.log(`OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (${paymentCurrency}×100)`);
         return { redirectUrl, merchTxnRef, amountOnepay };
     }
     // ─── Handle Return / IPN ─────────────────────────────────────────────────
