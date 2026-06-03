@@ -19,19 +19,6 @@ interface CreateSessionOpts {
   token?: string | null;
 }
 
-/**
- * Provider-agnostic session creator.
- *
- * Currently adapts to the existing per-provider backend endpoints.
- *
- * Migration path: when POST /client-api/payments/session is implemented
- * on the backend (Phase 4 of the payment architecture plan), replace all
- * switch cases with a single:
- *   const res = await http.post('/client-api/payments/session', { provider, checkoutSessionId, ... })
- *   return normalizeSessionResponse(res.data);
- *
- * Callers (useCheckoutPayment, renderers) never change.
- */
 export async function createPaymentSession(
   provider: PaymentProviderName,
   checkoutSessionId: string,
@@ -43,12 +30,10 @@ export async function createPaymentSession(
   let sessionData: ProviderSessionData;
 
   switch (provider) {
-    // ─── Airwallex ─────────────────────────────────────────────────────────────
     case 'airwallex': {
       const useCheckout = preferredMode === 'hosted';
 
       if (useCheckout) {
-        // Hosted Checkout Session — redirect to Airwallex's hosted page
         const returnUrl =
           typeof window !== 'undefined'
             ? `${window.location.origin}${window.location.pathname}?payment=success`
@@ -70,7 +55,6 @@ export async function createPaymentSession(
           hostedUrl: res.data.url,
         };
       } else {
-        // Client SDK — embedded Elements
         const pmTypes = paymentMethod ? [paymentMethod] : ['card', 'apple_pay', 'google_pay'];
         const res = await http.post<{
           clientSecret: string;
@@ -90,6 +74,26 @@ export async function createPaymentSession(
           currency: res.data.currency,
         };
       }
+      break;
+    }
+
+    case 'ngan_luong': {
+      const pm = paymentMethod ?? 'ATM_ONLINE';
+      const bankCode = pm === 'VISA' ? 'VISA' : pm === 'QRCODE' ? 'VCB' : 'EXB';
+      const res = await http.post<{
+        token: string;
+        checkoutUrl: string;
+        amountVnd: number;
+      }>(
+        '/client-api/payments/nganluong/initiate',
+        { checkoutSessionId, paymentMethod: pm, bankCode },
+        { headers },
+      );
+      sessionData = {
+        mode: 'redirect',
+        providerRef: res.data.token,
+        redirectUrl: res.data.checkoutUrl,
+      };
       break;
     }
 

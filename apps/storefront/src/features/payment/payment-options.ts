@@ -1,19 +1,5 @@
 import type { PaymentMethodOption } from './types';
 
-/**
- * Master registry of all supported payment method options.
- *
- * To add a new option:
- *   1. Append an entry here.
- *   2. Add a case to createPaymentSession() in payment.api.ts.
- *   3. Add a renderer to RENDERER_MAP in ProviderRenderer.tsx.
- *
- * PaymentStep, useCheckoutPayment, and checkout page never need to change.
- *
- * The `tags` field can be used to filter options per region or feature flag:
- *   tags: ['vn']    → Vietnam-specific methods
- *   tags: ['local'] → domestic bank card / transfer
- */
 export const PAYMENT_METHOD_OPTIONS: PaymentMethodOption[] = [
   // ─── Airwallex ───────────────────────────────────────────────────────────────
   {
@@ -51,9 +37,60 @@ export const PAYMENT_METHOD_OPTIONS: PaymentMethodOption[] = [
     description: 'Card · Apple Pay · Google Pay — hosted checkout',
     badges: ['VISA', 'MC', 'Apple Pay', 'Google Pay'],
   },
+
+  // ─── Ngân Lượng ─────────────────────────────────────────────────────────────
+  {
+    id: 'ngluong_visa',
+    provider: 'ngan_luong',
+    paymentMethod: 'VISA',
+    preferredMode: 'redirect',
+    label: 'Visa / Master / JCB',
+    description: 'Thanh toán thẻ quốc tế qua Ngân Lượng',
+    badges: ['VISA', 'MC', 'JCB'],
+    tags: ['vn'],
+  },
+  {
+    id: 'ngluong_atm',
+    provider: 'ngan_luong',
+    paymentMethod: 'ATM_ONLINE',
+    preferredMode: 'redirect',
+    label: 'Thẻ ATM Nội địa',
+    description: 'Thanh toán qua thẻ ATM nội địa — Ngân Lượng',
+    badges: ['ATM', 'Napas'],
+    tags: ['vn'],
+  },
+  {
+    id: 'ngluong_ib',
+    provider: 'ngan_luong',
+    paymentMethod: 'IB_ONLINE',
+    preferredMode: 'redirect',
+    label: 'Internet Banking',
+    description: 'Thanh toán qua Internet Banking — Ngân Lượng',
+    badges: ['Bank'],
+    tags: ['vn'],
+  },
+  {
+    id: 'ngluong_qr',
+    provider: 'ngan_luong',
+    paymentMethod: 'QRCODE',
+    preferredMode: 'redirect',
+    label: 'QR Code VNPay',
+    description: 'Quét mã QR thanh toán qua Ngân Lượng',
+    badges: ['QR'],
+    tags: ['vn'],
+  },
+  {
+    id: 'ngluong_transfer',
+    provider: 'ngan_luong',
+    paymentMethod: 'BANK_TRANSFER_ONLINE',
+    preferredMode: 'redirect',
+    label: 'Chuyển khoản nhận ngay',
+    description: 'Chuyển khoản ngân hàng — xác nhận tức thì',
+    badges: ['Bank', '24/7'],
+    tags: ['vn'],
+  },
 ];
 
-/** Convenience: look up a single option by its id. */
 export function findPaymentOption(id: string): PaymentMethodOption | undefined {
   return PAYMENT_METHOD_OPTIONS.find((o) => o.id === id);
 }

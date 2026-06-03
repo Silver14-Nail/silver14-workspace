@@ -21,6 +21,13 @@ import { TwocheckoutController } from './twocheckout/twocheckout.controller';
 import { TwocheckoutWebhookController } from './twocheckout/twocheckout-webhook.controller';
 import { TwocheckoutDetailEntity } from '@/db/entities/payments/twocheckout-detail.entity';
 
+// ─── Ngân Lượng provider ────────────────────────────────────────────────────
+import { NgLuongService } from './nganluong/nganluong.service';
+import { NgLuongFulfillmentService } from './nganluong/nganluong-fulfillment.service';
+import { NgLuongController } from './nganluong/nganluong.controller';
+import { NgLuongWebhookController } from './nganluong/nganluong-webhook.controller';
+import { NgLuongDetailEntity } from '@/db/entities/payments/nganluong-detail.entity';
+
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
 
 /**
@@ -34,7 +41,12 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AirwallexDetailEntity, TwocheckoutDetailEntity, PaymentEntity]),
+    TypeOrmModule.forFeature([
+      AirwallexDetailEntity,
+      TwocheckoutDetailEntity,
+      NgLuongDetailEntity,
+      PaymentEntity,
+    ]),
   ],
   providers: [
     // Legacy API clients
@@ -48,12 +60,17 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
     // 2Checkout
     TwocheckoutService,
     TwocheckoutFulfillmentService,
+    // Ngân Lượng
+    NgLuongService,
+    NgLuongFulfillmentService,
   ],
   controllers: [
     AirwallexController,
     AirwallexWebhookController,
     TwocheckoutController,
     TwocheckoutWebhookController,
+    NgLuongController,
+    NgLuongWebhookController,
   ],
   exports: [
     // Legacy
@@ -67,6 +84,9 @@ import { PaymentEntity } from '@/db/entities/payments/payment.entity';
     // 2Checkout
     TwocheckoutService,
     TwocheckoutFulfillmentService,
+    // Ngân Lượng
+    NgLuongService,
+    NgLuongFulfillmentService,
   ],
 })
 export class PaymentsSharedModule {}

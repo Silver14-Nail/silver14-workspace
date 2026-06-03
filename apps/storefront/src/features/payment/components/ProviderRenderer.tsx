@@ -4,23 +4,17 @@ import React, { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { PaymentProviderName, ProviderRendererProps } from '../types';
 
-// ── Lazy-load renderers so each provider's SDK only loads when needed ──────────
-
 const AirwallexRenderer = lazy(() =>
   import('./renderers/AirwallexRenderer').then((m) => ({ default: m.AirwallexRenderer })),
 );
+const NgLuongRenderer = lazy(() =>
+  import('./renderers/NgLuongRenderer').then((m) => ({ default: m.NgLuongRenderer })),
+);
 
-/**
- * Registry of provider → renderer component.
- *
- * Adding a new provider requires adding ONE entry here.
- * PaymentStep, useCheckoutPayment, and page.tsx are never touched.
- */
 const RENDERER_MAP: Record<PaymentProviderName, React.ComponentType<ProviderRendererProps>> = {
   airwallex: AirwallexRenderer as React.ComponentType<ProviderRendererProps>,
+  ngan_luong: NgLuongRenderer as React.ComponentType<ProviderRendererProps>,
 };
-
-// ── Loading fallback ──────────────────────────────────────────────────────────
 
 function RendererSkeleton() {
   return (
@@ -31,17 +25,6 @@ function RendererSkeleton() {
   );
 }
 
-// ── Dispatcher ────────────────────────────────────────────────────────────────
-
-/**
- * Looks up the correct renderer for session.provider and renders it.
- *
- * Renderers are code-split — the provider's SDK only loads when the user
- * actually selects that payment method.
- *
- * All renderers receive the same ProviderRendererProps interface, so the
- * dispatcher never contains any provider-specific logic.
- */
 export function ProviderRenderer(props: ProviderRendererProps) {
   const { provider } = props.session;
   const Renderer = RENDERER_MAP[provider];

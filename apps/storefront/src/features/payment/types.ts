@@ -1,55 +1,43 @@
 // ─── Provider identity ────────────────────────────────────────────────────────
 
-export type PaymentProviderName = 'airwallex';
+export type PaymentProviderName = 'airwallex' | 'ngan_luong';
 
 export type PaymentFlowMode =
-  | 'client_sdk' // provider JS SDK runs in-page (Airwallex Elements)
-  | 'hosted'; // fully hosted checkout on provider domain (Airwallex Hosted)
+  | 'client_sdk' // Airwallex Elements
+  | 'hosted' // Airwallex Hosted
+  | 'redirect'; // NgLuong redirect
 
 // ─── Flow status state machine ────────────────────────────────────────────────
 
 export type PaymentFlowStatus =
-  | 'idle' // no option selected or session not yet requested
-  | 'requesting' // POST /payments/session in flight
-  | 'ready' // session exists; provider UI is rendering
-  | 'processing' // user submitted payment; waiting for confirmation
-  | 'success' // order confirmed by backend
-  | 'failed' // payment declined
-  | 'cancelled' // user dismissed the provider UI
-  | 'error'; // unexpected API / network error
+  | 'idle'
+  | 'requesting'
+  | 'ready'
+  | 'processing'
+  | 'success'
+  | 'failed'
+  | 'cancelled'
+  | 'error';
 
 // ─── Payment method option ────────────────────────────────────────────────────
 
-/**
- * Describes a single selectable payment option shown in the UI.
- *
- * Adding a new option ONLY requires appending to PAYMENT_METHOD_OPTIONS —
- * no changes to hooks, PaymentStep, or checkout page.
- */
 export interface PaymentMethodOption {
-  /** Unique key across all providers. e.g. 'airwallex_card', 'airwallex_applepay'. */
   id: string;
   provider: PaymentProviderName;
-  /** Provider-specific method hint forwarded to the backend. */
   paymentMethod?: string;
   preferredMode?: PaymentFlowMode;
   label: string;
   description: string;
   badges: string[];
-  /** Regional / feature tags for display filtering. e.g. ['vn', 'local']. */
   tags?: string[];
 }
 
 // ─── Provider session data ────────────────────────────────────────────────────
 
-/**
- * Discriminated union returned after session creation.
- * The `mode` field drives what provider renderer does next.
- */
 export type ProviderSessionData =
   | {
       mode: 'client_sdk';
-      providerRef: string; // Airwallex: paymentIntentId
+      providerRef: string;
       clientSecret: string;
       amount: number;
       currency: string;
@@ -58,6 +46,11 @@ export type ProviderSessionData =
       mode: 'hosted';
       providerRef: string;
       hostedUrl: string;
+    }
+  | {
+      mode: 'redirect';
+      providerRef: string;
+      redirectUrl: string;
     };
 
 export interface ProviderSession {
@@ -68,11 +61,6 @@ export interface ProviderSession {
 
 // ─── Renderer props contract ──────────────────────────────────────────────────
 
-/**
- * Every provider renderer receives exactly this interface.
- * Renderers are self-contained: they manage their own loading, error,
- * and retry states internally. They only communicate completion outward.
- */
 export interface ProviderRendererProps {
   session: ProviderSession;
   onSuccess: (orderId: string) => void;
