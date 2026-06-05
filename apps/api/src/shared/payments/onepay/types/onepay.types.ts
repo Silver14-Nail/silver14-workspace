@@ -4,7 +4,8 @@
  * Reference: "Quy trinh tich hop cong thanh toan v2_2023.pdf" — ver 2.4
  *
  * Key rules:
- *  - Amount in API = VND * 100 (e.g. 25,000₫ → 2,500,000)
+ *  - vpc_Currency is always 'VND' per merchant account config (docs §III.4)
+ *  - Amount in API = VND * 100 (e.g. 25,000₫ → 2,500,000; $4.56 USD→VND first)
  *  - vpc_SecureHash = HMAC-SHA256 of sorted vpc_/user_ params, hex-encoded
  *  - Transaction is success only when vpc_TxnResponseCode === "0" AND hash matches
  */
@@ -32,8 +33,6 @@ export interface OnepayPaymentParams {
   AgainLink?: string;
   /** Locale for OnePAY UI: 'en' or 'vn' (default 'vn') */
   locale?: 'en' | 'vn';
-  /** Billing currency — e.g. 'VND', 'USD', 'EUR' (default 'VND') */
-  vpc_Currency?: string;
 }
 
 // ─── Payment Response (Return URL + IPN) ────────────────────────────────────

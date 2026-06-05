@@ -74,12 +74,10 @@ export class OnepayController {
       cardList?: string;
       /** Site locale — maps to OnePAY vpc_Locale ('en' or 'vn') */
       locale?: string;
-      /** Selected currency from storefront (e.g. 'USD', 'EUR') */
-      currency?: string;
     },
     @Ip() clientIp: string,
   ) {
-    // Fetch live USD→VND rate (cached 1 hour); OnePAY only accepts VND
+    // Fetch live USD→VND rate (cached 1 hour) — OnePAY always charges in VND
     const vndRate = await getUsdToVndRate();
     const onepayLocale: 'en' | 'vn' = body.locale === 'en' ? 'en' : 'vn';
 
@@ -89,7 +87,6 @@ export class OnepayController {
       body.cardList,
       vndRate,
       onepayLocale,
-      body.currency,
     );
   }
 

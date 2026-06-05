@@ -18,7 +18,6 @@ interface CreateSessionOpts {
   preferredMode?: PaymentFlowMode;
   token?: string | null;
   locale?: string;
-  currency?: string;
 }
 
 export async function createPaymentSession(
@@ -26,7 +25,7 @@ export async function createPaymentSession(
   checkoutSessionId: string,
   opts: CreateSessionOpts = {},
 ): Promise<ProviderSession> {
-  const { paymentMethod, preferredMode, token, locale, currency } = opts;
+  const { paymentMethod, preferredMode, token, locale } = opts;
   const headers = authHeaders(token);
 
   let sessionData: ProviderSessionData;
@@ -90,7 +89,6 @@ export async function createPaymentSession(
           checkoutSessionId,
           cardList: paymentMethod ?? undefined,
           locale: locale ?? 'en',
-          currency: currency ?? undefined,
         },
         { headers },
       );

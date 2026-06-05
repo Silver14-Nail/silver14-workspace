@@ -300731,7 +300731,7 @@ let OnepayService = OnepayService_1 = class OnepayService {
         const staticParams = {
             vpc_Version: '2',
             vpc_Command: 'pay',
-            vpc_Currency: (params.vpc_Currency ?? 'VND').toUpperCase(),
+            vpc_Currency: 'VND', // OnePay VN merchant accounts are always VND (docs §III.4)
             vpc_Locale: params.locale ?? 'vn',
             vpc_AccessCode: this.config.accessCode,
             vpc_Merchant: this.config.merchantId,
@@ -300855,10 +300855,12 @@ let OnepayService = OnepayService_1 = class OnepayService {
             .filter(([k]) => (k.startsWith('vpc_') || k.startsWith('user_')) && k !== 'vpc_SecureHash')
             .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
         const data = filtered.map(([k, v]) => `${k}=${v}`).join('&');
+        // Per docs §II.4.4: output must be UPPERCASE 64-char hex
         return crypto
             .createHmac('sha256', Buffer.from(this.config.hashKey, 'hex'))
             .update(data)
-            .digest('hex');
+            .digest('hex')
+            .toUpperCase();
     }
     // ─── HTTP client ──────────────────────────────────────────────────────────
     httpPostForm(url, body) {
@@ -300913,7 +300915,8 @@ exports.OnepayService = OnepayService = OnepayService_1 = tslib_1.__decorate([
  * Reference: "Quy trinh tich hop cong thanh toan v2_2023.pdf" — ver 2.4
  *
  * Key rules:
- *  - Amount in API = VND * 100 (e.g. 25,000₫ → 2,500,000)
+ *  - vpc_Currency is always 'VND' per merchant account config (docs §III.4)
+ *  - Amount in API = VND * 100 (e.g. 25,000₫ → 2,500,000; $4.56 USD→VND first)
  *  - vpc_SecureHash = HMAC-SHA256 of sorted vpc_/user_ params, hex-encoded
  *  - Transaction is success only when vpc_TxnResponseCode === "0" AND hash matches
  */
@@ -300999,25 +301002,15 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
      *  3. Persist a pending OnepayDetailEntity
      *  4. Build signed redirect URL
      */
-    async createPayment(checkoutSessionId, clientIp, cardList, vndRate, locale, currencyOverride) {
+    async createPayment(checkoutSessionId, clientIp, cardList, vndRate, locale) {
         const session = await this.loadAndValidateSession(checkoutSessionId);
         const totals = this.calculateTotals(session);
-        // Domestic ATM / QR only support VND — convert if session currency differs.
-        // International cards support multi-currency (USD, EUR, etc.).
-        // currencyOverride from frontend takes precedence over session currency.
-        const sessionCurrency = (currencyOverride ?? totals.currency).toUpperCase();
-        const isDomesticOnly = cardList === 'DOMESTIC' || cardList === 'QR';
-        const paymentCurrency = isDomesticOnly ? 'VND' : sessionCurrency;
-        let paymentAmount;
-        if (paymentCurrency === 'VND' && sessionCurrency !== 'VND') {
-            // Need to convert from session currency → VND
-            const rate = vndRate ?? 27_000;
-            paymentAmount = totals.total * rate;
-        }
-        else {
-            paymentAmount = totals.total;
-        }
-        const amountOnepay = this.onepayService.toOnepayAmount(paymentAmount);
+        // OnePay VN merchant accounts only accept VND (docs §III.4).
+        // If session currency is not VND, convert using live/fallback exchange rate.
+        const amountVnd = totals.currency.toUpperCase() === 'VND'
+            ? Math.round(totals.total)
+            : Math.round(totals.total * (vndRate ?? 27_000));
+        const amountOnepay = this.onepayService.toOnepayAmount(amountVnd);
         const merchTxnRef = this.onepayService.buildMerchTxnRef(checkoutSessionId);
         const contactSnapshot = session.contactSnapshot;
         // Persist pending record
@@ -301040,11 +301033,10 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
             vpc_Customer_Email: contactSnapshot.email,
             vpc_Customer_Id: session.user?.id ?? undefined,
             locale,
-            vpc_Currency: paymentCurrency,
         });
         // Mark as processing
         await this.detailRepo.update(detail.id, { status: 'processing' });
-        this.logger.log(`OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (${paymentCurrency}×100)`);
+        this.logger.log(`OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (VND×100, session was ${totals.currency})`);
         return { redirectUrl, merchTxnRef, amountOnepay };
     }
     // ─── Handle Return / IPN ─────────────────────────────────────────────────
@@ -301428,10 +301420,10 @@ let OnepayController = OnepayController_1 = class OnepayController {
      * Frontend must redirect the browser (window.location.href) to `redirectUrl`.
      */
     async initiate(body, clientIp) {
-        // Fetch live USD→VND rate (cached 1 hour); OnePAY only accepts VND
+        // Fetch live USD→VND rate (cached 1 hour) — OnePAY always charges in VND
         const vndRate = await getUsdToVndRate();
         const onepayLocale = body.locale === 'en' ? 'en' : 'vn';
-        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, vndRate, onepayLocale, body.currency);
+        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, vndRate, onepayLocale);
     }
     /**
      * GET /client-api/payments/onepay/inquiry/:ref

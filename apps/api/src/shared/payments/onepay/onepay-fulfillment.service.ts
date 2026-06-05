@@ -63,7 +63,6 @@ export class OnepayFulfillmentService {
     cardList?: string,
     vndRate?: number,
     locale?: 'en' | 'vn',
-    currencyOverride?: string,
   ): Promise<{
     redirectUrl: string;
     merchTxnRef: string;
@@ -72,23 +71,14 @@ export class OnepayFulfillmentService {
     const session = await this.loadAndValidateSession(checkoutSessionId);
     const totals = this.calculateTotals(session);
 
-    // Domestic ATM / QR only support VND — convert if session currency differs.
-    // International cards support multi-currency (USD, EUR, etc.).
-    // currencyOverride from frontend takes precedence over session currency.
-    const sessionCurrency = (currencyOverride ?? totals.currency).toUpperCase();
-    const isDomesticOnly = cardList === 'DOMESTIC' || cardList === 'QR';
-    const paymentCurrency = isDomesticOnly ? 'VND' : sessionCurrency;
+    // OnePay VN merchant accounts only accept VND (docs §III.4).
+    // If session currency is not VND, convert using live/fallback exchange rate.
+    const amountVnd =
+      totals.currency.toUpperCase() === 'VND'
+        ? Math.round(totals.total)
+        : Math.round(totals.total * (vndRate ?? 27_000));
 
-    let paymentAmount: number;
-    if (paymentCurrency === 'VND' && sessionCurrency !== 'VND') {
-      // Need to convert from session currency → VND
-      const rate = vndRate ?? 27_000;
-      paymentAmount = totals.total * rate;
-    } else {
-      paymentAmount = totals.total;
-    }
-
-    const amountOnepay = this.onepayService.toOnepayAmount(paymentAmount);
+    const amountOnepay = this.onepayService.toOnepayAmount(amountVnd);
     const merchTxnRef = this.onepayService.buildMerchTxnRef(checkoutSessionId);
 
     const contactSnapshot = session.contactSnapshot as {
@@ -118,14 +108,13 @@ export class OnepayFulfillmentService {
       vpc_Customer_Email: contactSnapshot.email,
       vpc_Customer_Id: session.user?.id ?? undefined,
       locale,
-      vpc_Currency: paymentCurrency,
     });
 
     // Mark as processing
     await this.detailRepo.update(detail.id, { status: 'processing' });
 
     this.logger.log(
-      `OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (${paymentCurrency}×100)`,
+      `OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (VND×100, session was ${totals.currency})`,
     );
 
     return { redirectUrl, merchTxnRef, amountOnepay };

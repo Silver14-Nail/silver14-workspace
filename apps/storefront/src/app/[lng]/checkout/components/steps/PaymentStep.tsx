@@ -60,7 +60,7 @@ export function PaymentStep({ sessionId, currency, onBack, onSuccess }: PaymentS
     handleProviderError,
     handleProviderCancel,
     retry,
-  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess, locale: lng, currency });
+  } = useCheckoutPayment({ checkoutSessionId: sessionId, onComplete: onSuccess, locale: lng });
 
   // ── Derived booleans ────────────────────────────────────────────────────────
 

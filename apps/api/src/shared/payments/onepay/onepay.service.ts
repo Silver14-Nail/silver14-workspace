@@ -49,7 +49,7 @@ export class OnepayService {
     const staticParams: Record<string, string> = {
       vpc_Version: '2',
       vpc_Command: 'pay',
-      vpc_Currency: 'VND',
+      vpc_Currency: 'VND', // OnePay VN merchant accounts are always VND (docs §III.4)
       vpc_Locale: params.locale ?? 'vn',
       vpc_AccessCode: this.config.accessCode,
       vpc_Merchant: this.config.merchantId,
@@ -195,10 +195,12 @@ export class OnepayService {
 
     const data = filtered.map(([k, v]) => `${k}=${v}`).join('&');
 
+    // Per docs §II.4.4: output must be UPPERCASE 64-char hex
     return crypto
       .createHmac('sha256', Buffer.from(this.config.hashKey, 'hex'))
       .update(data)
-      .digest('hex');
+      .digest('hex')
+      .toUpperCase();
   }
 
   // ─── HTTP client ──────────────────────────────────────────────────────────

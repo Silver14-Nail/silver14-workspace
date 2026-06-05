@@ -24,8 +24,6 @@ interface UseCheckoutPaymentOptions {
   onComplete: (orderId: string) => void;
   /** Current site locale — passed to payment providers that need it (e.g. OnePAY) */
   locale?: string;
-  /** Selected currency code (e.g. 'USD', 'EUR') — passed to OnePAY for vpc_Currency */
-  currency?: string;
 }
 
 export interface UseCheckoutPaymentReturn {
@@ -71,7 +69,6 @@ export function useCheckoutPayment({
   checkoutSessionId,
   onComplete,
   locale,
-  currency,
 }: UseCheckoutPaymentOptions): UseCheckoutPaymentReturn {
   const { clearCart } = useCart();
 
@@ -104,7 +101,6 @@ export function useCheckoutPayment({
         preferredMode: selectedOption.preferredMode,
         token: getToken(),
         locale,
-        currency,
       });
       setProviderSession(session);
       setStatus('ready');
