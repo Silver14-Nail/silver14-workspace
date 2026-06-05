@@ -57,8 +57,9 @@ export function useCheckout() {
   });
   const [sessionId, setSessionId] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
-    if (getToken()) return getCheckoutSessionId();
-    return null;
+    // Restore for both authenticated and guest users — guests need their session
+    // after returning from a payment gateway (e.g., OnePay redirect-back).
+    return getCheckoutSessionId();
   });
 
   const [step, setStepRaw] = useState<'contact' | 'shipping' | 'payment' | 'confirmation'>(() => {
