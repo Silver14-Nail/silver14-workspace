@@ -71,3 +71,8 @@ export async function deleteOrder(id: string): Promise<void> {
   const client = await createApiClient();
   await client.delete(`/admin-api/orders/${id}`);
 }
+
+export async function permanentDeleteOrder(id: string): Promise<void> {
+  const client = await createApiClient();
+  await client.delete(`/admin-api/orders/${id}/permanent`);
+}

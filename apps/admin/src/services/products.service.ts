@@ -58,6 +58,11 @@ export async function deleteProduct(id: string): Promise<void> {
   await client.delete(`/admin-api/products/${id}`);
 }
 
+export async function permanentDeleteProduct(id: string): Promise<void> {
+  const client = await createApiClient();
+  await client.delete(`/admin-api/products/${id}/permanent`);
+}
+
 // ─── Supplies ────────────────────────────────────────────────────────────────
 
 export interface SupplyListQuery {

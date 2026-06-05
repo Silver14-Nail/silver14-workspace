@@ -86,4 +86,12 @@ export class OrdersController {
   remove(@Param('id') id: string): Promise<void> {
     return this.ordersService.removeOrder(id);
   }
+
+  @Delete(':id/permanent')
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: 'Order permanently deleted (hard delete)' })
+  @ApiNotFoundResponse({ description: 'Order not found' })
+  permanentRemove(@Param('id') id: string): Promise<void> {
+    return this.ordersService.permanentRemoveOrder(id);
+  }
 }

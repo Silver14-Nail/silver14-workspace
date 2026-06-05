@@ -308,4 +308,15 @@ export class OrdersService {
 
     await this.orderRepo.softDelete(id);
   }
+
+  async permanentRemoveOrder(id: string): Promise<void> {
+    // findOne with withDeleted:true so we can hard-delete already soft-deleted orders too
+    const order = await this.orderRepo.findOne({ where: { id }, withDeleted: true });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    await this.orderRepo.delete(id);
+  }
 }

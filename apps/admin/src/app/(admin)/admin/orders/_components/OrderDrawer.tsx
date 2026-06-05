@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   Loader2,
   ChevronDown,
+  Trash2,
 } from 'lucide-react';
 
 import type {
@@ -29,6 +30,7 @@ import {
   updatePaymentStatusAction,
   cancelOrderAction,
   listOrdersAction,
+  permanentDeleteOrderAction,
 } from '../actions';
 
 type ErrResult = { success: false; error: string };
@@ -119,6 +121,9 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
   // Cancel panel
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+
+  // Permanent delete modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Expanded sections
   const [expandedSection, setExpandedSection] = useState<string | null>('customer');
@@ -252,6 +257,22 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
         const refreshed = await refreshAndSync();
         if (refreshed) onRefresh?.(refreshed);
       } else {
+        showFeedback('error', getErr(result));
+      }
+    });
+  };
+
+  const handlePermanentDelete = () => {
+    startTransition(async () => {
+      const result = await permanentDeleteOrderAction(orderId);
+      if (result.success) {
+        setShowDeleteModal(false);
+        showFeedback('success', t('drawer.permanentDeleteSuccess'));
+        // Refresh list and close drawer after a short delay
+        const listResult = await listOrdersAction(currentQuery);
+        onClose(listResult.success ? listResult.data : undefined);
+      } else {
+        setShowDeleteModal(false);
         showFeedback('error', getErr(result));
       }
     });
@@ -742,9 +763,163 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                   </pre>
                 </div>
               )}
+
+              {/* ── Danger Zone ─────────────────────────────────────────── */}
+              <div className="px-6 py-4 border-t border-red-200 bg-red-50">
+                <h3 className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  {t('drawer.dangerZone')}
+                </h3>
+                <p className="text-xs text-red-600 mb-3">{t('drawer.permanentDeleteDesc')}</p>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-red-300 bg-white text-red-600 text-xs font-medium hover:bg-red-600 hover:text-white transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  {t('drawer.permanentDelete')}
+                </button>
+              </div>
             </>
             );
           })()}
+        </div>
+      </div>
+
+      {/* ── Permanent Delete Modal ──────────────────────────────────────── */}
+      {showDeleteModal && order && (
+        <DeleteOrderModal
+          order={order}
+          isPending={isPending}
+          onConfirm={handlePermanentDelete}
+          onClose={() => setShowDeleteModal(false)}
+          t={t}
+        />
+      )}
+    </div>
+  );
+}
+
+// ── Permanent Delete Confirmation Modal ───────────────────────────────────────
+
+function DeleteOrderModal({
+  order,
+  isPending,
+  onConfirm,
+  onClose,
+  t,
+}: {
+  order: OrderDetail;
+  isPending: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string) => any;
+}) {
+  const [confirmText, setConfirmText] = useState('');
+  const canDelete = confirmText === 'confirm';
+
+  const fmt = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden
+      />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10 overflow-hidden">
+        {/* Header */}
+        <div className="px-6 pt-6 pb-4 border-b border-red-100 bg-red-50">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+              <Trash2 className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-[#111827]">
+                {t('drawer.permanentDeleteModal.title')}
+              </h2>
+              <p className="text-xs text-red-600 mt-0.5">
+                {t('drawer.permanentDeleteModal.subtitle')}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Order info summary */}
+        <div className="px-6 py-4 space-y-4">
+          <div className="rounded-xl border border-[#E5E7EB] overflow-hidden">
+            {[
+              { label: t('drawer.permanentDeleteModal.orderId'), value: order.id.slice(0, 8).toUpperCase(), mono: true },
+              { label: t('drawer.permanentDeleteModal.customer'), value: order.contactSnapshot?.fullName ?? '—' },
+              { label: t('drawer.permanentDeleteModal.email'), value: order.contactSnapshot?.email ?? '—' },
+              { label: t('drawer.permanentDeleteModal.date'), value: fmt.format(new Date(order.createdAt)) },
+              {
+                label: t('drawer.permanentDeleteModal.total'),
+                value: `${order.currency} ${Number(order.total).toFixed(2)}`,
+                bold: true,
+              },
+            ].map(({ label, value, mono, bold }) => (
+              <div key={label} className="flex justify-between items-center px-4 py-2.5 border-b border-[#F3F4F6] last:border-0 bg-[#FAFAFA]">
+                <span className="text-xs text-[#6B7280]">{label}</span>
+                <span className={`text-xs text-[#111827] ${mono ? 'font-mono' : ''} ${bold ? 'font-semibold' : ''}`}>
+                  {value}
+                </span>
+              </div>
+            ))}
+            <div className="flex justify-between items-center px-4 py-2.5 border-b border-[#F3F4F6] bg-[#FAFAFA]">
+              <span className="text-xs text-[#6B7280]">{t('drawer.permanentDeleteModal.status')}</span>
+              <StatusBadge status={order.status} type="order" />
+            </div>
+            {order.payment && (
+              <div className="flex justify-between items-center px-4 py-2.5 bg-[#FAFAFA]">
+                <span className="text-xs text-[#6B7280]">{t('drawer.permanentDeleteModal.payment')}</span>
+                <StatusBadge status={order.payment.status} type="payment" />
+              </div>
+            )}
+          </div>
+
+          {/* Confirm input */}
+          <div>
+            <p className="text-xs text-[#374151] mb-2">
+              {t('drawer.permanentDeleteModal.confirmPrompt')}
+            </p>
+            <input
+              type="text"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder={t('drawer.permanentDeleteModal.confirmPlaceholder')}
+              autoComplete="off"
+              className="w-full px-3 py-2 border border-[#E5E7EB] rounded-lg text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="px-6 pb-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={!canDelete || isPending}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            {t('drawer.permanentDeleteModal.deleteBtn')}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2.5 rounded-xl border border-[#E5E7EB] text-[#374151] text-sm font-medium hover:bg-[#F3F4F6] transition-colors"
+          >
+            {t('drawer.permanentDeleteModal.cancelBtn')}
+          </button>
         </div>
       </div>
     </div>

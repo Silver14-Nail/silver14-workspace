@@ -334,6 +334,16 @@ export class ProductsService {
     return { success: true };
   }
 
+  async permanentRemoveProduct(id: string): Promise<void> {
+    const product = await this.productRepo.findOne({ where: { id }, withDeleted: true });
+
+    if (!product) {
+      throw new NotFoundException(`Product #${id} not found`);
+    }
+
+    await this.productRepo.delete(id);
+  }
+
   // ─── Nail Shapes ────────────────────────────────────────────────────────────
 
   async listNailShapes(isActive?: boolean) {

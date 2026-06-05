@@ -85,6 +85,25 @@
     "successPayment": "Trạng thái thanh toán đã cập nhật thành {{status}}",
     "successCancelled": "Đơn hàng đã hủy",
     "errorInvalidFee": "Giá trị phí vận chuyển không hợp lệ",
-    "itemsCount": "Sản phẩm ({{count}})"
+    "itemsCount": "Sản phẩm ({{count}})",
+    "dangerZone": "Vùng nguy hiểm",
+    "permanentDelete": "Xóa vĩnh viễn",
+    "permanentDeleteDesc": "Xóa vĩnh viễn đơn hàng và toàn bộ dữ liệu liên quan. Không thể khôi phục.",
+    "permanentDeleteModal": {
+      "title": "Xóa vĩnh viễn đơn hàng",
+      "subtitle": "Hành động này không thể hoàn tác",
+      "orderId": "Mã đơn hàng",
+      "customer": "Khách hàng",
+      "email": "Email",
+      "date": "Ngày đặt",
+      "total": "Tổng cộng",
+      "status": "Trạng thái",
+      "payment": "Thanh toán",
+      "confirmPrompt": "Nhập \"confirm\" để kích hoạt nút xóa:",
+      "confirmPlaceholder": "Nhập confirm tại đây...",
+      "deleteBtn": "Xóa vĩnh viễn",
+      "cancelBtn": "Hủy"
+    },
+    "permanentDeleteSuccess": "Đơn hàng đã được xóa vĩnh viễn"
   }
 }

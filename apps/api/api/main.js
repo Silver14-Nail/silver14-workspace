@@ -268852,6 +268852,13 @@ let ProductsService = class ProductsService {
         await this.productRepo.softDelete(id);
         return { success: true };
     }
+    async permanentRemoveProduct(id) {
+        const product = await this.productRepo.findOne({ where: { id }, withDeleted: true });
+        if (!product) {
+            throw new common_1.NotFoundException(`Product #${id} not found`);
+        }
+        await this.productRepo.delete(id);
+    }
     // ─── Nail Shapes ────────────────────────────────────────────────────────────
     async listNailShapes(isActive) {
         return this.nailShapeRepo.find({
@@ -269775,7 +269782,7 @@ exports.TRANSLATION_PROVIDER_TOKEN = 'TRANSLATION_PROVIDER';
 
 "use strict";
 
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProductCollectionsController = exports.ProductVariantsController = exports.ProductTranslationsController = exports.ProductImagesController = exports.NailSizesController = exports.NailShapesController = exports.ProductsController = exports.UpsertProductTranslationDto = void 0;
 const tslib_1 = __webpack_require__(1);
@@ -269838,6 +269845,9 @@ let ProductsController = class ProductsController {
     removeProduct(id) {
         return this.productsService.removeProduct(id);
     }
+    permanentRemoveProduct(id) {
+        return this.productsService.permanentRemoveProduct(id);
+    }
 };
 exports.ProductsController = ProductsController;
 tslib_1.__decorate([
@@ -269878,6 +269888,14 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:paramtypes", [String]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ProductsController.prototype, "removeProduct", null);
+tslib_1.__decorate([
+    (0, common_1.Delete)(':id/permanent'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
+    tslib_1.__param(0, (0, common_1.Param)('id')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String]),
+    tslib_1.__metadata("design:returntype", typeof (_e = typeof Promise !== "undefined" && Promise) === "function" ? _e : Object)
+], ProductsController.prototype, "permanentRemoveProduct", null);
 exports.ProductsController = ProductsController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('Admin - Products'),
     (0, swagger_1.ApiBearerAuth)(),
@@ -269925,7 +269943,7 @@ tslib_1.__decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     tslib_1.__param(0, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_f = typeof create_nail_shape_dto_1.CreateNailShapeDto !== "undefined" && create_nail_shape_dto_1.CreateNailShapeDto) === "function" ? _f : Object]),
+    tslib_1.__metadata("design:paramtypes", [typeof (_g = typeof create_nail_shape_dto_1.CreateNailShapeDto !== "undefined" && create_nail_shape_dto_1.CreateNailShapeDto) === "function" ? _g : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], NailShapesController.prototype, "createNailShape", null);
 tslib_1.__decorate([
@@ -269933,7 +269951,7 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, common_1.Param)('id')),
     tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, typeof (_g = typeof update_nail_shape_dto_1.UpdateNailShapeDto !== "undefined" && update_nail_shape_dto_1.UpdateNailShapeDto) === "function" ? _g : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, typeof (_h = typeof update_nail_shape_dto_1.UpdateNailShapeDto !== "undefined" && update_nail_shape_dto_1.UpdateNailShapeDto) === "function" ? _h : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], NailShapesController.prototype, "updateNailShape", null);
 tslib_1.__decorate([
@@ -269948,7 +269966,7 @@ exports.NailShapesController = NailShapesController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('Admin - Nail Shapes'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('nail-shapes'),
-    tslib_1.__metadata("design:paramtypes", [typeof (_e = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _e : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_f = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _f : Object])
 ], NailShapesController);
 let NailSizesController = class NailSizesController {
     constructor(productsService) {
@@ -269989,7 +270007,7 @@ tslib_1.__decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     tslib_1.__param(0, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_j = typeof create_nail_size_dto_1.CreateNailSizeDto !== "undefined" && create_nail_size_dto_1.CreateNailSizeDto) === "function" ? _j : Object]),
+    tslib_1.__metadata("design:paramtypes", [typeof (_k = typeof create_nail_size_dto_1.CreateNailSizeDto !== "undefined" && create_nail_size_dto_1.CreateNailSizeDto) === "function" ? _k : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], NailSizesController.prototype, "createNailSize", null);
 tslib_1.__decorate([
@@ -269997,7 +270015,7 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, common_1.Param)('id')),
     tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, typeof (_k = typeof update_nail_size_dto_1.UpdateNailSizeDto !== "undefined" && update_nail_size_dto_1.UpdateNailSizeDto) === "function" ? _k : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, typeof (_l = typeof update_nail_size_dto_1.UpdateNailSizeDto !== "undefined" && update_nail_size_dto_1.UpdateNailSizeDto) === "function" ? _l : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], NailSizesController.prototype, "updateNailSize", null);
 tslib_1.__decorate([
@@ -270012,7 +270030,7 @@ exports.NailSizesController = NailSizesController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('Admin - Nail Sizes'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('nail-sizes'),
-    tslib_1.__metadata("design:paramtypes", [typeof (_h = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _h : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_j = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _j : Object])
 ], NailSizesController);
 let ProductImagesController = class ProductImagesController {
     constructor(productsService) {
@@ -270068,7 +270086,7 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, common_1.Param)('productId')),
     tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, typeof (_m = typeof add_image_dto_1.AddImageDto !== "undefined" && add_image_dto_1.AddImageDto) === "function" ? _m : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, typeof (_o = typeof add_image_dto_1.AddImageDto !== "undefined" && add_image_dto_1.AddImageDto) === "function" ? _o : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ProductImagesController.prototype, "confirmUpload", null);
 tslib_1.__decorate([
@@ -270077,7 +270095,7 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, common_1.Param)('productId')),
     tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, typeof (_o = typeof add_image_dto_1.AddImageDto !== "undefined" && add_image_dto_1.AddImageDto) === "function" ? _o : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, typeof (_p = typeof add_image_dto_1.AddImageDto !== "undefined" && add_image_dto_1.AddImageDto) === "function" ? _p : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ProductImagesController.prototype, "addImage", null);
 tslib_1.__decorate([
@@ -270094,7 +270112,7 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, common_1.Param)('productId')),
     tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, typeof (_p = typeof reorder_images_dto_1.ReorderImagesDto !== "undefined" && reorder_images_dto_1.ReorderImagesDto) === "function" ? _p : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, typeof (_q = typeof reorder_images_dto_1.ReorderImagesDto !== "undefined" && reorder_images_dto_1.ReorderImagesDto) === "function" ? _q : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ProductImagesController.prototype, "reorderImages", null);
 tslib_1.__decorate([
@@ -270109,7 +270127,7 @@ exports.ProductImagesController = ProductImagesController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('Admin - Product Images'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('products/:productId/images'),
-    tslib_1.__metadata("design:paramtypes", [typeof (_l = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _l : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_m = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _m : Object])
 ], ProductImagesController);
 let ProductTranslationsController = class ProductTranslationsController {
     constructor(productsService, translationService) {
@@ -270176,7 +270194,7 @@ exports.ProductTranslationsController = ProductTranslationsController = tslib_1.
     (0, swagger_1.ApiTags)('Admin - Product Translations'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('products/:id/translations'),
-    tslib_1.__metadata("design:paramtypes", [typeof (_q = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _q : Object, typeof (_r = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _r : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_r = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _r : Object, typeof (_s = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _s : Object])
 ], ProductTranslationsController);
 let ProductVariantsController = class ProductVariantsController {
     constructor(productsService, translationService) {
@@ -270218,7 +270236,7 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, common_1.Param)('productId')),
     tslib_1.__param(1, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, typeof (_u = typeof create_variant_dto_1.CreateVariantDto !== "undefined" && create_variant_dto_1.CreateVariantDto) === "function" ? _u : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, typeof (_v = typeof create_variant_dto_1.CreateVariantDto !== "undefined" && create_variant_dto_1.CreateVariantDto) === "function" ? _v : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ProductVariantsController.prototype, "createVariant", null);
 tslib_1.__decorate([
@@ -270227,7 +270245,7 @@ tslib_1.__decorate([
     tslib_1.__param(1, (0, common_1.Param)('variantId')),
     tslib_1.__param(2, (0, common_1.Body)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String, String, typeof (_v = typeof update_variant_dto_1.UpdateVariantDto !== "undefined" && update_variant_dto_1.UpdateVariantDto) === "function" ? _v : Object]),
+    tslib_1.__metadata("design:paramtypes", [String, String, typeof (_w = typeof update_variant_dto_1.UpdateVariantDto !== "undefined" && update_variant_dto_1.UpdateVariantDto) === "function" ? _w : Object]),
     tslib_1.__metadata("design:returntype", void 0)
 ], ProductVariantsController.prototype, "updateVariant", null);
 tslib_1.__decorate([
@@ -270259,7 +270277,7 @@ exports.ProductVariantsController = ProductVariantsController = tslib_1.__decora
     (0, swagger_1.ApiTags)('Admin - Product Variants'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('products/:productId/variants'),
-    tslib_1.__metadata("design:paramtypes", [typeof (_s = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _s : Object, typeof (_t = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _t : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_t = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _t : Object, typeof (_u = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _u : Object])
 ], ProductVariantsController);
 let ProductCollectionsController = class ProductCollectionsController {
     constructor(productsService) {
@@ -270305,7 +270323,7 @@ exports.ProductCollectionsController = ProductCollectionsController = tslib_1.__
     (0, swagger_1.ApiTags)('Admin - Product Collections'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Controller)('products/:productId/collections'),
-    tslib_1.__metadata("design:paramtypes", [typeof (_w = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _w : Object])
+    tslib_1.__metadata("design:paramtypes", [typeof (_x = typeof products_service_1.ProductsService !== "undefined" && products_service_1.ProductsService) === "function" ? _x : Object])
 ], ProductCollectionsController);
 
 
@@ -272748,6 +272766,14 @@ let OrdersService = class OrdersService {
         }
         await this.orderRepo.softDelete(id);
     }
+    async permanentRemoveOrder(id) {
+        // findOne with withDeleted:true so we can hard-delete already soft-deleted orders too
+        const order = await this.orderRepo.findOne({ where: { id }, withDeleted: true });
+        if (!order) {
+            throw new common_1.NotFoundException('Order not found');
+        }
+        await this.orderRepo.delete(id);
+    }
 };
 exports.OrdersService = OrdersService;
 exports.OrdersService = OrdersService = tslib_1.__decorate([
@@ -272764,7 +272790,7 @@ exports.OrdersService = OrdersService = tslib_1.__decorate([
 
 "use strict";
 
-var _a, _b, _c, _d, _e, _f, _g, _h;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.OrdersController = void 0;
 const tslib_1 = __webpack_require__(1);
@@ -272807,6 +272833,9 @@ let OrdersController = class OrdersController {
     }
     remove(id) {
         return this.ordersService.removeOrder(id);
+    }
+    permanentRemove(id) {
+        return this.ordersService.permanentRemoveOrder(id);
     }
 };
 exports.OrdersController = OrdersController;
@@ -272897,6 +272926,16 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:paramtypes", [String]),
     tslib_1.__metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], OrdersController.prototype, "remove", null);
+tslib_1.__decorate([
+    (0, common_1.Delete)(':id/permanent'),
+    (0, common_1.HttpCode)(204),
+    (0, swagger_1.ApiNoContentResponse)({ description: 'Order permanently deleted (hard delete)' }),
+    (0, swagger_1.ApiNotFoundResponse)({ description: 'Order not found' }),
+    tslib_1.__param(0, (0, common_1.Param)('id')),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [String]),
+    tslib_1.__metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+], OrdersController.prototype, "permanentRemove", null);
 exports.OrdersController = OrdersController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('Admin - Orders'),
     (0, swagger_1.ApiBearerAuth)(),

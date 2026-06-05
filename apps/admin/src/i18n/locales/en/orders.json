@@ -85,6 +85,25 @@
     "successPayment": "Payment status updated to {{status}}",
     "successCancelled": "Order cancelled",
     "errorInvalidFee": "Invalid shipping fee value",
-    "itemsCount": "Order Items ({{count}})"
+    "itemsCount": "Order Items ({{count}})",
+    "dangerZone": "Danger Zone",
+    "permanentDelete": "Delete Permanently",
+    "permanentDeleteDesc": "Permanently removes this order and all its data. This cannot be undone.",
+    "permanentDeleteModal": {
+      "title": "Permanently Delete Order",
+      "subtitle": "This action cannot be undone",
+      "orderId": "Order ID",
+      "customer": "Customer",
+      "email": "Email",
+      "date": "Date",
+      "total": "Total",
+      "status": "Order Status",
+      "payment": "Payment",
+      "confirmPrompt": "Type \"confirm\" to enable deletion:",
+      "confirmPlaceholder": "Type confirm here...",
+      "deleteBtn": "Delete Permanently",
+      "cancelBtn": "Cancel"
+    },
+    "permanentDeleteSuccess": "Order permanently deleted"
   }
 }

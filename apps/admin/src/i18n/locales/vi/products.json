@@ -74,7 +74,26 @@
     "tabTranslations": "Dịch thuật",
     "productId": "Mã sản phẩm",
     "created": "Ngày tạo",
-    "save": "Lưu thay đổi"
+    "save": "Lưu thay đổi",
+    "dangerZone": "Vùng nguy hiểm",
+    "permanentDelete": "Xóa vĩnh viễn",
+    "permanentDeleteDesc": "Xóa vĩnh viễn sản phẩm, toàn bộ biến thể, hình ảnh và dữ liệu liên quan. Không thể khôi phục.",
+    "permanentDeleteModal": {
+      "title": "Xóa vĩnh viễn sản phẩm",
+      "subtitle": "Hành động này không thể hoàn tác",
+      "productId": "Mã sản phẩm",
+      "name": "Tên sản phẩm",
+      "type": "Loại",
+      "price": "Giá gốc",
+      "status": "Trạng thái",
+      "active": "Đang hoạt động",
+      "inactive": "Không hoạt động",
+      "confirmPrompt": "Nhập \"confirm\" để kích hoạt nút xóa:",
+      "confirmPlaceholder": "Nhập confirm tại đây...",
+      "deleteBtn": "Xóa vĩnh viễn",
+      "cancelBtn": "Hủy"
+    },
+    "permanentDeleteSuccess": "Sản phẩm đã được xóa vĩnh viễn"
   },
   "images": {
     "title": "Hình ảnh ({{count}})",

@@ -74,7 +74,26 @@
     "tabTranslations": "Translations",
     "productId": "Product ID",
     "created": "Created",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "dangerZone": "Danger Zone",
+    "permanentDelete": "Delete Permanently",
+    "permanentDeleteDesc": "Permanently removes this product, all variants, images and associated data. This cannot be undone.",
+    "permanentDeleteModal": {
+      "title": "Permanently Delete Product",
+      "subtitle": "This action cannot be undone",
+      "productId": "Product ID",
+      "name": "Name",
+      "type": "Type",
+      "price": "Base Price",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "confirmPrompt": "Type \"confirm\" to enable deletion:",
+      "confirmPlaceholder": "Type confirm here...",
+      "deleteBtn": "Delete Permanently",
+      "cancelBtn": "Cancel"
+    },
+    "permanentDeleteSuccess": "Product permanently deleted"
   },
   "images": {
     "title": "Images ({{count}})",

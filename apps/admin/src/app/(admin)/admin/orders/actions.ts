@@ -11,6 +11,7 @@ import {
   updateShippingFee,
   cancelOrder,
   deleteOrder,
+  permanentDeleteOrder,
 } from '../../../../services/orders.service';
 import type {
   OrderListQuery,
@@ -132,6 +133,17 @@ export async function deleteOrderAction(id: string): Promise<ActionResult<void>>
     return { success: true, data: undefined };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete order';
+    return { success: false, error: message };
+  }
+}
+
+export async function permanentDeleteOrderAction(id: string): Promise<ActionResult<void>> {
+  try {
+    await permanentDeleteOrder(id);
+    revalidatePath('/admin/orders');
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to permanently delete order';
     return { success: false, error: message };
   }
 }

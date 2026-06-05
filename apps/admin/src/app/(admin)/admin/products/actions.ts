@@ -5,6 +5,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  permanentDeleteProduct,
   createNailShape,
   updateNailShape,
   deleteNailShape,
@@ -91,6 +92,17 @@ export async function deleteProductAction(id: string): Promise<ActionResult<void
     return { success: true, data: undefined };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Failed to delete product';
+    return { success: false, error: message };
+  }
+}
+
+export async function permanentDeleteProductAction(id: string): Promise<ActionResult<void>> {
+  try {
+    await permanentDeleteProduct(id);
+    revalidatePath('/admin/products');
+    return { success: true, data: undefined };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to permanently delete product';
     return { success: false, error: message };
   }
 }

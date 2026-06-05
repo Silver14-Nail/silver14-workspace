@@ -83,6 +83,12 @@ export class ProductsController {
   removeProduct(@Param('id') id: string) {
     return this.productsService.removeProduct(id);
   }
+
+  @Delete(':id/permanent')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  permanentRemoveProduct(@Param('id') id: string): Promise<void> {
+    return this.productsService.permanentRemoveProduct(id);
+  }
 }
 
 @ApiTags('Admin - Nail Shapes')
