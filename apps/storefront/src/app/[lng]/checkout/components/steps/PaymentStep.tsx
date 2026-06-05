@@ -1,8 +1,9 @@
 'use client';
 
 import { Shield, ArrowRight, RefreshCw } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
+import { Suspense } from 'react';
 import { BackButton } from '../ui/Buttons';
 import { PaymentMethodSelector } from '@/features/payment/components/PaymentMethodSelector';
 import { ProviderRenderer } from '@/features/payment/components/ProviderRenderer';
@@ -37,10 +38,16 @@ interface PaymentStepProps {
  *
  * This file never changes for new providers.
  */
-export function PaymentStep({ sessionId, currency, onBack, onSuccess }: PaymentStepProps) {
+function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentStepProps) {
   const { t } = useT('checkout');
   const params = useParams();
+  const searchParams = useSearchParams();
   const lng = (params?.lng as string) ?? 'en';
+
+  // OnePay return: ?error=payment_failed&code=XX
+  const gatewayErrorCode = searchParams.get('error') === 'payment_failed'
+    ? (searchParams.get('code') ?? 'unknown')
+    : null;
 
   // Apply i18n translations to payment options
   const visibleOptions = PAYMENT_METHOD_OPTIONS.map((o) => ({
@@ -85,6 +92,18 @@ export function PaymentStep({ sessionId, currency, onBack, onSuccess }: PaymentS
       {/* ── Method selector ───────────────────────────────────────────────── */}
       {showSelector && (
         <>
+          {/* OnePay gateway error banner (redirect back with ?error=payment_failed&code=XX) */}
+          {gatewayErrorCode && (
+            <div className="mb-5 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2] dark:bg-[#2E1A1A]">
+              <span className="flex-shrink-0 mt-0.5">⚠</span>
+              <span>
+                {t(`payment.onepay.errors.${gatewayErrorCode}`, {
+                  defaultValue: t('payment.onepay.errors.unknown'),
+                })}
+              </span>
+            </div>
+          )}
+
           <PaymentMethodSelector
             options={visibleOptions}
             groups={OPTION_GROUPS}
@@ -93,7 +112,7 @@ export function PaymentStep({ sessionId, currency, onBack, onSuccess }: PaymentS
             disabled={isRequesting}
           />
 
-          {/* Error banner */}
+          {/* Error banner from hook (e.g. network/API error when initiating) */}
           {isError && error && (
             <div className="mt-4 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2] dark:bg-[#2E1A1A]">
               <span className="flex-shrink-0 mt-0.5">⚠</span>
@@ -173,5 +192,14 @@ export function PaymentStep({ sessionId, currency, onBack, onSuccess }: PaymentS
         </div>
       )}
     </div>
+  );
+}
+
+// Wrap with Suspense because useSearchParams() requires it in Next.js App Router
+export function PaymentStep(props: PaymentStepProps) {
+  return (
+    <Suspense>
+      <PaymentStepInner {...props} />
+    </Suspense>
   );
 }

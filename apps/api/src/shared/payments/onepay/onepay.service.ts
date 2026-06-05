@@ -36,6 +36,11 @@ export class OnepayService {
     this.config = this.configService.getOrThrow<OnepayConfig>('onepay');
   }
 
+  /** Returns the IPN URL from config for use as vpc_CallbackURL. */
+  getIpnUrl(): string {
+    return this.config.ipnUrl;
+  }
+
   // ─── Redirect URL Builder ─────────────────────────────────────────────────
 
   /**
@@ -69,6 +74,7 @@ export class OnepayService {
     if (params.vpc_Customer_Phone) dynamicParams['vpc_Customer_Phone'] = params.vpc_Customer_Phone;
     if (params.vpc_Customer_Email) dynamicParams['vpc_Customer_Email'] = params.vpc_Customer_Email;
     if (params.vpc_Customer_Id) dynamicParams['vpc_Customer_Id'] = params.vpc_Customer_Id;
+    if (params.vpc_CallbackURL) dynamicParams['vpc_CallbackURL'] = params.vpc_CallbackURL;
 
     const allParams = { ...staticParams, ...dynamicParams };
     const secureHash = this.computeHash(allParams);

@@ -108,6 +108,7 @@ export class OnepayFulfillmentService {
       vpc_Customer_Email: contactSnapshot.email,
       vpc_Customer_Id: session.user?.id ?? undefined,
       locale,
+      vpc_CallbackURL: this.onepayService.getIpnUrl(), // dynamic IPN (docs §4.3.2)
     });
 
     // Mark as processing

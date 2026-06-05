@@ -111,7 +111,10 @@ export function useCheckout() {
     const params = new URLSearchParams(window.location.search);
 
     if (params.get('payment') !== 'success') {
-      if (!getToken()) clearCheckoutSessionId();
+      // Don't wipe the session when returning from a payment gateway with error —
+      // the user may want to retry. Only clear if no payment-related params present.
+      const isGatewayReturn = params.has('error') || params.has('status') || params.has('orderId');
+      if (!getToken() && !isGatewayReturn) clearCheckoutSessionId();
       return;
     }
 

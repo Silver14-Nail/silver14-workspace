@@ -1,5 +1,6 @@
 import * as https from 'https';
-import { Body, Controller, Get, Ip, Logger, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, Post, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { OnepayFulfillmentService } from './onepay-fulfillment.service';
@@ -75,15 +76,25 @@ export class OnepayController {
       /** Site locale — maps to OnePAY vpc_Locale ('en' or 'vn') */
       locale?: string;
     },
-    @Ip() clientIp: string,
+    @Req() req: Request,
   ) {
+    // Resolve real client IPv4 — OnePay uses vpc_TicketNo for fraud detection.
+    // Behind a proxy (Vercel/Nginx), the real IP is in X-Forwarded-For.
+    const forwarded = req.headers['x-forwarded-for'];
+    const rawIp =
+      (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0])?.trim() ??
+      req.socket.remoteAddress ??
+      '127.0.0.1';
+    // OnePay expects max 15 chars (IPv4). Strip IPv6 prefix and truncate.
+    const clientIp = rawIp.replace(/^::ffff:/, '').slice(0, 15);
+
     // Fetch live USD→VND rate (cached 1 hour) — OnePAY always charges in VND
     const vndRate = await getUsdToVndRate();
     const onepayLocale: 'en' | 'vn' = body.locale === 'en' ? 'en' : 'vn';
 
     return this.fulfillmentService.createPayment(
       body.checkoutSessionId,
-      clientIp || '127.0.0.1',
+      clientIp,
       body.cardList,
       vndRate,
       onepayLocale,

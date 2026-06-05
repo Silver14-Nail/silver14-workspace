@@ -101,11 +101,15 @@ export class OnepayIpnController {
         return res.redirect(`${this.storefrontUrl}/en/order/tracking?status=pending`);
       }
 
-      return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed`);
+      // Pass the response code so the frontend can show a specific error message
+      const code = encodeURIComponent(result.error ?? 'unknown');
+      return res.redirect(
+        `${this.storefrontUrl}/en/checkout?error=payment_failed&code=${code}`,
+      );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'unknown';
       this.logger.error(`OnePAY return error: ${msg}`);
-      return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed`);
+      return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed&code=unknown`);
     }
   }
 }

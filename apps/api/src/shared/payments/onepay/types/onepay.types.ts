@@ -33,6 +33,8 @@ export interface OnepayPaymentParams {
   AgainLink?: string;
   /** Locale for OnePAY UI: 'en' or 'vn' (default 'vn') */
   locale?: 'en' | 'vn';
+  /** Dynamic IPN URL — overrides static IPN config on merchant account (docs §4.3.2) */
+  vpc_CallbackURL?: string;
 }
 
 // ─── Payment Response (Return URL + IPN) ────────────────────────────────────

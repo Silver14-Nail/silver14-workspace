@@ -300719,6 +300719,10 @@ let OnepayService = OnepayService_1 = class OnepayService {
         this.logger = new common_1.Logger(OnepayService_1.name);
         this.config = this.configService.getOrThrow('onepay');
     }
+    /** Returns the IPN URL from config for use as vpc_CallbackURL. */
+    getIpnUrl() {
+        return this.config.ipnUrl;
+    }
     // ─── Redirect URL Builder ─────────────────────────────────────────────────
     /**
      * Builds the full OnePAY redirect URL that the browser must be navigated to.
@@ -300753,6 +300757,8 @@ let OnepayService = OnepayService_1 = class OnepayService {
             dynamicParams['vpc_Customer_Email'] = params.vpc_Customer_Email;
         if (params.vpc_Customer_Id)
             dynamicParams['vpc_Customer_Id'] = params.vpc_Customer_Id;
+        if (params.vpc_CallbackURL)
+            dynamicParams['vpc_CallbackURL'] = params.vpc_CallbackURL;
         const allParams = { ...staticParams, ...dynamicParams };
         const secureHash = this.computeHash(allParams);
         const url = new url_1.URL(this.config.payGateUrl);
@@ -301033,6 +301039,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
             vpc_Customer_Email: contactSnapshot.email,
             vpc_Customer_Id: session.user?.id ?? undefined,
             locale,
+            vpc_CallbackURL: this.onepayService.getIpnUrl(), // dynamic IPN (docs §4.3.2)
         });
         // Mark as processing
         await this.detailRepo.update(detail.id, { status: 'processing' });
@@ -301419,11 +301426,19 @@ let OnepayController = OnepayController_1 = class OnepayController {
      * Creates the signed OnePAY redirect URL.
      * Frontend must redirect the browser (window.location.href) to `redirectUrl`.
      */
-    async initiate(body, clientIp) {
+    async initiate(body, req) {
+        // Resolve real client IPv4 — OnePay uses vpc_TicketNo for fraud detection.
+        // Behind a proxy (Vercel/Nginx), the real IP is in X-Forwarded-For.
+        const forwarded = req.headers['x-forwarded-for'];
+        const rawIp = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0])?.trim() ??
+            req.socket.remoteAddress ??
+            '127.0.0.1';
+        // OnePay expects max 15 chars (IPv4). Strip IPv6 prefix and truncate.
+        const clientIp = rawIp.replace(/^::ffff:/, '').slice(0, 15);
         // Fetch live USD→VND rate (cached 1 hour) — OnePAY always charges in VND
         const vndRate = await getUsdToVndRate();
         const onepayLocale = body.locale === 'en' ? 'en' : 'vn';
-        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp || '127.0.0.1', body.cardList, vndRate, onepayLocale);
+        return this.fulfillmentService.createPayment(body.checkoutSessionId, clientIp, body.cardList, vndRate, onepayLocale);
     }
     /**
      * GET /client-api/payments/onepay/inquiry/:ref
@@ -301440,9 +301455,9 @@ tslib_1.__decorate([
     (0, common_1.Post)('initiate'),
     (0, swagger_1.ApiOperation)({ summary: 'Create OnePAY payment redirect URL' }),
     tslib_1.__param(0, (0, common_1.Body)()),
-    tslib_1.__param(1, (0, common_1.Ip)()),
+    tslib_1.__param(1, (0, common_1.Req)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Object, String]),
+    tslib_1.__metadata("design:paramtypes", [Object, Object]),
     tslib_1.__metadata("design:returntype", Promise)
 ], OnepayController.prototype, "initiate", null);
 tslib_1.__decorate([
@@ -301546,12 +301561,14 @@ let OnepayIpnController = OnepayIpnController_1 = class OnepayIpnController {
             if (result.pending) {
                 return res.redirect(`${this.storefrontUrl}/en/order/tracking?status=pending`);
             }
-            return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed`);
+            // Pass the response code so the frontend can show a specific error message
+            const code = encodeURIComponent(result.error ?? 'unknown');
+            return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed&code=${code}`);
         }
         catch (err) {
             const msg = err instanceof Error ? err.message : 'unknown';
             this.logger.error(`OnePAY return error: ${msg}`);
-            return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed`);
+            return res.redirect(`${this.storefrontUrl}/en/checkout?error=payment_failed&code=unknown`);
         }
     }
 };
