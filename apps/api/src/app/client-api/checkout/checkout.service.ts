@@ -84,10 +84,15 @@ export class ClientCheckoutService {
 
     const existing = await this.sessionRepo.findOne({
       where: { cart: { id: cart.id } },
+      relations: ['user'],
     });
     if (existing) {
       if (existing.status === CheckoutSessionStatus.IN_PROGRESS) {
         existing.expiresAt = new Date(Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+        // Upgrade guest session to authenticated if user just logged in
+        if (userId && !existing.user) {
+          (existing as any).user = { id: userId };
+        }
         return this.sessionRepo.save(existing);
       }
       // Stale session (COMPLETED / EXPIRED / ABANDONED) — remove it so a new one can be created

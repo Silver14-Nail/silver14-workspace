@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Brackets, Like, Repository } from 'typeorm';
 
 import { OrderEntity } from '@/db/entities/orders/order.entity';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
@@ -105,13 +105,24 @@ export class ClientOrdersService {
     const limit = query.limit ?? 10;
     const skip = (page - 1) * limit;
 
-    const [orders, totalItems] = await this.orderRepo.findAndCount({
-      where: { user: { id: currentUser.id } },
-      relations: ['items'],
-      order: { createdAt: 'DESC' },
-      skip,
-      take: limit,
-    });
+    // Match orders by user_id (linked) OR by email in contactSnapshot (guest/legacy orders).
+    // TypeORM automatically excludes soft-deleted rows for entities with @DeleteDateColumn.
+    // Alias 'ord' avoids collision with the MySQL reserved keyword ORDER.
+    const [orders, totalItems] = await this.orderRepo
+      .createQueryBuilder('ord')
+      .leftJoinAndSelect('ord.items', 'items')
+      .where(
+        new Brackets((qb) => {
+          qb.where('ord.user_id = :userId', { userId: currentUser.id }).orWhere(
+            "ord.user_id IS NULL AND JSON_UNQUOTE(JSON_EXTRACT(ord.contact_snapshot, '$.email')) = :email",
+            { email: currentUser.email },
+          );
+        }),
+      )
+      .orderBy('ord.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
 
     return {
       items: orders.map((order) => ({
@@ -137,10 +148,22 @@ export class ClientOrdersService {
   }
 
   async getMyOrder(currentUser: AuthenticatedUser, orderId: string) {
-    const order = await this.orderRepo.findOne({
-      where: { id: orderId, user: { id: currentUser.id } },
-      relations: ['items', 'items.variant', 'items.variant.product', 'items.customSizeRequest'],
-    });
+    const order = await this.orderRepo
+      .createQueryBuilder('ord')
+      .leftJoinAndSelect('ord.items', 'items')
+      .leftJoinAndSelect('items.variant', 'variant')
+      .leftJoinAndSelect('variant.product', 'product')
+      .leftJoinAndSelect('items.customSizeRequest', 'customSizeRequest')
+      .where('ord.id = :orderId', { orderId })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('ord.user_id = :userId', { userId: currentUser.id }).orWhere(
+            "ord.user_id IS NULL AND JSON_UNQUOTE(JSON_EXTRACT(ord.contact_snapshot, '$.email')) = :email",
+            { email: currentUser.email },
+          );
+        }),
+      )
+      .getOne();
 
     if (!order) {
       throw new NotFoundException('Order not found');

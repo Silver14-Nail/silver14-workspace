@@ -156,20 +156,25 @@ export function useCheckout() {
   // ── Session lifecycle ─────────────────────────────────────────────────────
 
   const ensureSession = useCallback(async (): Promise<string | null> => {
-    if (sessionId) return sessionId;
+    // Guest users: reuse stored session if available (no account to link)
+    if (sessionId && !getToken()) return sessionId;
     if (!cartId) return null;
     try {
+      const isNewSession = !sessionId;
       const s = await checkoutApi.createSession(cartId, getToken(), selectedCurrency);
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
 
-      const pending = getPendingCoupon();
-      if (pending?.code) {
-        try {
-          const updated = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
-          queryClient.setQueryData(['checkout-session', s.id], updated);
-        } catch {}
-        clearPendingCoupon();
+      // Apply pending coupon only on first creation, not on user-link re-calls
+      if (isNewSession) {
+        const pending = getPendingCoupon();
+        if (pending?.code) {
+          try {
+            const updated = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
+            queryClient.setQueryData(['checkout-session', s.id], updated);
+          } catch {}
+          clearPendingCoupon();
+        }
       }
       return s.id;
     } catch (e: unknown) {
