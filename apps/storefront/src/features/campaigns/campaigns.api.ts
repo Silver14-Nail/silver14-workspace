@@ -61,8 +61,9 @@ export async function fetchCampaignByPlacement(
       next: { revalidate: 30, tags: ['homepage-campaign'] },
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as ApiCampaign | null;
-    return data ?? null;
+    const text = await res.text();
+    if (!text || text === 'null') return null;
+    return JSON.parse(text) as ApiCampaign;
   } catch {
     return null;
   }
