@@ -304356,10 +304356,15 @@ let ClientCheckoutService = class ClientCheckoutService {
         }
         const existing = await this.sessionRepo.findOne({
             where: { cart: { id: cart.id } },
+            relations: ['user'],
         });
         if (existing) {
             if (existing.status === entity_enum_1.CheckoutSessionStatus.IN_PROGRESS) {
                 existing.expiresAt = new Date(Date.now() + SESSION_EXPIRY_HOURS * 60 * 60 * 1000);
+                // Upgrade guest session to authenticated if user just logged in
+                if (userId && !existing.user) {
+                    existing.user = { id: userId };
+                }
                 return this.sessionRepo.save(existing);
             }
             // Stale session (COMPLETED / EXPIRED / ABANDONED) — remove it so a new one can be created
@@ -305727,13 +305732,19 @@ let ClientOrdersService = class ClientOrdersService {
         const page = query.page ?? 1;
         const limit = query.limit ?? 10;
         const skip = (page - 1) * limit;
-        const [orders, totalItems] = await this.orderRepo.findAndCount({
-            where: { user: { id: currentUser.id } },
-            relations: ['items'],
-            order: { createdAt: 'DESC' },
-            skip,
-            take: limit,
-        });
+        // Match orders by user_id (linked) OR by email in contactSnapshot (guest/legacy orders).
+        // TypeORM automatically excludes soft-deleted rows for entities with @DeleteDateColumn.
+        // Alias 'ord' avoids collision with the MySQL reserved keyword ORDER.
+        const [orders, totalItems] = await this.orderRepo
+            .createQueryBuilder('ord')
+            .leftJoinAndSelect('ord.items', 'items')
+            .where(new typeorm_2.Brackets((qb) => {
+            qb.where('ord.user_id = :userId', { userId: currentUser.id }).orWhere("ord.user_id IS NULL AND JSON_UNQUOTE(JSON_EXTRACT(ord.contact_snapshot, '$.email')) = :email", { email: currentUser.email });
+        }))
+            .orderBy('ord.createdAt', 'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
         return {
             items: orders.map((order) => ({
                 id: order.id,
@@ -305757,10 +305768,17 @@ let ClientOrdersService = class ClientOrdersService {
         };
     }
     async getMyOrder(currentUser, orderId) {
-        const order = await this.orderRepo.findOne({
-            where: { id: orderId, user: { id: currentUser.id } },
-            relations: ['items', 'items.variant', 'items.variant.product', 'items.customSizeRequest'],
-        });
+        const order = await this.orderRepo
+            .createQueryBuilder('ord')
+            .leftJoinAndSelect('ord.items', 'items')
+            .leftJoinAndSelect('items.variant', 'variant')
+            .leftJoinAndSelect('variant.product', 'product')
+            .leftJoinAndSelect('items.customSizeRequest', 'customSizeRequest')
+            .where('ord.id = :orderId', { orderId })
+            .andWhere(new typeorm_2.Brackets((qb) => {
+            qb.where('ord.user_id = :userId', { userId: currentUser.id }).orWhere("ord.user_id IS NULL AND JSON_UNQUOTE(JSON_EXTRACT(ord.contact_snapshot, '$.email')) = :email", { email: currentUser.email });
+        }))
+            .getOne();
         if (!order) {
             throw new common_1.NotFoundException('Order not found');
         }
