@@ -1,4 +1,4 @@
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 // On-demand revalidation endpoint called by the admin after saving a campaign.
@@ -19,6 +19,10 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Invalidate all cached fetches tagged 'homepage-campaign'
   revalidateTag('homepage-campaign', {});
+  // Also revalidate the homepage path for all locales to force page regeneration
+  revalidatePath('/[lng]', 'page');
+
   return NextResponse.json({ revalidated: true, tag: 'homepage-campaign' });
 }

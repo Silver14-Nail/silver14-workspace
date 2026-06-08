@@ -58,7 +58,7 @@ export async function fetchCampaignByPlacement(
 ): Promise<ApiCampaign | null> {
   try {
     const res = await fetch(`${BASE}/client-api/campaigns/${placement}?locale=${locale}`, {
-      next: { revalidate: 60, tags: ['homepage-campaign'] },
+      next: { revalidate: 30, tags: ['homepage-campaign'] },
     });
     if (!res.ok) return null;
     const data = (await res.json()) as ApiCampaign | null;

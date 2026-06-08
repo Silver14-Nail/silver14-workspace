@@ -11,21 +11,29 @@ import type { Campaign, CreateCampaignPayload, UpdateCampaignPayload } from '../
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
 
-const STOREFRONT_URL = process.env.STOREFRONT_INTERNAL_URL ?? process.env.NEXT_PUBLIC_STOREFRONT_URL ?? 'http://localhost:4200';
+const STOREFRONT_URL = process.env.STOREFRONT_INTERNAL_URL ?? process.env.NEXT_PUBLIC_STOREFRONT_URL ?? '';
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET ?? '';
 
 // Bust the storefront's ISR cache for campaign data after any campaign change.
 // Best-effort: a failed revalidation should not fail the save action.
+// Requires STOREFRONT_INTERNAL_URL (or NEXT_PUBLIC_STOREFRONT_URL) set in Vercel admin env.
 async function revalidateStorefront() {
+  if (!STOREFRONT_URL) {
+    console.warn('[revalidateStorefront] STOREFRONT_INTERNAL_URL not set — skipping on-demand revalidation. Storefront will refresh via ISR within 30s.');
+    return;
+  }
   try {
-    await fetch(`${STOREFRONT_URL}/api/revalidate`, {
+    const res = await fetch(`${STOREFRONT_URL}/api/revalidate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: REVALIDATE_SECRET }),
       signal: AbortSignal.timeout(5000),
     });
-  } catch {
-    // ignore — storefront may not be running in CI / development
+    if (!res.ok) {
+      console.error(`[revalidateStorefront] Storefront revalidation failed: HTTP ${res.status}`);
+    }
+  } catch (err) {
+    console.error('[revalidateStorefront] Failed to reach storefront:', err instanceof Error ? err.message : err);
   }
 }
 
