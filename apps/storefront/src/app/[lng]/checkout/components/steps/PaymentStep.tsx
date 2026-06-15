@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Shield, ArrowRight, RefreshCw } from 'lucide-react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
@@ -56,6 +57,8 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
     description: t(`payment.methods.${o.id}.description`, { defaultValue: o.description }),
   }));
 
+  const [termsAgreed, setTermsAgreed] = useState(false);
+
   const {
     selectedOption,
     setSelectedOption,
@@ -76,7 +79,7 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
   const isReady = status === 'ready' && !!providerSession;
   const isError = status === 'error' || status === 'failed';
   const showSelector = isIdle || isError;
-  const canContinue = !!selectedOption && isIdle;
+  const canContinue = !!selectedOption && isIdle && termsAgreed;
 
   return (
     <div className="bg-white dark:bg-[#141414] p-6 sm:p-8">
@@ -120,8 +123,54 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
             </div>
           )}
 
+          {/* Terms agreement */}
+          <div className="mt-6 space-y-3">
+            <p className="text-[#4A4A4A] text-xs leading-relaxed">
+              {t('payment.terms.note')}
+            </p>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative flex-shrink-0 mt-0.5">
+                <input
+                  type="checkbox"
+                  checked={termsAgreed}
+                  onChange={(e) => setTermsAgreed(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <div className="size-4 border border-[#C0C0C0] group-hover:border-[#2563EB] peer-checked:border-[#2563EB] peer-checked:bg-[#2563EB] transition-colors flex items-center justify-center">
+                  {termsAgreed && (
+                    <svg className="size-2.5 text-white" viewBox="0 0 10 8" fill="none">
+                      <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-[#4A4A4A] text-xs leading-relaxed select-none">
+                {t('payment.terms.prefix')}{' '}
+                <a
+                  href={`/${lng}/terms`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="font-semibold text-[#2563EB] underline underline-offset-2 decoration-[#93C5FD] hover:text-[#1D4ED8] hover:decoration-[#2563EB] transition-colors"
+                >
+                  {t('payment.terms.termsLink')}
+                </a>
+                {' '}{t('payment.terms.conjunction')}{' '}
+                <a
+                  href={`/${lng}/returns`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="font-semibold text-[#2563EB] underline underline-offset-2 decoration-[#93C5FD] hover:text-[#1D4ED8] hover:decoration-[#2563EB] transition-colors"
+                >
+                  {t('payment.terms.conditionsLink')}
+                </a>
+              </span>
+            </label>
+          </div>
+
           {/* CTA */}
-          <div className="mt-6 space-y-2.5">
+          <div className="mt-4 space-y-2.5">
             {isError ? (
               <button
                 type="button"

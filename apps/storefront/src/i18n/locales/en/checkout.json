@@ -47,12 +47,6 @@
       "addressRequired": "Address is required",
       "cityRequired": "City is required",
       "methodRequired": "Please select a shipping method"
-    },
-    "terms": {
-      "prefix": "I agree to the",
-      "termsLink": "terms",
-      "conjunction": "and",
-      "conditionsLink": "conditions"
     }
   },
 
@@ -123,6 +117,13 @@
         "Z": "Transaction declined.",
         "unknown": "Payment was not successful. Please try again."
       }
+    },
+    "terms": {
+      "note": "Note: You must agree to the seller's terms and conditions before completing your payment.",
+      "prefix": "I agree to the",
+      "termsLink": "terms",
+      "conjunction": "and",
+      "conditionsLink": "conditions"
     },
     "cardHint": "Your card details are securely handled by Stripe.",
     "lsHint": "You'll be redirected to Lemon Squeezy's secure checkout page to complete your payment.",

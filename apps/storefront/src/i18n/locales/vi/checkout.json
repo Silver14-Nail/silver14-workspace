@@ -43,12 +43,6 @@
       "addressRequired": "Địa chỉ là bắt buộc",
       "cityRequired": "Thành phố là bắt buộc",
       "methodRequired": "Vui lòng chọn phương thức vận chuyển"
-    },
-    "terms": {
-      "prefix": "Tôi đồng ý với",
-      "termsLink": "điều khoản",
-      "conjunction": "và",
-      "conditionsLink": "điều kiện"
     }
   },
   "payment": {
@@ -118,6 +112,13 @@
         "Z": "Giao dịch bị từ chối.",
         "unknown": "Thanh toán không thành công. Vui lòng thử lại."
       }
+    },
+    "terms": {
+      "note": "Lưu ý: Bạn phải đồng ý với các điều khoản và điều kiện của người bán trước khi thanh toán.",
+      "prefix": "Tôi đồng ý với",
+      "termsLink": "điều khoản",
+      "conjunction": "và",
+      "conditionsLink": "điều kiện"
     },
     "cardHint": "Thông tin thẻ được xử lý bảo mật bởi Stripe.",
     "lsHint": "Bạn sẽ được chuyển đến trang thanh toán bảo mật của Lemon Squeezy để hoàn tất giao dịch.",
