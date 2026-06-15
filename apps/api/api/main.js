@@ -301679,7 +301679,7 @@ const COUNTRY_ISO = {
     'Saudi Arabia': 'SA', Singapore: 'SG', Slovakia: 'SK', Slovenia: 'SI',
     Spain: 'ES', Sweden: 'SE', Switzerland: 'CH', Taiwan: 'TW', Thailand: 'TH',
     Tuvalu: 'TV', 'United Arab Emirates': 'AE', 'United Kingdom': 'GB',
-    'United States': 'US', Vanuatu: 'VU',
+    'United States': 'US', Vanuatu: 'VU', Vietnam: 'VN',
 };
 let ClientPaymentsService = class ClientPaymentsService {
     constructor(sessionRepo, paymentRepo, stripeService, lsService, paypalService) {
@@ -304691,6 +304691,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SHIPPING_ZONES = void 0;
 exports.getShippingZone = getShippingZone;
 exports.SHIPPING_ZONES = [
+    {
+        name: 'Vietnam',
+        fee: 0,
+        currency: 'USD',
+        isoCodes: ['vn'],
+        aliases: ['vietnam', 'viet nam'],
+    },
     {
         name: 'Zone A',
         fee: 10,

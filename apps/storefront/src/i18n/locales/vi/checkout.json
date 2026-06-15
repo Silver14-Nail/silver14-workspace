@@ -43,6 +43,12 @@
       "addressRequired": "Địa chỉ là bắt buộc",
       "cityRequired": "Thành phố là bắt buộc",
       "methodRequired": "Vui lòng chọn phương thức vận chuyển"
+    },
+    "terms": {
+      "prefix": "Tôi đồng ý với",
+      "termsLink": "điều khoản",
+      "conjunction": "và",
+      "conditionsLink": "điều kiện"
     }
   },
   "payment": {

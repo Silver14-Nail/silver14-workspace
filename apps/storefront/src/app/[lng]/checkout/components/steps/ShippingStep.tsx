@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useT } from 'next-i18next/client';
+import { useParams } from 'next/navigation';
 import { InputField } from '../ui/InputField';
 import { BackButton, StepButton } from '../ui/Buttons';
 import { COUNTRIES } from '../../constants';
@@ -32,7 +33,10 @@ export function ShippingStep({
   onNext,
 }: ShippingStepProps) {
   const { t } = useT('checkout');
+  const params = useParams();
+  const lng = (params?.lng as string) ?? 'en';
   const [methodError, setMethodError] = useState<string | null>(null);
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   const {
     register,
@@ -213,9 +217,50 @@ export function ShippingStep({
 
         {error && <p className="text-red-600 text-xs mt-4 px-1">{error}</p>}
 
+        {/* Terms & conditions agreement — required before proceeding to payment */}
+        <label className="flex items-start gap-3 mt-5 cursor-pointer group">
+          <div className="relative flex-shrink-0 mt-0.5">
+            <input
+              type="checkbox"
+              checked={termsAgreed}
+              onChange={(e) => setTermsAgreed(e.target.checked)}
+              className="peer sr-only"
+            />
+            <div className="size-4 border border-[#C0C0C0] group-hover:border-[#9A9A9A] peer-checked:border-[#1A1A1A] peer-checked:bg-[#1A1A1A] transition-colors flex items-center justify-center">
+              {termsAgreed && (
+                <svg className="size-2.5 text-white" viewBox="0 0 10 8" fill="none">
+                  <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+          </div>
+          <span className="text-[#6A6A6A] text-xs leading-relaxed select-none">
+            {t('shipping.terms.prefix')}{' '}
+            <a
+              href={`/${lng}/terms`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="font-semibold text-[#1A1A1A] underline underline-offset-2 decoration-[#9A9A9A] hover:decoration-[#1A1A1A] transition-colors"
+            >
+              {t('shipping.terms.termsLink')}
+            </a>
+            {' '}{t('shipping.terms.conjunction')}{' '}
+            <a
+              href={`/${lng}/returns`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="font-semibold text-[#1A1A1A] underline underline-offset-2 decoration-[#9A9A9A] hover:decoration-[#1A1A1A] transition-colors"
+            >
+              {t('shipping.terms.conditionsLink')}
+            </a>
+          </span>
+        </label>
+
         <StepButton
           label={t('shipping.cta')}
-          disabled={isSubmitting || !isValid}
+          disabled={isSubmitting || !isValid || !termsAgreed}
           isLoading={isSubmitting}
         />
       </div>

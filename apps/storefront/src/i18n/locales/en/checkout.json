@@ -47,6 +47,12 @@
       "addressRequired": "Address is required",
       "cityRequired": "City is required",
       "methodRequired": "Please select a shipping method"
+    },
+    "terms": {
+      "prefix": "I agree to the",
+      "termsLink": "terms",
+      "conjunction": "and",
+      "conditionsLink": "conditions"
     }
   },
 

@@ -10,16 +10,14 @@ import { TrackForm, OrderResult } from './components';
 
 function OrderTrackingContent() {
   const { t } = useT('tracking');
-  const { formData, result, loading, paymentStatus, handleInputChange, trackOrder } = useOrderTracking();
+  const { formData, result, loading, paymentStatus, handleInputChange, trackOrder } =
+    useOrderTracking();
 
   return (
     <div className="min-h-screen pt-16 md:pt-20">
       <div className="text-center py-16 px-4 border-b border-[#E8E8E8]">
         <p className="text-[#9A9A9A] uppercase tracking-[0.2em] text-xs mb-3">{t('subtitle')}</p>
-        <h1
-          className="text-[#1A1A1A]"
-          style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}
-        >
+        <h1 className="text-[#1A1A1A]" style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)' }}>
           {t('title')}
         </h1>
       </div>
@@ -90,7 +88,7 @@ function OrderTrackingContent() {
           <p className="text-[#9A9A9A] text-xs">
             {t('help')}{' '}
             <a
-              href="mailto:hello@silver14nail.com"
+              href="mailto:silver14nail@gmail.com"
               className="text-[#1A1A1A] underline hover:text-black"
             >
               {t('contactUs')}
