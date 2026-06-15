@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import { getT } from 'next-i18next/server';
-import { fetchCampaignByPlacement, getCampaignTranslation } from '@/features/campaigns/campaigns.api';
+import {
+  fetchCampaignByPlacement,
+  getCampaignTranslation,
+} from '@/features/campaigns/campaigns.api';
 import { HomePageClient } from './HomePageClient';
 import { HomeProductSections, HomeSectionsSkeleton } from './HomeProductSections';
 

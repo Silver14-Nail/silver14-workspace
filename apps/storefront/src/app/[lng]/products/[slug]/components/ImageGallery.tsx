@@ -1,7 +1,7 @@
 'use client';
 
 import { memo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useT } from 'next-i18next/client';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 
@@ -22,7 +22,7 @@ export const ImageGallery = memo(function ImageGallery({
 }: ImageGalleryProps) {
   const { t } = useT('product-details');
 
-  const handleDragEnd = (event: any, info: any) => {
+  const handleDragEnd = (_event: any, info: any) => {
     const threshold = 50;
     if (info.offset.x < -threshold && selectedIndex < images.length - 1) {
       onSelect(selectedIndex + 1);
@@ -57,36 +57,38 @@ export const ImageGallery = memo(function ImageGallery({
         ))}
       </div>
 
-      {/* Main image */}
-      <div className="w-full sm:flex-1 sm:min-w-0 relative touch-pan-y bg-[#F8F8F8]" style={{ aspectRatio: '1 / 1' }}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={handleDragEnd}
-            className="absolute inset-0 cursor-grab active:cursor-grabbing"
+      {/* Main image — all images rendered simultaneously so Next.js preloads them;
+          CSS opacity transition switches between them instantly with no network wait. */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        onDragEnd={handleDragEnd}
+        className="w-full sm:flex-1 sm:min-w-0 relative touch-pan-y bg-[#F8F8F8] cursor-grab active:cursor-grabbing"
+        style={{ aspectRatio: '1 / 1' }}
+      >
+        {images.map((img, idx) => (
+          <div
+            key={img}
+            className="absolute inset-0 transition-opacity duration-150"
+            style={{ opacity: idx === selectedIndex ? 1 : 0, pointerEvents: idx === selectedIndex ? 'auto' : 'none' }}
           >
             <ImageWithFallback
-              src={images[selectedIndex]}
-              alt={productName}
+              src={img}
+              alt={idx === 0 ? productName : ''}
               fill
               sizes="(max-width: 640px) 100vw, 60vw"
               className="object-cover object-center"
+              priority={idx === 0}
             />
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        ))}
 
         {hasSale && (
           <div className="absolute top-4 left-4 bg-[#1A1A1A] text-white text-[10px] px-2 py-1 uppercase tracking-widest z-10">
             {t('gallery.saleBadge')}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 });

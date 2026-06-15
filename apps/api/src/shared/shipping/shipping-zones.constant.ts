@@ -8,6 +8,13 @@ export interface ShippingZone {
 
 export const SHIPPING_ZONES: ShippingZone[] = [
   {
+    name: 'Vietnam',
+    fee: 0,
+    currency: 'USD',
+    isoCodes: ['vn'],
+    aliases: ['vietnam', 'viet nam'],
+  },
+  {
     name: 'Zone A',
     fee: 10,
     currency: 'USD',

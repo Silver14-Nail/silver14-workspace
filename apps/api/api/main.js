@@ -306713,20 +306713,24 @@ let ClientMarketingCampaignsController = class ClientMarketingCampaignsControlle
     constructor(service) {
         this.service = service;
     }
-    getByPlacement(placement, locale = 'en') {
-        return this.service.getActiveCampaignByPlacement(placement, locale);
+    async getByPlacement(placement, locale = 'en', res) {
+        const campaign = await this.service.getActiveCampaignByPlacement(placement, locale);
+        // Explicitly send JSON so null is serialised as "null" not empty body
+        return res.json(campaign);
     }
 };
 exports.ClientMarketingCampaignsController = ClientMarketingCampaignsController;
 tslib_1.__decorate([
     (0, common_1.Get)(':placement'),
+    (0, common_1.HttpCode)(200),
     (0, swagger_1.ApiParam)({ name: 'placement', enum: entity_enum_1.CampaignPlacement }),
     (0, swagger_1.ApiQuery)({ name: 'locale', required: false, type: String, example: 'en' }),
     tslib_1.__param(0, (0, common_1.Param)('placement')),
     tslib_1.__param(1, (0, common_1.Query)('locale')),
+    tslib_1.__param(2, (0, common_1.Res)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_b = typeof entity_enum_1.CampaignPlacement !== "undefined" && entity_enum_1.CampaignPlacement) === "function" ? _b : Object, String]),
-    tslib_1.__metadata("design:returntype", void 0)
+    tslib_1.__metadata("design:paramtypes", [typeof (_b = typeof entity_enum_1.CampaignPlacement !== "undefined" && entity_enum_1.CampaignPlacement) === "function" ? _b : Object, String, Object]),
+    tslib_1.__metadata("design:returntype", Promise)
 ], ClientMarketingCampaignsController.prototype, "getByPlacement", null);
 exports.ClientMarketingCampaignsController = ClientMarketingCampaignsController = tslib_1.__decorate([
     (0, swagger_1.ApiTags)('Client - Marketing Campaigns'),

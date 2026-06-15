@@ -1,5 +1,6 @@
 import type { Step } from './types';
 
+// Vietnam – Free
 // Zone A – $10: Malaysia, Brunei, Indonesia, Philippines, Thailand, Vanuatu
 // Zone B – $15: Taiwan, India, China, Mongolia, Bangladesh, Laos, Cambodia, Myanmar,
 //               Kiribati, Tuvalu, Belgium, Italy, United States, Australia, United Kingdom,
@@ -78,6 +79,7 @@ export const COUNTRIES = [
   'United Kingdom',
   'United States',
   'Vanuatu',
+  'Vietnam',
   'Other',
 ] as const;
 
@@ -97,5 +99,5 @@ export const DEFAULT_SHIPPING = {
   apartment: '',
   city: '',
   postalCode: '',
-  country: 'Germany',
+  country: 'Vietnam',
 };

@@ -36,6 +36,11 @@
 
   "shippingZones": [
     {
+      "region": "Vietnam",
+      "countries": "Vietnam",
+      "cost": "Free"
+    },
+    {
       "region": "Zone A",
       "countries": "Malaysia, Brunei, Indonesia, Philippines, Thailand, Vanuatu",
       "cost": "$10"

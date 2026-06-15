@@ -51,7 +51,7 @@ const COUNTRY_ISO: Record<string, string> = {
   'Saudi Arabia': 'SA', Singapore: 'SG', Slovakia: 'SK', Slovenia: 'SI',
   Spain: 'ES', Sweden: 'SE', Switzerland: 'CH', Taiwan: 'TW', Thailand: 'TH',
   Tuvalu: 'TV', 'United Arab Emirates': 'AE', 'United Kingdom': 'GB',
-  'United States': 'US', Vanuatu: 'VU',
+  'United States': 'US', Vanuatu: 'VU', Vietnam: 'VN',
 };
 
 interface SessionTotals {
