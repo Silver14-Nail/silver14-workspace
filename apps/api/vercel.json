@@ -3,7 +3,6 @@
   "buildCommand": "cd ../.. && npx nx build api --skip-nx-cache",
   "functions": {
     "api/main.js": {
-      "memory": 1024,
       "maxDuration": 30
     }
   },
