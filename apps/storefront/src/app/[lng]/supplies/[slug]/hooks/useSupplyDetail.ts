@@ -49,7 +49,7 @@ export function useSupplyDetail(supply: ApiProductDetail | null): UseSupplyDetai
 
   const hasColorVariants =
     (supply?.variants?.length ?? 0) > 1 ||
-    (supply?.variants?.[0]?.colorName != null && supply!.variants[0].colorName !== '');
+    (supply?.variants?.[0]?.colorName != null && supply.variants[0].colorName !== '');
 
   const inStock = (selectedVariant?.stockQty ?? 0) > 0 && (selectedVariant?.isAvailable ?? false);
   const maxQuantity = inStock ? (selectedVariant?.stockQty ?? 0) : 0;
@@ -82,7 +82,43 @@ export function useSupplyDetail(supply: ApiProductDetail | null): UseSupplyDetai
     setShowCartPreview(true);
 
     try {
-      await addItem({ variantId: selectedVariant.id, quantity });
+      await addItem({
+        variantId: selectedVariant.id,
+        quantity,
+        optimisticItem: {
+          product: {
+            id: supply.id,
+            name: supply.name,
+            slug: supply.slug,
+            basePrice: supply.basePrice,
+            salePrice: supply.salePrice,
+            currency: supply.currency,
+            images: supply.images.map((image) => ({
+              url: image.url,
+              isMain: image.isMain,
+              sortOrder: image.sortOrder,
+            })),
+          },
+          variant: {
+            id: selectedVariant.id,
+            stockQty: selectedVariant.stockQty,
+            computedPrice: selectedVariant.computedPrice,
+            isAvailable: selectedVariant.isAvailable,
+            colorName: selectedVariant.colorName ?? null,
+            shape: selectedVariant.shape
+              ? { id: selectedVariant.shape.id, name: selectedVariant.shape.name }
+              : null,
+            size: selectedVariant.size
+              ? {
+                  id: selectedVariant.size.id,
+                  label: selectedVariant.size.label,
+                  sizeCode: selectedVariant.size.sizeCode,
+                  measurements: selectedVariant.size.measurements,
+                }
+              : null,
+          },
+        },
+      });
     } catch {
       setShowCartPreview(false);
     }

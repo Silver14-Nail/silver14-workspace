@@ -45,6 +45,27 @@ export interface ApiAddItemResponse {
   cartId: string;
 }
 
+export interface CartOptimisticItem {
+  product: {
+    id: string;
+    name: string;
+    slug: string | null;
+    basePrice: string;
+    salePrice: string | null;
+    currency: string;
+    images: ApiCartProductImage[];
+  };
+  variant: {
+    id: string;
+    stockQty: number;
+    computedPrice: string;
+    isAvailable: boolean;
+    colorName: string | null;
+    shape: { id: string; name: string } | null;
+    size: { id: string; label: string; sizeCode: string; measurements: string | null } | null;
+  };
+}
+
 /** Unified display item used by all cart UI components */
 export interface CartDisplayItem {
   id: string;

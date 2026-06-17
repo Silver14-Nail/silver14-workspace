@@ -1,26 +1,86 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '@/store/hooks';
-import {
-  getStoredCustomerTokens,
-  isAccessTokenExpired,
-} from '@/features/auth/customer-auth.storage';
 import { getGuestCartId, setGuestCartId, clearGuestCartId } from './cart.storage';
 import { cartApi, type AddItemInput } from './cart.api';
 import { adaptCart, calcCartTotals } from './cart.utils';
-import type { ApiCart, CartDisplayItem } from './cart.types';
+import type { ApiCart, ApiCartItem, CartDisplayItem, CartOptimisticItem } from './cart.types';
 
 export const CART_QUERY_KEY = ['cart'] as const;
 
-/** Resolve current auth credentials synchronously from localStorage. */
-function getCredentials() {
-  const tokens = getStoredCustomerTokens();
-  if (tokens && !isAccessTokenExpired(tokens)) {
-    return { accessToken: tokens.accessToken, guestCartId: null as string | null };
+type AddItemVariables = AddItemInput & {
+  optimisticItem?: CartOptimisticItem;
+};
+
+type AddItemPromiseHandler = {
+  resolve: () => void;
+  reject: (error: unknown) => void;
+};
+
+type DebouncedAddEntry = {
+  input: AddItemVariables;
+  quantity: number;
+  snapshot: ApiCart | null | undefined;
+  timer: ReturnType<typeof setTimeout>;
+  handlers: AddItemPromiseHandler[];
+};
+
+const ADD_ITEM_DEBOUNCE_MS = 350;
+
+function getAddDebounceKey(input: AddItemVariables): string {
+  return JSON.stringify({
+    variantId: input.variantId,
+    isCustomSize: input.isCustomSize ?? false,
+    customMeasurements: input.customMeasurements ?? null,
+  });
+}
+
+function createOptimisticCartItem(input: AddItemVariables): ApiCartItem | null {
+  if (!input.optimisticItem) return null;
+
+  return {
+    id: `optimistic:${input.variantId}:${Date.now()}`,
+    quantity: input.quantity,
+    isCustomSize: input.isCustomSize ?? false,
+    customMeasurements: input.customMeasurements ?? null,
+    variant: {
+      ...input.optimisticItem.variant,
+      product: input.optimisticItem.product,
+    },
+  };
+}
+
+function applyOptimisticAdd(
+  old: ApiCart | null | undefined,
+  input: AddItemVariables,
+): ApiCart | null {
+  const optimisticItem = createOptimisticCartItem(input);
+  if (!optimisticItem) return old ?? null;
+
+  const cart: ApiCart = old ?? {
+    id: 'optimistic-cart',
+    status: 'ACTIVE',
+    expiresAt: null,
+    items: [],
+  };
+
+  if (!input.isCustomSize) {
+    const existing = cart.items.find(
+      (item) => !item.isCustomSize && item.variant.id === input.variantId,
+    );
+    if (existing) {
+      return {
+        ...cart,
+        items: cart.items.map((item) =>
+          item.id === existing.id ? { ...item, quantity: item.quantity + input.quantity } : item,
+        ),
+      };
+    }
   }
-  return { accessToken: null as string | null, guestCartId: getGuestCartId() };
+
+  return { ...cart, items: [...cart.items, optimisticItem] };
 }
 
 // ─── useCart ─────────────────────────────────────────────────────────────────
@@ -31,17 +91,41 @@ export function useCart() {
   // Auth state from Redux — changes here trigger a new queryKey → fresh fetch
   const { status: authStatus, tokens } = useAppSelector((s) => s.auth);
   const userId = useAppSelector((s) => s.auth.user?.id ?? null);
+  const [guestCartId, setGuestCartIdState] = useState<string | null>(null);
+  const [cartStorageReady, setCartStorageReady] = useState(false);
 
-  // Key includes userId so auth changes auto-invalidate the cached cart
-  const queryKey = [...CART_QUERY_KEY, userId ?? 'guest'] as const;
+  useEffect(() => {
+    setGuestCartIdState(getGuestCartId());
+    setCartStorageReady(true);
+  }, []);
+
+  const credentials = useMemo(() => {
+    if (authStatus === 'authenticated' && tokens?.accessToken) {
+      return { accessToken: tokens.accessToken, guestCartId: null as string | null };
+    }
+
+    return { accessToken: null as string | null, guestCartId };
+  }, [authStatus, tokens?.accessToken, guestCartId]);
+
+  // Key includes the active credential so auth/guest-cart changes fetch the matching cart.
+  const queryKey = useMemo(
+    () =>
+      [
+        ...CART_QUERY_KEY,
+        credentials.accessToken ? `user:${userId ?? 'unknown'}` : 'guest',
+        credentials.accessToken ?? credentials.guestCartId ?? 'none',
+      ] as const,
+    [credentials.accessToken, credentials.guestCartId, userId],
+  );
 
   const { data: rawCart, isLoading } = useQuery({
     queryKey,
-    queryFn: () => {
-      const { accessToken, guestCartId } = getCredentials();
-      return cartApi.getCart(accessToken, guestCartId);
-    },
-    enabled: typeof window !== 'undefined',
+    queryFn: () => cartApi.getCart(credentials.accessToken, credentials.guestCartId),
+    enabled:
+      typeof window !== 'undefined' &&
+      cartStorageReady &&
+      authStatus !== 'checking' &&
+      (authStatus !== 'authenticated' || Boolean(credentials.accessToken)),
     staleTime: 30_000,
     // Keep previous data while queryKey changes (e.g. auth resolves → userId changes)
     // so the cart doesn't flash empty between guest and authenticated states.
@@ -57,29 +141,116 @@ export function useCart() {
         .mergeCart(guestCartId, tokens.accessToken)
         .then(() => {
           clearGuestCartId();
+          setGuestCartIdState(null);
           queryClient.invalidateQueries({ queryKey });
         })
         .catch(() => {
           // Non-critical: guest cart merge failed, skip silently
         });
     }
-  }, [authStatus]);
+  }, [authStatus, queryClient, queryKey, tokens?.accessToken]);
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
+  const pendingAddsRef = useRef(0);
+  const addBatchSnapshotRef = useRef<ApiCart | null | undefined>(undefined);
+  const latestAddServerCartRef = useRef<ApiCart | null>(null);
+  const debouncedAddsRef = useRef<Record<string, DebouncedAddEntry>>({});
+
   const addItemMutation = useMutation({
-    mutationFn: (dto: AddItemInput) => {
-      const { accessToken, guestCartId } = getCredentials();
-      return cartApi.addItem(dto, accessToken, guestCartId);
-    },
+    mutationFn: (input: AddItemVariables) =>
+      cartApi.addItem(
+        {
+          variantId: input.variantId,
+          quantity: input.quantity,
+          isCustomSize: input.isCustomSize,
+          customMeasurements: input.customMeasurements,
+        },
+        credentials.accessToken,
+        credentials.guestCartId,
+      ),
     onSuccess: (data) => {
-      if (!tokens?.accessToken) {
+      pendingAddsRef.current = Math.max(0, pendingAddsRef.current - 1);
+      latestAddServerCartRef.current = data.cart;
+      if (!credentials.accessToken) {
         setGuestCartId(data.cartId);
+        setGuestCartIdState(data.cartId);
       }
       // Server returns full cart — write directly to cache, no extra GET needed
-      queryClient.setQueryData<ApiCart>(queryKey, data.cart);
+      if (pendingAddsRef.current === 0 && Object.keys(debouncedAddsRef.current).length === 0) {
+        queryClient.setQueryData<ApiCart>(queryKey, latestAddServerCartRef.current);
+        addBatchSnapshotRef.current = undefined;
+        latestAddServerCartRef.current = null;
+      }
     },
   });
+
+  const flushDebouncedAdd = async (key: string) => {
+    const entry = debouncedAddsRef.current[key];
+    if (!entry) return;
+    delete debouncedAddsRef.current[key];
+
+    pendingAddsRef.current += 1;
+    try {
+      await addItemMutation.mutateAsync({
+        ...entry.input,
+        quantity: entry.quantity,
+        optimisticItem: undefined,
+      });
+      entry.handlers.forEach(({ resolve }) => resolve());
+    } catch (error) {
+      pendingAddsRef.current = Math.max(0, pendingAddsRef.current - 1);
+      if (pendingAddsRef.current === 0 && Object.keys(debouncedAddsRef.current).length === 0) {
+        if (latestAddServerCartRef.current) {
+          queryClient.setQueryData<ApiCart>(queryKey, latestAddServerCartRef.current);
+        } else {
+          queryClient.setQueryData(queryKey, addBatchSnapshotRef.current ?? entry.snapshot ?? null);
+        }
+        addBatchSnapshotRef.current = undefined;
+        latestAddServerCartRef.current = null;
+      }
+      entry.handlers.forEach(({ reject }) => reject(error));
+    }
+  };
+
+  const addItem = (input: AddItemVariables) => {
+    const key = getAddDebounceKey(input);
+    const snapshot = queryClient.getQueryData<ApiCart | null>(queryKey);
+
+    if (pendingAddsRef.current === 0 && Object.keys(debouncedAddsRef.current).length === 0) {
+      addBatchSnapshotRef.current = snapshot;
+      latestAddServerCartRef.current = null;
+    }
+
+    queryClient.cancelQueries({ queryKey });
+    queryClient.setQueryData<ApiCart | null>(queryKey, (old) => applyOptimisticAdd(old, input));
+
+    const existing = debouncedAddsRef.current[key];
+    if (existing) {
+      existing.quantity += input.quantity;
+      existing.input = { ...input, quantity: existing.quantity };
+      clearTimeout(existing.timer);
+      existing.timer = setTimeout(() => {
+        void flushDebouncedAdd(key);
+      }, ADD_ITEM_DEBOUNCE_MS);
+
+      return new Promise<void>((resolve, reject) => {
+        existing.handlers.push({ resolve, reject });
+      });
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      debouncedAddsRef.current[key] = {
+        input,
+        quantity: input.quantity,
+        snapshot,
+        timer: setTimeout(() => {
+          void flushDebouncedAdd(key);
+        }, ADD_ITEM_DEBOUNCE_MS),
+        handlers: [{ resolve, reject }],
+      };
+    });
+  };
 
   // Per-item debounce: batches rapid +/- clicks into a single API call.
   // UI updates optimistically on every click; the server call fires 500ms
@@ -90,8 +261,7 @@ export function useCart() {
 
   const updateItemMutation = useMutation({
     mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-      const { accessToken, guestCartId } = getCredentials();
-      return cartApi.updateItem(itemId, quantity, accessToken, guestCartId);
+      return cartApi.updateItem(itemId, quantity, credentials.accessToken, credentials.guestCartId);
     },
     onSuccess: (data) => {
       pendingUpdatesRef.current = Math.max(0, pendingUpdatesRef.current - 1);
@@ -133,8 +303,7 @@ export function useCart() {
 
   const removeItemMutation = useMutation({
     mutationFn: (itemId: string) => {
-      const { accessToken, guestCartId } = getCredentials();
-      return cartApi.removeItem(itemId, accessToken, guestCartId);
+      return cartApi.removeItem(itemId, credentials.accessToken, credentials.guestCartId);
     },
     onMutate: async (itemId) => {
       await queryClient.cancelQueries({ queryKey });
@@ -154,10 +323,7 @@ export function useCart() {
   });
 
   const clearCartMutation = useMutation({
-    mutationFn: () => {
-      const { accessToken, guestCartId } = getCredentials();
-      return cartApi.clearCart(accessToken, guestCartId);
-    },
+    mutationFn: () => cartApi.clearCart(credentials.accessToken, credentials.guestCartId),
     onSuccess: (data) => {
       queryClient.setQueryData<ApiCart | null>(queryKey, data);
     },
@@ -183,7 +349,7 @@ export function useCart() {
     isLoading,
     isMutating,
     addItemError: addItemMutation.error,
-    addItem: (dto: AddItemInput) => addItemMutation.mutateAsync(dto),
+    addItem,
     updateItem,
     removeItem: (itemId: string) => removeItemMutation.mutateAsync(itemId),
     clearCart: () => clearCartMutation.mutateAsync(),

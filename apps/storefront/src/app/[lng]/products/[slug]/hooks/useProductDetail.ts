@@ -128,6 +128,37 @@ export function useProductDetail(
       await addItem({
         variantId: selectedVariant.id,
         quantity: selections.quantity,
+        optimisticItem: {
+          product: {
+            id: product.id,
+            name: product.name,
+            slug: product.slug,
+            basePrice: String(product.price),
+            salePrice: product.salePrice != null ? String(product.salePrice) : null,
+            currency: product.currency,
+            images: product.images.map((url, index) => ({
+              url,
+              isMain: index === 0,
+              sortOrder: index,
+            })),
+          },
+          variant: {
+            id: selectedVariant.id,
+            stockQty: selectedVariant.stockQty,
+            computedPrice: String(selectedVariant.computedPrice),
+            isAvailable: selectedVariant.isAvailable,
+            colorName: null,
+            shape: selections.shape ? { id: selections.shape, name: selections.shape } : null,
+            size: selections.size
+              ? {
+                  id: selections.size,
+                  label: selections.size,
+                  sizeCode: selections.size,
+                  measurements: null,
+                }
+              : null,
+          },
+        },
         ...(isCustomSize && {
           isCustomSize: true,
           customMeasurements: selections.customization
