@@ -2,9 +2,34 @@ import type { CustomerAuthTokens } from './customer-auth.types';
 
 const STORAGE_KEY = 'silver14-customer-auth';
 
+/** Safe accessor — returns null when localStorage is blocked (private browsing, WebView, etc.). */
+function safeGetItem(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // Silently fail — storage blocked
+  }
+}
+
+function safeRemoveItem(key: string): void {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Silently fail
+  }
+}
+
 export function getStoredCustomerTokens(): CustomerAuthTokens | null {
   if (typeof window === 'undefined') return null;
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = safeGetItem(STORAGE_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as CustomerAuthTokens;
@@ -15,12 +40,12 @@ export function getStoredCustomerTokens(): CustomerAuthTokens | null {
 }
 
 export function setStoredCustomerTokens(tokens: CustomerAuthTokens) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
+  safeSetItem(STORAGE_KEY, JSON.stringify(tokens));
 }
 
 export function clearStoredCustomerTokens() {
   if (typeof window !== 'undefined') {
-    window.localStorage.removeItem(STORAGE_KEY);
+    safeRemoveItem(STORAGE_KEY);
   }
 }
 

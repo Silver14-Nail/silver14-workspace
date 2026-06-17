@@ -304619,7 +304619,13 @@ let ClientCheckoutService = class ClientCheckoutService {
             where: { id: cartId },
             relations: ['items', 'items.variant', 'items.variant.product'],
         });
-        return cart?.items ?? [];
+        // Filter out items whose product has been deleted (variant.product is null).
+        // These can't be priced and would fall through to raw computedPrice,
+        // causing a mismatch between cart display and checkout totals.
+        return (cart?.items ?? []).filter((item) => {
+            const product = item.variant?.product;
+            return product != null;
+        });
     }
     computeDiscount(coupon, subtotalUSD) {
         if (coupon.discountType === entity_enum_1.DiscountType.PERCENT) {
