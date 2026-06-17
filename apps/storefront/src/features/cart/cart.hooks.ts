@@ -156,23 +156,28 @@ export function useCart() {
   const addBatchSnapshotRef = useRef<ApiCart | null | undefined>(undefined);
   const latestAddServerCartRef = useRef<ApiCart | null>(null);
   const debouncedAddsRef = useRef<Record<string, DebouncedAddEntry>>({});
+  const credsRef = useRef(credentials);
+  credsRef.current = credentials;
 
   const addItemMutation = useMutation({
-    mutationFn: (input: AddItemVariables) =>
-      cartApi.addItem(
+    mutationFn: (input: AddItemVariables) => {
+      const c = credsRef.current;
+      return cartApi.addItem(
         {
           variantId: input.variantId,
           quantity: input.quantity,
           isCustomSize: input.isCustomSize,
           customMeasurements: input.customMeasurements,
         },
-        credentials.accessToken,
-        credentials.guestCartId,
-      ),
+        c.accessToken,
+        c.guestCartId,
+      );
+    },
     onSuccess: (data) => {
       pendingAddsRef.current = Math.max(0, pendingAddsRef.current - 1);
       latestAddServerCartRef.current = data.cart;
-      if (!credentials.accessToken) {
+      const c = credsRef.current;
+      if (!c.accessToken) {
         setGuestCartId(data.cartId);
         setGuestCartIdState(data.cartId);
       }
@@ -261,7 +266,8 @@ export function useCart() {
 
   const updateItemMutation = useMutation({
     mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-      return cartApi.updateItem(itemId, quantity, credentials.accessToken, credentials.guestCartId);
+      const c = credsRef.current;
+      return cartApi.updateItem(itemId, quantity, c.accessToken, c.guestCartId);
     },
     onSuccess: (data) => {
       pendingUpdatesRef.current = Math.max(0, pendingUpdatesRef.current - 1);
@@ -303,7 +309,8 @@ export function useCart() {
 
   const removeItemMutation = useMutation({
     mutationFn: (itemId: string) => {
-      return cartApi.removeItem(itemId, credentials.accessToken, credentials.guestCartId);
+      const c = credsRef.current;
+      return cartApi.removeItem(itemId, c.accessToken, c.guestCartId);
     },
     onMutate: async (itemId) => {
       await queryClient.cancelQueries({ queryKey });
@@ -323,7 +330,10 @@ export function useCart() {
   });
 
   const clearCartMutation = useMutation({
-    mutationFn: () => cartApi.clearCart(credentials.accessToken, credentials.guestCartId),
+    mutationFn: () => {
+      const c = credsRef.current;
+      return cartApi.clearCart(c.accessToken, c.guestCartId);
+    },
     onSuccess: (data) => {
       queryClient.setQueryData<ApiCart | null>(queryKey, data);
     },
