@@ -20,7 +20,7 @@ export interface ApiCartVariant {
   computedPrice: string;
   isAvailable: boolean;
   colorName: string | null;
-  product: ApiCartProduct;
+  product: ApiCartProduct | null;
   shape: { id: string; name: string } | null;
   size: { id: string; label: string; sizeCode: string; measurements: string | null } | null;
 }

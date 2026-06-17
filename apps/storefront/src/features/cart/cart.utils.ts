@@ -8,9 +8,13 @@ function pickThumbnail(
   return (sorted.find((i) => i.isMain) ?? sorted[0])?.url ?? null;
 }
 
-export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
+export function adaptCartItem(item: ApiCartItem): CartDisplayItem | null {
   const { variant } = item;
   const { product, shape, size } = variant;
+
+  // Product may be null if the underlying product was deleted but the cart item
+  // still references the variant. Skip such items instead of crashing.
+  if (!product) return null;
 
   const computedPrice = parseFloat(variant.computedPrice);
   const basePrice = parseFloat(product.basePrice);
@@ -55,7 +59,7 @@ export function adaptCartItem(item: ApiCartItem): CartDisplayItem {
 export function adaptCart(cart: ApiCart): { id: string; items: CartDisplayItem[] } {
   return {
     id: cart.id,
-    items: cart.items.map(adaptCartItem),
+    items: cart.items.map(adaptCartItem).filter(Boolean) as CartDisplayItem[],
   };
 }
 
