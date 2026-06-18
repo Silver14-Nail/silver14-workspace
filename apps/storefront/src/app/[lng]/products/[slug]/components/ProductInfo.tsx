@@ -51,12 +51,15 @@ export const ProductInfo = memo(function ProductInfo({
   const basePricing = getPricingInfo(product);
 
   // When a shape with price adjustment is selected, compute adjusted pricing
-  const pricing = variantComputedPrice !== null
-    ? getPricingInfo({ price: variantComputedPrice, salePrice: basePricing.isOnSale
-        ? variantComputedPrice * (product.salePrice! / product.price)
-        : null
-      })
-    : basePricing;
+  const pricing =
+    variantComputedPrice !== null
+      ? getPricingInfo({
+          price: variantComputedPrice,
+          salePrice: basePricing.isOnSale
+            ? variantComputedPrice * (product.salePrice! / product.price)
+            : null,
+        })
+      : basePricing;
 
   const decrement = useCallback(
     () => onUpdateSelection('quantity', Math.max(1, selections.quantity - 1)),
@@ -128,10 +131,7 @@ export const ProductInfo = memo(function ProductInfo({
         )}
       </div>
 
-      <div
-        className="text-[#6A6A6A] mb-6"
-        style={{ fontSize: '0.9rem' }}
-      >
+      <div className="text-[#6A6A6A] mb-6" style={{ fontSize: '0.9rem' }}>
         <LinkBase
           href="/shipping-policy"
           className="underline underline-offset-4 hover:text-black transition-colors"
@@ -218,14 +218,16 @@ export const ProductInfo = memo(function ProductInfo({
           </div>
 
           {/* Add to cart */}
+          {/* Note: Uses aria-disabled + pointer-events CSS instead of native disabled
+               because Safari has a bug where buttons SSR'd with disabled don't recover
+               onclick after hydration removes the attribute. */}
           <button
             onClick={onAddToCart}
-            disabled={!canAddToCart}
             aria-disabled={!canAddToCart}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs uppercase tracking-widest transition-all ${
               canAddToCart
                 ? 'bg-[#1A1A1A] text-white hover:bg-[#333]'
-                : 'bg-[#E0E0E0] text-[#9A9A9A] cursor-not-allowed'
+                : 'bg-[#E0E0E0] text-[#9A9A9A] cursor-not-allowed pointer-events-none'
             }`}
             style={{ letterSpacing: '0.15em' }}
           >

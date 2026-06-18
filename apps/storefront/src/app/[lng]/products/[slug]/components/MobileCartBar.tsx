@@ -63,12 +63,16 @@ export const MobileCartBar = memo(function MobileCartBar({
           </div>
 
           {/* Add to cart */}
+          {/* Note: Uses aria-disabled + pointer-events CSS instead of native disabled
+               because Safari has a bug where buttons SSR'd with disabled don't recover
+               onclick after hydration removes the attribute. */}
           <button
             onClick={onAddToCart}
-            disabled={!canAddToCart}
             aria-disabled={!canAddToCart}
             className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs uppercase tracking-widest transition-all ${
-              canAddToCart ? 'bg-[#1A1A1A] text-white' : 'bg-[#E0E0E0] text-[#9A9A9A]'
+              canAddToCart
+                ? 'bg-[#1A1A1A] text-white'
+                : 'bg-[#E0E0E0] text-[#9A9A9A] pointer-events-none'
             }`}
             style={{ letterSpacing: '0.12em' }}
           >
