@@ -9,6 +9,8 @@ import {
   isAccessTokenExpired,
 } from '@/features/auth/customer-auth.storage';
 import { checkoutApi } from '@/features/checkout/checkout.api';
+import { cartApi } from '@/features/cart/cart.api';
+import { getLocalCart, broadcastGuestCartId } from '@/features/cart/cart.storage';
 import {
   getCheckoutSessionId,
   setCheckoutSessionId,
@@ -158,10 +160,46 @@ export function useCheckout() {
   const ensureSession = useCallback(async (): Promise<string | null> => {
     // Guest users: reuse stored session if available (no account to link)
     if (sessionId && !getToken()) return sessionId;
-    if (!cartId) return null;
+
+    let resolvedCartId = cartId;
+
+    // On Safari, the cart lives in localStorage (cartId === null). Before
+    // creating a checkout session we need a real BE cart, so sync the local
+    // items to the API here. The first addItem call creates the cart and
+    // returns its id; subsequent calls reuse it via the x-cart-id header.
+    if (!resolvedCartId) {
+      const localItems = getLocalCart().items;
+      if (localItems.length === 0) return null;
+
+      let syncedCartId: string | null = null;
+      for (const item of localItems) {
+        try {
+          const res = await cartApi.addItem(
+            {
+              variantId: item.variant.id,
+              quantity: item.quantity,
+              isCustomSize: item.isCustomSize,
+              customMeasurements: item.customMeasurements ?? undefined,
+            },
+            null,
+            syncedCartId,
+          );
+          syncedCartId = res.cartId;
+        } catch {
+          // Ignore per-item failures — proceed with whatever synced successfully
+        }
+      }
+
+      if (!syncedCartId) return null;
+      broadcastGuestCartId(syncedCartId);
+      resolvedCartId = syncedCartId;
+    }
+
+    if (!resolvedCartId) return null;
+
     try {
       const isNewSession = !sessionId;
-      const s = await checkoutApi.createSession(cartId, getToken(), selectedCurrency);
+      const s = await checkoutApi.createSession(resolvedCartId, getToken(), selectedCurrency);
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
 

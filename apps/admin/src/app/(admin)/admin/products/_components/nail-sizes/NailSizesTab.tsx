@@ -121,6 +121,13 @@ export default function NailSizesTab({ initialSizes }: NailSizesTabProps) {
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalFiltered}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -180,14 +187,6 @@ export default function NailSizesTab({ initialSizes }: NailSizesTabProps) {
             <p className="text-sm text-[#9CA3AF]">No sizes found</p>
           </div>
         )}
-
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalFiltered}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-        />
       </div>
 
       {showDrawer && (

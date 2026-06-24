@@ -184,6 +184,13 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
           dark ? 'bg-[#1C1E26] border-[#2E3244]' : 'bg-white border-[#E5E7EB]'
         }`}
       >
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalFiltered}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={handleItemsPerPageChange}
+        />
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -308,14 +315,6 @@ export default function NailShapesTab({ initialShapes }: NailShapesTabProps) {
             </p>
           </div>
         )}
-
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalFiltered}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={handleItemsPerPageChange}
-        />
       </div>
 
       {showDrawer && (

@@ -246,6 +246,19 @@ export default function ProductsTab({
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
+        <Pagination
+          currentPage={currentPage}
+          totalItems={pagination.totalItems}
+          itemsPerPage={currentLimit}
+          onPageChange={(page) => navigate({ page, search: currentSearch })}
+          onItemsPerPageChange={(limit) => {
+            const q = new URLSearchParams();
+            q.set('tab', 'products');
+            if (currentSearch) q.set('search', currentSearch);
+            q.set('limit', String(limit));
+            startTransition(() => router.push(`/admin/products?${q.toString()}`));
+          }}
+        />
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -285,20 +298,6 @@ export default function ProductsTab({
             <p className="text-sm text-[#9CA3AF]">{t('empty')}</p>
           </div>
         )}
-
-        <Pagination
-          currentPage={currentPage}
-          totalItems={pagination.totalItems}
-          itemsPerPage={currentLimit}
-          onPageChange={(page) => navigate({ page, search: currentSearch })}
-          onItemsPerPageChange={(limit) => {
-            const q = new URLSearchParams();
-            q.set('tab', 'products');
-            if (currentSearch) q.set('search', currentSearch);
-            q.set('limit', String(limit));
-            startTransition(() => router.push(`/admin/products?${q.toString()}`));
-          }}
-        />
       </div>
 
       {showAddDrawer && (

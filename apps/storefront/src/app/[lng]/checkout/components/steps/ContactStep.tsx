@@ -29,6 +29,8 @@ export function ContactStep({ defaultValues, isSubmitting, error, onNext }: Cont
     mode: 'onTouched',
   });
 
+  const handleFormSubmit = handleSubmit(onNext);
+
   // Keep a ref so the effect below always reads the current isDirty without
   // re-firing every time the user touches a field.
   const isDirtyRef = useRef(isDirty);
@@ -44,7 +46,7 @@ export function ContactStep({ defaultValues, isSubmitting, error, onNext }: Cont
   }, [defaultValues.email, defaultValues.fullName, defaultValues.phone]);
 
   return (
-    <form onSubmit={handleSubmit(onNext)} noValidate>
+    <form onSubmit={handleFormSubmit} noValidate>
       <div className="bg-white p-6 sm:p-8">
         <h2 className="text-[#1A1A1A] mb-6" style={{ fontWeight: 400, fontSize: '1.4rem' }}>
           {t('contact.title')}
@@ -85,6 +87,7 @@ export function ContactStep({ defaultValues, isSubmitting, error, onNext }: Cont
           label={t('contact.cta')}
           disabled={isSubmitting || !isValid}
           isLoading={isSubmitting}
+          onTouchSubmit={() => { void handleFormSubmit(); }}
         />
       </div>
     </form>

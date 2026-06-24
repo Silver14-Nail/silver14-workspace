@@ -161,10 +161,24 @@ export function CampaignsClient({
 
       {/* Table */}
       <div
-        className={`rounded-xl border overflow-hidden overflow-x-auto ${
+        className={`rounded-xl border overflow-hidden ${
           isDark ? 'border-gray-800 bg-gray-900' : 'border-[#E5E7EB] bg-white'
         }`}
       >
+        {pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalItems={pagination.totalItems}
+            itemsPerPage={pagination.itemsPerPage}
+            onPageChange={(page) => {
+              router.push(`/admin/campaigns?${buildParams({ page })}`);
+            }}
+            onItemsPerPageChange={(value) => {
+              router.push(`/admin/campaigns?${buildParams({ page: 1, limit: value })}`);
+            }}
+          />
+        )}
+        <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
@@ -291,24 +305,8 @@ export function CampaignsClient({
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="mt-4">
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalItems={pagination.totalItems}
-            itemsPerPage={pagination.itemsPerPage}
-            onPageChange={(page) => {
-              router.push(`/admin/campaigns?${buildParams({ page })}`);
-            }}
-            onItemsPerPageChange={(value) => {
-              router.push(`/admin/campaigns?${buildParams({ page: 1, limit: value })}`);
-            }}
-          />
         </div>
-      )}
+      </div>
 
       {/* Create Drawer */}
       <CampaignFormDrawer

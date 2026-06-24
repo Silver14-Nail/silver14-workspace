@@ -123,8 +123,30 @@ export function SuppliesClient({
 
       {/* Table */}
       <div
-        className={`rounded-xl border overflow-hidden overflow-x-auto ${isDark ? 'border-gray-800 bg-gray-900' : 'border-[#E5E7EB] bg-white'}`}
+        className={`rounded-xl border overflow-hidden ${isDark ? 'border-gray-800 bg-gray-900' : 'border-[#E5E7EB] bg-white'}`}
       >
+        {pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalItems={pagination.totalItems}
+            itemsPerPage={pagination.itemsPerPage}
+            onPageChange={(page) => {
+              const params = new URLSearchParams();
+              if (currentSearch) params.set('search', currentSearch);
+              params.set('page', String(page));
+              params.set('limit', String(currentLimit));
+              router.push(`/admin/supplies?${params.toString()}`);
+            }}
+            onItemsPerPageChange={(value) => {
+              const params = new URLSearchParams();
+              if (currentSearch) params.set('search', currentSearch);
+              params.set('page', '1');
+              params.set('limit', String(value));
+              router.push(`/admin/supplies?${params.toString()}`);
+            }}
+          />
+        )}
+        <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] text-sm">
           <thead>
             <tr className={isDark ? 'bg-gray-800' : 'bg-[#F9FAFB]'}>
@@ -260,32 +282,8 @@ export function SuppliesClient({
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="mt-4">
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalItems={pagination.totalItems}
-            itemsPerPage={pagination.itemsPerPage}
-            onPageChange={(page) => {
-              const params = new URLSearchParams();
-              if (currentSearch) params.set('search', currentSearch);
-              params.set('page', String(page));
-              params.set('limit', String(currentLimit));
-              router.push(`/admin/supplies?${params.toString()}`);
-            }}
-            onItemsPerPageChange={(value) => {
-              const params = new URLSearchParams();
-              if (currentSearch) params.set('search', currentSearch);
-              params.set('page', '1');
-              params.set('limit', String(value));
-              router.push(`/admin/supplies?${params.toString()}`);
-            }}
-          />
         </div>
-      )}
+      </div>
 
       {/* Create Drawer */}
       <SupplyFormDrawer
