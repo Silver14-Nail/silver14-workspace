@@ -31,7 +31,7 @@ export const MobileCartBar = memo(function MobileCartBar({
   const { t } = useT('product-details');
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E8E8] z-30 safe-area-pb">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E8E8] safe-area-pb" style={{ zIndex: 10000001 }}>
       <div className="px-4 py-3">
         <div className="flex items-center gap-2 mb-3">
           {/* Quantity */}

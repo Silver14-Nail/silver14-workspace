@@ -100,6 +100,36 @@ export default async function RootLayout({
 
               d.getElementsByTagName("head")[0].appendChild(s);
             })();
+
+            // On mobile (<768px) push Crisp above the fixed MobileCartBar (~84px).
+            // Crisp renders inside its own iframe with position:fixed so CSS !important
+            // from the parent document cannot override it — we must use JS on the host el.
+            (function moveCrispAboveCartBar() {
+              var isMobile = window.innerWidth < 768;
+              if (!isMobile) return;
+
+              var offset = 'calc(84px + env(safe-area-inset-bottom, 0px))';
+
+              function applyOffset() {
+                var el = document.getElementById('crisp-chatbox');
+                if (el) {
+                  el.style.setProperty('bottom', offset, 'important');
+                  // Crisp may also have a fixed iframe inside — move it too
+                  var inner = el.querySelector('iframe');
+                  if (inner && inner.style.position === 'fixed') {
+                    inner.style.setProperty('bottom', offset, 'important');
+                  }
+                }
+              }
+
+              // Try immediately, then watch for Crisp to mount
+              applyOffset();
+              var observer = new MutationObserver(function() { applyOffset(); });
+              observer.observe(document.body, { childList: true, subtree: true });
+
+              // Stop watching after Crisp has had time to fully load
+              setTimeout(function() { observer.disconnect(); }, 10000);
+            })();
         `}
         </Script>
         <StoreProvider initialCurrencyCode={initialCurrencyCode}>
