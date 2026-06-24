@@ -160,6 +160,7 @@ export function useCart() {
   credsRef.current = credentials;
 
   const addItemMutation = useMutation({
+    mutationKey: ['cart', 'addItem'],
     mutationFn: (input: AddItemVariables) => {
       const c = credsRef.current;
       return cartApi.addItem(
