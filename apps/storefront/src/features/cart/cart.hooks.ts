@@ -183,6 +183,7 @@ export function useCart() {
       authStatus !== 'checking' &&
       (authStatus !== 'authenticated' || Boolean(credentials.accessToken)),
     staleTime: 30_000,
+    refetchOnWindowFocus: false,
     placeholderData: (prev: ApiCart | null | undefined) => prev,
     select: (data) => (data ? adaptCart(data) : null),
   });
@@ -396,6 +397,10 @@ export function useCart() {
       if (ctx?.snapshot !== undefined) queryClient.setQueryData(queryKey, ctx.snapshot);
     },
     onSuccess: (data) => {
+      // Cancel any background fetch that may have started after onMutate's cancelQueries
+      // (e.g. triggered by a window-focus event during the API call). Without this, a
+      // late-resolving background fetch would overwrite the correct data and cause a flicker.
+      queryClient.cancelQueries({ queryKey });
       queryClient.setQueryData<ApiCart>(queryKey, data);
     },
   });
