@@ -8,15 +8,20 @@ import {
   clearGuestCartId,
   broadcastGuestCartId,
   GUEST_CART_ID_UPDATED,
+  EMPTY_LOCAL_CART,
+  LOCAL_CART_UPDATED,
+  getLocalCart,
+  saveLocalCart,
+  clearLocalCart,
 } from './cart.storage';
 import { cartApi, type AddItemInput } from './cart.api';
 import { adaptCart, calcCartTotals } from './cart.utils';
-import type { ApiCart, ApiCartItem, CartDisplayItem, CartOptimisticItem } from './cart.types';
+import type { ApiCart, CartDisplayItem } from './cart.types';
 
 export const CART_QUERY_KEY = ['cart'] as const;
 
 type AddItemVariables = AddItemInput & {
-  optimisticItem?: CartOptimisticItem;
+  optimisticItem?: import('./cart.types').CartOptimisticItem;
 };
 
 type AddItemPromiseHandler = {
@@ -42,7 +47,9 @@ function getAddDebounceKey(input: AddItemVariables): string {
   });
 }
 
-function createOptimisticCartItem(input: AddItemVariables): ApiCartItem | null {
+function createOptimisticCartItem(
+  input: AddItemVariables,
+): import('./cart.types').ApiCartItem | null {
   if (!input.optimisticItem) return null;
 
   return {
@@ -99,32 +106,62 @@ export function useCart() {
   const [guestCartId, setGuestCartIdState] = useState<string | null>(null);
   const [cartStorageReady, setCartStorageReady] = useState(false);
 
+  // ── Safari localStorage cart state ────────────────────────────────────────
+  // isSafari is detected on the client (not SSR) to avoid hydration mismatches.
+  // All Safari cart operations bypass the API and work directly on localStorage.
+  const [isSafari, setIsSafari] = useState(false);
+  const [localCart, setLocalCart] = useState<ApiCart>(EMPTY_LOCAL_CART);
+  // Ref mirrors localCart so rapid synchronous addItem calls (before a re-render)
+  // see the latest value rather than stale closure state.
+  const localCartRef = useRef<ApiCart>(EMPTY_LOCAL_CART);
+  localCartRef.current = localCart;
+
   useEffect(() => {
+    // Detect Safari — must run on client, not during SSR
+    const safari =
+      /Safari\//.test(navigator.userAgent) &&
+      !/Chrome\/|CriOS\/|FxiOS\/|EdgiOS\/|OPiOS\//.test(navigator.userAgent);
+    setIsSafari(safari);
+
+    if (safari) {
+      const stored = getLocalCart();
+      setLocalCart(stored);
+      localCartRef.current = stored;
+    }
+
     setGuestCartIdState(getGuestCartId());
     setCartStorageReady(true);
 
-    // Keep guestCartId in sync when another useCart() instance (or MutationCache.onSuccess)
-    // writes a new cartId via broadcastGuestCartId. Without this, the Navbar, cart page,
-    // and other instances would keep using queryKey ['cart','guest','none'] even after the
-    // first add establishes a real cartId — causing their queries to fetch empty-cart from
-    // the server instead of seeing the data the global handler already placed in the cache.
+    // Sync guestCartId state when MutationCache.onSuccess writes a new cartId
+    // (fires even after the product page has unmounted).
     const handleCartIdUpdate = (e: Event) => {
       const cartId = (e as CustomEvent<{ cartId: string }>).detail.cartId;
       setGuestCartIdState(cartId);
     };
     window.addEventListener(GUEST_CART_ID_UPDATED, handleCartIdUpdate);
-    return () => window.removeEventListener(GUEST_CART_ID_UPDATED, handleCartIdUpdate);
+
+    // Sync Safari localStorage cart state when any useCart() instance writes
+    // (product page writes → Navbar badge and cart page update automatically).
+    const handleLocalCartUpdate = (e: Event) => {
+      const cart = (e as CustomEvent<{ cart: ApiCart }>).detail.cart;
+      localCartRef.current = cart;
+      setLocalCart(cart);
+    };
+    window.addEventListener(LOCAL_CART_UPDATED, handleLocalCartUpdate);
+
+    return () => {
+      window.removeEventListener(GUEST_CART_ID_UPDATED, handleCartIdUpdate);
+      window.removeEventListener(LOCAL_CART_UPDATED, handleLocalCartUpdate);
+    };
   }, []);
 
   const credentials = useMemo(() => {
     if (authStatus === 'authenticated' && tokens?.accessToken) {
       return { accessToken: tokens.accessToken, guestCartId: null as string | null };
     }
-
     return { accessToken: null as string | null, guestCartId };
   }, [authStatus, tokens?.accessToken, guestCartId]);
 
-  // Key includes the active credential so auth/guest-cart changes fetch the matching cart.
   const queryKey = useMemo(
     () =>
       [
@@ -135,39 +172,38 @@ export function useCart() {
     [credentials.accessToken, credentials.guestCartId, userId],
   );
 
-  const { data: rawCart, isLoading } = useQuery({
+  // API cart query — disabled on Safari (localStorage replaces it entirely)
+  const { data: rawCartFromApi, isLoading: apiIsLoading } = useQuery({
     queryKey,
     queryFn: () => cartApi.getCart(credentials.accessToken, credentials.guestCartId),
     enabled:
+      !isSafari &&
       typeof window !== 'undefined' &&
       cartStorageReady &&
       authStatus !== 'checking' &&
       (authStatus !== 'authenticated' || Boolean(credentials.accessToken)),
     staleTime: 30_000,
-    // Keep previous data while queryKey changes (e.g. auth resolves → userId changes)
-    // so the cart doesn't flash empty between guest and authenticated states.
     placeholderData: (prev: ApiCart | null | undefined) => prev,
     select: (data) => (data ? adaptCart(data) : null),
   });
 
   // ── Auto-merge guest cart on login ────────────────────────────────────────
   useEffect(() => {
-    const guestCartId = getGuestCartId();
-    if (authStatus === 'authenticated' && tokens?.accessToken && guestCartId) {
+    if (isSafari) return; // Safari: no BE cart to merge
+    const guestId = getGuestCartId();
+    if (authStatus === 'authenticated' && tokens?.accessToken && guestId) {
       cartApi
-        .mergeCart(guestCartId, tokens.accessToken)
+        .mergeCart(guestId, tokens.accessToken)
         .then(() => {
           clearGuestCartId();
           setGuestCartIdState(null);
           queryClient.invalidateQueries({ queryKey });
         })
-        .catch(() => {
-          // Non-critical: guest cart merge failed, skip silently
-        });
+        .catch(() => {});
     }
-  }, [authStatus, queryClient, queryKey, tokens?.accessToken]);
+  }, [authStatus, isSafari, queryClient, queryKey, tokens?.accessToken]);
 
-  // ── Mutations ─────────────────────────────────────────────────────────────
+  // ── API mutations (non-Safari only) ───────────────────────────────────────
 
   const pendingAddsRef = useRef(0);
   const addBatchSnapshotRef = useRef<ApiCart | null | undefined>(undefined);
@@ -196,13 +232,9 @@ export function useCart() {
       latestAddServerCartRef.current = data.cart;
       const c = credsRef.current;
       if (!c.accessToken) {
-        // broadcastGuestCartId writes to localStorage AND dispatches GUEST_CART_ID_UPDATED,
-        // which causes all other useCart() instances (Navbar, cart page) to sync their
-        // guestCartId state. setGuestCartIdState updates this component's own instance.
         broadcastGuestCartId(data.cartId);
         setGuestCartIdState(data.cartId);
       }
-      // Server returns full cart — write directly to cache, no extra GET needed
       if (pendingAddsRef.current === 0 && Object.keys(debouncedAddsRef.current).length === 0) {
         queryClient.setQueryData<ApiCart>(queryKey, latestAddServerCartRef.current);
         addBatchSnapshotRef.current = undefined;
@@ -239,7 +271,17 @@ export function useCart() {
     }
   };
 
-  const addItem = (input: AddItemVariables) => {
+  const addItem = (input: AddItemVariables): Promise<void> => {
+    // ── Safari: localStorage only, no API call ────────────────────────────
+    if (isSafari) {
+      const newCart = applyOptimisticAdd(localCartRef.current, input) ?? localCartRef.current;
+      localCartRef.current = newCart;
+      setLocalCart(newCart);
+      saveLocalCart(newCart);
+      return Promise.resolve();
+    }
+
+    // ── Non-Safari: debounced API call with optimistic update ──────────────
     const key = getAddDebounceKey(input);
     const snapshot = queryClient.getQueryData<ApiCart | null>(queryKey);
 
@@ -257,10 +299,7 @@ export function useCart() {
       existing.input = { ...input, quantity: existing.quantity };
       clearTimeout(existing.timer);
       existing.timer = setTimeout(() => {
-        flushDebouncedAdd(key).catch(() => {
-          // Errors are handled inside flushDebouncedAdd (calls reject on handlers).
-          // This catch prevents an unhandled-promise-rejection warning in the browser.
-        });
+        flushDebouncedAdd(key).catch(() => {});
       }, ADD_ITEM_DEBOUNCE_MS);
 
       return new Promise<void>((resolve, reject) => {
@@ -268,29 +307,19 @@ export function useCart() {
       });
     }
 
-    // First add for this key: fire immediately (0 ms) so that mutateAsync is in-flight
-    // before the user navigates to the cart page. This ensures isMutating > 0 on the
-    // cart page, which keeps CartSkeleton visible while the API call resolves.
-    // Subsequent rapid adds reuse the existing entry and reset the debounce timer.
     return new Promise<void>((resolve, reject) => {
       debouncedAddsRef.current[key] = {
         input,
         quantity: input.quantity,
         snapshot,
         timer: setTimeout(() => {
-          flushDebouncedAdd(key).catch(() => {
-            // Errors are handled inside flushDebouncedAdd (calls reject on handlers).
-            // This catch prevents an unhandled-promise-rejection warning in the browser.
-          });
+          flushDebouncedAdd(key).catch(() => {});
         }, 0),
         handlers: [{ resolve, reject }],
       };
     });
   };
 
-  // Per-item debounce: batches rapid +/- clicks into a single API call.
-  // UI updates optimistically on every click; the server call fires 500ms
-  // after the last click for that item.
   const updateDebounceRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const updateSnapshotRef = useRef<Record<string, ApiCart | undefined>>({});
   const pendingUpdatesRef = useRef(0);
@@ -302,7 +331,6 @@ export function useCart() {
     },
     onSuccess: (data) => {
       pendingUpdatesRef.current = Math.max(0, pendingUpdatesRef.current - 1);
-      // Only write server data when all in-flight updates have settled
       if (pendingUpdatesRef.current === 0) {
         queryClient.setQueryData<ApiCart>(queryKey, data);
       }
@@ -315,20 +343,32 @@ export function useCart() {
   });
 
   const updateItem = (itemId: string, quantity: number) => {
+    // ── Safari: update localStorage directly ──────────────────────────────
+    if (isSafari) {
+      const newCart = {
+        ...localCartRef.current,
+        items: localCartRef.current.items.map((i) =>
+          i.id === itemId ? { ...i, quantity } : i,
+        ),
+      };
+      localCartRef.current = newCart;
+      setLocalCart(newCart);
+      saveLocalCart(newCart);
+      return;
+    }
+
+    // ── Non-Safari: debounced API call ─────────────────────────────────────
     queryClient.cancelQueries({ queryKey });
 
-    // Capture snapshot at the start of each debounce window (first click only)
     if (!updateDebounceRef.current[itemId]) {
       updateSnapshotRef.current[itemId] = queryClient.getQueryData<ApiCart>(queryKey);
     }
 
-    // Immediate optimistic update — UI reflects change without waiting for API
     queryClient.setQueryData<ApiCart | null>(queryKey, (old) => {
       if (!old) return old;
       return { ...old, items: old.items.map((i) => (i.id === itemId ? { ...i, quantity } : i)) };
     });
 
-    // Reset timer on every click; API fires only after 500ms of inactivity
     clearTimeout(updateDebounceRef.current[itemId]);
     updateDebounceRef.current[itemId] = setTimeout(() => {
       delete updateDebounceRef.current[itemId];
@@ -372,27 +412,52 @@ export function useCart() {
 
   // ── Derived state ─────────────────────────────────────────────────────────
 
-  const cartId: string | null = rawCart?.id ?? null;
+  const adaptedLocalCart = useMemo(() => adaptCart(localCart), [localCart]);
+
+  const rawCart = isSafari ? adaptedLocalCart : rawCartFromApi;
+  const cartId: string | null = isSafari ? null : (rawCart?.id ?? null);
   const items: CartDisplayItem[] = rawCart?.items ?? [];
   const { cartCount, subtotal } = calcCartTotals(items);
+  const isLoading = isSafari ? false : apiIsLoading;
   const isMutating =
-    addItemMutation.isPending ||
-    updateItemMutation.isPending ||
-    removeItemMutation.isPending ||
-    clearCartMutation.isPending;
+    !isSafari &&
+    (addItemMutation.isPending ||
+      updateItemMutation.isPending ||
+      removeItemMutation.isPending ||
+      clearCartMutation.isPending);
 
   return {
     cartId,
     items,
     cartCount,
     subtotal,
-    total: subtotal, // discount handled at checkout session level
+    total: subtotal,
     isLoading,
     isMutating,
-    addItemError: addItemMutation.error,
+    addItemError: isSafari ? null : addItemMutation.error,
     addItem,
     updateItem,
-    removeItem: (itemId: string) => removeItemMutation.mutateAsync(itemId),
-    clearCart: () => clearCartMutation.mutateAsync(),
+    removeItem: (itemId: string) => {
+      if (isSafari) {
+        const newCart = {
+          ...localCartRef.current,
+          items: localCartRef.current.items.filter((i) => i.id !== itemId),
+        };
+        localCartRef.current = newCart;
+        setLocalCart(newCart);
+        saveLocalCart(newCart);
+        return Promise.resolve();
+      }
+      return removeItemMutation.mutateAsync(itemId);
+    },
+    clearCart: () => {
+      if (isSafari) {
+        localCartRef.current = EMPTY_LOCAL_CART;
+        setLocalCart(EMPTY_LOCAL_CART);
+        clearLocalCart();
+        return Promise.resolve();
+      }
+      return clearCartMutation.mutateAsync();
+    },
   };
 }

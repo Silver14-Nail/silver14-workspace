@@ -1,13 +1,22 @@
-const GUEST_CART_KEY = 'silver14-guest-cart-id';
+import type { ApiCart } from './cart.types';
 
-// Custom event dispatched whenever the guestCartId is written (from any context —
-// including MutationCache.onSuccess which runs outside React component lifecycle).
-// All useCart() instances listen for this event to synchronise their local
-// guestCartId state, which drives the queryKey used by useQuery.
+const GUEST_CART_KEY = 'silver14-guest-cart-id';
+const LOCAL_CART_KEY = 'silver14-local-cart';
+
+// ─── Custom events ────────────────────────────────────────────────────────────
+
+// Dispatched whenever a new guestCartId is written (from any context, including
+// MutationCache.onSuccess). All useCart() instances listen so they can switch
+// their queryKey to the new cartId.
 export const GUEST_CART_ID_UPDATED = 'silver14:guestCartIdUpdated';
 
-/** Wrapped in try-catch for private browsing / restricted WebViews where
- *  localStorage throws SecurityError. Falls back to null on failure. */
+// Dispatched whenever the localStorage cart is written or cleared.
+// All useCart() instances listen so the Navbar badge, cart page, etc. update
+// immediately without needing an API call (Safari localStorage-only path).
+export const LOCAL_CART_UPDATED = 'silver14:localCartUpdated';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function safeGetItem(key: string): string | null {
   try {
     return window.localStorage.getItem(key);
@@ -32,6 +41,8 @@ function safeRemoveItem(key: string): void {
   }
 }
 
+// ─── Guest cart ID ────────────────────────────────────────────────────────────
+
 export function getGuestCartId(): string | null {
   if (typeof window === 'undefined') return null;
   return safeGetItem(GUEST_CART_KEY);
@@ -43,12 +54,18 @@ export function setGuestCartId(cartId: string): void {
   }
 }
 
+export function clearGuestCartId(): void {
+  if (typeof window !== 'undefined') {
+    safeRemoveItem(GUEST_CART_KEY);
+  }
+}
+
 // Writes the cartId to localStorage AND dispatches GUEST_CART_ID_UPDATED so
 // every live useCart() instance (Navbar, cart page, etc.) updates its local
 // guestCartId state. Without this, each instance only reads localStorage once
 // on mount and would keep using queryKey ['cart','guest','none'] even after the
-// first add creates a real cartId — causing subsequent cache writes (from the
-// global MutationCache.onSuccess handler) to land on a key no observer reads.
+// first add creates a real cartId — causing subsequent cache writes to land on
+// a key no observer reads.
 export function broadcastGuestCartId(cartId: string): void {
   setGuestCartId(cartId);
   if (typeof window !== 'undefined') {
@@ -58,8 +75,38 @@ export function broadcastGuestCartId(cartId: string): void {
   }
 }
 
-export function clearGuestCartId(): void {
-  if (typeof window !== 'undefined') {
-    safeRemoveItem(GUEST_CART_KEY);
-  }
+// ─── Local (Safari) cart ──────────────────────────────────────────────────────
+
+export const EMPTY_LOCAL_CART: ApiCart = {
+  id: 'local',
+  status: 'ACTIVE',
+  expiresAt: null,
+  items: [],
+};
+
+export function getLocalCart(): ApiCart {
+  if (typeof window === 'undefined') return EMPTY_LOCAL_CART;
+  try {
+    const raw = safeGetItem(LOCAL_CART_KEY);
+    if (raw) return JSON.parse(raw) as ApiCart;
+  } catch {}
+  return EMPTY_LOCAL_CART;
+}
+
+// Writes cart to localStorage and broadcasts LOCAL_CART_UPDATED so every
+// useCart() instance (Navbar, cart page, etc.) re-renders with the new data.
+export function saveLocalCart(cart: ApiCart): void {
+  if (typeof window === 'undefined') return;
+  safeSetItem(LOCAL_CART_KEY, JSON.stringify(cart));
+  window.dispatchEvent(
+    new CustomEvent<{ cart: ApiCart }>(LOCAL_CART_UPDATED, { detail: { cart } }),
+  );
+}
+
+export function clearLocalCart(): void {
+  if (typeof window === 'undefined') return;
+  safeRemoveItem(LOCAL_CART_KEY);
+  window.dispatchEvent(
+    new CustomEvent<{ cart: ApiCart }>(LOCAL_CART_UPDATED, { detail: { cart: EMPTY_LOCAL_CART } }),
+  );
 }
