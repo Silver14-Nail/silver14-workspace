@@ -100,7 +100,12 @@ export function useProductDetail(
 
   const canAddToCart = Boolean(selectedVariant && selectedVariant.isAvailable);
 
-  const handleAddToCart = useCallback(async () => {
+  // Intentionally NOT async: keeping this synchronous ensures setShowCartPreview(true)
+  // is batched in the same React flush as the click/touchend event. An async function
+  // can cause the catch block to run in the same microtask batch as the try body,
+  // letting setShowCartPreview(false) override setShowCartPreview(true) before React
+  // re-renders, so the dialog never appears.
+  const handleAddToCart = useCallback(() => {
     if (!product || !selectedVariant || !selectedVariant.isAvailable) return;
 
     setAddToCartError(null);
@@ -124,52 +129,51 @@ export function useProductDetail(
     setLastAddedItem(preview);
     setShowCartPreview(true);
 
-    try {
-      await addItem({
-        variantId: selectedVariant.id,
-        quantity: selections.quantity,
-        optimisticItem: {
-          product: {
-            id: product.id,
-            name: product.name,
-            slug: product.slug,
-            basePrice: String(product.price),
-            salePrice: product.salePrice != null ? String(product.salePrice) : null,
-            currency: product.currency,
-            images: product.images.map((url, index) => ({
-              url,
-              isMain: index === 0,
-              sortOrder: index,
-            })),
-          },
-          variant: {
-            id: selectedVariant.id,
-            stockQty: selectedVariant.stockQty,
-            computedPrice: String(selectedVariant.computedPrice),
-            isAvailable: selectedVariant.isAvailable,
-            colorName: null,
-            shape: selections.shape ? { id: selections.shape, name: selections.shape } : null,
-            size: selections.size
-              ? {
-                  id: selections.size,
-                  label: selections.size,
-                  sizeCode: selections.size,
-                  measurements: null,
-                }
-              : null,
-          },
+    // Fire and forget — the dialog is already shown above. Any API error hides it.
+    addItem({
+      variantId: selectedVariant.id,
+      quantity: selections.quantity,
+      optimisticItem: {
+        product: {
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          basePrice: String(product.price),
+          salePrice: product.salePrice != null ? String(product.salePrice) : null,
+          currency: product.currency,
+          images: product.images.map((url, index) => ({
+            url,
+            isMain: index === 0,
+            sortOrder: index,
+          })),
         },
-        ...(isCustomSize && {
-          isCustomSize: true,
-          customMeasurements: selections.customization
-            ? { notes: selections.customization }
-            : undefined,
-        }),
-      });
-    } catch (err) {
+        variant: {
+          id: selectedVariant.id,
+          stockQty: selectedVariant.stockQty,
+          computedPrice: String(selectedVariant.computedPrice),
+          isAvailable: selectedVariant.isAvailable,
+          colorName: null,
+          shape: selections.shape ? { id: selections.shape, name: selections.shape } : null,
+          size: selections.size
+            ? {
+                id: selections.size,
+                label: selections.size,
+                sizeCode: selections.size,
+                measurements: null,
+              }
+            : null,
+        },
+      },
+      ...(isCustomSize && {
+        isCustomSize: true,
+        customMeasurements: selections.customization
+          ? { notes: selections.customization }
+          : undefined,
+      }),
+    }).catch((err: unknown) => {
       setShowCartPreview(false);
       setAddToCartError(err instanceof Error ? err.message : 'Failed to add item to cart');
-    }
+    });
   }, [product, selectedVariant, selections, addItem, isCustomSize]);
 
   const handleWishlist = useCallback(() => {
