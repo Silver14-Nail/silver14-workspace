@@ -10,7 +10,7 @@ import { fetchExchangeRates } from '@/services/currency.service';
 import { logger } from '../lib/logger';
 import type { CurrencyCode } from '@/config/commerce.config';
 import { CART_QUERY_KEY } from '../features/cart/cart.hooks';
-import { setGuestCartId } from '../features/cart/cart.storage';
+import { broadcastGuestCartId } from '../features/cart/cart.storage';
 import type { ApiAddItemResponse } from '../features/cart/cart.types';
 
 function AuthInitializer() {
@@ -72,7 +72,10 @@ export function StoreProvider({
               // the component-level onSuccess which has the correct user queryKey.
               const { tokens } = store.getState().auth;
               if (!tokens?.accessToken) {
-                setGuestCartId(response.cartId);
+                // broadcastGuestCartId writes to localStorage + dispatches GUEST_CART_ID_UPDATED
+                // so every live useCart() instance (Navbar, cart page) immediately switches its
+                // queryKey to ['cart','guest',cartId] — where we're about to write the server data.
+                broadcastGuestCartId(response.cartId);
 
                 // Cancel any in-flight GET /cart fetches BEFORE writing server data.
                 // Without this, a concurrent cart page fetch (GET with no guestCartId

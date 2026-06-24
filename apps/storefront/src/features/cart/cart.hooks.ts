@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '@/store/hooks';
-import { getGuestCartId, setGuestCartId, clearGuestCartId } from './cart.storage';
+import {
+  getGuestCartId,
+  clearGuestCartId,
+  broadcastGuestCartId,
+  GUEST_CART_ID_UPDATED,
+} from './cart.storage';
 import { cartApi, type AddItemInput } from './cart.api';
 import { adaptCart, calcCartTotals } from './cart.utils';
 import type { ApiCart, ApiCartItem, CartDisplayItem, CartOptimisticItem } from './cart.types';
@@ -97,6 +102,18 @@ export function useCart() {
   useEffect(() => {
     setGuestCartIdState(getGuestCartId());
     setCartStorageReady(true);
+
+    // Keep guestCartId in sync when another useCart() instance (or MutationCache.onSuccess)
+    // writes a new cartId via broadcastGuestCartId. Without this, the Navbar, cart page,
+    // and other instances would keep using queryKey ['cart','guest','none'] even after the
+    // first add establishes a real cartId — causing their queries to fetch empty-cart from
+    // the server instead of seeing the data the global handler already placed in the cache.
+    const handleCartIdUpdate = (e: Event) => {
+      const cartId = (e as CustomEvent<{ cartId: string }>).detail.cartId;
+      setGuestCartIdState(cartId);
+    };
+    window.addEventListener(GUEST_CART_ID_UPDATED, handleCartIdUpdate);
+    return () => window.removeEventListener(GUEST_CART_ID_UPDATED, handleCartIdUpdate);
   }, []);
 
   const credentials = useMemo(() => {
@@ -179,7 +196,10 @@ export function useCart() {
       latestAddServerCartRef.current = data.cart;
       const c = credsRef.current;
       if (!c.accessToken) {
-        setGuestCartId(data.cartId);
+        // broadcastGuestCartId writes to localStorage AND dispatches GUEST_CART_ID_UPDATED,
+        // which causes all other useCart() instances (Navbar, cart page) to sync their
+        // guestCartId state. setGuestCartIdState updates this component's own instance.
+        broadcastGuestCartId(data.cartId);
         setGuestCartIdState(data.cartId);
       }
       // Server returns full cart — write directly to cache, no extra GET needed
