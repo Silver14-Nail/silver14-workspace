@@ -120,6 +120,9 @@ export class OnepayFulfillmentService {
     this.logger.log(
       `OnePAY URLs — returnUrl: ${this.onepayService.getReturnUrl()}, ipnUrl: ${this.onepayService.getIpnUrl()}`,
     );
+    this.logger.log(
+      `OnePAY redirect URL — ${redirectUrl.replace(/vpc_SecureHash=[^&]+/, 'vpc_SecureHash=REDACTED')}`,
+    );
 
     return { redirectUrl, merchTxnRef, amountOnepay };
   }
