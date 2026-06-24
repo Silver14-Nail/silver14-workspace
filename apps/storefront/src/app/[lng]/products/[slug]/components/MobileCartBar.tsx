@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { Minus, Plus, ShoppingBag, Heart } from 'lucide-react';
 import { useT } from 'next-i18next/client';
 import type { ProductSelections } from '../types';
@@ -29,18 +29,9 @@ export const MobileCartBar = memo(function MobileCartBar({
   onToggleWishlist,
 }: MobileCartBarProps) {
   const { t } = useT('product-details');
-  const [clickCount, setClickCount] = useState(0);
-  const [touchCount, setTouchCount] = useState(0);
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E8E8] safe-area-pb" style={{ zIndex: 10000001 }}>
-      {/* DEBUG PANEL — remove after fixing */}
-      <div style={{ background: '#1D4ED8', color: 'white', fontSize: '11px', padding: '2px 8px', display: 'flex', gap: '12px' }}>
-        <span>CAN:{canAddToCart ? '✓' : '✗'}</span>
-        <span>CLICK:{clickCount}</span>
-        <span>TOUCH:{touchCount}</span>
-      </div>
-
       <div className="px-4 py-3">
         <div className="flex items-center gap-2 mb-3">
           {/* Quantity */}
@@ -71,17 +62,17 @@ export const MobileCartBar = memo(function MobileCartBar({
             </button>
           </div>
 
-          {/* Add to cart */}
+          {/* Add to cart — onTouchEnd is required on iOS Safari where onClick is unreliable
+              after interacting with native <select> pickers (shape/size variant selectors).
+              e.preventDefault() stops the synthetic click from also firing. */}
           <button
             onTouchEnd={(e) => {
-              setTouchCount((c) => c + 1);
               if (canAddToCart) {
                 e.preventDefault();
                 onAddToCart();
               }
             }}
             onClick={() => {
-              setClickCount((c) => c + 1);
               if (canAddToCart) onAddToCart();
             }}
             aria-disabled={!canAddToCart}

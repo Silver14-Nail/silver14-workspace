@@ -247,6 +247,10 @@ export function useCart() {
       });
     }
 
+    // First add for this key: fire immediately (0 ms) so that mutateAsync is in-flight
+    // before the user navigates to the cart page. This ensures isMutating > 0 on the
+    // cart page, which keeps CartSkeleton visible while the API call resolves.
+    // Subsequent rapid adds reuse the existing entry and reset the debounce timer.
     return new Promise<void>((resolve, reject) => {
       debouncedAddsRef.current[key] = {
         input,
@@ -254,10 +258,10 @@ export function useCart() {
         snapshot,
         timer: setTimeout(() => {
           flushDebouncedAdd(key).catch(() => {
-          // Errors are handled inside flushDebouncedAdd (calls reject on handlers).
-          // This catch prevents an unhandled-promise-rejection warning in the browser.
-        });
-        }, ADD_ITEM_DEBOUNCE_MS),
+            // Errors are handled inside flushDebouncedAdd (calls reject on handlers).
+            // This catch prevents an unhandled-promise-rejection warning in the browser.
+          });
+        }, 0),
         handlers: [{ resolve, reject }],
       };
     });

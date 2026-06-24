@@ -8,6 +8,7 @@ import {
   generateI18nStaticParams,
 } from 'next-i18next/server';
 import { I18nProvider } from 'next-i18next/client';
+import Script from 'next/script';
 import { StoreProvider } from '../../store/StoreProvider';
 import {
   CURRENCY_COOKIE,
@@ -85,8 +86,51 @@ export default async function RootLayout({
           }}
           type="application/ld+json"
         />
-        {/* Crisp chat temporarily disabled for debugging — re-enable after confirming Add to Bag fix */}
-        {/* <Script id="crisp-chat" strategy="afterInteractive">...</Script> */}
+        <Script id="crisp-chat" strategy="afterInteractive">{`
+          window.$crisp = [];
+          window.CRISP_WEBSITE_ID = "accfed8c-e6fd-452b-a8c8-6eb8b3e1078a";
+          (function() {
+            var d = document;
+            var s = d.createElement("script");
+            s.src = "https://client.crisp.chat/l.js";
+            s.async = 1;
+            d.getElementsByTagName("head")[0].appendChild(s);
+          })();
+
+          // On mobile (< 768px) Crisp renders its button inside a position:fixed iframe
+          // that CSS from the parent document cannot reach. Use a MutationObserver to
+          // reposition the iframe above the MobileCartBar (~80px + safe-area-inset-bottom).
+          (function() {
+            function moveCrisp(el) {
+              var isMobile = window.innerWidth < 768;
+              if (!isMobile) return;
+              var safeArea = 'env(safe-area-inset-bottom, 0px)';
+              el.style.setProperty('bottom', 'calc(84px + ' + safeArea + ')', 'important');
+            }
+
+            var observer = new MutationObserver(function(mutations) {
+              mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(node) {
+                  if (node.nodeType === 1) {
+                    var el = node;
+                    if (el.id === 'crisp-chatbox' || (el.querySelector && el.querySelector('#crisp-chatbox'))) {
+                      var target = el.id === 'crisp-chatbox' ? el : el.querySelector('#crisp-chatbox');
+                      if (target) moveCrisp(target);
+                      observer.disconnect();
+                    }
+                  }
+                });
+              });
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            window.addEventListener('resize', function() {
+              var el = document.getElementById('crisp-chatbox');
+              if (el) moveCrisp(el);
+            });
+          })();
+        `}</Script>
         <StoreProvider initialCurrencyCode={initialCurrencyCode}>
           <I18nProvider language={lng} resources={resources}>
             <Navbar initialCollections={navCollections} />
