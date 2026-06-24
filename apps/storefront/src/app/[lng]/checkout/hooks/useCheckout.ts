@@ -374,8 +374,13 @@ export function useCheckout() {
   const shippingCost: number | null = totals?.shippingFee ?? null;
   const discountAmount = totals?.discountAmount ?? 0;
   const currency = totals?.currency ?? 'USD';
-  const subtotal = totals?.subtotal ?? cartSubtotal;
-  const finalTotal = totals?.total ?? cartSubtotal + (shippingCost ?? 0);
+  // Always derive subtotal from client cart items — server session totals may lag
+  // (e.g., cart synced from Safari localStorage may have fewer items than shown).
+  const exchangeRate = totals?.exchangeRate ?? 1;
+  const subtotal = cartSubtotal * exchangeRate;
+  const finalTotal = shippingCost !== null
+    ? subtotal - discountAmount + shippingCost
+    : subtotal - discountAmount;
 
   return {
     step,

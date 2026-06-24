@@ -82,11 +82,11 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
   const canContinue = !!selectedOption && isIdle && termsAgreed;
 
   return (
-    <div className="bg-white dark:bg-[#141414] p-6 sm:p-8">
+    <div className="bg-white p-6 sm:p-8">
       <BackButton label="Back to shipping" onClick={onBack} />
 
       <h2
-        className="text-[#1A1A1A] dark:text-white mb-6"
+        className="text-[#1A1A1A] mb-6"
         style={{ fontWeight: 400, fontSize: '1.4rem' }}
       >
         Payment
@@ -97,7 +97,7 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
         <>
           {/* OnePay gateway error banner (redirect back with ?error=payment_failed&code=XX) */}
           {gatewayErrorCode && (
-            <div className="mb-5 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2] dark:bg-[#2E1A1A]">
+            <div className="mb-5 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2]">
               <span className="flex-shrink-0 mt-0.5">⚠</span>
               <span>
                 {t(`payment.onepay.errors.${gatewayErrorCode}`, {
@@ -117,7 +117,7 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
 
           {/* Error banner from hook (e.g. network/API error when initiating) */}
           {isError && error && (
-            <div className="mt-4 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2] dark:bg-[#2E1A1A]">
+            <div className="mt-4 flex items-start gap-2 text-[#DC2626] text-xs p-3 bg-[#FEF2F2]">
               <span className="flex-shrink-0 mt-0.5">⚠</span>
               <span>{error}</span>
             </div>
@@ -175,7 +175,7 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
               <button
                 type="button"
                 onClick={retry}
-                className="w-full flex items-center justify-center gap-2 border border-[#1A1A1A] dark:border-white text-[#1A1A1A] dark:text-white py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#1A1A1A] hover:text-white dark:hover:bg-white dark:hover:text-[#1A1A1A] transition-all"
+                className="w-full flex items-center justify-center gap-2 border border-[#1A1A1A] text-[#1A1A1A] py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#1A1A1A] hover:text-white transition-all"
                 style={{ letterSpacing: '0.15em' }}
               >
                 <RefreshCw className="size-3.5" aria-hidden />
@@ -186,7 +186,7 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
                 type="button"
                 disabled={!canContinue}
                 onClick={requestSession}
-                className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] dark:bg-white text-white dark:text-[#1A1A1A] py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#333] dark:hover:bg-[#E0E0E0] transition-colors disabled:bg-[#D0D0D0] dark:disabled:bg-[#3A3A3A] disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-[0.15em] hover:bg-[#333] transition-colors disabled:bg-[#D0D0D0] disabled:cursor-not-allowed"
                 style={{ letterSpacing: '0.15em' }}
               >
                 Continue to payment
@@ -200,8 +200,8 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
       {/* ── Loading (session creation in flight) ──────────────────────────── */}
       {isRequesting && (
         <div className="flex flex-col items-center gap-4 py-12">
-          <div className="size-10 border-2 border-[#E0E0E0] dark:border-[#3A3A3A] border-t-[#4A7A5A] rounded-full animate-spin" />
-          <p className="text-[#9A9A9A] dark:text-[#6A6A6A] text-sm">
+          <div className="size-10 border-2 border-[#E0E0E0] border-t-[#4A7A5A] rounded-full animate-spin" />
+          <p className="text-[#9A9A9A] text-sm">
             Preparing secure payment&hellip;
           </p>
         </div>
@@ -212,13 +212,13 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
         <div className="mt-2">
           {/* Breadcrumb: selected method + change link */}
           <div className="flex items-center justify-between mb-5">
-            <p className="text-[#1A1A1A] dark:text-white text-sm font-medium">
+            <p className="text-[#1A1A1A] text-sm font-medium">
               {selectedOption?.label}
             </p>
             <button
               type="button"
               onClick={() => setSelectedOption(null)}
-              className="text-[#9A9A9A] dark:text-[#6A6A6A] text-xs hover:text-[#1A1A1A] dark:hover:text-white transition-colors"
+              className="text-[#9A9A9A] text-xs hover:text-[#1A1A1A] transition-colors"
             >
               Change
             </button>
@@ -235,7 +235,7 @@ function PaymentStepInner({ sessionId, currency, onBack, onSuccess }: PaymentSte
 
       {/* ── Security footer ───────────────────────────────────────────────── */}
       {!isReady && (
-        <div className="flex items-center justify-center gap-2 text-[#9A9A9A] dark:text-[#6A6A6A] text-[11px] mt-6">
+        <div className="flex items-center justify-center gap-2 text-[#9A9A9A] text-[11px] mt-6">
           <Shield className="size-3.5 text-[#4A7A5A] flex-shrink-0" aria-hidden />
           <span>All transactions are encrypted and processed securely.</span>
         </div>

@@ -33,6 +33,7 @@ export interface SessionTotals {
   shippingFee: number | null;
   total: number | null;
   currency: string;
+  exchangeRate: number;
 }
 
 export interface CheckoutSession {
