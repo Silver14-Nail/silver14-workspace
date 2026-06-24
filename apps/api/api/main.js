@@ -301107,6 +301107,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
         await this.detailRepo.update(detail.id, { status: 'processing' });
         this.logger.log(`OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (VND×100, session was ${totals.currency})`);
         this.logger.log(`OnePAY URLs — returnUrl: ${this.onepayService.getReturnUrl()}, ipnUrl: ${this.onepayService.getIpnUrl()}`);
+        this.logger.log(`OnePAY redirect URL — ${redirectUrl.replace(/vpc_SecureHash=[^&]+/, 'vpc_SecureHash=REDACTED')}`);
         return { redirectUrl, merchTxnRef, amountOnepay };
     }
     // ─── Handle Return / IPN ─────────────────────────────────────────────────
