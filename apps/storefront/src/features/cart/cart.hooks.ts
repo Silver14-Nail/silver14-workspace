@@ -236,7 +236,10 @@ export function useCart() {
       existing.input = { ...input, quantity: existing.quantity };
       clearTimeout(existing.timer);
       existing.timer = setTimeout(() => {
-        void flushDebouncedAdd(key);
+        flushDebouncedAdd(key).catch(() => {
+          // Errors are handled inside flushDebouncedAdd (calls reject on handlers).
+          // This catch prevents an unhandled-promise-rejection warning in the browser.
+        });
       }, ADD_ITEM_DEBOUNCE_MS);
 
       return new Promise<void>((resolve, reject) => {
@@ -250,7 +253,10 @@ export function useCart() {
         quantity: input.quantity,
         snapshot,
         timer: setTimeout(() => {
-          void flushDebouncedAdd(key);
+          flushDebouncedAdd(key).catch(() => {
+          // Errors are handled inside flushDebouncedAdd (calls reject on handlers).
+          // This catch prevents an unhandled-promise-rejection warning in the browser.
+        });
         }, ADD_ITEM_DEBOUNCE_MS),
         handlers: [{ resolve, reject }],
       };

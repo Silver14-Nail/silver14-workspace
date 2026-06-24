@@ -217,17 +217,17 @@ export const ProductInfo = memo(function ProductInfo({
             </button>
           </div>
 
-          {/* Add to cart */}
-          {/* Note: Uses aria-disabled + pointer-events CSS instead of native disabled
-               because Safari has a bug where buttons SSR'd with disabled don't recover
-               onclick after hydration removes the attribute. */}
+          {/* Add to cart — intentionally no `disabled` attribute and no pointer-events-none.
+               Both can break click recovery after hydration in Safari/Chrome when the
+               button transitions from disabled → enabled (CSS hit-test caching bug).
+               Guard lives in the onClick handler and in handleAddToCart. */}
           <button
-            onClick={onAddToCart}
+            onClick={() => { if (canAddToCart) onAddToCart(); }}
             aria-disabled={!canAddToCart}
             className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs uppercase tracking-widest transition-all ${
               canAddToCart
                 ? 'bg-[#1A1A1A] text-white hover:bg-[#333]'
-                : 'bg-[#E0E0E0] text-[#9A9A9A] cursor-not-allowed pointer-events-none'
+                : 'bg-[#E0E0E0] text-[#9A9A9A] cursor-not-allowed'
             }`}
             style={{ letterSpacing: '0.15em' }}
           >
