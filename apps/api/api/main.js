@@ -206239,7 +206239,16 @@ const fromEnv = (key) => (process.env[key] ?? '').replace(/\s*#.*$/, '').trim();
 exports["default"] = (0, config_1.registerAs)('onepay', () => {
     const env = (fromEnv('ONEPAY_ENV') || 'sandbox').toLowerCase();
     const isProd = env === 'production' || env === 'prod';
-    const apiUrl = fromEnv('ONEPAY_API_URL') || 'http://localhost:5000/api';
+    // ONEPAY_API_URL must be the publicly accessible API base URL so OnePay can
+    // redirect the user's browser back (vpc_ReturnURL) and call our IPN endpoint.
+    // On Vercel, VERCEL_PROJECT_PRODUCTION_URL (production) or VERCEL_URL (preview)
+    // are injected automatically — use them as fallbacks when the explicit var is absent.
+    const vercelProdUrl = fromEnv('VERCEL_PROJECT_PRODUCTION_URL');
+    const vercelUrl = fromEnv('VERCEL_URL');
+    const apiUrl = fromEnv('ONEPAY_API_URL') ||
+        (vercelProdUrl ? `https://${vercelProdUrl}` : '') ||
+        (vercelUrl ? `https://${vercelUrl}` : '') ||
+        'http://localhost:5000/api';
     return {
         merchantId: fromEnv('ONEPAY_MERCHANT_ID') || 'TESTONEPAY',
         accessCode: fromEnv('ONEPAY_ACCESS_CODE') || '6BEB2546',
@@ -300758,6 +300767,10 @@ let OnepayService = OnepayService_1 = class OnepayService {
         this.logger = new common_1.Logger(OnepayService_1.name);
         this.config = this.configService.getOrThrow('onepay');
     }
+    /** Returns the return URL from config for use as vpc_ReturnURL. */
+    getReturnUrl() {
+        return this.config.returnUrl;
+    }
     /** Returns the IPN URL from config for use as vpc_CallbackURL. */
     getIpnUrl() {
         return this.config.ipnUrl;
@@ -300771,6 +300784,12 @@ let OnepayService = OnepayService_1 = class OnepayService {
      * @returns  Full HTTPS URL including vpc_SecureHash
      */
     buildRedirectUrl(params) {
+        // AgainLink = URL OnePay shows as "Back to merchant" on error/failure pages.
+        // Must be the storefront checkout page so the user can retry — NOT the API
+        // webhook (returnUrl), which is a machine-to-machine endpoint with no UI.
+        // Locale: OnePay uses 'en'/'vn'; storefront routes use 'en'/'vi'.
+        const storefrontLng = params.locale === 'en' ? 'en' : 'vi';
+        const defaultAgainLink = `${this.config.storefrontUrl}/${storefrontLng}/checkout`;
         const staticParams = {
             vpc_Version: '2',
             vpc_Command: 'pay',
@@ -300780,7 +300799,7 @@ let OnepayService = OnepayService_1 = class OnepayService {
             vpc_Merchant: this.config.merchantId,
             vpc_ReturnURL: this.config.returnUrl,
             Title: this.config.title,
-            AgainLink: params.AgainLink ?? this.config.returnUrl,
+            AgainLink: params.AgainLink ?? defaultAgainLink,
         };
         const dynamicParams = {
             vpc_MerchTxnRef: params.vpc_MerchTxnRef,
@@ -301083,6 +301102,7 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
         // Mark as processing
         await this.detailRepo.update(detail.id, { status: 'processing' });
         this.logger.log(`OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (VND×100, session was ${totals.currency})`);
+        this.logger.log(`OnePAY URLs — returnUrl: ${this.onepayService.getReturnUrl()}, ipnUrl: ${this.onepayService.getIpnUrl()}`);
         return { redirectUrl, merchTxnRef, amountOnepay };
     }
     // ─── Handle Return / IPN ─────────────────────────────────────────────────

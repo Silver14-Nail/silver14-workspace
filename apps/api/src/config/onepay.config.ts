@@ -27,7 +27,17 @@ export default registerAs('onepay', (): OnepayConfig => {
   const env = (fromEnv('ONEPAY_ENV') || 'sandbox').toLowerCase();
   const isProd = env === 'production' || env === 'prod';
 
-  const apiUrl = fromEnv('ONEPAY_API_URL') || 'http://localhost:5000/api';
+  // ONEPAY_API_URL must be the publicly accessible API base URL so OnePay can
+  // redirect the user's browser back (vpc_ReturnURL) and call our IPN endpoint.
+  // On Vercel, VERCEL_PROJECT_PRODUCTION_URL (production) or VERCEL_URL (preview)
+  // are injected automatically — use them as fallbacks when the explicit var is absent.
+  const vercelProdUrl = fromEnv('VERCEL_PROJECT_PRODUCTION_URL');
+  const vercelUrl = fromEnv('VERCEL_URL');
+  const apiUrl =
+    fromEnv('ONEPAY_API_URL') ||
+    (vercelProdUrl ? `https://${vercelProdUrl}` : '') ||
+    (vercelUrl ? `https://${vercelUrl}` : '') ||
+    'http://localhost:5000/api';
 
   return {
     merchantId: fromEnv('ONEPAY_MERCHANT_ID') || 'TESTONEPAY',

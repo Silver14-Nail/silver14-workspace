@@ -117,6 +117,9 @@ export class OnepayFulfillmentService {
     this.logger.log(
       `OnePAY payment initiated — session ${checkoutSessionId}, ref ${merchTxnRef}, ${amountOnepay} (VND×100, session was ${totals.currency})`,
     );
+    this.logger.log(
+      `OnePAY URLs — returnUrl: ${this.onepayService.getReturnUrl()}, ipnUrl: ${this.onepayService.getIpnUrl()}`,
+    );
 
     return { redirectUrl, merchTxnRef, amountOnepay };
   }

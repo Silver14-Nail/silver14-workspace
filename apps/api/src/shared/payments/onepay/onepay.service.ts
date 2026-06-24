@@ -36,6 +36,11 @@ export class OnepayService {
     this.config = this.configService.getOrThrow<OnepayConfig>('onepay');
   }
 
+  /** Returns the return URL from config for use as vpc_ReturnURL. */
+  getReturnUrl(): string {
+    return this.config.returnUrl;
+  }
+
   /** Returns the IPN URL from config for use as vpc_CallbackURL. */
   getIpnUrl(): string {
     return this.config.ipnUrl;
@@ -51,6 +56,13 @@ export class OnepayService {
    * @returns  Full HTTPS URL including vpc_SecureHash
    */
   buildRedirectUrl(params: OnepayPaymentParams): string {
+    // AgainLink = URL OnePay shows as "Back to merchant" on error/failure pages.
+    // Must be the storefront checkout page so the user can retry — NOT the API
+    // webhook (returnUrl), which is a machine-to-machine endpoint with no UI.
+    // Locale: OnePay uses 'en'/'vn'; storefront routes use 'en'/'vi'.
+    const storefrontLng = params.locale === 'en' ? 'en' : 'vi';
+    const defaultAgainLink = `${this.config.storefrontUrl}/${storefrontLng}/checkout`;
+
     const staticParams: Record<string, string> = {
       vpc_Version: '2',
       vpc_Command: 'pay',
@@ -60,7 +72,7 @@ export class OnepayService {
       vpc_Merchant: this.config.merchantId,
       vpc_ReturnURL: this.config.returnUrl,
       Title: this.config.title,
-      AgainLink: params.AgainLink ?? this.config.returnUrl,
+      AgainLink: params.AgainLink ?? defaultAgainLink,
     };
 
     const dynamicParams: Record<string, string> = {
