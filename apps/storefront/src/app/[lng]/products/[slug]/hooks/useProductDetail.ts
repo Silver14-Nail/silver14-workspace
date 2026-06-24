@@ -101,7 +101,7 @@ export function useProductDetail(
   const canAddToCart = Boolean(selectedVariant && selectedVariant.isAvailable);
 
   const handleAddToCart = useCallback(async () => {
-    if (!product || !selectedVariant || !canAddToCart) return;
+    if (!product || !selectedVariant || !selectedVariant.isAvailable) return;
 
     setAddToCartError(null);
 
@@ -170,7 +170,7 @@ export function useProductDetail(
       setShowCartPreview(false);
       setAddToCartError(err instanceof Error ? err.message : 'Failed to add item to cart');
     }
-  }, [product, selectedVariant, canAddToCart, selections, addItem, isCustomSize]);
+  }, [product, selectedVariant, selections, addItem, isCustomSize]);
 
   const handleWishlist = useCallback(() => {
     if (product) toggleWishlist(product);
