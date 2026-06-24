@@ -73,9 +73,19 @@ export function StoreProvider({
               const { tokens } = store.getState().auth;
               if (!tokens?.accessToken) {
                 setGuestCartId(response.cartId);
+
+                // Cancel any in-flight GET /cart fetches BEFORE writing server data.
+                // Without this, a concurrent cart page fetch (GET with no guestCartId
+                // → server returns empty) can complete AFTER setQueryData and overwrite
+                // the correct cart — causing the "empty cart" bug on iOS Safari.
+                // cancelQueries sends the AbortSignal synchronously; setQueryData runs
+                // immediately after, so the abort completes before any response can land.
+                void qc.cancelQueries({ queryKey: [...CART_QUERY_KEY, 'guest', 'none'] });
+                void qc.cancelQueries({ queryKey: [...CART_QUERY_KEY, 'guest', response.cartId] });
+
                 // Write server data to BOTH queryKey variants so the cart page
-                // sees correct data regardless of whether guestCartId was already
-                // in localStorage when it mounted.
+                // and Navbar badge see correct data regardless of whether guestCartId
+                // was already in localStorage when they mounted.
                 qc.setQueryData([...CART_QUERY_KEY, 'guest', 'none'], response.cart);
                 qc.setQueryData([...CART_QUERY_KEY, 'guest', response.cartId], response.cart);
               }
