@@ -11,3 +11,20 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* On mobile the MobileCartBar is fixed bottom-0 (~80px tall).
+   Crisp chat has z-index ~9999999 and defaults to bottom:20px right:20px,
+   which overlaps the cart bar and intercepts taps on the Add to Bag button.
+   Push Crisp above the bar on screens narrower than md (768px). */
+@media (max-width: 767px) {
+  #crisp-chatbox {
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Safe area padding for iOS devices with home indicator.
+   Without this, the MobileCartBar bottom content falls in the iOS
+   swipe-up gesture zone and taps may be swallowed by the OS. */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
