@@ -206245,9 +206245,13 @@ exports["default"] = (0, config_1.registerAs)('onepay', () => {
     // are injected automatically — use them as fallbacks when the explicit var is absent.
     const vercelProdUrl = fromEnv('VERCEL_PROJECT_PRODUCTION_URL');
     const vercelUrl = fromEnv('VERCEL_URL');
+    // NestJS global prefix is 'api', so all routes are under /api/...
+    // ONEPAY_API_URL must include /api, e.g. https://api.silver14nail.com/api
+    // VERCEL_PROJECT_PRODUCTION_URL / VERCEL_URL are bare hostnames (no protocol, no path),
+    // so we append /api to match the global prefix.
     const apiUrl = fromEnv('ONEPAY_API_URL') ||
-        (vercelProdUrl ? `https://${vercelProdUrl}` : '') ||
-        (vercelUrl ? `https://${vercelUrl}` : '') ||
+        (vercelProdUrl ? `https://${vercelProdUrl}/api` : '') ||
+        (vercelUrl ? `https://${vercelUrl}/api` : '') ||
         'http://localhost:5000/api';
     return {
         merchantId: fromEnv('ONEPAY_MERCHANT_ID') || 'TESTONEPAY',
