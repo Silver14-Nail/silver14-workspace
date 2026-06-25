@@ -301101,7 +301101,6 @@ let OnepayFulfillmentService = OnepayFulfillmentService_1 = class OnepayFulfillm
             vpc_Customer_Email: contactSnapshot.email,
             vpc_Customer_Id: session.user?.id ?? undefined,
             locale,
-            vpc_CallbackURL: this.onepayService.getIpnUrl(), // dynamic IPN (docs §4.3.2)
         });
         // Mark as processing
         await this.detailRepo.update(detail.id, { status: 'processing' });

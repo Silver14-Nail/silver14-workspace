@@ -67,17 +67,9 @@
         "label": "PayPal",
         "description": "Pay securely with your PayPal account"
       },
-      "onepay_international": {
-        "label": "International Card",
-        "description": "Visa · Mastercard · AMEX · JCB — via OnePAY"
-      },
-      "onepay_domestic": {
-        "label": "Domestic ATM Card",
-        "description": "Domestic ATM card (Napas) — via OnePAY"
-      },
-      "onepay_qr": {
-        "label": "QR / Digital Wallet",
-        "description": "Scan QR or pay via banking app — via OnePAY"
+      "onepay": {
+        "label": "Pay with OnePAY",
+        "description": "International card · ATM · QR — via OnePAY"
       }
     },
     "onepay": {

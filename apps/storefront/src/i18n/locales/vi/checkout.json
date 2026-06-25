@@ -62,17 +62,9 @@
         "label": "PayPal",
         "description": "Thanh toán bảo mật qua tài khoản PayPal"
       },
-      "onepay_international": {
-        "label": "Thẻ quốc tế",
-        "description": "Visa · Mastercard · AMEX · JCB — qua OnePAY"
-      },
-      "onepay_domestic": {
-        "label": "Thẻ ATM Nội địa",
-        "description": "Thẻ ATM nội địa liên kết (Napas) — qua OnePAY"
-      },
-      "onepay_qr": {
-        "label": "QR / Ví điện tử",
-        "description": "Quét mã QR hoặc ứng dụng ngân hàng — qua OnePAY"
+      "onepay": {
+        "label": "Thanh toán OnePAY",
+        "description": "Thẻ quốc tế · Thẻ ATM nội địa · QR — qua OnePAY"
       }
     },
     "onepay": {
