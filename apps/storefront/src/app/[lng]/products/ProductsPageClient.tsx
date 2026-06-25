@@ -4,18 +4,22 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import { ProductsHeader, ProductsFilters, ProductsGrid } from './components';
 import { useProductFilters } from './hooks/useProductFilters';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import type { StorefrontProduct } from '@/types/product';
 import type { CollectionFilter } from './hooks/useProductFilters';
+import type { ApiPagination } from '@/lib/products.api';
 
 interface ProductsPageClientProps {
   lng: string;
   initialProducts?: StorefrontProduct[];
+  initialPagination?: ApiPagination | null;
   initialCollections?: CollectionFilter[];
 }
 
 export function ProductsPageClient({
   lng,
   initialProducts,
+  initialPagination,
   initialCollections,
 }: ProductsPageClientProps) {
   const router = useRouter();
@@ -28,16 +32,30 @@ export function ProductsPageClient({
     activeCollectionLabel,
     sortBy,
     sortOpen,
-    filteredProducts,
+    allProducts,
     loading,
-    error,
+    loadingMore,
+    hasMore,
+    totalItems,
+    loadMore,
     collections,
     handleCollectionChange,
     handleSearchChange,
     handleSortChange,
     toggleSort,
     clearFilters,
-  } = useProductFilters({ searchParams, router, lng, initialProducts, initialCollections });
+  } = useProductFilters({
+    searchParams,
+    router,
+    lng,
+    initialProducts,
+    initialPagination,
+    initialCollections,
+  });
+
+  const sentinelRef = useIntersectionObserver(loadMore, {
+    enabled: hasMore && !loading && !loadingMore,
+  });
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">
@@ -54,17 +72,24 @@ export function ProductsPageClient({
           sortOpen={sortOpen}
           onSortToggle={toggleSort}
           onSortChange={handleSortChange}
-          productCount={filteredProducts.length}
+          productCount={totalItems}
           t={t}
         />
 
         <ProductsGrid
-          products={filteredProducts}
+          products={allProducts}
           loading={loading}
-          error={error}
+          error={null}
           onClearFilters={clearFilters}
           t={t}
         />
+
+        {/* Sentinel — triggers next page when scrolled into view */}
+        <div ref={sentinelRef} className="h-16 flex items-center justify-center mt-4">
+          {loadingMore && (
+            <div className="size-5 border-2 border-[#E0E0E0] border-t-[#1A1A1A] rounded-full animate-spin" />
+          )}
+        </div>
       </div>
     </div>
   );

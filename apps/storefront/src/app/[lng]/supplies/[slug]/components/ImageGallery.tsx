@@ -1,3 +1,6 @@
+'use client';
+
+import { useRef } from 'react';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 
 interface Props {
@@ -8,9 +11,35 @@ interface Props {
 }
 
 export function ImageGallery({ images, productName, selectedIndex, onSelect }: Props) {
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+
+    if (Math.abs(deltaX) < 40) return;
+
+    if (deltaX < 0) {
+      // swipe left → next
+      onSelect((selectedIndex + 1) % images.length);
+    } else {
+      // swipe right → prev
+      onSelect((selectedIndex - 1 + images.length) % images.length);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="relative aspect-square overflow-hidden bg-white">
+      <div
+        className="relative aspect-square overflow-hidden bg-white"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <ImageWithFallback
           src={images[selectedIndex]}
           alt={productName}
@@ -18,6 +47,22 @@ export function ImageGallery({ images, productName, selectedIndex, onSelect }: P
           sizes="(max-width: 640px) 100vw, 50vw"
           className="object-cover object-center"
         />
+
+        {/* Dot indicators — mobile only */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 sm:hidden">
+            {images.map((_, idx) => (
+              <span
+                key={idx}
+                className={`block rounded-full transition-all ${
+                  idx === selectedIndex
+                    ? 'w-4 h-1.5 bg-[#1A1A1A]'
+                    : 'w-1.5 h-1.5 bg-[#1A1A1A]/30'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {images.length > 1 && (
