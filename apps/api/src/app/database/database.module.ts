@@ -50,12 +50,13 @@ import { ENTITIES } from '@/db/entities';
             rejectUnauthorized: false,
           },
           connectorPackage: 'mysql2',
-          // Keep the pool small to stay within shared-hosting connection limits.
-          // Raise connectionLimit if the host allows more simultaneous connections.
+          // Serverless: each function instance has its own pool, so keep the pool
+          // at 1 to avoid exhausting the DB's max_connections across many instances.
           extra: {
-            connectionLimit: 5,
+            connectionLimit: 1,
             waitForConnections: true,
             queueLimit: 0,
+            acquireTimeout: 10000,
           },
         };
       },
