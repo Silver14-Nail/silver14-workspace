@@ -9,9 +9,6 @@ import { initializeAuth } from './slices/auth.slice';
 import { fetchExchangeRates } from '@/services/currency.service';
 import { logger } from '../lib/logger';
 import type { CurrencyCode } from '@/config/commerce.config';
-import { CART_QUERY_KEY } from '../features/cart/cart.hooks';
-import { broadcastGuestCartId } from '../features/cart/cart.storage';
-import type { ApiAddItemResponse } from '../features/cart/cart.types';
 
 function AuthInitializer() {
   useEffect(() => {
@@ -42,10 +39,7 @@ export function StoreProvider({
 }) {
   const queryClientRef = useRef<QueryClient>(null);
   if (!queryClientRef.current) {
-    // Use a local variable so the MutationCache.onSuccess closure can reference
-    // the QueryClient before the ref is populated (safe: the callback only runs
-    // after the first mutation settles, well after this initializer returns).
-    const qc = new QueryClient({
+    queryClientRef.current = new QueryClient({
       queryCache: new QueryCache({
         onError: (error, query) => {
           logger.error(`Query failed: ${String(query.queryKey)}`, error, 'QueryCache');
@@ -55,46 +49,6 @@ export function StoreProvider({
         onError: (error) => {
           logger.error('Mutation failed', error, 'MutationCache');
         },
-        // Global success handler — fires even when the originating component has
-        // unmounted (e.g. user navigated away before the API responded). This is
-        // the fix for Safari: useMutation.onSuccess is observer-bound and silently
-        // dropped after unmount, but MutationCache.onSuccess always fires.
-        onSuccess: (data, _vars, _ctx, mutation) => {
-          const mutKey = mutation.options.mutationKey;
-          if (
-            Array.isArray(mutKey) &&
-            mutKey[0] === 'cart' &&
-            mutKey[1] === 'addItem'
-          ) {
-            const response = data as ApiAddItemResponse;
-            if (response?.cartId && response?.cart) {
-              // Only update guest-cart keys — authenticated users are handled by
-              // the component-level onSuccess which has the correct user queryKey.
-              const { tokens } = store.getState().auth;
-              if (!tokens?.accessToken) {
-                // broadcastGuestCartId writes to localStorage + dispatches GUEST_CART_ID_UPDATED
-                // so every live useCart() instance (Navbar, cart page) immediately switches its
-                // queryKey to ['cart','guest',cartId] — where we're about to write the server data.
-                broadcastGuestCartId(response.cartId);
-
-                // Cancel any in-flight GET /cart fetches BEFORE writing server data.
-                // Without this, a concurrent cart page fetch (GET with no guestCartId
-                // → server returns empty) can complete AFTER setQueryData and overwrite
-                // the correct cart — causing the "empty cart" bug on iOS Safari.
-                // cancelQueries sends the AbortSignal synchronously; setQueryData runs
-                // immediately after, so the abort completes before any response can land.
-                void qc.cancelQueries({ queryKey: [...CART_QUERY_KEY, 'guest', 'none'] });
-                void qc.cancelQueries({ queryKey: [...CART_QUERY_KEY, 'guest', response.cartId] });
-
-                // Write server data to BOTH queryKey variants so the cart page
-                // and Navbar badge see correct data regardless of whether guestCartId
-                // was already in localStorage when they mounted.
-                qc.setQueryData([...CART_QUERY_KEY, 'guest', 'none'], response.cart);
-                qc.setQueryData([...CART_QUERY_KEY, 'guest', response.cartId], response.cart);
-              }
-            }
-          }
-        },
       }),
       defaultOptions: {
         queries: {
@@ -103,7 +57,6 @@ export function StoreProvider({
         },
       },
     });
-    queryClientRef.current = qc;
   }
 
   return (

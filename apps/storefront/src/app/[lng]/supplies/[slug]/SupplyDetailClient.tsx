@@ -24,6 +24,7 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
     () => sd.setQuantity(Math.min(sd.quantity + 1, sd.maxQuantity || sd.quantity + 1)),
     [sd],
   );
+  const canAddToCart = sd.inStock && !sd.stockExceeded;
 
   if (!sd.supply) return <SupplyNotFound />;
 
@@ -32,7 +33,7 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
   const isOnSale = supply.isOnSale && supply.salePrice != null;
 
   return (
-    <div className="min-h-screen pt-20 md:pt-24 pb-16">
+    <div className="min-h-screen pt-20 md:pt-24 pb-24 md:pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back */}
         <LinkBase
@@ -126,8 +127,8 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
               </div>
             )}
 
-            {/* Quantity & Add to Cart */}
-            <div className="border-t border-[#E8E8E8] pt-6 space-y-4">
+            {/* Quantity & Add to Cart — desktop only; mobile uses the sticky bar */}
+            <div className="hidden md:block border-t border-[#E8E8E8] pt-6 space-y-4">
               <div>
                 <label
                   className="text-[#1A1A1A] text-xs uppercase tracking-widest mb-2 block"
@@ -159,10 +160,16 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
                 )}
               </div>
 
+              {/* Desktop add-to-cart — no `disabled` attribute to avoid CSS hit-test caching
+                  bug where click recovery breaks after hydration. Guard lives in onClick. */}
               <button
-                onClick={sd.handleAddToCart}
-                disabled={!sd.inStock || sd.stockExceeded}
-                className="w-full bg-[#1A1A1A] text-white py-4 px-6 flex items-center justify-center gap-2 text-xs uppercase tracking-widest transition-all hover:bg-[#2A2A2A] disabled:bg-[#C0C0C0] disabled:cursor-not-allowed"
+                onClick={() => { if (canAddToCart) sd.handleAddToCart(); }}
+                aria-disabled={!canAddToCart}
+                className={`w-full py-4 px-6 flex items-center justify-center gap-2 text-xs uppercase tracking-widest transition-all ${
+                  canAddToCart
+                    ? 'bg-[#1A1A1A] text-white hover:bg-[#2A2A2A]'
+                    : 'bg-[#C0C0C0] text-white cursor-not-allowed'
+                }`}
                 style={{ letterSpacing: '0.15em' }}
               >
                 <ShoppingBag className="size-4" />
@@ -202,6 +209,65 @@ export function SupplyDetailClient({ supply: initialSupply }: SupplyDetailClient
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile sticky add-to-cart bar — mirrors MobileCartBar pattern from product detail.
+          onTouchEnd + e.preventDefault() prevents ghost click after touch interactions. */}
+      <div
+        className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8E8E8] safe-area-pb"
+        style={{ zIndex: 10000001 }}
+      >
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2">
+            {/* Quantity */}
+            <div
+              className="flex items-center border border-[#E0E0E0] flex-shrink-0"
+              role="group"
+              aria-label={t('detail.quantity')}
+            >
+              <button
+                onClick={decrement}
+                aria-label="-"
+                className="px-2.5 py-2 text-[#1A1A1A]"
+              >
+                <Minus className="size-3.5" aria-hidden />
+              </button>
+              <span className="px-3 text-sm text-[#1A1A1A] min-w-[2rem] text-center" aria-live="polite">
+                {sd.quantity}
+              </span>
+              <button
+                onClick={increment}
+                aria-label="+"
+                className="px-2.5 py-2 text-[#1A1A1A]"
+              >
+                <Plus className="size-3.5" aria-hidden />
+              </button>
+            </div>
+
+            {/* Add to cart */}
+            <button
+              onTouchEnd={(e) => {
+                if (canAddToCart) {
+                  e.preventDefault();
+                  sd.handleAddToCart();
+                }
+              }}
+              onClick={() => {
+                if (canAddToCart) sd.handleAddToCart();
+              }}
+              aria-disabled={!canAddToCart}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs uppercase tracking-widest transition-all ${
+                canAddToCart
+                  ? 'bg-[#1A1A1A] text-white'
+                  : 'bg-[#E0E0E0] text-[#9A9A9A] cursor-not-allowed'
+              }`}
+              style={{ letterSpacing: '0.12em' }}
+            >
+              <ShoppingBag className="size-4" aria-hidden />
+              {!sd.inStock ? t('detail.outOfStock') : t('detail.addToCart')}
+            </button>
           </div>
         </div>
       </div>

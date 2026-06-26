@@ -163,10 +163,9 @@ export function useCheckout() {
 
     let resolvedCartId = cartId;
 
-    // On Safari, the cart lives in localStorage (cartId === null). Before
-    // creating a checkout session we need a real BE cart, so sync the local
-    // items to the API here. The first addItem call creates the cart and
-    // returns its id; subsequent calls reuse it via the x-cart-id header.
+    // Cart lives in localStorage (cartId === null). Before creating a checkout
+    // session we sync local items to the API — the first addItem creates the
+    // cart and returns its id; subsequent calls reuse it via x-cart-id header.
     if (!resolvedCartId) {
       const localItems = getLocalCart().items;
       if (localItems.length === 0) return null;

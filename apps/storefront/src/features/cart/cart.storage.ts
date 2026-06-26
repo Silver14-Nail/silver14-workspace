@@ -12,7 +12,7 @@ export const GUEST_CART_ID_UPDATED = 'silver14:guestCartIdUpdated';
 
 // Dispatched whenever the localStorage cart is written or cleared.
 // All useCart() instances listen so the Navbar badge, cart page, etc. update
-// immediately without needing an API call (Safari localStorage-only path).
+// immediately without needing an API roundtrip.
 export const LOCAL_CART_UPDATED = 'silver14:localCartUpdated';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -75,7 +75,7 @@ export function broadcastGuestCartId(cartId: string): void {
   }
 }
 
-// ─── Local (Safari) cart ──────────────────────────────────────────────────────
+// ─── Local cart (localStorage) ───────────────────────────────────────────────
 
 export const EMPTY_LOCAL_CART: ApiCart = {
   id: 'local',
