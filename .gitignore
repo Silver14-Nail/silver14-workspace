@@ -48,3 +48,13 @@ Thumbs.db
 out
 
 test-output
+
+# Deployment scripts and credentials (local only)
+/scripts/
+/backups/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+apps/*/.env.local

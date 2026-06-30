@@ -1,0 +1,165 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # MySQL Database
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: silver14-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-silver14_root_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
+      MYSQL_USER: ${MYSQL_USER:-silver14_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-silver14_pass}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+    networks:
+      - silver14-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-silver14_root_pass}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================
+  # API Service (NestJS)
+  # ============================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    container_name: silver14-api
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+      STOREFRONT_URL: ${STOREFRONT_URL:-https://silver14nail.com}
+      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-true}
+      SECRET_KEY: ${SECRET_KEY}
+      TOKEN_EXPIRES: ${TOKEN_EXPIRES:-86400}
+      REFRESH_TOKEN_EXPIRES: ${REFRESH_TOKEN_EXPIRES:-604800}
+      DATABASE_TYPE: mysql
+      DATABASE_HOST: mysql
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
+      MYSQL_USER: ${MYSQL_USER:-silver14_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-silver14_pass}
+      MYSQL_PORT: 3306
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
+      PAYPAL_MODE: ${PAYPAL_MODE:-sandbox}
+      PAYPAL_WEBHOOK_ID: ${PAYPAL_WEBHOOK_ID}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL}
+      ONEPAY_ENV: ${ONEPAY_ENV:-sandbox}
+      ONEPAY_MERCHANT_ID: ${ONEPAY_MERCHANT_ID}
+      ONEPAY_ACCESS_CODE: ${ONEPAY_ACCESS_CODE}
+      ONEPAY_HASH_KEY: ${ONEPAY_HASH_KEY}
+      ONEPAY_USER: ${ONEPAY_USER}
+      ONEPAY_PASSWORD: ${ONEPAY_PASSWORD}
+      ONEPAY_TITLE: ${ONEPAY_TITLE:-Silver14 Nail — Thanh toán OnePAY}
+      ONEPAY_API_URL: ${ONEPAY_API_URL:-http://localhost:3000/api}
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - silver14-network
+    volumes:
+      - ./apps/api/.env:/app/.env:ro
+
+  # ============================================
+  # Storefront Service (Next.js)
+  # ============================================
+  storefront:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: storefront
+    container_name: silver14-storefront
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4200
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:3000/api}
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+      NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${NEXT_PUBLIC_PAYPAL_CLIENT_ID}
+    ports:
+      - "4200:4200"
+    depends_on:
+      - api
+    networks:
+      - silver14-network
+
+  # ============================================
+  # Admin Service (Next.js)
+  # ============================================
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: admin
+    container_name: silver14-admin
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4201
+      API_URL: ${API_URL:-http://api:3000}
+    ports:
+      - "4201:4201"
+    depends_on:
+      - api
+    networks:
+      - silver14-network
+
+  # ============================================
+  # Nginx Reverse Proxy
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: silver14-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - api
+      - storefront
+      - admin
+    networks:
+      - silver14-network
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  silver14-network:
+    driver: bridge
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mysql_data:
+    driver: local
+  nginx_cache:
+    driver: local
+  nginx_logs:
+    driver: local
