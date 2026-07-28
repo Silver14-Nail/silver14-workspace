@@ -93,7 +93,8 @@ export class ClientCheckoutService {
         if (userId && !existing.user) {
           (existing as any).user = { id: userId };
         }
-        return this.sessionRepo.save(existing);
+        const savedExisting = await this.sessionRepo.save(existing);
+        return this.withTotals(savedExisting);
       }
       // Stale session (COMPLETED / EXPIRED / ABANDONED) — remove it so a new one can be created
       await this.sessionRepo.remove(existing);
@@ -120,7 +121,8 @@ export class ClientCheckoutService {
       expiresAt,
     });
 
-    return this.sessionRepo.save(session);
+    const saved = await this.sessionRepo.save(session);
+    return this.withTotals(saved);
   }
 
   async getSession(sessionId: string) {
@@ -146,7 +148,8 @@ export class ClientCheckoutService {
       session.currentStep = CheckoutStep.SHIPPING;
     }
 
-    return this.sessionRepo.save(session);
+    const saved = await this.sessionRepo.save(session);
+    return this.withTotals(saved);
   }
 
   async updateShipping(sessionId: string, dto: UpdateShippingDto) {
@@ -187,7 +190,8 @@ export class ClientCheckoutService {
       session.currentStep = CheckoutStep.PAYMENT;
     }
 
-    return this.sessionRepo.save(session);
+    const saved = await this.sessionRepo.save(session);
+    return this.withTotals(saved);
   }
 
   async applyCoupon(sessionId: string, dto: ApplyCouponDto) {

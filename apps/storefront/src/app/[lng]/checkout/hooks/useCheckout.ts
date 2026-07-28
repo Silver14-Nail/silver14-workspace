@@ -166,6 +166,10 @@ export function useCheckout() {
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
       linkedSessionIdRef.current = s.id;
+      // We already have the full session from createSession() — seed the
+      // query cache with it so the useQuery below (enabled as soon as
+      // sessionId changes) doesn't immediately re-fetch the same data.
+      queryClient.setQueryData(['checkout-session', s.id], s);
 
       // Apply pending coupon only on first creation, not on user-link re-calls
       if (isNewSession) {
@@ -245,7 +249,7 @@ export function useCheckout() {
         const sid = sessionId ?? (await ensureSession());
         if (!sid) return;
 
-        await checkoutApi.updateContact(sid, data, getToken());
+        const updated = await checkoutApi.updateContact(sid, data, getToken());
         setConfirmEmail(data.email);
         setConfirmPhone(data.phone);
         const [first = ''] = data.fullName.split(' ');
@@ -256,7 +260,9 @@ export function useCheckout() {
             JSON.stringify({ email: data.email, phone: data.phone, firstName: first }),
           );
         } catch {}
-        queryClient.invalidateQueries({ queryKey: ['checkout-session', sid] });
+        // Use the response we already have instead of invalidating and
+        // re-fetching the same session data.
+        queryClient.setQueryData(['checkout-session', sid], updated);
         setStep('shipping');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Failed to save contact info');
@@ -278,7 +284,7 @@ export function useCheckout() {
         const recipientName = `${data.firstName} ${data.lastName}`.trim();
         const street = data.apartment ? `${data.address}, ${data.apartment}` : data.address;
 
-        await checkoutApi.updateShipping(
+        const updated = await checkoutApi.updateShipping(
           sessionId,
           {
             ...(selectedMethodId ? { shippingMethodId: selectedMethodId } : {}),
@@ -290,7 +296,9 @@ export function useCheckout() {
           },
           getToken(),
         );
-        queryClient.invalidateQueries({ queryKey: ['checkout-session', sessionId] });
+        // Use the response we already have instead of invalidating and
+        // re-fetching the same session data.
+        queryClient.setQueryData(['checkout-session', sessionId], updated);
         setStep('payment');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Failed to save shipping info');
