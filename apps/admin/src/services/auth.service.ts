@@ -39,4 +39,12 @@ export const authService = {
     const { data } = await api.post<{ user: AuthUser }>('/refresh');
     return data.user;
   },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    try {
+      await api.post('/change-password', { currentPassword, newPassword });
+    } catch (err) {
+      throw new Error(extractError(err, 'Unable to change password'));
+    }
+  },
 };

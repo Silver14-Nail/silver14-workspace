@@ -25,6 +25,7 @@
     "notifications": "Notifications",
     "newCount": "{{count}} new",
     "profileSettings": "Profile Settings",
+    "changePassword": "Change Password",
     "signOut": "Sign out",
     "signingOut": "Signing out…"
   },
@@ -32,5 +33,20 @@
     "en": "English",
     "vi": "Tiếng Việt",
     "switchLabel": "Switch language"
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "description": "Update the password used to sign in to the admin dashboard.",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Update Password",
+    "submitting": "Updating…",
+    "success": "Password updated successfully.",
+    "cancel": "Cancel",
+    "errors": {
+      "mismatch": "New password and confirmation do not match.",
+      "tooShort": "New password must be at least 6 characters."
+    }
   }
 }

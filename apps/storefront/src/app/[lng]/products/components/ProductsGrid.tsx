@@ -63,18 +63,30 @@ function getPageRange(current: number, total: number): (number | null)[] {
 
 function DesktopPaginatedGrid({
   products,
+  totalItems,
+  hasMore,
+  loadingMore,
+  onLoadMore,
   loading,
   onClearFilters,
   t,
 }: {
   products: StorefrontProduct[];
+  totalItems: number;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
   loading?: boolean;
   onClearFilters: () => void;
   t: TFunction;
 }) {
   const [page, setPage] = useState(1);
 
-  const resetKey = `${products.length}:${products[0]?.id ?? ''}`;
+  // Reset to page 1 on a genuine filter/search/sort change — keyed by the
+  // server-reported total + first item id, which stay stable while more
+  // pages stream in for the *same* query (unlike `products.length`, which
+  // grows every time `onLoadMore` appends another page).
+  const resetKey = `${totalItems}:${products[0]?.id ?? ''}`;
   const prevKey = useRef(resetKey);
   useEffect(() => {
     if (resetKey !== prevKey.current) {
@@ -83,12 +95,19 @@ function DesktopPaginatedGrid({
     }
   }, [resetKey]);
 
-  const totalPages = Math.max(1, Math.ceil(products.length / DESKTOP_PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalItems / DESKTOP_PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageProducts = products.slice(
     (safePage - 1) * DESKTOP_PAGE_SIZE,
     safePage * DESKTOP_PAGE_SIZE,
   );
+  // This page's slice isn't fully loaded yet — more server pages are needed
+  // (e.g. the user paginated past what's currently in memory).
+  const pageNeedsMoreData = pageProducts.length < DESKTOP_PAGE_SIZE && hasMore;
+
+  useEffect(() => {
+    if (pageNeedsMoreData && !loadingMore) onLoadMore();
+  }, [pageNeedsMoreData, loadingMore, onLoadMore]);
 
   const goToPage = (p: number) => {
     setPage(Math.max(1, Math.min(p, totalPages)));
@@ -105,7 +124,7 @@ function DesktopPaginatedGrid({
     );
   }
 
-  if (!products.length) {
+  if (!totalItems) {
     return <EmptyState message={t('noProducts')} onClear={onClearFilters} t={t} />;
   }
 
@@ -123,6 +142,10 @@ function DesktopPaginatedGrid({
           {pageProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
+          {pageNeedsMoreData &&
+            Array.from({ length: DESKTOP_PAGE_SIZE - pageProducts.length }).map((_, i) => (
+              <SkeletonCard key={`pending-${i}`} />
+            ))}
         </motion.div>
       </AnimatePresence>
 
@@ -220,13 +243,27 @@ function MobileVirtualGrid({ products }: { products: StorefrontProduct[] }) {
 
 interface Props {
   products: StorefrontProduct[];
+  totalItems: number;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
   loading?: boolean;
   error?: string | null;
   onClearFilters: () => void;
   t: TFunction;
 }
 
-export function ProductsGrid({ products, loading, error, onClearFilters, t }: Props) {
+export function ProductsGrid({
+  products,
+  totalItems,
+  hasMore,
+  loadingMore,
+  onLoadMore,
+  loading,
+  error,
+  onClearFilters,
+  t,
+}: Props) {
   if (error) {
     return <EmptyState message={error} onClear={onClearFilters} t={t} />;
   }
@@ -252,6 +289,10 @@ export function ProductsGrid({ products, loading, error, onClearFilters, t }: Pr
       <div className="hidden md:block">
         <DesktopPaginatedGrid
           products={products}
+          totalItems={totalItems}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
+          onLoadMore={onLoadMore}
           loading={loading}
           onClearFilters={onClearFilters}
           t={t}

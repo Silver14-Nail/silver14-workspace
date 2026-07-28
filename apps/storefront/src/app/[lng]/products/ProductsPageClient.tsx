@@ -105,6 +105,10 @@ export function ProductsPageClient({
 
         <ProductsGrid
           products={allProducts}
+          totalItems={totalItems}
+          hasMore={hasMore}
+          loadingMore={loadingMore}
+          onLoadMore={loadMore}
           loading={loading}
           error={null}
           onClearFilters={clearFilters}

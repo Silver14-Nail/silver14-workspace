@@ -6,6 +6,7 @@ import { type PassedAuthMiddlewareRequest } from '../admin-api.middleware';
 import { AdminAuthService } from './auth.service';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { AdminRefreshTokenDto } from './dto/admin-refresh-token.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('Admin - Auth')
 @Controller('auth')
@@ -28,5 +29,12 @@ export class AdminAuthController {
   @ApiBearerAuth()
   getMe(@Req() req: PassedAuthMiddlewareRequest) {
     return this.authService.getMe(req.user.id);
+  }
+
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  changePassword(@Req() req: PassedAuthMiddlewareRequest, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.id, dto.currentPassword, dto.newPassword);
   }
 }

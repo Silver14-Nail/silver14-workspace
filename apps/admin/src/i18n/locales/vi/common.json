@@ -25,6 +25,7 @@
     "notifications": "Thông báo",
     "newCount": "{{count}} mới",
     "profileSettings": "Cài đặt hồ sơ",
+    "changePassword": "Đổi mật khẩu",
     "signOut": "Đăng xuất",
     "signingOut": "Đang đăng xuất…"
   },
@@ -32,5 +33,20 @@
     "en": "English",
     "vi": "Tiếng Việt",
     "switchLabel": "Chuyển ngôn ngữ"
+  },
+  "changePassword": {
+    "title": "Đổi mật khẩu",
+    "description": "Cập nhật mật khẩu dùng để đăng nhập bảng quản trị.",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "submit": "Cập nhật mật khẩu",
+    "submitting": "Đang cập nhật…",
+    "success": "Đổi mật khẩu thành công.",
+    "cancel": "Hủy",
+    "errors": {
+      "mismatch": "Mật khẩu mới và xác nhận không khớp.",
+      "tooShort": "Mật khẩu mới phải có ít nhất 6 ký tự."
+    }
   }
 }

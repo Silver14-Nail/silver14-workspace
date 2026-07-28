@@ -33,11 +33,13 @@ import {
   Megaphone,
   Languages,
   LayoutTemplate,
+  KeyRound,
 } from 'lucide-react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminTheme } from '@/app/context/AdminThemeContext';
 import { LOCALE_COOKIE } from '@/i18n/config';
+import ChangePasswordModal from './ChangePasswordModal';
 
 interface NavItem {
   key: string;
@@ -82,6 +84,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [isLoggingOut, startLogout] = useTransition();
 
   const displayName = user?.fullName || 'Admin';
@@ -512,6 +515,21 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                     {t('shell.profileSettings')}
                   </Link>
 
+                  <button
+                    onClick={() => {
+                      setShowProfile(false);
+                      setShowChangePassword(true);
+                    }}
+                    className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors ${
+                      theme === 'dark'
+                        ? 'text-gray-300 hover:bg-gray-800'
+                        : 'text-[#374151] hover:bg-[#F9FAFB]'
+                    }`}
+                  >
+                    <KeyRound className="w-3.5 h-3.5" />
+                    {t('shell.changePassword')}
+                  </button>
+
                   <Link
                     href="/"
                     className={`flex items-center px-4 py-2.5 text-sm transition-colors ${
@@ -561,6 +579,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </div>
         </main>
       </div>
+
+      {showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
     </div>
   );
 }

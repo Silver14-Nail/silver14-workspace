@@ -204,31 +204,6 @@ function LoginContent() {
             </p>
           </div>
 
-          {/* Demo credentials */}
-          <div
-            className="flex items-start gap-3 p-4 rounded-xl mb-8"
-            style={{
-              background: 'rgba(192,192,192,0.08)',
-              border: '1px solid rgba(192,192,192,0.2)',
-            }}
-          >
-            <Sparkles className="w-4 h-4 text-[#9A9A9A] mt-0.5 flex-shrink-0" />
-            <div>
-              <p
-                className="text-[#6B6B6B] text-xs leading-relaxed"
-                style={{ fontFamily: "'Inter', sans-serif" }}
-              >
-                <span className="font-medium text-[#4A4A4A]">Demo credentials</span>
-                <br />
-                Email:{' '}
-                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">admin@silver14.com</code>
-                <br />
-                Password:{' '}
-                <code className="bg-[#F0F0F0] px-1 rounded text-[#1A1A1A]">Admin@123456</code>
-              </p>
-            </div>
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}

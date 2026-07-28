@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { authService } from '@/services/auth.service';
 import {
   clearError,
   initializeAppThunk,
@@ -49,6 +50,18 @@ export function useAuth() {
 
   const dismissError = useCallback(() => dispatch(clearError()), [dispatch]);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    try {
+      await authService.changePassword(currentPassword, newPassword);
+      return { ok: true as const };
+    } catch (err) {
+      return {
+        ok: false as const,
+        error: err instanceof Error ? err.message : 'Unable to change password',
+      };
+    }
+  }, []);
+
   return {
     user,
     status,
@@ -61,5 +74,6 @@ export function useAuth() {
     initialize,
     refresh,
     dismissError,
+    changePassword,
   };
 }
