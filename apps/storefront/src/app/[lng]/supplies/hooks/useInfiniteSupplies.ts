@@ -33,7 +33,10 @@ export function useInfiniteSupplies(locale?: string) {
         setHasMore(pageNum < data.pagination.totalPages);
         setPage(pageNum);
       } catch {
-        // ignore
+        // Stop auto-loading on failure — otherwise the intersection observer
+        // re-enables as soon as loadingMore clears and immediately retries
+        // the same page forever (sentinel never leaves the viewport).
+        setHasMore(false);
       } finally {
         if (gen === generationRef.current) {
           fetchingRef.current = false;

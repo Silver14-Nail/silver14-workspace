@@ -44,7 +44,7 @@ export class ClientOrdersService {
     });
     if (byUuid) return byUuid;
 
-    // Fallback: gateway transaction ID (e.g. Lemon Squeezy order number from their email)
+    // Fallback: gateway transaction ID (e.g. PayPal order number from their email)
     const payment = await this.paymentRepo.findOne({
       where: { gatewayTxnId: orderId.trim() },
       relations: ['order', 'order.items', 'order.items.customSizeRequest'],

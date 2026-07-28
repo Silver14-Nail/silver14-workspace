@@ -422,11 +422,9 @@ export function OrderDrawer({ orderId, onClose, onRefresh, currentQuery }: Order
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        {item.productName && (
-                          <p className="text-xs font-semibold text-[#111827] truncate">
-                            {item.productName}
-                          </p>
-                        )}
+                        <p className="text-xs font-semibold text-[#111827] truncate">
+                          {item.productName || item.sku || 'Unknown product'}
+                        </p>
                         <p className="text-xs text-[#6B7280]">
                           {[item.colorName, item.shapeName, item.sizeLabel].filter(Boolean).join(' · ')}
                           {item.sku && <span className="text-[#9CA3AF]"> · {item.sku}</span>}

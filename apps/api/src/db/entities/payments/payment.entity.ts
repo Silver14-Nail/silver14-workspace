@@ -6,9 +6,6 @@ import { SoftDeleteAbstractEntity } from '../../../common/entities';
 import { OrderEntity } from '../orders/order.entity';
 import { PaypalDetailEntity } from './paypal-detail.entity';
 import { CardDetailEntity } from './card-detail.entity';
-import { AirwallexDetailEntity } from './airwallex-detail.entity';
-import { TwocheckoutDetailEntity } from './twocheckout-detail.entity';
-import { NgLuongDetailEntity } from './nganluong-detail.entity';
 import { OnepayDetailEntity } from './onepay-detail.entity';
 
 @Entity('payments')
@@ -76,15 +73,6 @@ export class PaymentEntity extends SoftDeleteAbstractEntity {
 
   @OneToOne(() => CardDetailEntity, (d) => d.payment)
   cardDetail: CardDetailEntity;
-
-  @OneToOne(() => AirwallexDetailEntity, (d) => d.payment)
-  airwallexDetail: AirwallexDetailEntity;
-
-  @OneToOne(() => TwocheckoutDetailEntity, (d) => d.payment)
-  twocheckoutDetail: TwocheckoutDetailEntity;
-
-  @OneToOne(() => NgLuongDetailEntity, (d) => d.payment)
-  ngLuongDetail: NgLuongDetailEntity;
 
   @OneToOne(() => OnepayDetailEntity, (d) => d.payment)
   onepayDetail: OnepayDetailEntity;

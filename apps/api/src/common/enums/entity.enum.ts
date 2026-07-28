@@ -110,10 +110,6 @@ export enum PaymentGateway {
   PAYPAL = 'paypal',
   STRIPE = 'stripe',
   BRAINTREE = 'braintree',
-  LEMON_SQUEEZY = 'lemon_squeezy',
-  AIRWALLEX = 'airwallex',
-  TWOCHECKOUT = 'twocheckout',
-  NGAN_LUONG = 'ngan_luong',
   ONEPAY = 'onepay',
 }
 

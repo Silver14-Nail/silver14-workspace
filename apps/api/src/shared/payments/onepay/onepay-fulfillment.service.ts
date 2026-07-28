@@ -349,6 +349,7 @@ export class OnepayFulfillmentService {
         'user',
         'guest',
       ],
+      withDeleted: true,
     });
 
     if (!session) throw new NotFoundException(`Checkout session "${checkoutSessionId}" not found`);

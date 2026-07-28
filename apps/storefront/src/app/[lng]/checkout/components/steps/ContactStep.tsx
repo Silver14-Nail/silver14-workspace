@@ -87,7 +87,6 @@ export function ContactStep({ defaultValues, isSubmitting, error, onNext }: Cont
           label={t('contact.cta')}
           disabled={isSubmitting || !isValid}
           isLoading={isSubmitting}
-          onTouchSubmit={() => { void handleFormSubmit(); }}
         />
       </div>
     </form>

@@ -59,10 +59,6 @@
         "label": "Credit / Debit Card",
         "description": "Visa, Mastercard accepted"
       },
-      "lemon_squeezy": {
-        "label": "Lemon Squeezy",
-        "description": "Secure hosted checkout — you'll be redirected to complete payment"
-      },
       "paypal": {
         "label": "PayPal",
         "description": "Pay securely with your PayPal account"
@@ -118,7 +114,6 @@
       "conditionsLink": "conditions"
     },
     "cardHint": "Your card details are securely handled by Stripe.",
-    "lsHint": "You'll be redirected to Lemon Squeezy's secure checkout page to complete your payment.",
     "securityNote": "Your payment information is encrypted and secure. We never store card details.",
     "cta": "Pay",
     "processing": "Processing..."
@@ -131,8 +126,6 @@
     "orderIdLabel": "Your Order ID",
     "orderIdHint": "Save this to track your order",
     "orderIdPending": "Your order ID will be sent to your email shortly",
-    "lsEmailSent": "Lemon Squeezy has sent a confirmation email to you with your order number and receipt. Please check your inbox (and spam folder) for details.",
-    "lsInternalRef": "Silver14 reference:",
     "trackHint": "📱 You can track your order status using your phone number ({{phone}}) and order ID above.",
     "trackOrder": "Track Order",
     "continueShopping": "Continue Shopping"

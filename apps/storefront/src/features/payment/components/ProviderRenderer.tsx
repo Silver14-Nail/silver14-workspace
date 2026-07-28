@@ -4,19 +4,11 @@ import React, { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { PaymentProviderName, ProviderRendererProps } from '../types';
 
-const AirwallexRenderer = lazy(() =>
-  import('./renderers/AirwallexRenderer').then((m) => ({ default: m.AirwallexRenderer })),
-);
-const NgLuongRenderer = lazy(() =>
-  import('./renderers/NgLuongRenderer').then((m) => ({ default: m.NgLuongRenderer })),
-);
 const OnepayRenderer = lazy(() =>
   import('./renderers/OnepayRenderer').then((m) => ({ default: m.OnepayRenderer })),
 );
 
 const RENDERER_MAP: Record<PaymentProviderName, React.ComponentType<ProviderRendererProps>> = {
-  airwallex: AirwallexRenderer as React.ComponentType<ProviderRendererProps>,
-  ngan_luong: NgLuongRenderer as React.ComponentType<ProviderRendererProps>,
   onepay: OnepayRenderer as React.ComponentType<ProviderRendererProps>,
 };
 

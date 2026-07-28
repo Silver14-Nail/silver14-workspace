@@ -51,15 +51,7 @@ export class ClientApiModule implements NestModule {
       .exclude(
         // Webhooks are called by payment gateways — no user token
         { path: 'client-api/webhooks/stripe', method: RequestMethod.POST },
-        { path: 'client-api/webhooks/lemon-squeezy', method: RequestMethod.POST },
         { path: 'client-api/webhooks/paypal', method: RequestMethod.POST },
-        // Airwallex webhook — called by Airwallex servers, authenticated by HMAC-SHA256 signature
-        { path: 'client-api/webhooks/airwallex', method: RequestMethod.POST },
-        // 2Checkout IPN — called by 2Checkout servers, authenticated by HMAC-MD5 signature
-        { path: 'client-api/webhooks/twocheckout', method: RequestMethod.POST },
-        // Ngân Lượng notify/return — called by NL servers and user browser
-        { path: 'client-api/webhooks/nganluong', method: RequestMethod.GET },
-        { path: 'client-api/webhooks/nganluong', method: RequestMethod.POST },
         // OnePAY IPN + return — called by OnePAY servers (HMAC-SHA256 verified)
         { path: 'client-api/webhooks/onepay/ipn', method: RequestMethod.GET },
         { path: 'client-api/webhooks/onepay/ipn', method: RequestMethod.POST },

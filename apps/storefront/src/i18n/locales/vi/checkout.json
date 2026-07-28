@@ -54,10 +54,6 @@
         "label": "Thẻ tín dụng / Thẻ ghi nợ",
         "description": "Chấp nhận Visa, Mastercard"
       },
-      "lemon_squeezy": {
-        "label": "Lemon Squeezy",
-        "description": "Thanh toán an toàn — bạn sẽ được chuyển đến trang thanh toán của Lemon Squeezy"
-      },
       "paypal": {
         "label": "PayPal",
         "description": "Thanh toán bảo mật qua tài khoản PayPal"
@@ -113,7 +109,6 @@
       "conditionsLink": "điều kiện"
     },
     "cardHint": "Thông tin thẻ được xử lý bảo mật bởi Stripe.",
-    "lsHint": "Bạn sẽ được chuyển đến trang thanh toán bảo mật của Lemon Squeezy để hoàn tất giao dịch.",
     "securityNote": "Thông tin thanh toán được mã hóa và bảo mật. Chúng tôi không lưu trữ thông tin thẻ.",
     "cta": "Thanh toán",
     "processing": "Đang xử lý..."
@@ -125,8 +120,6 @@
     "orderIdLabel": "Mã đơn hàng của bạn",
     "orderIdHint": "Lưu mã này để theo dõi đơn hàng",
     "orderIdPending": "Mã đơn hàng sẽ được gửi đến email của bạn ngay sau đây",
-    "lsEmailSent": "Lemon Squeezy đã gửi email xác nhận đến bạn với mã đơn hàng và hóa đơn. Vui lòng kiểm tra hộp thư đến (và thư rác) để xem chi tiết.",
-    "lsInternalRef": "Mã tham chiếu Silver14:",
     "trackHint": "Bạn có thể theo dõi đơn hàng bằng số điện thoại ({{phone}}) và mã đơn hàng ở trên.",
     "trackOrder": "Theo dõi đơn hàng",
     "continueShopping": "Tiếp tục mua sắm"

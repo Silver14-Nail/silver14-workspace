@@ -23,36 +23,16 @@ import {
   PaymentStatus,
 } from '@/common/enums/entity.enum';
 import { StripeService } from '@/shared/payments/stripe.service';
-import { LemonSqueezyService } from '@/shared/payments/lemon-squeezy.service';
 import { PaypalService } from '@/shared/payments/paypal.service';
 
 import { effectiveUnitPrice } from '@/shared/pricing/pricing.utils';
 
 import { InitiateStripePaymentDto } from './dto/initiate-stripe-payment.dto';
 import { ConfirmStripePaymentDto } from './dto/confirm-stripe-payment.dto';
-import { InitiateLsPaymentDto } from './dto/initiate-ls-payment.dto';
 import { CreatePaypalOrderDto } from './dto/create-paypal-order.dto';
 import { CapturePaypalOrderDto } from './dto/capture-paypal-order.dto';
 
 const FREE_SHIPPING_THRESHOLD_USD = 100;
-
-const COUNTRY_ISO: Record<string, string> = {
-  Argentina: 'AR', Australia: 'AU', Austria: 'AT', Bangladesh: 'BD', Belgium: 'BE',
-  Brazil: 'BR', Brunei: 'BN', Bulgaria: 'BG', Cambodia: 'KH', Canada: 'CA',
-  Chile: 'CL', China: 'CN', Colombia: 'CO', Croatia: 'HR', Cyprus: 'CY',
-  'Czech Republic': 'CZ', Denmark: 'DK', Ecuador: 'EC', Egypt: 'EG', Estonia: 'EE',
-  Finland: 'FI', France: 'FR', Germany: 'DE', Gibraltar: 'GI', Greece: 'GR',
-  'Hong Kong': 'HK', Hungary: 'HU', India: 'IN', Indonesia: 'ID', Ireland: 'IE',
-  Italy: 'IT', Japan: 'JP', Jersey: 'JE', Jordan: 'JO', Kiribati: 'KI',
-  Kuwait: 'KW', Laos: 'LA', Latvia: 'LV', Lithuania: 'LT', Luxembourg: 'LU',
-  Malaysia: 'MY', Malta: 'MT', Mexico: 'MX', Mongolia: 'MN', Myanmar: 'MM',
-  Netherlands: 'NL', 'New Zealand': 'NZ', Norway: 'NO', Paraguay: 'PY',
-  Philippines: 'PH', Poland: 'PL', Portugal: 'PT', Romania: 'RO',
-  'Saudi Arabia': 'SA', Singapore: 'SG', Slovakia: 'SK', Slovenia: 'SI',
-  Spain: 'ES', Sweden: 'SE', Switzerland: 'CH', Taiwan: 'TW', Thailand: 'TH',
-  Tuvalu: 'TV', 'United Arab Emirates': 'AE', 'United Kingdom': 'GB',
-  'United States': 'US', Vanuatu: 'VU', Vietnam: 'VN',
-};
 
 interface SessionTotals {
   subtotal: number;
@@ -75,7 +55,6 @@ export class ClientPaymentsService {
     @InjectRepository(PaymentEntity)
     private readonly paymentRepo: Repository<PaymentEntity>,
     private readonly stripeService: StripeService,
-    private readonly lsService: LemonSqueezyService,
     private readonly paypalService: PaypalService,
   ) {}
 
@@ -162,81 +141,6 @@ export class ClientPaymentsService {
         });
         await manager.save(CardDetailEntity, card);
       }
-
-      session.status = CheckoutSessionStatus.COMPLETED;
-      await manager.save(CheckoutSessionEntity, session);
-    });
-
-    return { orderId };
-  }
-
-  // ─── Lemon Squeezy ──────────────────────────────────────────────────────────
-
-  async initiateCheckout(dto: InitiateLsPaymentDto) {
-    const session = await this.loadSessionOrFail(dto.checkoutSessionId);
-    const totals = this.calculateTotals(session);
-
-    const contact = session.contactSnapshot as { email?: string; fullName?: string } | null;
-    const shipping = session.shippingSnapshot as { country?: string; postalCode?: string; recipientName?: string } | null;
-
-    const countryIso = shipping?.country ? (COUNTRY_ISO[shipping.country] ?? undefined) : undefined;
-
-    const { checkoutUrl } = await this.lsService.createCheckout(
-      totals.total,
-      totals.currency,
-      session.id,
-      dto.redirectUrl,
-      {
-        email: contact?.email,
-        name: shipping?.recipientName ?? contact?.fullName,
-        country: countryIso,
-        zip: shipping?.postalCode ?? undefined,
-      },
-    );
-
-    return { checkoutUrl, amount: totals.total, currency: totals.currency };
-  }
-
-  // Called by Lemon Squeezy webhook when order_created fires
-  async fulfillLsOrder(
-    lsOrderId: string,
-    checkoutSessionId: string,
-    gatewayResponse: Record<string, any>,
-  ): Promise<{ orderId: string }> {
-    const existingOrder = await this.paymentRepo.manager.findOne(OrderEntity, {
-      where: { checkoutSession: { id: checkoutSessionId } },
-      select: ['id'],
-    });
-    if (existingOrder) return { orderId: existingOrder.id };
-
-    const session = await this.loadSessionOrFail(checkoutSessionId);
-    const totals = this.calculateTotals(session);
-
-    let orderId!: string;
-    await this.paymentRepo.manager.transaction(async (manager) => {
-      const duplicate = await manager.findOne(OrderEntity, {
-        where: { checkoutSession: { id: checkoutSessionId } },
-        select: ['id'],
-      });
-      if (duplicate) {
-        orderId = duplicate.id;
-        return;
-      }
-
-      const order = await this.createOrder(manager, session, totals);
-      orderId = order.id;
-
-      const payment = manager.create(PaymentEntity, {
-        order,
-        gateway: PaymentGateway.LEMON_SQUEEZY,
-        gatewayTxnId: lsOrderId,
-        status: PaymentStatus.PAID,
-        amount: totals.total,
-        currency: totals.currency,
-        gatewayResponse,
-        paidAt: new Date(),
-      });
-      await manager.save(PaymentEntity, payment);
 
       session.status = CheckoutSessionStatus.COMPLETED;
       await manager.save(CheckoutSessionEntity, session);
@@ -348,6 +252,7 @@ export class ClientPaymentsService {
         'cart.items.variant.size', 'cart.items.variant.product',
         'cart.items.variant.product.images', 'user', 'guest',
       ],
+      withDeleted: true,
     });
     if (!session) {
       // Session not found — PayPal charged the customer but we have no session.
@@ -417,6 +322,7 @@ export class ClientPaymentsService {
         'user',
         'guest',
       ],
+      withDeleted: true,
     });
 
     if (!session) throw new NotFoundException('Checkout session not found');

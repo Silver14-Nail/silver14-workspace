@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { OrderEntity } from '@/db/entities/orders/order.entity';
 import { PaymentEntity } from '@/db/entities/payments/payment.entity';
+import { ProductVariantEntity } from '@/db/entities/products/product-variants.entity';
 import { OrderStatus, PaymentStatus } from '@/common/enums/entity.enum';
 import { PaginationDTO } from '@/common/dtos/pagination';
 
@@ -21,6 +22,8 @@ export class OrdersService {
     private readonly orderRepo: Repository<OrderEntity>,
     @InjectRepository(PaymentEntity)
     private readonly paymentRepo: Repository<PaymentEntity>,
+    @InjectRepository(ProductVariantEntity)
+    private readonly variantRepo: Repository<ProductVariantEntity>,
   ) {}
 
   async listOrders(query: OrderListQueryDto) {
@@ -114,7 +117,45 @@ export class OrdersService {
       relations: ['paypalDetail', 'cardDetail'],
     });
 
-    return { ...order, payment: payment ?? null };
+    const items = await this.withProductFallback(order.items ?? []);
+
+    return { ...order, items, payment: payment ?? null };
+  }
+
+  // Older orders may have a null product-name/thumbnail snapshot if the
+  // source product was soft-deleted mid-checkout, before the fix that loads
+  // it with `withDeleted: true` at order-creation time. For those rows, look
+  // up the (possibly soft-deleted) product via its variant so the admin UI
+  // never renders a blank line item.
+  private async withProductFallback(items: OrderEntity['items']) {
+    const missing = items.filter((item) => !item.productName || !item.thumbnail);
+    if (missing.length === 0) {
+      return items;
+    }
+
+    const variantIds = [...new Set(missing.map((item) => item.variant?.id).filter(Boolean))];
+    const variants = await this.variantRepo.find({
+      where: { id: In(variantIds) },
+      relations: ['product', 'product.images'],
+      withDeleted: true,
+    });
+    const productByVariantId = new Map(variants.map((v) => [v.id, v.product]));
+
+    return items.map((item) => {
+      if (item.productName && item.thumbnail) {
+        return item;
+      }
+      const product = productByVariantId.get(item.variant?.id);
+      return {
+        ...item,
+        productName: item.productName ?? product?.name ?? 'Deleted product',
+        thumbnail:
+          item.thumbnail ??
+          product?.images?.find((img) => img.isMain)?.url ??
+          product?.images?.[0]?.url ??
+          null,
+      };
+    });
   }
 
   async updateOrderStatus(id: string, dto: UpdateOrderStatusDto) {

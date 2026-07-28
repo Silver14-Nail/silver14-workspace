@@ -8,7 +8,7 @@ import type {
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 
-const http = axios.create({ baseURL: BASE, withCredentials: true });
+const http = axios.create({ baseURL: BASE, withCredentials: true, timeout: 15000 });
 
 function authHeaders(token?: string | null): Record<string, string> {
   if (token) return { Authorization: `Bearer ${token}` };
@@ -78,18 +78,5 @@ export const checkoutApi = {
       .get<CompletedOrderRef | null>(`/client-api/checkout/${sessionId}/order`, {
         headers: authHeaders(token),
       })
-      .then((r) => r.data),
-
-  // ─── Airwallex ────────────────────────────────────────────────────────────────
-
-  verifyAirwallexPayment: (
-    paymentIntentId: string,
-    checkoutSessionId: string,
-    token?: string | null,
-  ) =>
-    http
-      .post<{
-        orderId: string;
-      }>('/client-api/payments/airwallex/confirm', { paymentIntentId, checkoutSessionId }, { headers: authHeaders(token) })
       .then((r) => r.data),
 };

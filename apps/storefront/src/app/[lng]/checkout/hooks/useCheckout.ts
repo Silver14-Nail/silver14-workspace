@@ -29,27 +29,9 @@ function getToken(): string | null {
   return tokens && !isAccessTokenExpired(tokens) ? tokens.accessToken : null;
 }
 
-async function pollForOrder(
-  sessionId: string,
-  token: string | null,
-  attempts = 12,
-  intervalMs = 3000,
-): Promise<string | null> {
-  for (let i = 0; i < attempts; i++) {
-    await new Promise<void>((r) => setTimeout(r, intervalMs));
-    try {
-      const order = await checkoutApi.getSessionOrder(sessionId, token);
-      if (order?.id) return order.id;
-    } catch {
-      // 200 with null while order hasn't been created yet
-    }
-  }
-  return null;
-}
-
 export function useCheckout() {
   const queryClient = useQueryClient();
-  const { cartId, items, subtotal: cartSubtotal, clearCart } = useCart();
+  const { cartId, items, subtotal: cartSubtotal } = useCart();
   const selectedCurrency = useAppSelector((s) => s.currency.code);
   const { user } = useAppSelector((s) => s.auth);
 
@@ -79,7 +61,6 @@ export function useCheckout() {
   const [error, setError] = useState<string | null>(null);
   const [completedOrderId, setCompletedOrderId] = useState<string | null>(null);
   const [orderPollingDone, setOrderPollingDone] = useState(false);
-  const [isLsPayment, setIsLsPayment] = useState(false);
   const [confirmEmail, setConfirmEmail] = useState('');
   const [confirmFirstName, setConfirmFirstName] = useState('');
   const [confirmPhone, setConfirmPhone] = useState('');
@@ -105,54 +86,18 @@ export function useCheckout() {
     staleTime: 10 * 60 * 1000,
   });
 
-  // ── Post-redirect: Lemon Squeezy return ──────────────────────────────────
-  // Lemon Squeezy redirects back to this page with ?payment=success.
-  // All other providers call handlePaymentSuccess() directly from their renderer.
+  // ── Post-redirect: payment gateway return ────────────────────────────────
+  // Providers call handlePaymentSuccess() directly from their renderer. This
+  // only guards against wiping an in-progress guest session when the browser
+  // is redirected back with a gateway error (e.g. OnePAY failure redirect) —
+  // the user may want to retry rather than start over.
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get('payment') !== 'success') {
-      // Don't wipe the session when returning from a payment gateway with error —
-      // the user may want to retry. Only clear if no payment-related params present.
-      const isGatewayReturn = params.has('error') || params.has('status') || params.has('orderId');
-      if (!getToken() && !isGatewayReturn) clearCheckoutSessionId();
-      return;
-    }
-
-    window.history.replaceState({}, '', window.location.pathname);
-
-    try {
-      const saved = sessionStorage.getItem('__checkout_contact');
-      if (saved) {
-        const { email, phone, firstName } = JSON.parse(saved) as {
-          email: string;
-          phone: string;
-          firstName: string;
-        };
-        setConfirmEmail(email);
-        setConfirmPhone(phone);
-        setConfirmFirstName(firstName);
-        sessionStorage.removeItem('__checkout_contact');
-      }
-    } catch {}
-
-    setIsLsPayment(true);
-    setStep('confirmation');
-    setOrderPollingDone(true);
-
-    const storedSessionId = getCheckoutSessionId();
-    clearCheckoutSessionId();
-    setSessionId(null);
-
-    clearCart().catch(() => {});
-
-    if (storedSessionId) {
-      pollForOrder(storedSessionId, getToken()).then((id) => {
-        if (id) setCompletedOrderId(id);
-      });
-    }
+    const isGatewayReturn = params.has('error') || params.has('status') || params.has('orderId');
+    if (!getToken() && !isGatewayReturn) clearCheckoutSessionId();
   }, []);
 
   // ── Session lifecycle ─────────────────────────────────────────────────────
@@ -168,7 +113,10 @@ export function useCheckout() {
     // cart and returns its id; subsequent calls reuse it via x-cart-id header.
     if (!resolvedCartId) {
       const localItems = getLocalCart().items;
-      if (localItems.length === 0) return null;
+      if (localItems.length === 0) {
+        setError('Your cart is empty. Please add items before checking out.');
+        return null;
+      }
 
       let syncedCartId: string | null = null;
       for (const item of localItems) {
@@ -189,7 +137,10 @@ export function useCheckout() {
         }
       }
 
-      if (!syncedCartId) return null;
+      if (!syncedCartId) {
+        setError('Could not sync your cart. Please check your connection and try again.');
+        return null;
+      }
       broadcastGuestCartId(syncedCartId);
       resolvedCartId = syncedCartId;
     }
@@ -274,12 +225,12 @@ export function useCheckout() {
 
   const handleContactNext = useCallback(
     async (data: ContactFormData) => {
-      const sid = sessionId ?? (await ensureSession());
-      if (!sid) return;
-
       setIsSubmitting(true);
       setError(null);
       try {
+        const sid = sessionId ?? (await ensureSession());
+        if (!sid) return;
+
         await checkoutApi.updateContact(sid, data, getToken());
         setConfirmEmail(data.email);
         setConfirmPhone(data.phone);
@@ -390,7 +341,6 @@ export function useCheckout() {
     error,
     completedOrderId,
     orderPollingDone,
-    isLsPayment,
     confirmEmail,
     confirmFirstName,
     confirmPhone,

@@ -4,6 +4,7 @@ import { SortOption, getSortFromParams } from '../constants';
 import { fetchProducts } from '@/lib/products.api';
 import { adaptListItem } from '@/lib/product.adapter';
 import { getCollections, type StorefrontCollection } from '@/features/collections/collections.api';
+import { getCachedProductsList, setCachedProductsList } from './productsListCache';
 import type { StorefrontProduct } from '@/types/product';
 import type { ApiPagination } from '@/lib/products.api';
 
@@ -64,6 +65,7 @@ export function useProductFilters({
   const [loading, setLoading]         = useState(!initialProducts);
   const [loadingMore, setLoadingMore] = useState(false);
   const [totalItems, setTotalItems]   = useState(initialPagination?.totalItems ?? 0);
+  const [pendingScrollRestore, setPendingScrollRestore] = useState<number | null>(null);
 
   // ── Refs ──────────────────────────────────────────────────────────────────
   const searchRef      = useRef(searchQuery);
@@ -103,6 +105,65 @@ export function useProductFilters({
     setResetCount((c) => c + 1); // triggers the fetch effect below
   }, [filterKey]);
 
+  // ── Restore accumulated list + scroll position on back-navigation ────────
+  //
+  // Going to a product detail page and back remounts this component (see
+  // productsListCache.ts for why), which would otherwise reset the list back
+  // down to just the first SSR page. On mount, adopt a richer cached list for
+  // the same filter view if one exists, and skip the redundant page-1 fetch.
+  const cacheKeyRef = useRef('');
+  cacheKeyRef.current = `${lng}|${filterKey}`;
+
+  const didRestoreRef = useRef(false);
+  useEffect(() => {
+    if (didRestoreRef.current) return;
+    didRestoreRef.current = true;
+
+    const cached = getCachedProductsList(cacheKeyRef.current);
+    if (!cached || cached.products.length <= (initialProducts?.length ?? 0)) return;
+
+    hasInitialDataRef.current = true; // skip the initial-load fetch below
+    setAllProducts(cached.products);
+    setCurrentPage(cached.currentPage);
+    setHasMore(cached.hasMore);
+    setTotalItems(cached.totalItems);
+    setLoading(false);
+    setPendingScrollRestore(cached.scrollY);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const clearScrollRestore = useCallback(() => setPendingScrollRestore(null), []);
+
+  // Save the accumulated list + scroll position for this filter view right
+  // before the component unmounts (e.g. navigating to a product's detail
+  // page), so a back-navigation can restore it above.
+  const allProductsRef = useRef(allProducts);
+  allProductsRef.current = allProducts;
+  const currentPageRef = useRef(currentPage);
+  currentPageRef.current = currentPage;
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+  const totalItemsRef = useRef(totalItems);
+  totalItemsRef.current = totalItems;
+  const scrollYRef = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      scrollYRef.current = window.scrollY;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      setCachedProductsList(cacheKeyRef.current, {
+        products: allProductsRef.current,
+        currentPage: currentPageRef.current,
+        hasMore: hasMoreRef.current,
+        totalItems: totalItemsRef.current,
+        scrollY: scrollYRef.current,
+      });
+    };
+  }, []);
+
   // ── Core fetch function ────────────────────────────────────────────────────
   const doFetch = useCallback(
     async (pageNum: number, isReset: boolean) => {
@@ -135,7 +196,10 @@ export function useProductFilters({
         setHasMore(pageNum < data.pagination.totalPages);
         setCurrentPage(pageNum);
       } catch {
-        // ignore
+        // Stop auto-loading on failure — otherwise the intersection observer
+        // re-enables as soon as loadingMore clears and immediately retries
+        // the same page forever (sentinel never leaves the viewport).
+        setHasMore(false);
       } finally {
         if (gen === generationRef.current) {
           fetchingRef.current = false;
@@ -244,5 +308,7 @@ export function useProductFilters({
     handleSortChange,
     toggleSort,
     clearFilters,
+    pendingScrollRestore,
+    clearScrollRestore,
   };
 }

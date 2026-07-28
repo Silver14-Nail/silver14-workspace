@@ -3,7 +3,7 @@ import type { ApiCart, ApiAddItemResponse } from './cart.types';
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 
-const http = axios.create({ baseURL: BASE, withCredentials: true });
+const http = axios.create({ baseURL: BASE, withCredentials: true, timeout: 15000 });
 
 function buildHeaders(
   accessToken: string | null,

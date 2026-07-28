@@ -217,7 +217,6 @@ export function ShippingStep({
           label={t('shipping.cta')}
           disabled={isSubmitting || !isValid}
           isLoading={isSubmitting}
-          onTouchSubmit={() => { void onSubmit(); }}
         />
       </div>
     </form>

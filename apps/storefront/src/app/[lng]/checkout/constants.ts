@@ -89,8 +89,6 @@ export const CHECKOUT_STEPS: { key: Step; labelKey: string }[] = [
   { key: 'payment', labelKey: 'steps.payment' },
 ];
 
-export const PAYMENT_METHODS = ['airwallex'] as const;
-
 export const DEFAULT_CONTACT = { email: '', phone: '', fullName: '' };
 export const DEFAULT_SHIPPING = {
   firstName: '',

@@ -1,11 +1,8 @@
 // ─── Provider identity ────────────────────────────────────────────────────────
 
-export type PaymentProviderName = 'airwallex' | 'ngan_luong' | 'onepay';
+export type PaymentProviderName = 'onepay';
 
-export type PaymentFlowMode =
-  | 'client_sdk' // Airwallex Elements
-  | 'hosted' // Airwallex Hosted
-  | 'redirect'; // NgLuong redirect
+export type PaymentFlowMode = 'redirect';
 
 // ─── Flow status state machine ────────────────────────────────────────────────
 
@@ -34,24 +31,11 @@ export interface PaymentMethodOption {
 
 // ─── Provider session data ────────────────────────────────────────────────────
 
-export type ProviderSessionData =
-  | {
-      mode: 'client_sdk';
-      providerRef: string;
-      clientSecret: string;
-      amount: number;
-      currency: string;
-    }
-  | {
-      mode: 'hosted';
-      providerRef: string;
-      hostedUrl: string;
-    }
-  | {
-      mode: 'redirect';
-      providerRef: string;
-      redirectUrl: string;
-    };
+export interface ProviderSessionData {
+  mode: 'redirect';
+  providerRef: string;
+  redirectUrl: string;
+}
 
 export interface ProviderSession {
   provider: PaymentProviderName;

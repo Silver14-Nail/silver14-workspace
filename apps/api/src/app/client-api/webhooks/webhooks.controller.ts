@@ -32,19 +32,6 @@ export class WebhooksController {
     return { received: true };
   }
 
-  @Post('lemon-squeezy')
-  @HttpCode(200)
-  async lsWebhook(@Req() req: RawBodyRequest<Request>, @Headers('x-signature') signature: string) {
-    if (!signature) {
-      throw new BadRequestException('Missing X-Signature header for Lemon Squeezy webhook');
-    }
-    if (!req.rawBody) {
-      throw new BadRequestException('Missing raw body for Lemon Squeezy webhook verification');
-    }
-    await this.webhooksService.handleLsWebhook(req.rawBody.toString('utf8'), signature);
-    return { received: true };
-  }
-
   @Post('paypal')
   @HttpCode(200)
   async paypalWebhook(

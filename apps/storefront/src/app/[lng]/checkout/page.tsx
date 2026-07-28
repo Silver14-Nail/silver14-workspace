@@ -35,7 +35,6 @@ export default function CheckoutPage() {
     error,
     completedOrderId,
     orderPollingDone,
-    isLsPayment,
     confirmEmail,
     confirmFirstName,
     confirmPhone,
@@ -132,7 +131,6 @@ export default function CheckoutPage() {
                   <ConfirmationStep
                     orderId={completedOrderId ?? ''}
                     orderPollingDone={orderPollingDone}
-                    isLsPayment={isLsPayment}
                     firstName={confirmFirstName}
                     email={confirmEmail}
                     phone={confirmPhone}

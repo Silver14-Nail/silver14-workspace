@@ -4,7 +4,6 @@ import { ApiTags, ApiBearerAuth, ApiOkResponse, ApiCreatedResponse } from '@nest
 import { ClientPaymentsService } from './payments.service';
 import { InitiateStripePaymentDto } from './dto/initiate-stripe-payment.dto';
 import { ConfirmStripePaymentDto } from './dto/confirm-stripe-payment.dto';
-import { InitiateLsPaymentDto } from './dto/initiate-ls-payment.dto';
 import { CreatePaypalOrderDto } from './dto/create-paypal-order.dto';
 import { CapturePaypalOrderDto } from './dto/capture-paypal-order.dto';
 
@@ -41,24 +40,6 @@ export class ClientPaymentsController {
   })
   initiateStripe(@Body() dto: InitiateStripePaymentDto) {
     return this.paymentsService.initiateStripePayment(dto);
-  }
-
-  // ─── Lemon Squeezy ──────────────────────────────────────────────────────────
-
-  @Post('lemon-squeezy/checkout')
-  @HttpCode(200)
-  @ApiOkResponse({
-    description: 'Creates a Lemon Squeezy checkout and returns the hosted checkout URL.',
-    schema: {
-      properties: {
-        checkoutUrl: { type: 'string' },
-        amount: { type: 'number' },
-        currency: { type: 'string' },
-      },
-    },
-  })
-  initiateLsCheckout(@Body() dto: InitiateLsPaymentDto) {
-    return this.paymentsService.initiateCheckout(dto);
   }
 
   // ─── PayPal ─────────────────────────────────────────────────────────────────

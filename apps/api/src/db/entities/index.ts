@@ -32,9 +32,6 @@ import { CustomSizeRequestEntity } from './orders/custom-size-request.entity';
 import { PaymentEntity } from './payments/payment.entity';
 import { PaypalDetailEntity } from './payments/paypal-detail.entity';
 import { CardDetailEntity } from './payments/card-detail.entity';
-import { AirwallexDetailEntity } from './payments/airwallex-detail.entity';
-import { TwocheckoutDetailEntity } from './payments/twocheckout-detail.entity';
-import { NgLuongDetailEntity } from './payments/nganluong-detail.entity';
 import { OnepayDetailEntity } from './payments/onepay-detail.entity';
 
 import { MarketingCampaignEntity } from './marketing/marketing-campaign.entity';
@@ -77,9 +74,6 @@ export {
   PaymentEntity,
   PaypalDetailEntity,
   CardDetailEntity,
-  AirwallexDetailEntity,
-  TwocheckoutDetailEntity,
-  NgLuongDetailEntity,
   OnepayDetailEntity,
   NewsletterSubscriberEntity,
   WholesaleEnquiryEntity,
@@ -141,9 +135,6 @@ export const PAYMENT_ENTITIES = [
   PaymentEntity,
   PaypalDetailEntity,
   CardDetailEntity,
-  AirwallexDetailEntity,
-  TwocheckoutDetailEntity,
-  NgLuongDetailEntity,
   OnepayDetailEntity,
 ];
 

@@ -21,9 +21,7 @@ function Badge({ label }: { label: string }) {
 
 // ── Provider label ────────────────────────────────────────────────────────────
 
-const PROVIDER_TAG: Partial<Record<PaymentProviderName, string>> = {
-  airwallex: 'Airwallex',
-};
+const PROVIDER_TAG: Partial<Record<PaymentProviderName, string>> = {};
 
 // ── Section header ────────────────────────────────────────────────────────────
 

@@ -22,24 +22,18 @@ interface StepButtonProps {
   disabled?: boolean;
   isLoading?: boolean;
   onClick?: () => void;
-  onTouchSubmit?: () => void;
 }
 
-export function StepButton({ label, disabled, isLoading, onClick, onTouchSubmit }: StepButtonProps) {
+export function StepButton({ label, disabled, isLoading, onClick }: StepButtonProps) {
+  // Rendered inside a <form onSubmit={...}> when `onClick` isn't provided — a
+  // native type="submit" button already fires reliably on mobile tap in every
+  // browser we support, so no manual touch handling is needed (and manually
+  // re-invoking submit from onTouchEnd risked a double-submit race with the
+  // browser's own click-after-touch behavior).
   return (
     <button
       type={onClick ? 'button' : 'submit'}
       onClick={onClick}
-      onTouchEnd={
-        onTouchSubmit
-          ? (e) => {
-              if (!disabled && !isLoading) {
-                e.preventDefault();
-                onTouchSubmit();
-              }
-            }
-          : undefined
-      }
       disabled={disabled || isLoading}
       className="mt-8 w-full flex items-center justify-center gap-2 bg-[#1A1A1A] text-white py-4 text-xs uppercase tracking-widest hover:bg-[#333] transition-colors disabled:bg-[#D0D0D0] disabled:cursor-not-allowed"
       style={{ letterSpacing: '0.15em' }}

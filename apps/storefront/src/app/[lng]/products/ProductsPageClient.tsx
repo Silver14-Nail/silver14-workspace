@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useLayoutEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import { ProductsHeader, ProductsFilters, ProductsGrid } from './components';
@@ -44,6 +45,8 @@ export function ProductsPageClient({
     handleSortChange,
     toggleSort,
     clearFilters,
+    pendingScrollRestore,
+    clearScrollRestore,
   } = useProductFilters({
     searchParams,
     router,
@@ -56,6 +59,30 @@ export function ProductsPageClient({
   const sentinelRef = useIntersectionObserver(loadMore, {
     enabled: hasMore && !loading && !loadingMore,
   });
+
+  // Take manual control of scroll restoration while this page is mounted, so
+  // the browser's own (unreliable, racing) restore attempt doesn't fight with
+  // restoring the cached list below.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('scrollRestoration' in window.history)) return undefined;
+    const prev = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+    return () => {
+      window.history.scrollRestoration = prev;
+    };
+  }, []);
+
+  // Once a richer cached list has been restored (see useProductFilters), wait
+  // a frame for the virtualized grid to measure its new (taller) height, then
+  // scroll to where the user left off.
+  useLayoutEffect(() => {
+    if (pendingScrollRestore == null) return undefined;
+    const id = requestAnimationFrame(() => {
+      window.scrollTo({ top: pendingScrollRestore, behavior: 'instant' });
+      clearScrollRestore();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [pendingScrollRestore, allProducts.length, clearScrollRestore]);
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">
@@ -84,8 +111,9 @@ export function ProductsPageClient({
           t={t}
         />
 
-        {/* Sentinel — triggers next page when scrolled into view */}
-        <div ref={sentinelRef} className="h-16 flex items-center justify-center mt-4">
+        {/* Sentinel — triggers next page when scrolled into view. Mobile only:
+            desktop uses ProductsGrid's own numbered pagination instead. */}
+        <div ref={sentinelRef} className="md:hidden h-16 flex items-center justify-center mt-4">
           {loadingMore && (
             <div className="size-5 border-2 border-[#E0E0E0] border-t-[#1A1A1A] rounded-full animate-spin" />
           )}
