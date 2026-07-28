@@ -4,7 +4,7 @@ import { getCollections } from '@/features/collections/collections.api';
 import { ProductsPageClient } from './ProductsPageClient';
 import type { CollectionFilter } from './hooks/useProductFilters';
 
-const REVALIDATE = { cache: 'no-store' } satisfies RequestInit;
+const REVALIDATE = { next: { revalidate: 60 } } satisfies RequestInit;
 const ALL_COLLECTION: CollectionFilter = { id: 'all', slug: 'all', label: 'All' };
 const PAGE_SIZE = 24;
 

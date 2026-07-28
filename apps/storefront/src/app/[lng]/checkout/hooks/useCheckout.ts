@@ -118,22 +118,37 @@ export function useCheckout() {
         return null;
       }
 
+      const toDto = (item: (typeof localItems)[number]) => ({
+        variantId: item.variant.id,
+        quantity: item.quantity,
+        isCustomSize: item.isCustomSize,
+        customMeasurements: item.customMeasurements ?? undefined,
+      });
+
+      // The first successful call creates the cart and returns its id; every
+      // other item only needs that id (via x-cart-id), not each other's
+      // response, so once we have it the rest can go out in parallel instead
+      // of one-request-at-a-time — the dominant cost of ensureSession() on
+      // carts with several items.
       let syncedCartId: string | null = null;
-      for (const item of localItems) {
+      let anchorIndex = -1;
+      for (let i = 0; i < localItems.length; i++) {
         try {
-          const res = await cartApi.addItem(
-            {
-              variantId: item.variant.id,
-              quantity: item.quantity,
-              isCustomSize: item.isCustomSize,
-              customMeasurements: item.customMeasurements ?? undefined,
-            },
-            null,
-            syncedCartId,
-          );
+          const res = await cartApi.addItem(toDto(localItems[i]), null, null);
           syncedCartId = res.cartId;
+          anchorIndex = i;
+          break;
         } catch {
-          // Ignore per-item failures — proceed with whatever synced successfully
+          // Try the next item as the anchor — ignore per-item failures.
+        }
+      }
+
+      if (syncedCartId) {
+        const rest = localItems.filter((_, i) => i !== anchorIndex);
+        if (rest.length > 0) {
+          await Promise.allSettled(
+            rest.map((item) => cartApi.addItem(toDto(item), null, syncedCartId)),
+          );
         }
       }
 

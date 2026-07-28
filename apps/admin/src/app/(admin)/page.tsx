@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import {
   TrendingUp, TrendingDown, ShoppingBag, CreditCard, Users, AlertTriangle,
-  RotateCcw, Euro, ArrowRight, ExternalLink, Building2, RefreshCw,
+  RotateCcw, DollarSign, ArrowRight, ExternalLink, Building2, RefreshCw,
 } from 'lucide-react';
 
 interface Order {
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const kpis = [
-    { label: t('kpi.revenue'),          value: '—', change: '—',  up: true,  icon: Euro,          color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: t('kpi.revenue'),          value: '—', change: '—',  up: true,  icon: DollarSign,    color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { label: t('kpi.orders'),           value: recentOrders.length > 0 ? `${recentOrders.length}+` : '0', change: '—', up: true, icon: ShoppingBag, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: t('kpi.pendingOrders'),    value: String(recentOrders.filter(o => o.status === 'pending' || o.status === 'confirmed').length), change: '—', up: false, icon: RotateCcw, color: 'text-amber-600', bg: 'bg-amber-50' },
     { label: t('kpi.wholesaleRevenue'), value: '—', change: '—',  up: true,  icon: Building2,      color: 'text-purple-600', bg: 'bg-purple-50' },
