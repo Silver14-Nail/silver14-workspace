@@ -1,18 +1,18 @@
 'use client';
 
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useT } from 'next-i18next/client';
 import { ProductsHeader, ProductsFilters, ProductsGrid } from './components';
 import { useProductFilters } from './hooks/useProductFilters';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
-import type { StorefrontProduct } from '@/types/product';
+import { getScrollPosition, setScrollPosition } from './hooks/scrollPositionCache';
 import type { CollectionFilter } from './hooks/useProductFilters';
-import type { ApiPagination } from '@/lib/products.api';
+import type { ApiPagination, ApiProductListItem } from '@/lib/products.api';
 
 interface ProductsPageClientProps {
   lng: string;
-  initialProducts?: StorefrontProduct[];
+  initialProducts?: ApiProductListItem[];
   initialPagination?: ApiPagination | null;
   initialCollections?: CollectionFilter[];
 }
@@ -45,8 +45,6 @@ export function ProductsPageClient({
     handleSortChange,
     toggleSort,
     clearFilters,
-    pendingScrollRestore,
-    clearScrollRestore,
   } = useProductFilters({
     searchParams,
     router,
@@ -62,7 +60,7 @@ export function ProductsPageClient({
 
   // Take manual control of scroll restoration while this page is mounted, so
   // the browser's own (unreliable, racing) restore attempt doesn't fight with
-  // restoring the cached list below.
+  // restoring the position below.
   useEffect(() => {
     if (typeof window === 'undefined' || !('scrollRestoration' in window.history)) return undefined;
     const prev = window.history.scrollRestoration;
@@ -72,17 +70,32 @@ export function ProductsPageClient({
     };
   }, []);
 
-  // Once a richer cached list has been restored (see useProductFilters), wait
-  // a frame for the virtualized grid to measure its new (taller) height, then
-  // scroll to where the user left off.
+  // The product list itself is restored automatically by TanStack Query's
+  // cache (see useProductFilters) when returning from a product's detail
+  // page — this only needs to restore the scroll offset that goes with it,
+  // once for each filter view, after the (already-cached) list has rendered.
+  const scrollKey = `${lng}|${searchQuery}|${activeCollection}|${sortBy}`;
+  const restoredForRef = useRef<string | null>(null);
+
   useLayoutEffect(() => {
-    if (pendingScrollRestore == null) return undefined;
+    if (loading || allProducts.length === 0) return undefined;
+    if (restoredForRef.current === scrollKey) return undefined;
+    restoredForRef.current = scrollKey;
+
+    const target = getScrollPosition(scrollKey);
+    if (target == null) return undefined;
+
     const id = requestAnimationFrame(() => {
-      window.scrollTo({ top: pendingScrollRestore, behavior: 'instant' });
-      clearScrollRestore();
+      window.scrollTo({ top: target, behavior: 'instant' });
     });
     return () => cancelAnimationFrame(id);
-  }, [pendingScrollRestore, allProducts.length, clearScrollRestore]);
+  }, [scrollKey, loading, allProducts.length]);
+
+  useEffect(() => {
+    const onScroll = () => setScrollPosition(scrollKey, window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [scrollKey]);
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">

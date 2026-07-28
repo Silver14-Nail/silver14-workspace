@@ -1,18 +1,17 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { SortOption, getSortFromParams } from '../constants';
 import { fetchProducts } from '@/lib/products.api';
 import { adaptListItem } from '@/lib/product.adapter';
 import { getCollections, type StorefrontCollection } from '@/features/collections/collections.api';
-import { getCachedProductsList, setCachedProductsList } from './productsListCache';
-import type { StorefrontProduct } from '@/types/product';
-import type { ApiPagination } from '@/lib/products.api';
+import type { ApiPagination, ApiProductListItem } from '@/lib/products.api';
 
 type Props = {
   searchParams: ReturnType<typeof useSearchParams>;
   router: any;
   lng: string;
-  initialProducts?: StorefrontProduct[];
+  initialProducts?: ApiProductListItem[];
   initialPagination?: ApiPagination | null;
   initialCollections?: CollectionFilter[];
 };
@@ -25,14 +24,22 @@ export interface CollectionFilter {
 
 const ALL_COLLECTION: CollectionFilter = { id: 'all', slug: 'all', label: 'All' };
 const PAGE_SIZE = 24;
+// Repeat visits to the same filter view (including returning from a product
+// detail page) are served from cache instead of hitting the API again.
+const STALE_TIME_MS = 5 * 60 * 1000;
 
 function mapSortToApiParams(sortBy: SortOption): { sortBy?: string; filterBy?: string } {
   switch (sortBy) {
-    case 'newest':    return { sortBy: 'newest' };
-    case 'price-asc': return { sortBy: 'price_asc' };
-    case 'price-desc':return { sortBy: 'price_desc' };
-    case 'bestseller':return { filterBy: 'bestseller' };
-    default:          return {};
+    case 'newest':
+      return { sortBy: 'newest' };
+    case 'price-asc':
+      return { sortBy: 'price_asc' };
+    case 'price-desc':
+      return { sortBy: 'price_desc' };
+    case 'bestseller':
+      return { filterBy: 'bestseller' };
+    default:
+      return {};
   }
 }
 
@@ -46,42 +53,15 @@ export function useProductFilters({
 }: Props) {
   // ── Filter state (from URL) ────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [activeSlug, setActiveSlug]   = useState(searchParams.get('collection') || 'all');
-  const [sortBy, setSortBy]           = useState<SortOption>(() => getSortFromParams(searchParams));
-  const [sortOpen, setSortOpen]       = useState(false);
+  const [activeSlug, setActiveSlug] = useState(searchParams.get('collection') || 'all');
+  const [sortBy, setSortBy] = useState<SortOption>(() => getSortFromParams(searchParams));
+  const [sortOpen, setSortOpen] = useState(false);
   const [collections, setCollections] = useState<CollectionFilter[]>(
     initialCollections ?? [ALL_COLLECTION],
   );
 
-  const legacyFilter   = searchParams.get('filter');
+  const legacyFilter = searchParams.get('filter');
   const legacyFilterBy = legacyFilter === 'new' ? 'new' : undefined;
-
-  // ── Infinite scroll state ─────────────────────────────────────────────────
-  const [allProducts, setAllProducts] = useState<StorefrontProduct[]>(initialProducts ?? []);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore]         = useState(
-    initialPagination ? 1 < initialPagination.totalPages : !initialProducts,
-  );
-  const [loading, setLoading]         = useState(!initialProducts);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [totalItems, setTotalItems]   = useState(initialPagination?.totalItems ?? 0);
-  const [pendingScrollRestore, setPendingScrollRestore] = useState<number | null>(null);
-
-  // ── Refs ──────────────────────────────────────────────────────────────────
-  const searchRef      = useRef(searchQuery);
-  const collectionRef  = useRef(activeSlug);
-  const sortByRef      = useRef(sortBy);
-  const filterByRef    = useRef(legacyFilterBy);
-  const fetchingRef    = useRef(false);
-  const generationRef  = useRef(0);
-  // Skip first fetch when server already provided page-1 data
-  const hasInitialDataRef = useRef(initialProducts != null);
-
-  // Keep refs current every render (no stale closures in async callbacks)
-  searchRef.current     = searchQuery;
-  collectionRef.current = activeSlug;
-  sortByRef.current     = sortBy;
-  filterByRef.current   = legacyFilterBy;
 
   // ── Sync URL → state ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -90,143 +70,88 @@ export function useProductFilters({
     setSortBy(getSortFromParams(searchParams));
   }, [searchParams]);
 
-  // ── Detect filter changes → reset accumulated list ────────────────────────
-  const filterKey        = `${searchQuery}|${activeSlug}|${sortBy}|${legacyFilter ?? ''}`;
-  const prevFilterKeyRef = useRef(filterKey);
-  const [resetCount, setResetCount] = useState(0);
-
-  useEffect(() => {
-    if (filterKey === prevFilterKeyRef.current) return;
-    prevFilterKeyRef.current  = filterKey;
-    hasInitialDataRef.current = false;
-    setAllProducts([]);
-    setCurrentPage(1);
-    setHasMore(true);
-    setResetCount((c) => c + 1); // triggers the fetch effect below
-  }, [filterKey]);
-
-  // ── Restore accumulated list + scroll position on back-navigation ────────
+  // ── Product list — cached & paginated via TanStack Query ──────────────────
   //
-  // Going to a product detail page and back remounts this component (see
-  // productsListCache.ts for why), which would otherwise reset the list back
-  // down to just the first SSR page. On mount, adopt a richer cached list for
-  // the same filter view if one exists, and skip the redundant page-1 fetch.
-  const cacheKeyRef = useRef('');
-  cacheKeyRef.current = `${lng}|${filterKey}`;
+  // The QueryClient lives above this page (in the root layout's
+  // StoreProvider), so its cache survives this component unmounting when the
+  // user visits a product's detail page — returning re-adopts the same
+  // accumulated pages instantly instead of re-fetching from page 1.
+  const apiSort = mapSortToApiParams(sortBy);
+  const effectiveFilterBy = legacyFilterBy ?? apiSort.filterBy;
+  const trimmedSearch = searchQuery.trim();
 
-  const didRestoreRef = useRef(false);
-  useEffect(() => {
-    if (didRestoreRef.current) return;
-    didRestoreRef.current = true;
-
-    const cached = getCachedProductsList(cacheKeyRef.current);
-    if (!cached || cached.products.length <= (initialProducts?.length ?? 0)) return;
-
-    hasInitialDataRef.current = true; // skip the initial-load fetch below
-    setAllProducts(cached.products);
-    setCurrentPage(cached.currentPage);
-    setHasMore(cached.hasMore);
-    setTotalItems(cached.totalItems);
-    setLoading(false);
-    setPendingScrollRestore(cached.scrollY);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const clearScrollRestore = useCallback(() => setPendingScrollRestore(null), []);
-
-  // Save the accumulated list + scroll position for this filter view right
-  // before the component unmounts (e.g. navigating to a product's detail
-  // page), so a back-navigation can restore it above.
-  const allProductsRef = useRef(allProducts);
-  allProductsRef.current = allProducts;
-  const currentPageRef = useRef(currentPage);
-  currentPageRef.current = currentPage;
-  const hasMoreRef = useRef(hasMore);
-  hasMoreRef.current = hasMore;
-  const totalItemsRef = useRef(totalItems);
-  totalItemsRef.current = totalItems;
-  const scrollYRef = useRef(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      scrollYRef.current = window.scrollY;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      setCachedProductsList(cacheKeyRef.current, {
-        products: allProductsRef.current,
-        currentPage: currentPageRef.current,
-        hasMore: hasMoreRef.current,
-        totalItems: totalItemsRef.current,
-        scrollY: scrollYRef.current,
-      });
-    };
-  }, []);
-
-  // ── Core fetch function ────────────────────────────────────────────────────
-  const doFetch = useCallback(
-    async (pageNum: number, isReset: boolean) => {
-      if (fetchingRef.current && !isReset) return;
-      fetchingRef.current = true;
-      const gen = ++generationRef.current;
-
-      if (isReset) setLoading(true);
-      else setLoadingMore(true);
-
-      const apiSort = mapSortToApiParams(sortByRef.current);
-
-      try {
-        const data = await fetchProducts({
-          page:       pageNum,
-          limit:      PAGE_SIZE,
-          search:     searchRef.current.trim() || undefined,
-          collection: collectionRef.current !== 'all' ? collectionRef.current : undefined,
-          sortBy:     apiSort.sortBy,
-          filterBy:   filterByRef.current ?? apiSort.filterBy,
-          locale:     lng,
-        });
-
-        if (gen !== generationRef.current) return; // stale — newer fetch started
-
-        setAllProducts((prev) =>
-          isReset ? data.items.map(adaptListItem) : [...prev, ...data.items.map(adaptListItem)],
-        );
-        setTotalItems(data.pagination.totalItems);
-        setHasMore(pageNum < data.pagination.totalPages);
-        setCurrentPage(pageNum);
-      } catch {
-        // Stop auto-loading on failure — otherwise the intersection observer
-        // re-enables as soon as loadingMore clears and immediately retries
-        // the same page forever (sentinel never leaves the viewport).
-        setHasMore(false);
-      } finally {
-        if (gen === generationRef.current) {
-          fetchingRef.current = false;
-          if (isReset) setLoading(false);
-          else setLoadingMore(false);
-        }
-      }
-    },
-    [lng],
+  const queryKey = useMemo(
+    () =>
+      [
+        'products',
+        lng,
+        trimmedSearch,
+        activeSlug,
+        apiSort.sortBy ?? '',
+        effectiveFilterBy ?? '',
+      ] as const,
+    [lng, trimmedSearch, activeSlug, apiSort.sortBy, effectiveFilterBy],
   );
 
-  // ── Initial load + filter-reset fetch ─────────────────────────────────────
-  useEffect(() => {
-    if (hasInitialDataRef.current) {
-      // Server provided page-1 data — skip client fetch on first render
-      hasInitialDataRef.current = false;
-      return;
-    }
-    doFetch(1, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetCount, doFetch]);
+  // Only meaningful the very first time this exact queryKey is seen (a fresh
+  // page load) — once cached, TanStack Query ignores it on later renders.
+  const initialData = useMemo(
+    () =>
+      initialProducts && initialPagination
+        ? {
+            pages: [{ items: initialProducts, pagination: initialPagination }],
+            pageParams: [1],
+          }
+        : undefined,
+    [initialProducts, initialPagination],
+  );
 
-  // ── Load more ─────────────────────────────────────────────────────────────
+  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery({
+    queryKey,
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+      fetchProducts({
+        page: pageParam,
+        limit: PAGE_SIZE,
+        search: trimmedSearch || undefined,
+        collection: activeSlug !== 'all' ? activeSlug : undefined,
+        sortBy: apiSort.sortBy,
+        filterBy: effectiveFilterBy,
+        locale: lng,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.currentPage < lastPage.pagination.totalPages
+        ? lastPage.pagination.currentPage + 1
+        : undefined,
+    staleTime: STALE_TIME_MS,
+    gcTime: STALE_TIME_MS,
+    initialData,
+  });
+
+  const allProducts = useMemo(
+    () => (data?.pages ?? []).flatMap((page) => page.items.map(adaptListItem)),
+    [data],
+  );
+  const totalItems = data?.pages[0]?.pagination.totalItems ?? initialPagination?.totalItems ?? 0;
+  const loading = isPending;
+  const loadingMore = isFetchingNextPage;
+  const hasMore = !!hasNextPage;
+
+  // Stop auto-loading once a "load more" attempt fails — otherwise the
+  // intersection observer re-enables as soon as isFetchingNextPage clears and
+  // immediately retries the same page forever (sentinel never leaves the
+  // viewport). Reset whenever the filter view changes.
+  const loadMoreFailedRef = useRef(false);
+  useEffect(() => {
+    loadMoreFailedRef.current = false;
+  }, [queryKey]);
+
   const loadMore = useCallback(() => {
-    if (!hasMore || loading || loadingMore || fetchingRef.current) return;
-    doFetch(currentPage + 1, false);
-  }, [hasMore, loading, loadingMore, currentPage, doFetch]);
+    if (!hasNextPage || isFetchingNextPage || loadMoreFailedRef.current) return;
+    fetchNextPage().then((result) => {
+      if (result.isError) loadMoreFailedRef.current = true;
+    });
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // ── Collections (lazy load when not server-provided) ──────────────────────
   const skipCollectionFetch = useRef(!!initialCollections);
@@ -284,7 +209,7 @@ export function useProductFilters({
     [searchParams, pushQuery],
   );
 
-  const toggleSort  = useCallback(() => setSortOpen((p) => !p), []);
+  const toggleSort = useCallback(() => setSortOpen((p) => !p), []);
   const clearFilters = useCallback(() => router.push(`/${lng}/products`), [router, lng]);
 
   const activeCollectionLabel =
@@ -292,7 +217,7 @@ export function useProductFilters({
 
   return {
     searchQuery,
-    activeCollection:      activeSlug,
+    activeCollection: activeSlug,
     activeCollectionLabel,
     sortBy,
     sortOpen,
@@ -308,7 +233,5 @@ export function useProductFilters({
     handleSortChange,
     toggleSort,
     clearFilters,
-    pendingScrollRestore,
-    clearScrollRestore,
   };
 }

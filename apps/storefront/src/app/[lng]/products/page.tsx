@@ -1,5 +1,4 @@
 import { fetchProducts } from '@/lib/products.api';
-import { adaptListItem } from '@/lib/product.adapter';
 import { getCollections } from '@/features/collections/collections.api';
 import { ProductsPageClient } from './ProductsPageClient';
 import type { CollectionFilter } from './hooks/useProductFilters';
@@ -50,7 +49,9 @@ export default async function ProductsPage({
     getCollections({ limit: 50, locale: lng }).catch(() => null),
   ]);
 
-  const initialProducts  = productsData ? productsData.items.map(adaptListItem) : undefined;
+  // Passed raw (unadapted) — the client hook seeds TanStack Query's cache
+  // with these and adapts uniformly alongside every later page it fetches.
+  const initialProducts  = productsData?.items;
   const initialPagination = productsData?.pagination ?? null;
   const initialCollections: CollectionFilter[] = [
     ALL_COLLECTION,

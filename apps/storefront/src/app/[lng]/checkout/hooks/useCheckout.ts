@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCart } from '@/hooks/useCart';
 import { useAppSelector } from '@/store/hooks';
@@ -102,9 +102,21 @@ export function useCheckout() {
 
   // ── Session lifecycle ─────────────────────────────────────────────────────
 
+  // Tracks the sessionId that has already been confirmed (via a successful
+  // createSession call) to belong to the current auth state — including the
+  // guest→account upgrade createSession() performs on login. Once set, later
+  // calls for the same sessionId can skip re-syncing the cart and re-hitting
+  // the API entirely.
+  const linkedSessionIdRef = useRef<string | null>(null);
+
   const ensureSession = useCallback(async (): Promise<string | null> => {
     // Guest users: reuse stored session if available (no account to link)
     if (sessionId && !getToken()) return sessionId;
+
+    // Logged-in users: once this session has been confirmed linked to the
+    // account, subsequent calls (e.g. re-visiting the contact step) don't
+    // need to re-sync the cart or re-create/re-link the session again.
+    if (sessionId && linkedSessionIdRef.current === sessionId) return sessionId;
 
     let resolvedCartId = cartId;
 
@@ -167,6 +179,7 @@ export function useCheckout() {
       const s = await checkoutApi.createSession(resolvedCartId, getToken(), selectedCurrency);
       setCheckoutSessionId(s.id);
       setSessionId(s.id);
+      linkedSessionIdRef.current = s.id;
 
       // Apply pending coupon only on first creation, not on user-link re-calls
       if (isNewSession) {
