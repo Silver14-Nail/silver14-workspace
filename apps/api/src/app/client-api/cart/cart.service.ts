@@ -82,6 +82,53 @@ export class ClientCartService {
     return { cart: updated, cartId: cart.id };
   }
 
+  // Adds multiple items in one request instead of one round-trip per item —
+  // the DB pool is capped at 1 connection per instance (see
+  // database.module.ts), so this stays strictly sequential internally
+  // rather than parallelizing, which would just contend for that connection.
+  // Best-effort per item, same as calling addItem() once per item in a loop:
+  // one variant being invalid/out of stock doesn't fail the whole batch.
+  async addItems(dtos: AddCartItemDto[], userId?: string, cartId?: string) {
+    const cart = await this.findOrCreateCart(userId, cartId);
+
+    for (const dto of dtos) {
+      try {
+        const variant = await this.variantRepo.findOne({
+          where: { id: dto.variantId },
+          relations: ['product'],
+        });
+        if (!variant || variant.stockQty < dto.quantity) continue;
+
+        const existing = dto.isCustomSize
+          ? null
+          : await this.cartItemRepo.findOne({
+              where: { cart: { id: cart.id }, variant: { id: dto.variantId }, isCustomSize: false },
+            });
+
+        if (existing) {
+          const newQty = existing.quantity + dto.quantity;
+          if (variant.stockQty < newQty) continue;
+          existing.quantity = newQty;
+          await this.cartItemRepo.save(existing);
+        } else {
+          const item = this.cartItemRepo.create({
+            cart,
+            variant,
+            quantity: dto.quantity,
+            isCustomSize: dto.isCustomSize ?? false,
+            customMeasurements: dto.customMeasurements ?? null,
+          });
+          await this.cartItemRepo.save(item);
+        }
+      } catch {
+        // Skip this item, keep processing the rest.
+      }
+    }
+
+    const updated = await this.loadCart(cart.id);
+    return { cart: updated, cartId: cart.id };
+  }
+
   async updateItem(itemId: string, dto: UpdateCartItemDto, userId?: string, cartId?: string) {
     const cart = await this.findCart(userId, cartId);
     if (!cart) throw new NotFoundException('Cart not found');

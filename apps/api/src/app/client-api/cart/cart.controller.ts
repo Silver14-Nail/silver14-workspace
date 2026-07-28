@@ -26,6 +26,7 @@ import { ClientCartService } from './cart.service';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import { MergeCartDto } from './dto/merge-cart.dto';
+import { BulkAddCartItemsDto } from './dto/bulk-add-cart-items.dto';
 
 @ApiTags('Client - Cart')
 @ApiBearerAuth()
@@ -52,6 +53,16 @@ export class ClientCartController {
     @MaybeCurrentUser() user?: AuthenticatedUser,
   ) {
     return this.cartService.addItem(dto, user?.id, cartId);
+  }
+
+  @Post('items/bulk')
+  @ApiCreatedResponse({ description: 'Items added in one request — returns { cart, cartId }' })
+  addItems(
+    @Body() dto: BulkAddCartItemsDto,
+    @Headers('x-cart-id') cartId: string | undefined,
+    @MaybeCurrentUser() user?: AuthenticatedUser,
+  ) {
+    return this.cartService.addItems(dto.items, user?.id, cartId);
   }
 
   @Patch('items/:itemId')

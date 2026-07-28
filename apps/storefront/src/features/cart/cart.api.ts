@@ -49,6 +49,15 @@ export const cartApi = {
   addItem: (dto: AddItemInput, accessToken: string | null, guestCartId: string | null) =>
     request<ApiAddItemResponse>('POST', '/client-api/cart/items', dto, accessToken, guestCartId),
 
+  addItems: (items: AddItemInput[], accessToken: string | null, guestCartId: string | null) =>
+    request<ApiAddItemResponse>(
+      'POST',
+      '/client-api/cart/items/bulk',
+      { items },
+      accessToken,
+      guestCartId,
+    ),
+
   updateItem: (
     itemId: string,
     quantity: number,

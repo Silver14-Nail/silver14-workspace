@@ -121,8 +121,11 @@ export function useCheckout() {
     let resolvedCartId = cartId;
 
     // Cart lives in localStorage (cartId === null). Before creating a checkout
-    // session we sync local items to the API — the first addItem creates the
-    // cart and returns its id; subsequent calls reuse it via x-cart-id header.
+    // session we sync local items to the API in a single bulk request — the
+    // backend processes them sequentially against its own DB connection (the
+    // pool is capped at 1 per instance, see database.module.ts), so this one
+    // request replaces what used to be one round-trip per item without ever
+    // contending for that connection itself.
     if (!resolvedCartId) {
       const localItems = getLocalCart().items;
       if (localItems.length === 0) {
@@ -130,38 +133,21 @@ export function useCheckout() {
         return null;
       }
 
-      const toDto = (item: (typeof localItems)[number]) => ({
-        variantId: item.variant.id,
-        quantity: item.quantity,
-        isCustomSize: item.isCustomSize,
-        customMeasurements: item.customMeasurements ?? undefined,
-      });
-
-      // The first successful call creates the cart and returns its id; every
-      // other item only needs that id (via x-cart-id), not each other's
-      // response, so once we have it the rest can go out in parallel instead
-      // of one-request-at-a-time — the dominant cost of ensureSession() on
-      // carts with several items.
       let syncedCartId: string | null = null;
-      let anchorIndex = -1;
-      for (let i = 0; i < localItems.length; i++) {
-        try {
-          const res = await cartApi.addItem(toDto(localItems[i]), null, null);
-          syncedCartId = res.cartId;
-          anchorIndex = i;
-          break;
-        } catch {
-          // Try the next item as the anchor — ignore per-item failures.
-        }
-      }
-
-      if (syncedCartId) {
-        const rest = localItems.filter((_, i) => i !== anchorIndex);
-        if (rest.length > 0) {
-          await Promise.allSettled(
-            rest.map((item) => cartApi.addItem(toDto(item), null, syncedCartId)),
-          );
-        }
+      try {
+        const res = await cartApi.addItems(
+          localItems.map((item) => ({
+            variantId: item.variant.id,
+            quantity: item.quantity,
+            isCustomSize: item.isCustomSize,
+            customMeasurements: item.customMeasurements ?? undefined,
+          })),
+          null,
+          null,
+        );
+        syncedCartId = res.cartId;
+      } catch {
+        // Handled by the syncedCartId check below.
       }
 
       if (!syncedCartId) {
