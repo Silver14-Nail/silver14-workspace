@@ -104,8 +104,15 @@ export class ClientCheckoutService {
     }
 
     const requestedCurrency = this.currencyService.normalize(dto.currency ?? SupportedCurrency.USD);
-    const rates = await this.currencyService.getRates();
-    const exchangeRate = requestedCurrency === SupportedCurrency.EUR ? rates.USD_EUR : 1;
+    // Only USD/EUR are supported and USD needs no conversion — skip the
+    // external exchange-rate API call entirely for the common (USD) case.
+    // That call is a real cost here: the rate cache is per-instance and
+    // empty on every serverless cold start, so a needless fetch can add
+    // seconds waiting on a third-party API before any DB work even starts.
+    const exchangeRate =
+      requestedCurrency === SupportedCurrency.EUR
+        ? (await this.currencyService.getRates()).USD_EUR
+        : 1;
 
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + SESSION_EXPIRY_HOURS);
