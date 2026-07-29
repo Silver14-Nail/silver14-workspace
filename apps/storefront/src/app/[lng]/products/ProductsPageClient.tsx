@@ -86,7 +86,11 @@ export function ProductsPageClient({
     if (target == null) return undefined;
 
     const id = requestAnimationFrame(() => {
-      window.scrollTo({ top: target, behavior: 'instant' });
+      // Safari throws a TypeError for `behavior: 'instant'` (WebKit only
+      // accepts 'auto' | 'smooth' per spec) which silently aborts this
+      // callback with no scroll happening. The positional-args form has no
+      // such enum and is instant by default in every browser.
+      window.scrollTo(0, target);
     });
     return () => cancelAnimationFrame(id);
   }, [scrollKey, loading, allProducts.length]);

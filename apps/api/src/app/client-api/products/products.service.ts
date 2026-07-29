@@ -76,11 +76,26 @@ export class ClientProductsService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
+    // Join exactly one (the main, or first-by-sortOrder) image per product
+    // via a correlated subquery, instead of a plain join on the full
+    // `images` relation. A plain join fans out one row per image, which
+    // breaks LIMIT/OFFSET pagination (a product with 3 images can consume
+    // 3 "slots" of the page) and pulls back every image's data when only
+    // one thumbnail URL is ever used. This keeps it to a single query.
     const qb = this.productRepo
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.images', 'images')
+      .leftJoin(
+        'product_images',
+        'thumb',
+        `thumb.id = (
+          SELECT pi.id FROM product_images pi
+          WHERE pi.product_id = product.id
+          ORDER BY pi.is_main DESC, pi.sort_order ASC
+          LIMIT 1
+        )`,
+      )
+      .addSelect('thumb.url', 'thumb_url')
       .where('product.isActive = true')
-      .addOrderBy('images.sortOrder', 'ASC')
       .skip(skip)
       .take(limit);
 
@@ -158,7 +173,20 @@ export class ClientProductsService {
         qb.orderBy('product.createdAt', 'DESC');
     }
 
-    const [items, totalItems] = await qb.getManyAndCount();
+    // getRawAndEntities() gives us both the hydrated Product entities and
+    // the raw `thumb_url` column from the subquery join above in one query.
+    // COUNT(*) is a separate round-trip either way (getManyAndCount() also
+    // runs it as two queries under the hood) — the client only ever reads
+    // `totalItems` from page 1's response (see useProductFilters.ts), so for
+    // "load more" pages beyond the first, skip it and infer the same
+    // has-next-page result from whether this page came back full.
+    const { entities, raw } = await qb.getRawAndEntities();
+    const items = entities;
+    const thumbnailUrlById = new Map(
+      items.map((p, i) => [p.id, raw[i]?.thumb_url as string | null]),
+    );
+    const totalItems =
+      page === 1 ? await qb.getCount() : skip + items.length + (items.length === limit ? 1 : 0);
 
     const productIds = items.map((p) => p.id);
     const translations = await this.loadTranslations(productIds, locale);
@@ -174,7 +202,7 @@ export class ClientProductsService {
     return {
       items: items.map((p) => ({
         ...applyTranslation(p, translations.get(p.id) ?? null),
-        thumbnail: p.images?.find((img) => img.isMain) ?? p.images?.[0] ?? null,
+        thumbnail: thumbnailUrlById.get(p.id) ? { url: thumbnailUrlById.get(p.id) } : null,
         images: undefined,
         ...computePricing(p.basePrice, p.salePrice),
       })),

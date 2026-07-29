@@ -115,84 +115,100 @@ export function useCheckout() {
   // if the user submits before it's actually finished.
   const pendingStartRef = useRef<Promise<{ id: string; cartId: string }> | null>(null);
 
-  const ensureSession = useCallback(async (): Promise<string | null> => {
-    // Guest users: reuse stored session if available (no account to link)
-    if (sessionId && !getToken()) return sessionId;
+  // Coalesces concurrent ensureSession() calls into a single in-flight
+  // request — e.g. the background pre-fetch below (for logged-in users) and
+  // handleContactNext can otherwise both start their own cart-sync +
+  // createSession for the same cart at once if the user submits before the
+  // pre-fetch finishes.
+  const ensureSessionPromiseRef = useRef<Promise<string | null> | null>(null);
 
-    // Logged-in users: once this session has been confirmed linked to the
-    // account, subsequent calls (e.g. re-visiting the contact step) don't
-    // need to re-sync the cart or re-create/re-link the session again.
-    if (sessionId && linkedSessionIdRef.current === sessionId) return sessionId;
+  const ensureSession = useCallback((): Promise<string | null> => {
+    if (ensureSessionPromiseRef.current) return ensureSessionPromiseRef.current;
 
-    let resolvedCartId = cartId;
+    const promise = (async (): Promise<string | null> => {
+      // Guest users: reuse stored session if available (no account to link)
+      if (sessionId && !getToken()) return sessionId;
 
-    // Cart lives in localStorage (cartId === null). Before creating a checkout
-    // session we sync local items to the API in a single bulk request — the
-    // backend processes them sequentially against its own DB connection (the
-    // pool is capped at 1 per instance, see database.module.ts), so this one
-    // request replaces what used to be one round-trip per item without ever
-    // contending for that connection itself.
-    if (!resolvedCartId) {
-      const localItems = getLocalCart().items;
-      if (localItems.length === 0) {
-        setError('Your cart is empty. Please add items before checking out.');
-        return null;
-      }
+      // Logged-in users: once this session has been confirmed linked to the
+      // account, subsequent calls (e.g. re-visiting the contact step) don't
+      // need to re-sync the cart or re-create/re-link the session again.
+      if (sessionId && linkedSessionIdRef.current === sessionId) return sessionId;
 
-      let syncedCartId: string | null = null;
-      try {
-        const res = await cartApi.addItems(
-          localItems.map((item) => ({
-            variantId: item.variant.id,
-            quantity: item.quantity,
-            isCustomSize: item.isCustomSize,
-            customMeasurements: item.customMeasurements ?? undefined,
-          })),
-          null,
-          null,
-        );
-        syncedCartId = res.cartId;
-      } catch {
-        // Handled by the syncedCartId check below.
-      }
+      let resolvedCartId = cartId;
 
-      if (!syncedCartId) {
-        setError('Could not sync your cart. Please check your connection and try again.');
-        return null;
-      }
-      broadcastGuestCartId(syncedCartId);
-      resolvedCartId = syncedCartId;
-    }
-
-    if (!resolvedCartId) return null;
-
-    try {
-      const isNewSession = !sessionId;
-      const s = await checkoutApi.createSession(resolvedCartId, getToken(), selectedCurrency);
-      setCheckoutSessionId(s.id);
-      setSessionId(s.id);
-      linkedSessionIdRef.current = s.id;
-      // We already have the full session from createSession() — seed the
-      // query cache with it so the useQuery below (enabled as soon as
-      // sessionId changes) doesn't immediately re-fetch the same data.
-      queryClient.setQueryData(['checkout-session', s.id], s);
-
-      // Apply pending coupon only on first creation, not on user-link re-calls
-      if (isNewSession) {
-        const pending = getPendingCoupon();
-        if (pending?.code) {
-          try {
-            const updated = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
-            queryClient.setQueryData(['checkout-session', s.id], updated);
-          } catch {}
-          clearPendingCoupon();
+      // Cart lives in localStorage (cartId === null). Before creating a checkout
+      // session we sync local items to the API in a single bulk request — the
+      // backend processes them sequentially against its own DB connection (the
+      // pool is capped at 1 per instance, see database.module.ts), so this one
+      // request replaces what used to be one round-trip per item without ever
+      // contending for that connection itself.
+      if (!resolvedCartId) {
+        const localItems = getLocalCart().items;
+        if (localItems.length === 0) {
+          setError('Your cart is empty. Please add items before checking out.');
+          return null;
         }
+
+        let syncedCartId: string | null = null;
+        try {
+          const res = await cartApi.addItems(
+            localItems.map((item) => ({
+              variantId: item.variant.id,
+              quantity: item.quantity,
+              isCustomSize: item.isCustomSize,
+              customMeasurements: item.customMeasurements ?? undefined,
+            })),
+            null,
+            null,
+          );
+          syncedCartId = res.cartId;
+        } catch {
+          // Handled by the syncedCartId check below.
+        }
+
+        if (!syncedCartId) {
+          setError('Could not sync your cart. Please check your connection and try again.');
+          return null;
+        }
+        broadcastGuestCartId(syncedCartId);
+        resolvedCartId = syncedCartId;
       }
-      return s.id;
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to start checkout');
-      return null;
-    }
+
+      if (!resolvedCartId) return null;
+
+      try {
+        const isNewSession = !sessionId;
+        const s = await checkoutApi.createSession(resolvedCartId, getToken(), selectedCurrency);
+        setCheckoutSessionId(s.id);
+        setSessionId(s.id);
+        linkedSessionIdRef.current = s.id;
+        // We already have the full session from createSession() — seed the
+        // query cache with it so the useQuery below (enabled as soon as
+        // sessionId changes) doesn't immediately re-fetch the same data.
+        queryClient.setQueryData(['checkout-session', s.id], s);
+
+        // Apply pending coupon only on first creation, not on user-link re-calls
+        if (isNewSession) {
+          const pending = getPendingCoupon();
+          if (pending?.code) {
+            try {
+              const updated = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
+              queryClient.setQueryData(['checkout-session', s.id], updated);
+            } catch {}
+            clearPendingCoupon();
+          }
+        }
+        return s.id;
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to start checkout');
+        return null;
+      }
+    })();
+
+    ensureSessionPromiseRef.current = promise;
+    return promise.finally(() => {
+      if (ensureSessionPromiseRef.current === promise) ensureSessionPromiseRef.current = null;
+    });
   }, [cartId, sessionId, selectedCurrency, queryClient]);
 
   useEffect(() => {
@@ -252,11 +268,13 @@ export function useCheckout() {
       setIsSubmitting(true);
       setError(null);
       try {
-        if (!sessionId && !cartId) {
-          // Fresh checkout, nothing on the server yet. This still takes
-          // ~10s+ server-side (see startCheckout), but none of it is
-          // needed to render the Shipping form — so don't block on it here.
-          // Let it run in the background while the user fills in shipping;
+        if (!sessionId && !cartId && !ensureSessionPromiseRef.current) {
+          // Fresh checkout, nothing on the server yet, and nobody else
+          // (e.g. the logged-in-user background pre-fetch below) is already
+          // establishing a session for this cart. This still takes ~10s+
+          // server-side (see startCheckout), but none of it is needed to
+          // render the Shipping form — so don't block on it here. Let it
+          // run in the background while the user fills in shipping;
           // handleShippingNext awaits it if they submit before it's done.
           const localItems = getLocalCart().items;
           if (localItems.length === 0) {
@@ -431,9 +449,8 @@ export function useCheckout() {
   // (e.g., cart synced from Safari localStorage may have fewer items than shown).
   const exchangeRate = totals?.exchangeRate ?? 1;
   const subtotal = cartSubtotal * exchangeRate;
-  const finalTotal = shippingCost !== null
-    ? subtotal - discountAmount + shippingCost
-    : subtotal - discountAmount;
+  const finalTotal =
+    shippingCost !== null ? subtotal - discountAmount + shippingCost : subtotal - discountAmount;
 
   return {
     step,
