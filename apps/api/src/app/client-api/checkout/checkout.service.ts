@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -41,6 +42,8 @@ const FREE_SHIPPING_THRESHOLD_USD = 100;
 
 @Injectable()
 export class ClientCheckoutService {
+  private readonly logger = new Logger(ClientCheckoutService.name);
+
   constructor(
     @InjectRepository(CartEntity)
     private readonly cartRepo: Repository<CartEntity>,
@@ -140,13 +143,22 @@ export class ClientCheckoutService {
   // sequential round-trips. Everything below still runs sequentially against
   // the single DB connection, same as calling each step individually.
   async startCheckout(dto: StartCheckoutDto, userId?: string, guestCartId?: string) {
+    // Temporary timing instrumentation to find where the ~8-12s is actually
+    // going (cold start vs. a specific DB step) — remove once diagnosed.
+    const t0 = Date.now();
     const { cartId } = await this.cartService.addItems(dto.items, userId, guestCartId);
+    const t1 = Date.now();
     const session = await this.createSession({ cartId, currency: dto.currency }, userId);
+    const t2 = Date.now();
     const withContact = await this.updateContact(session.id, {
       email: dto.contactEmail,
       phone: dto.contactPhone,
       fullName: dto.contactFullName,
     });
+    const t3 = Date.now();
+    this.logger.log(
+      `startCheckout timing — addItems: ${t1 - t0}ms, createSession: ${t2 - t1}ms, updateContact: ${t3 - t2}ms, total: ${t3 - t0}ms`,
+    );
     return { ...withContact, cartId };
   }
 
