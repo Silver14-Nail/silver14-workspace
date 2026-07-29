@@ -109,6 +109,12 @@ export function useCheckout() {
   // the API entirely.
   const linkedSessionIdRef = useRef<string | null>(null);
 
+  // A fresh checkout's startCheckout() call runs in the background while the
+  // user is optimistically shown the Shipping step (see handleContactNext) —
+  // this tracks that in-flight promise so handleShippingNext can wait for it
+  // if the user submits before it's actually finished.
+  const pendingStartRef = useRef<Promise<{ id: string; cartId: string }> | null>(null);
+
   const ensureSession = useCallback(async (): Promise<string | null> => {
     // Guest users: reuse stored session if available (no account to link)
     if (sessionId && !getToken()) return sessionId;
@@ -247,40 +253,64 @@ export function useCheckout() {
       setError(null);
       try {
         if (!sessionId && !cartId) {
-          // Fresh checkout, nothing on the server yet — sync cart, create
-          // the session, and save contact in one request instead of three
-          // sequential ones.
+          // Fresh checkout, nothing on the server yet. This still takes
+          // ~10s+ server-side (see startCheckout), but none of it is
+          // needed to render the Shipping form — so don't block on it here.
+          // Let it run in the background while the user fills in shipping;
+          // handleShippingNext awaits it if they submit before it's done.
           const localItems = getLocalCart().items;
           if (localItems.length === 0) {
             setError('Your cart is empty. Please add items before checking out.');
             return;
           }
 
-          const s = await checkoutApi.startCheckout(
-            localItems.map((item) => ({
-              variantId: item.variant.id,
-              quantity: item.quantity,
-              isCustomSize: item.isCustomSize,
-              customMeasurements: item.customMeasurements ?? undefined,
-            })),
-            data,
-            getToken(),
-            selectedCurrency,
-          );
-          setCheckoutSessionId(s.id);
-          setSessionId(s.id);
-          linkedSessionIdRef.current = s.id;
-          queryClient.setQueryData(['checkout-session', s.id], s);
-          broadcastGuestCartId(s.cartId);
+          const startPromise = checkoutApi
+            .startCheckout(
+              localItems.map((item) => ({
+                variantId: item.variant.id,
+                quantity: item.quantity,
+                isCustomSize: item.isCustomSize,
+                customMeasurements: item.customMeasurements ?? undefined,
+              })),
+              data,
+              getToken(),
+              selectedCurrency,
+            )
+            .then(async (s) => {
+              setCheckoutSessionId(s.id);
+              setSessionId(s.id);
+              linkedSessionIdRef.current = s.id;
+              queryClient.setQueryData(['checkout-session', s.id], s);
+              broadcastGuestCartId(s.cartId);
 
-          const pending = getPendingCoupon();
-          if (pending?.code) {
-            try {
-              const withCoupon = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
-              queryClient.setQueryData(['checkout-session', s.id], withCoupon);
-            } catch {}
-            clearPendingCoupon();
-          }
+              const pending = getPendingCoupon();
+              if (pending?.code) {
+                try {
+                  const withCoupon = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
+                  queryClient.setQueryData(['checkout-session', s.id], withCoupon);
+                } catch {}
+                clearPendingCoupon();
+              }
+              return s;
+            })
+            .catch((e: unknown) => {
+              // The user is already on the Shipping step by the time this
+              // can fail — send them back to Contact with the error, since
+              // there's no valid session to continue with.
+              setError(e instanceof Error ? e.message : 'Failed to start checkout');
+              setStep('contact');
+              throw e;
+            })
+            .finally(() => {
+              if (pendingStartRef.current === startPromise) pendingStartRef.current = null;
+            });
+
+          pendingStartRef.current = startPromise;
+          // handleShippingNext (if the user gets there before this settles)
+          // independently awaits/catches this same promise — this extra,
+          // separate no-op catch just prevents an "unhandled rejection"
+          // console warning for the common case where they don't.
+          startPromise.catch(() => {});
         } else {
           const sid = sessionId ?? (await ensureSession());
           if (!sid) return;
@@ -315,15 +345,28 @@ export function useCheckout() {
 
   const handleShippingNext = useCallback(
     async (data: ShippingFormData) => {
-      if (!sessionId) return;
       setIsSubmitting(true);
       setError(null);
       try {
+        let sid = sessionId;
+        if (!sid && pendingStartRef.current) {
+          // handleContactNext's startCheckout is still finishing in the
+          // background — wait for it now instead of silently no-op'ing.
+          try {
+            sid = (await pendingStartRef.current).id;
+          } catch {
+            // Already surfaced via startCheckout's own error handler
+            // (setError + setStep('contact')).
+            return;
+          }
+        }
+        if (!sid) return;
+
         const recipientName = `${data.firstName} ${data.lastName}`.trim();
         const street = data.apartment ? `${data.address}, ${data.apartment}` : data.address;
 
         const updated = await checkoutApi.updateShipping(
-          sessionId,
+          sid,
           {
             ...(selectedMethodId ? { shippingMethodId: selectedMethodId } : {}),
             recipientName,
@@ -336,7 +379,7 @@ export function useCheckout() {
         );
         // Use the response we already have instead of invalidating and
         // re-fetching the same session data.
-        queryClient.setQueryData(['checkout-session', sessionId], updated);
+        queryClient.setQueryData(['checkout-session', sid], updated);
         setStep('payment');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Failed to save shipping info');
