@@ -9,6 +9,7 @@ import { CouponUsageEntity } from '@/db/entities/coupons/coupon-usage.entity';
 import { OrderEntity } from '@/db/entities/orders/order.entity';
 import { AuthModule } from '@/shared/auth/auth.module';
 import { CurrencySharedModule } from '@/shared/currency/currency.module';
+import { ClientCartModule } from '../cart/cart.module';
 
 import { ClientCheckoutService } from './checkout.service';
 import { ClientCheckoutController } from './checkout.controller';
@@ -25,6 +26,7 @@ import { ClientCheckoutController } from './checkout.controller';
     ]),
     AuthModule,
     CurrencySharedModule,
+    ClientCartModule,
   ],
   providers: [ClientCheckoutService],
   controllers: [ClientCheckoutController],

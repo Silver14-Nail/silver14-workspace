@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   Param,
   Patch,
@@ -17,6 +18,7 @@ import {
   ApiBearerAuth,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
+  ApiHeader,
 } from '@nestjs/swagger';
 
 import { OptionalCustomerJwtAuthGuard } from '@/shared/auth/guards/jwt-auth.guard';
@@ -28,6 +30,7 @@ import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
 import { ApplyCouponDto } from './dto/apply-coupon.dto';
+import { StartCheckoutDto } from './dto/start-checkout.dto';
 
 @ApiTags('Client - Checkout')
 @ApiBearerAuth()
@@ -57,6 +60,20 @@ export class ClientCheckoutController {
     @MaybeCurrentUser() user?: AuthenticatedUser,
   ) {
     return this.checkoutService.createSession(dto, user?.id);
+  }
+
+  @Post('start')
+  @ApiHeader({ name: 'x-cart-id', required: false, description: 'Guest cart ID (UUID)' })
+  @ApiCreatedResponse({
+    description:
+      'One-shot fresh checkout: syncs cart items, creates the session, and saves contact info.',
+  })
+  startCheckout(
+    @Body() dto: StartCheckoutDto,
+    @Headers('x-cart-id') cartId: string | undefined,
+    @MaybeCurrentUser() user?: AuthenticatedUser,
+  ) {
+    return this.checkoutService.startCheckout(dto, user?.id, cartId);
   }
 
   @Get(':id')

@@ -246,10 +246,51 @@ export function useCheckout() {
       setIsSubmitting(true);
       setError(null);
       try {
-        const sid = sessionId ?? (await ensureSession());
-        if (!sid) return;
+        if (!sessionId && !cartId) {
+          // Fresh checkout, nothing on the server yet — sync cart, create
+          // the session, and save contact in one request instead of three
+          // sequential ones.
+          const localItems = getLocalCart().items;
+          if (localItems.length === 0) {
+            setError('Your cart is empty. Please add items before checking out.');
+            return;
+          }
 
-        const updated = await checkoutApi.updateContact(sid, data, getToken());
+          const s = await checkoutApi.startCheckout(
+            localItems.map((item) => ({
+              variantId: item.variant.id,
+              quantity: item.quantity,
+              isCustomSize: item.isCustomSize,
+              customMeasurements: item.customMeasurements ?? undefined,
+            })),
+            data,
+            getToken(),
+            selectedCurrency,
+          );
+          setCheckoutSessionId(s.id);
+          setSessionId(s.id);
+          linkedSessionIdRef.current = s.id;
+          queryClient.setQueryData(['checkout-session', s.id], s);
+          broadcastGuestCartId(s.cartId);
+
+          const pending = getPendingCoupon();
+          if (pending?.code) {
+            try {
+              const withCoupon = await checkoutApi.applyCoupon(s.id, pending.code, getToken());
+              queryClient.setQueryData(['checkout-session', s.id], withCoupon);
+            } catch {}
+            clearPendingCoupon();
+          }
+        } else {
+          const sid = sessionId ?? (await ensureSession());
+          if (!sid) return;
+
+          const updated = await checkoutApi.updateContact(sid, data, getToken());
+          // Use the response we already have instead of invalidating and
+          // re-fetching the same session data.
+          queryClient.setQueryData(['checkout-session', sid], updated);
+        }
+
         setConfirmEmail(data.email);
         setConfirmPhone(data.phone);
         const [first = ''] = data.fullName.split(' ');
@@ -260,9 +301,6 @@ export function useCheckout() {
             JSON.stringify({ email: data.email, phone: data.phone, firstName: first }),
           );
         } catch {}
-        // Use the response we already have instead of invalidating and
-        // re-fetching the same session data.
-        queryClient.setQueryData(['checkout-session', sid], updated);
         setStep('shipping');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : 'Failed to save contact info');
@@ -270,7 +308,7 @@ export function useCheckout() {
         setIsSubmitting(false);
       }
     },
-    [sessionId, ensureSession, queryClient],
+    [sessionId, cartId, ensureSession, queryClient, selectedCurrency],
   );
 
   // ── Step: Shipping ────────────────────────────────────────────────────────

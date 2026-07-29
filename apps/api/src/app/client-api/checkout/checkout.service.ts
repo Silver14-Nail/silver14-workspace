@@ -26,6 +26,7 @@ import {
 } from '@/common/enums/entity.enum';
 import { CurrencyService } from '@/shared/currency/currency.service';
 import { getShippingZone } from '@/shared/shipping/shipping-zones.constant';
+import { ClientCartService } from '../cart/cart.service';
 
 import { effectiveUnitPrice } from '@/shared/pricing/pricing.utils';
 
@@ -33,6 +34,7 @@ import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
 import { ApplyCouponDto } from './dto/apply-coupon.dto';
+import { StartCheckoutDto } from './dto/start-checkout.dto';
 
 const SESSION_EXPIRY_HOURS = 2;
 const FREE_SHIPPING_THRESHOLD_USD = 100;
@@ -53,6 +55,7 @@ export class ClientCheckoutService {
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
     private readonly currencyService: CurrencyService,
+    private readonly cartService: ClientCartService,
   ) {}
 
   // ─── Shipping Methods & Zones ─────────────────────────────────────────────────
@@ -123,6 +126,21 @@ export class ClientCheckoutService {
 
     const saved = await this.sessionRepo.save(session);
     return this.withTotals(saved);
+  }
+
+  // Fresh checkout always needs cart-sync + session-creation + contact-save
+  // in that order — combine them into one request instead of three
+  // sequential round-trips. Everything below still runs sequentially against
+  // the single DB connection, same as calling each step individually.
+  async startCheckout(dto: StartCheckoutDto, userId?: string, guestCartId?: string) {
+    const { cartId } = await this.cartService.addItems(dto.items, userId, guestCartId);
+    const session = await this.createSession({ cartId, currency: dto.currency }, userId);
+    const withContact = await this.updateContact(session.id, {
+      email: dto.contactEmail,
+      phone: dto.contactPhone,
+      fullName: dto.contactFullName,
+    });
+    return { ...withContact, cartId };
   }
 
   async getSession(sessionId: string) {

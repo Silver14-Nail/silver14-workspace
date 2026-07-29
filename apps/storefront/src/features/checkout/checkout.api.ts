@@ -32,6 +32,33 @@ export const checkoutApi = {
       )
       .then((r) => r.data),
 
+  // One request instead of addItems + createSession + updateContact —
+  // for a fresh checkout (no session yet) with no cart on the server.
+  startCheckout: (
+    items: {
+      variantId: string;
+      quantity: number;
+      isCustomSize?: boolean;
+      customMeasurements?: Record<string, string>;
+    }[],
+    contact: { email: string; phone: string; fullName: string },
+    token?: string | null,
+    currency?: string,
+  ) =>
+    http
+      .post<CheckoutSession & { cartId: string }>(
+        '/client-api/checkout/start',
+        {
+          items,
+          currency: currency ?? 'USD',
+          contactEmail: contact.email,
+          contactPhone: contact.phone,
+          contactFullName: contact.fullName,
+        },
+        { headers: authHeaders(token) },
+      )
+      .then((r) => r.data),
+
   getSession: (sessionId: string, token?: string | null) =>
     http
       .get<CheckoutSession>(`/client-api/checkout/${sessionId}`, {
