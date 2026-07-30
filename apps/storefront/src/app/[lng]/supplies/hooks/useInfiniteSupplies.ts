@@ -1,61 +1,52 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { fetchSupplies, type ApiProductListItem } from '@/lib/products.api';
+import { useEffect, useMemo, useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { fetchSupplies } from '@/lib/products.api';
 
 const PAGE_SIZE = 24;
+// Repeat visits to the list (including returning from a supply detail page)
+// are served from cache instead of hitting the API again — same pattern as
+// the products list (see useProductFilters.ts).
+const STALE_TIME_MS = 5 * 60 * 1000;
 
 export function useInfiniteSupplies(locale?: string) {
-  const [items, setItems] = useState<ApiProductListItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [totalItems, setTotalItems] = useState(0);
+  const queryKey = ['supplies', locale ?? ''] as const;
 
-  const fetchingRef = useRef(false);
-  const generationRef = useRef(0);
+  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery({
+    queryKey,
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+      fetchSupplies({ page: pageParam, limit: PAGE_SIZE, locale }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination.currentPage < lastPage.pagination.totalPages
+        ? lastPage.pagination.currentPage + 1
+        : undefined,
+    staleTime: STALE_TIME_MS,
+    gcTime: STALE_TIME_MS,
+  });
 
-  const fetchPage = useCallback(
-    async (pageNum: number, isReset: boolean) => {
-      if (fetchingRef.current && !isReset) return;
-      fetchingRef.current = true;
-      const gen = ++generationRef.current;
+  const items = useMemo(() => (data?.pages ?? []).flatMap((page) => page.items), [data]);
+  const totalItems = data?.pages[0]?.pagination.totalItems ?? 0;
+  const loading = isPending;
+  const loadingMore = isFetchingNextPage;
+  const hasMore = !!hasNextPage;
 
-      if (isReset) setLoading(true);
-      else setLoadingMore(true);
-
-      try {
-        const data = await fetchSupplies({ page: pageNum, limit: PAGE_SIZE, locale });
-        if (gen !== generationRef.current) return;
-        setItems((prev) => (isReset ? data.items : [...prev, ...data.items]));
-        setTotalItems(data.pagination.totalItems);
-        setHasMore(pageNum < data.pagination.totalPages);
-        setPage(pageNum);
-      } catch {
-        // Stop auto-loading on failure — otherwise the intersection observer
-        // re-enables as soon as loadingMore clears and immediately retries
-        // the same page forever (sentinel never leaves the viewport).
-        setHasMore(false);
-      } finally {
-        if (gen === generationRef.current) {
-          fetchingRef.current = false;
-          if (isReset) setLoading(false);
-          else setLoadingMore(false);
-        }
-      }
-    },
-    [locale],
-  );
-
+  // Stop auto-loading once a "load more" attempt fails — otherwise the
+  // intersection observer re-enables as soon as isFetchingNextPage clears and
+  // immediately retries the same page forever (sentinel never leaves the
+  // viewport). Reset whenever the query view changes.
+  const loadMoreFailedRef = useRef(false);
   useEffect(() => {
-    fetchPage(1, true);
-  }, [fetchPage]);
+    loadMoreFailedRef.current = false;
+  }, [queryKey.join('|')]);
 
-  const loadMore = useCallback(() => {
-    if (!hasMore || loading || loadingMore) return;
-    fetchPage(page + 1, false);
-  }, [hasMore, loading, loadingMore, page, fetchPage]);
+  const loadMore = () => {
+    if (!hasNextPage || isFetchingNextPage || loadMoreFailedRef.current) return;
+    fetchNextPage().then((result) => {
+      if (result.isError) loadMoreFailedRef.current = true;
+    });
+  };
 
   return { items, loading, loadingMore, hasMore, totalItems, loadMore };
 }

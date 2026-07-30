@@ -6,7 +6,7 @@ import { useT } from 'next-i18next/client';
 import { ProductsHeader, ProductsFilters, ProductsGrid } from './components';
 import { useProductFilters } from './hooks/useProductFilters';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
-import { getScrollPosition, setScrollPosition } from './hooks/scrollPositionCache';
+import { getScrollPosition, setScrollPosition } from '@/hooks/scrollPositionCache';
 import type { CollectionFilter } from './hooks/useProductFilters';
 import type { ApiPagination, ApiProductListItem } from '@/lib/products.api';
 
