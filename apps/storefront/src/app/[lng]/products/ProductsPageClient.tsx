@@ -85,21 +85,58 @@ export function ProductsPageClient({
     const target = getScrollPosition(scrollKey);
     if (target == null) return undefined;
 
-    const id = requestAnimationFrame(() => {
+    // Images/translations can still be settling into their final height for
+    // a few frames after mount, which can clamp a too-early scrollTo short
+    // of `target`. Keep nudging it back for a few frames instead of trusting
+    // a single attempt — cheap once it already holds, since the loop exits
+    // as soon as scrollY matches.
+    let frame = 0;
+    let rafId = 0;
+    const attempt = () => {
       // Safari throws a TypeError for `behavior: 'instant'` (WebKit only
       // accepts 'auto' | 'smooth' per spec) which silently aborts this
       // callback with no scroll happening. The positional-args form has no
       // such enum and is instant by default in every browser.
       window.scrollTo(0, target);
-    });
-    return () => cancelAnimationFrame(id);
+      frame += 1;
+      if (frame < 6 && Math.abs(window.scrollY - target) > 2) {
+        rafId = requestAnimationFrame(attempt);
+      }
+    };
+    rafId = requestAnimationFrame(attempt);
+    return () => cancelAnimationFrame(rafId);
   }, [scrollKey, loading, allProducts.length]);
 
+  // On Safari, a continuous `scroll` listener alone isn't reliable here: in
+  // the window between tapping a product link and this component actually
+  // unmounting, WebKit can fire a spurious scroll event (e.g. from the
+  // dynamic toolbar collapsing/expanding as the transition starts) that
+  // overwrites the cached position with a near-zero value before we ever
+  // navigate away — so on return, there's nothing correct left to restore.
+  // Freeze tracking the instant the user actually commits to leaving (a real
+  // click on a product link) and capture that exact offset synchronously,
+  // rather than trusting whatever the listener last saw.
+  const leavingRef = useRef(false);
+
   useEffect(() => {
-    const onScroll = () => setScrollPosition(scrollKey, window.scrollY);
+    leavingRef.current = false;
+  }, [scrollKey]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (leavingRef.current) return;
+      setScrollPosition(scrollKey, window.scrollY);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [scrollKey]);
+
+  const handleGridClickCapture = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('a')) {
+      leavingRef.current = true;
+      setScrollPosition(scrollKey, window.scrollY);
+    }
+  };
 
   return (
     <div className="min-h-screen pt-20 md:pt-24">
@@ -120,17 +157,19 @@ export function ProductsPageClient({
           t={t}
         />
 
-        <ProductsGrid
-          products={allProducts}
-          totalItems={totalItems}
-          hasMore={hasMore}
-          loadingMore={loadingMore}
-          onLoadMore={loadMore}
-          loading={loading}
-          error={null}
-          onClearFilters={clearFilters}
-          t={t}
-        />
+        <div onClickCapture={handleGridClickCapture}>
+          <ProductsGrid
+            products={allProducts}
+            totalItems={totalItems}
+            hasMore={hasMore}
+            loadingMore={loadingMore}
+            onLoadMore={loadMore}
+            loading={loading}
+            error={null}
+            onClearFilters={clearFilters}
+            t={t}
+          />
+        </div>
 
         {/* Sentinel — triggers next page when scrolled into view. Mobile only:
             desktop uses ProductsGrid's own numbered pagination instead. */}
