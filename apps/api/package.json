@@ -9,7 +9,8 @@
     "db:revert": "pnpm run typeorm migration:revert -d ./src/db/ormconfig.ts",
     "db:drop": "pnpm run typeorm schema:drop -d ./src/db/ormconfig.ts",
     "db:seed": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/seed.ts",
-    "db:truncate": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/truncate.ts"
+    "db:truncate": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/truncate.ts",
+    "db:audit-order-pricing": "ts-node --project tsconfig.orm.json -r tsconfig-paths/register --transpile-only ./src/db/audit-order-pricing.ts"
   },
   "nx": {
     "targets": {

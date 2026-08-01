@@ -31,6 +31,10 @@ interface SessionTotals {
   discountAmount: number;
   shippingFee: number;
   total: number;
+  // Pre-conversion USD total — kept alongside `total` (in `currency`) so VND
+  // settlement can always convert from the true USD base, instead of
+  // double-converting an already-EUR amount through a USD→VND rate.
+  totalUSD: number;
   currency: string;
 }
 
@@ -72,11 +76,16 @@ export class OnepayFulfillmentService {
     const totals = this.calculateTotals(session);
 
     // OnePay VN merchant accounts only accept VND (docs §III.4).
-    // If session currency is not VND, convert using live/fallback exchange rate.
+    // Convert from the pre-conversion USD total, not `totals.total` — the
+    // latter is already denominated in the session's display currency (e.g.
+    // EUR), and `vndRate` is a USD→VND rate. Multiplying a EUR amount by a
+    // USD→VND rate silently undercharges by the USD→EUR factor (~13% at
+    // typical rates) — this was the actual bug: an EUR order converted
+    // straight from its EUR total came out ~13% short in VND.
     const amountVnd =
       totals.currency.toUpperCase() === 'VND'
         ? Math.round(totals.total)
-        : Math.round(totals.total * (vndRate ?? 27_000));
+        : Math.round(totals.totalUSD * (vndRate ?? 27_000));
 
     const amountOnepay = this.onepayService.toOnepayAmount(amountVnd);
     const merchTxnRef = this.onepayService.buildMerchTxnRef(checkoutSessionId);
@@ -404,6 +413,7 @@ export class OnepayFulfillmentService {
       discountAmount: convert(discountAmountUSD),
       shippingFee: convert(effectiveShippingUSD),
       total: Math.max(0, convert(subtotalUSD - discountAmountUSD + effectiveShippingUSD)),
+      totalUSD: Math.max(0, subtotalUSD - discountAmountUSD + effectiveShippingUSD),
       currency,
     };
   }
@@ -460,12 +470,25 @@ export class OnepayFulfillmentService {
     const order = manager.create(OrderEntity, orderData);
     await manager.save(OrderEntity, order);
 
+    // Order items are displayed/summed in `order.currency` (see admin
+    // OrderDrawer), same as `totals.subtotal` above — so unitPrice needs the
+    // identical USD→session-currency conversion `calculateTotals()` applied,
+    // not the raw USD price.
+    const itemExchangeRate = Number(session.exchangeRate) || 1;
+    const toOrderCurrency = (usd: number) =>
+      totals.currency === 'USD' ? usd : parseFloat((usd * itemExchangeRate).toFixed(2));
+
     const orderItems = (session.cart?.items ?? []).map((cartItem) =>
       manager.create(OrderItemEntity, {
         order,
         variant: cartItem.variant,
         quantity: cartItem.quantity,
-        unitPrice: cartItem.variant.computedPrice,
+        // Must match how `totals.subtotal`/`totals.totalUSD` above were
+        // computed — the raw `computedPrice` ignores an active sale, so a
+        // discounted product's frozen order-item price silently didn't
+        // match what was actually charged (order.subtotal/total apply both
+        // the sale ratio and currency conversion; this needs both too).
+        unitPrice: toOrderCurrency(effectiveUnitPrice(cartItem.variant)),
         shapeSurcharge: 0,
         itemDiscount: 0,
         shapeName: cartItem.variant.shape?.name ?? null,

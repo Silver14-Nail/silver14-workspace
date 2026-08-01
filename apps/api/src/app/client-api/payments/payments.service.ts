@@ -428,12 +428,25 @@ export class ClientPaymentsService {
 
     await manager.save(OrderEntity, order);
 
+    // Order items are displayed/summed in `order.currency` (see admin
+    // OrderDrawer), same as `totals.subtotal` above — so unitPrice needs the
+    // identical USD→session-currency conversion `calculateTotals()` applied,
+    // not the raw USD price.
+    const itemExchangeRate = Number(session.exchangeRate) || 1;
+    const toOrderCurrency = (usd: number) =>
+      totals.currency === 'USD' ? usd : parseFloat((usd * itemExchangeRate).toFixed(2));
+
     const orderItems = (session.cart?.items ?? []).map((cartItem) =>
       manager.create(OrderItemEntity, {
         order,
         variant: cartItem.variant,
         quantity: cartItem.quantity,
-        unitPrice: cartItem.variant.computedPrice,
+        // Must match how `totals.subtotal` above was computed — the raw
+        // `computedPrice` ignores an active sale, so a discounted product's
+        // frozen order-item price silently didn't match what was actually
+        // charged (order.subtotal/total do apply the sale ratio and currency
+        // conversion; this needs both too).
+        unitPrice: toOrderCurrency(effectiveUnitPrice(cartItem.variant)),
         shapeSurcharge: 0,
         itemDiscount: 0,
         shapeName: cartItem.variant.shape?.name ?? null,
