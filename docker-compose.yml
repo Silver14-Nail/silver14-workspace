@@ -142,13 +142,15 @@ services:
   # The `api` service above only contains the compiled webpack bundle
   # (dist/apps/api) + node_modules — no package.json, no `src/`, so
   # `ts-node`-based TypeORM migrations can't run inside it. This uses the
-  # `builder` stage instead, which has the full monorepo source and all
-  # deps. Run explicitly: `docker-compose --profile migrate run --rm migrate`
+  # `source` stage instead, which has the full monorepo source and all
+  # deps installed but skips building any app (migrations run straight off
+  # `src/` via ts-node, so no build step was ever needed here). Run
+  # explicitly: `docker-compose --profile migrate run --rm migrate`
   migrate:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder
+      target: source
     container_name: silver14-migrate
     working_dir: /app/apps/api
     entrypoint: ["pnpm", "run", "db:migrate"]

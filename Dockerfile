@@ -39,14 +39,37 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 
 
 # ============================================
-# Builder Stage - Build all apps
+# Source Stage - full monorepo source, no build
 # ============================================
-FROM base AS builder
+# Shared by all three per-app builder stages below, plus the `migrate`
+# service in docker-compose.yml (which only needs source + deps to run
+# TypeORM migrations via ts-node — it never needed a built app at all).
+FROM base AS source
 
 WORKDIR /app
 
-# Copy source code
 COPY . .
+
+
+# ============================================
+# Builder Stage - API only
+# ============================================
+# Split into per-app stages (was one shared `builder` running
+# `nx run-many --projects=api,storefront,admin`) so that targeting a single
+# service — e.g. `docker-compose build storefront` — only builds that one
+# app's stage. BuildKit skips stages that aren't in the requested target's
+# dependency graph, so building just storefront never invokes `nx build
+# api`/`nx build admin` at all, instead of always compiling all 3 together.
+FROM source AS builder-api
+
+RUN --mount=type=cache,id=nx-cache,target=/app/.nx/cache \
+    pnpm exec nx build api
+
+
+# ============================================
+# Builder Stage - Storefront only
+# ============================================
+FROM source AS builder-storefront
 
 # Next.js inlines NEXT_PUBLIC_* vars into the client bundle at BUILD time —
 # setting them in docker-compose.yml's `environment:` (container runtime)
@@ -61,14 +84,21 @@ ENV NEXT_PUBLIC_STOREFRONT_URL=$NEXT_PUBLIC_STOREFRONT_URL
 ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_PAYPAL_CLIENT_ID=$NEXT_PUBLIC_PAYPAL_CLIENT_ID
 
-# Build all apps — cache mount persists Nx's own task cache (.nx/cache)
-# across builds. `COPY . .` above invalidates this Docker layer on every
-# deploy (source always changed — that's the point of deploying), but Nx
-# itself hashes each project's actual inputs and skips recompiling any
-# project whose inputs didn't change, e.g. a storefront-only change no
-# longer forces api/admin to rebuild too.
 RUN --mount=type=cache,id=nx-cache,target=/app/.nx/cache \
-    pnpm exec nx run-many -t build --projects=api,storefront,admin --parallel=3
+    pnpm exec nx build storefront
+
+
+# ============================================
+# Builder Stage - Admin only
+# ============================================
+FROM source AS builder-admin
+
+# Same NEXT_PUBLIC_* build-time-inlining caveat as the storefront stage above.
+ARG NEXT_PUBLIC_STOREFRONT_URL
+ENV NEXT_PUBLIC_STOREFRONT_URL=$NEXT_PUBLIC_STOREFRONT_URL
+
+RUN --mount=type=cache,id=nx-cache,target=/app/.nx/cache \
+    pnpm exec nx build admin
 
 
 # ============================================
@@ -79,8 +109,8 @@ FROM node:22-alpine AS api
 WORKDIR /app
 
 # Copy built API
-COPY --from=builder /app/dist/apps/api ./
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder-api /app/dist/apps/api ./
+COPY --from=builder-api /app/node_modules ./node_modules
 # .env is intentionally NOT baked into the image (.dockerignore excludes it,
 # and even if it didn't, secrets shouldn't live in image layers). It's
 # provided at container start via docker-compose.yml's volume mount instead.
@@ -109,8 +139,8 @@ WORKDIR /app
 # still resolves correctly if we preserve the original nested directory depth
 # (root node_modules/ at /app/node_modules, app dir at /app/apps/storefront/)
 # instead of flattening everything into /app — flattening breaks the symlink.
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/storefront ./apps/storefront
+COPY --from=builder-storefront /app/node_modules ./node_modules
+COPY --from=builder-storefront /app/apps/storefront ./apps/storefront
 WORKDIR /app/apps/storefront
 
 # Expose port
@@ -135,8 +165,8 @@ FROM node:22-alpine AS admin
 WORKDIR /app
 
 # Same pnpm relative-symlink reasoning as the storefront stage above.
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/admin ./apps/admin
+COPY --from=builder-admin /app/node_modules ./node_modules
+COPY --from=builder-admin /app/apps/admin ./apps/admin
 WORKDIR /app/apps/admin
 
 # Expose port
