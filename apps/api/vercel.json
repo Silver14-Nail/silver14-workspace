@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "cd ../.. && npx nx build api --skip-nx-cache && mkdir -p apps/api/api && cp -r dist/apps/api/. apps/api/api/",
+  "functions": {
+    "api/main.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/main.js"
+    }
+  ]
+}
