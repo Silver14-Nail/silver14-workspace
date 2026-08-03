@@ -1,32 +1,27 @@
 version: '3.9'
 
-services:
-  # ============================================
-  # MySQL Database
-  # ============================================
-  mysql:
-    image: mysql:8.0
-    container_name: silver14-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-silver14_root_pass}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
-      MYSQL_USER: ${MYSQL_USER:-silver14_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-silver14_pass}
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    ports:
-      - "3306:3306"
-    networks:
-      - silver14-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-silver14_root_pass}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+# ============================================
+# NOTE: this server is SHARED with other projects (ces-production, swarmly,
+# gemini-tools, phpmyadmin) — confirmed via `docker ps` before this file was
+# adjusted. Two consequences baked into this file:
+#   1. No own `mysql` service — reuses the existing `mysql-container` (mysql:8.0)
+#      already running on the shared `cesapi_default` Docker network. Silver14
+#      gets its own database/user inside it (`silver14_nail_db` /
+#      `silver14_user`), scoped via GRANT, not a separate MySQL instance.
+#      Connecting via the container's published host port (3306) does NOT
+#      work here — UFW blocks container→host-port traffic on this box — so
+#      `api`/`migrate` join `cesapi_default` directly and reach it by
+#      container name (`mysql-container`) over Docker's internal network,
+#      bypassing the host firewall entirely.
+#   2. No own `nginx` service — ports 80/443 are already owned by an nginx
+#      installed directly on the host (not Docker), serving other domains.
+#      Add a new server block to that host nginx for silver14nail.com /
+#      admin.silver14nail.com / api.silver14nail.com instead, proxying to
+#      127.0.0.1:4200 / :4201 / :3000.
+# If this ever moves to its own dedicated server, both can be reintroduced.
+# ============================================
 
+services:
   # ============================================
   # API Service (NestJS)
   # ============================================
@@ -38,18 +33,23 @@ services:
     container_name: silver14-api
     restart: unless-stopped
     environment:
+      NODE_ENV: production
       PORT: 3000
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
       STOREFRONT_URL: ${STOREFRONT_URL:-https://silver14nail.com}
       ENABLE_SWAGGER: ${ENABLE_SWAGGER:-true}
       SECRET_KEY: ${SECRET_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      RESEND_API_KEY: ${RESEND_API_KEY}
       TOKEN_EXPIRES: ${TOKEN_EXPIRES:-86400}
       REFRESH_TOKEN_EXPIRES: ${REFRESH_TOKEN_EXPIRES:-604800}
       DATABASE_TYPE: mysql
-      DATABASE_HOST: mysql
+      # Shared mysql-container on the cesapi_default network — see note above.
+      DATABASE_HOST: mysql-container
       MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
       MYSQL_USER: ${MYSQL_USER:-silver14_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-silver14_pass}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_PORT: 3306
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
@@ -69,14 +69,12 @@ services:
       ONEPAY_USER: ${ONEPAY_USER}
       ONEPAY_PASSWORD: ${ONEPAY_PASSWORD}
       ONEPAY_TITLE: ${ONEPAY_TITLE:-Silver14 Nail — Thanh toán OnePAY}
-      ONEPAY_API_URL: ${ONEPAY_API_URL:-http://localhost:3000/api}
+      ONEPAY_API_URL: ${ONEPAY_API_URL:-https://api.silver14nail.com/api}
     ports:
       - "3000:3000"
-    depends_on:
-      mysql:
-        condition: service_healthy
     networks:
       - silver14-network
+      - cesapi_default
     volumes:
       - ./apps/api/.env:/app/.env:ro
 
@@ -88,14 +86,21 @@ services:
       context: .
       dockerfile: Dockerfile
       target: storefront
+      # NEXT_PUBLIC_* vars are inlined into the client bundle at build time —
+      # setting them under `environment:` below has no effect on what
+      # already-built output sends to the browser. Must be a real public
+      # URL here (not the internal `api:3000` hostname), since this runs in
+      # the visitor's browser, outside the Docker network.
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://silver14nail.com/api}
+        NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL:-https://silver14nail.com}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+        NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${NEXT_PUBLIC_PAYPAL_CLIENT_ID}
     container_name: silver14-storefront
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 4200
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://api:3000/api}
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
-      NEXT_PUBLIC_PAYPAL_CLIENT_ID: ${NEXT_PUBLIC_PAYPAL_CLIENT_ID}
     ports:
       - "4200:4200"
     depends_on:
@@ -111,12 +116,19 @@ services:
       context: .
       dockerfile: Dockerfile
       target: admin
+      # Same NEXT_PUBLIC_* build-time-inlining caveat as the storefront
+      # service above — see its comment.
+      args:
+        NEXT_PUBLIC_STOREFRONT_URL: ${NEXT_PUBLIC_STOREFRONT_URL:-https://silver14nail.com}
     container_name: silver14-admin
     restart: unless-stopped
     environment:
       NODE_ENV: production
       PORT: 4201
       API_URL: ${API_URL:-http://api:3000}
+      STOREFRONT_INTERNAL_URL: ${STOREFRONT_INTERNAL_URL:-http://storefront:4200}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      MYMEMORY_EMAIL: ${MYMEMORY_EMAIL}
     ports:
       - "4201:4201"
     depends_on:
@@ -125,26 +137,35 @@ services:
       - silver14-network
 
   # ============================================
-  # Nginx Reverse Proxy
+  # Database Migration (one-off — NOT started by `docker-compose up`)
   # ============================================
-  nginx:
-    image: nginx:alpine
-    container_name: silver14-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+  # The `api` service above only contains the compiled webpack bundle
+  # (dist/apps/api) + node_modules — no package.json, no `src/`, so
+  # `ts-node`-based TypeORM migrations can't run inside it. This uses the
+  # `builder` stage instead, which has the full monorepo source and all
+  # deps. Run explicitly: `docker-compose --profile migrate run --rm migrate`
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: silver14-migrate
+    working_dir: /app/apps/api
+    entrypoint: ["pnpm", "run", "db:migrate"]
+    environment:
+      DATABASE_TYPE: mysql
+      DATABASE_HOST: mysql-container
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
+      MYSQL_USER: ${MYSQL_USER:-silver14_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PORT: 3306
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
-      - nginx_cache:/var/cache/nginx
-      - nginx_logs:/var/log/nginx
-    depends_on:
-      - api
-      - storefront
-      - admin
+      - ./apps/api/.env:/app/apps/api/.env:ro
     networks:
       - silver14-network
+      - cesapi_default
+    profiles:
+      - migrate
 
 # ============================================
 # Networks
@@ -152,14 +173,8 @@ services:
 networks:
   silver14-network:
     driver: bridge
-
-# ============================================
-# Volumes
-# ============================================
-volumes:
-  mysql_data:
-    driver: local
-  nginx_cache:
-    driver: local
-  nginx_logs:
-    driver: local
+  # Pre-existing network the shared mysql-container runs on — created by
+  # another docker-compose project on this server. `external: true` means
+  # Compose expects it to already exist rather than trying to create it.
+  cesapi_default:
+    external: true

@@ -5,7 +5,11 @@ const { join } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, 'api'),
+    // Nx-standard convention: <repo-root>/dist/apps/api — matches what
+    // ecosystem.config.js (PM2) and Dockerfile both expect. Previously
+    // `join(__dirname, 'api')` wrote to apps/api/api/ instead, silently
+    // diverging from both.
+    path: join(__dirname, '../../dist/apps/api'),
     filename: 'main.js',
     library: { type: 'commonjs2' },
     clean: true,

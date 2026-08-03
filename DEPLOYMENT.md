@@ -26,13 +26,14 @@ cd /var/www/silver14nail
 ```bash
 # Copy environment templates
 cp .env.example .env
-cp .env.storefront.example apps/storefront/.env.local
-cp .env.admin.example apps/admin/.env.local
+cp .env apps/api/.env
 
-# Edit with your production values
+# Edit with your production values — both files must stay in sync.
+# Storefront/admin get their env entirely from docker-compose.yml's
+# args:/environment:, populated from this root .env (see docker-compose.yml
+# comments) — there's no separate .env.local for them in this Docker flow.
 nano .env
-nano apps/storefront/.env.local
-nano apps/admin/.env.local
+nano apps/api/.env
 ```
 
 **Important variables to change:**
