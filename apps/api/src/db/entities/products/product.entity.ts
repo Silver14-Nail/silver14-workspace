@@ -8,6 +8,11 @@ import { ProductVariantEntity } from './product-variants.entity';
 import { CollectionEntity } from './collection.entity';
 
 @Entity('products')
+// Covers listProducts()'s WHERE (type, isActive) + default ORDER BY
+// createdAt — without this, MySQL filters via the single-column `type`
+// index then filesorts the result by hand instead of reading it pre-sorted
+// straight off the index.
+@Index('IDX_products_type_active_created', ['type', 'isActive', 'createdAt'])
 export class ProductEntity extends SoftDeleteAbstractEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

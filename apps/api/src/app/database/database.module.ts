@@ -37,10 +37,18 @@ import { ENTITIES } from '@/db/entities';
             rejectUnauthorized: false,
           },
           connectorPackage: 'mysql2',
-          // Serverless: each function instance has its own pool, so keep the pool
-          // at 1 to avoid exhausting the DB's max_connections across many instances.
+          // A single long-running process now (Docker, not serverless
+          // functions) — connectionLimit: 1 used to be deliberate (each
+          // Vercel function instance got its own pool, so a bigger limit
+          // risked exhausting Aiven's max_connections across many
+          // concurrent instances). That constraint doesn't apply here: one
+          // process serves all requests, and a pool of 1 meant every
+          // concurrent query — e.g. multiple infinite-scroll "load more"
+          // requests — queued behind a single connection. The shared
+          // MySQL's max_connections is 151 with ~12 in use; 10 leaves
+          // plenty of headroom for the other apps on this server.
           extra: {
-            connectionLimit: 1,
+            connectionLimit: 10,
             waitForConnections: true,
             queueLimit: 0,
             acquireTimeout: 10000,

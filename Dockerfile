@@ -1,3 +1,12 @@
+# syntax=docker/dockerfile:1
+# The line above opts into BuildKit's extended syntax — required for the
+# `--mount=type=cache` lines below, which persist the pnpm store and Nx's
+# build cache BETWEEN builds (unlike normal layer caching, these survive
+# even though `COPY . .` below invalidates the layer on every deploy, since
+# source changes every deploy by definition). Without this, every deploy
+# re-downloads all deps and recompiles all 3 apps from scratch regardless
+# of how small the change was.
+
 # ============================================
 # Base Stage - Install dependencies
 # ============================================
@@ -22,8 +31,11 @@ COPY libs/validators/package.json ./libs/validators/
 COPY libs/api-client/package.json ./libs/api-client/
 COPY libs/config/package.json ./libs/config/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies — cache mount persists pnpm's package store across
+# builds, so unchanged deps don't get re-downloaded every deploy even when
+# the lockfile does change.
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 
 # ============================================
@@ -49,8 +61,14 @@ ENV NEXT_PUBLIC_STOREFRONT_URL=$NEXT_PUBLIC_STOREFRONT_URL
 ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_PAYPAL_CLIENT_ID=$NEXT_PUBLIC_PAYPAL_CLIENT_ID
 
-# Build all apps
-RUN pnpm exec nx run-many -t build --projects=api,storefront,admin --parallel=3
+# Build all apps — cache mount persists Nx's own task cache (.nx/cache)
+# across builds. `COPY . .` above invalidates this Docker layer on every
+# deploy (source always changed — that's the point of deploying), but Nx
+# itself hashes each project's actual inputs and skips recompiling any
+# project whose inputs didn't change, e.g. a storefront-only change no
+# longer forces api/admin to rebuild too.
+RUN --mount=type=cache,id=nx-cache,target=/app/.nx/cache \
+    pnpm exec nx run-many -t build --projects=api,storefront,admin --parallel=3
 
 
 # ============================================
