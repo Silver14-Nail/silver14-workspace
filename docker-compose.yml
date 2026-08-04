@@ -1,24 +1,17 @@
 version: '3.9'
 
 # ============================================
-# NOTE: this server is SHARED with other projects (ces-production, swarmly,
-# gemini-tools, phpmyadmin) — confirmed via `docker ps` before this file was
-# adjusted. Two consequences baked into this file:
-#   1. No own `mysql` service — reuses the existing `mysql-container` (mysql:8.0)
-#      already running on the shared `cesapi_default` Docker network. Silver14
-#      gets its own database/user inside it (`silver14_nail_db` /
-#      `silver14_user`), scoped via GRANT, not a separate MySQL instance.
-#      Connecting via the container's published host port (3306) does NOT
-#      work here — UFW blocks container→host-port traffic on this box — so
-#      `api`/`migrate` join `cesapi_default` directly and reach it by
-#      container name (`mysql-container`) over Docker's internal network,
-#      bypassing the host firewall entirely.
-#   2. No own `nginx` service — ports 80/443 are already owned by an nginx
-#      installed directly on the host (not Docker), serving other domains.
-#      Add a new server block to that host nginx for silver14nail.com /
-#      admin.silver14nail.com / api.silver14nail.com instead, proxying to
-#      127.0.0.1:4200 / :4201 / :3000.
-# If this ever moves to its own dedicated server, both can be reintroduced.
+# Dedicated AWS EC2 instance — no other projects on this box (moved off the
+# old shared VPS after it went down with the database dropped from under us).
+#   1. No `mysql` service here — the database is AWS RDS (managed, own
+#      security group, automated backups), reachable over the VPC by
+#      DATABASE_HOST (the RDS endpoint, set in .env). Not a container on
+#      this host, so nothing running here can `DROP DATABASE` it by
+#      accident the way the old shared self-hosted container could.
+#   2. No own `nginx` service — ports 80/443 are owned by an nginx
+#      installed directly on the host (not Docker). Add a server block to
+#      that host nginx for silver14nail.com / admin.silver14nail.com /
+#      api.silver14nail.com, proxying to 127.0.0.1:4200 / :4201 / :3000.
 # ============================================
 
 services:
@@ -45,10 +38,11 @@ services:
       TOKEN_EXPIRES: ${TOKEN_EXPIRES:-86400}
       REFRESH_TOKEN_EXPIRES: ${REFRESH_TOKEN_EXPIRES:-604800}
       DATABASE_TYPE: mysql
-      # Shared mysql-container on the cesapi_default network — see note above.
-      DATABASE_HOST: mysql-container
+      # AWS RDS endpoint — set in .env, e.g.
+      # silver14-db.xxxxx.us-east-1.rds.amazonaws.com
+      DATABASE_HOST: ${DATABASE_HOST}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
-      MYSQL_USER: ${MYSQL_USER:-silver14_user}
+      MYSQL_USER: ${MYSQL_USER:-admin}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_PORT: 3306
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
@@ -71,17 +65,9 @@ services:
       ONEPAY_TITLE: ${ONEPAY_TITLE:-Silver14 Nail — Thanh toán OnePAY}
       ONEPAY_API_URL: ${ONEPAY_API_URL:-https://api.silver14nail.com/api}
     ports:
-      # Host 3001 -> container 3000. This box also runs ces_production's own
-      # app natively via PM2 on host port 3000 (outside Docker) — publishing
-      # silver14-api there too caused a real port collision that took down
-      # ces_production's app when this container grabbed 3000 first after a
-      # restart. Container-internal port stays 3000 (NestJS's own PORT env
-      # below); only the host-facing mapping changes. Host nginx's
-      # api.silver14nail.com block must proxy to 127.0.0.1:3001 accordingly.
-      - "3001:3000"
+      - "3000:3000"
     networks:
       - silver14-network
-      - cesapi_default
     volumes:
       - ./apps/api/.env:/app/.env:ro
 
@@ -163,16 +149,15 @@ services:
     entrypoint: ["pnpm", "run", "db:migrate"]
     environment:
       DATABASE_TYPE: mysql
-      DATABASE_HOST: mysql-container
+      DATABASE_HOST: ${DATABASE_HOST}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-silver14_nail_db}
-      MYSQL_USER: ${MYSQL_USER:-silver14_user}
+      MYSQL_USER: ${MYSQL_USER:-admin}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_PORT: 3306
     volumes:
       - ./apps/api/.env:/app/apps/api/.env:ro
     networks:
       - silver14-network
-      - cesapi_default
     profiles:
       - migrate
 
@@ -182,8 +167,3 @@ services:
 networks:
   silver14-network:
     driver: bridge
-  # Pre-existing network the shared mysql-container runs on — created by
-  # another docker-compose project on this server. `external: true` means
-  # Compose expects it to already exist rather than trying to create it.
-  cesapi_default:
-    external: true
