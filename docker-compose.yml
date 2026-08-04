@@ -71,7 +71,14 @@ services:
       ONEPAY_TITLE: ${ONEPAY_TITLE:-Silver14 Nail — Thanh toán OnePAY}
       ONEPAY_API_URL: ${ONEPAY_API_URL:-https://api.silver14nail.com/api}
     ports:
-      - "3000:3000"
+      # Host 3001 -> container 3000. This box also runs ces_production's own
+      # app natively via PM2 on host port 3000 (outside Docker) — publishing
+      # silver14-api there too caused a real port collision that took down
+      # ces_production's app when this container grabbed 3000 first after a
+      # restart. Container-internal port stays 3000 (NestJS's own PORT env
+      # below); only the host-facing mapping changes. Host nginx's
+      # api.silver14nail.com block must proxy to 127.0.0.1:3001 accordingly.
+      - "3001:3000"
     networks:
       - silver14-network
       - cesapi_default
