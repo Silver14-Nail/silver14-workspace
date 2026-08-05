@@ -44,7 +44,14 @@ function LoginContent() {
 
     const result = await login(email.trim(), password);
     if (result.ok) {
-      router.replace(destination);
+      // Hard navigation, not router.replace() — the destination route may
+      // have been prefetched (and its RSC payload cached by Next's router)
+      // before login, when middleware.ts still saw no admin_access_token
+      // cookie and would have redirected it back to /login. A soft
+      // navigation can serve that stale cached redirect even though the
+      // cookie is now set, which is exactly the "click login, nothing
+      // happens, only a manual page reload gets me in" symptom this fixes.
+      window.location.href = destination;
     } else {
       setError(result.error ?? 'Invalid credentials');
     }
