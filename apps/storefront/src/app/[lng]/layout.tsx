@@ -1,6 +1,6 @@
 import { dir } from 'i18next';
 import { Unna, Noto_Sans_JP } from 'next/font/google';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import {
   initServerI18next,
   getT,
@@ -10,6 +10,7 @@ import {
 import { I18nProvider } from 'next-i18next/client';
 import Script from 'next/script';
 import { StoreProvider } from '../../store/StoreProvider';
+import { RegionProvider } from '../../contexts/RegionContext';
 import {
   CURRENCY_COOKIE,
   SUPPORTED_CURRENCIES,
@@ -20,6 +21,7 @@ import { Navbar } from '../../components/layout/Navbar';
 import i18nConfig from '../../i18n.config';
 import { createStorefrontJsonLd, createStorefrontMetadata } from '../../lib/seo';
 import { getCollections } from '../../features/collections/collections.api';
+import { isAsiaCountryCode } from '../../config/region.config';
 import '../../styles/index.css';
 
 const unna = Unna({
@@ -62,6 +64,12 @@ export default async function RootLayout({
 
   const cookieStore = await cookies();
   const rawCurrency = cookieStore.get(CURRENCY_COOKIE)?.value ?? '';
+
+  // Cloudflare sets this on every proxied request — no extra geo-IP lookup
+  // needed. Used to skip the /_next/image optimize round-trip (origin is
+  // us-east-1) for visitors routed through a far-away Cloudflare PoP.
+  const headerStore = await headers();
+  const isAsiaRegion = isAsiaCountryCode(headerStore.get('cf-ipcountry'));
   const initialCurrencyCode: CurrencyCode = (SUPPORTED_CURRENCIES as readonly string[]).includes(
     rawCurrency,
   )
@@ -131,13 +139,15 @@ export default async function RootLayout({
             });
           })();
         `}</Script>
-        <StoreProvider initialCurrencyCode={initialCurrencyCode}>
-          <I18nProvider language={lng} resources={resources}>
-            <Navbar initialCollections={navCollections} />
-            {children}
-            <Footer />
-          </I18nProvider>
-        </StoreProvider>
+        <RegionProvider isAsiaRegion={isAsiaRegion}>
+          <StoreProvider initialCurrencyCode={initialCurrencyCode}>
+            <I18nProvider language={lng} resources={resources}>
+              <Navbar initialCollections={navCollections} />
+              {children}
+              <Footer />
+            </I18nProvider>
+          </StoreProvider>
+        </RegionProvider>
       </body>
     </html>
   );

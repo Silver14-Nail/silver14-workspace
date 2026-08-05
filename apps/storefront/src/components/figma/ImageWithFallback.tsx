@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image, { ImageProps } from 'next/image';
+import { useIsAsiaRegion } from '@/contexts/RegionContext';
 
 const ERROR_IMG_SRC =
   'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg==';
@@ -25,6 +26,12 @@ export function ImageWithFallback({
   naturalSize,
   ...rest
 }: Props) {
+  // Visitors routed through a Cloudflare PoP far from the origin (us-east-1)
+  // pay a slow round-trip on every /_next/image cache-miss. Skipping Next's
+  // optimizer for them trades a larger, unresized file for zero origin
+  // round-trip — see apps/storefront/src/config/region.config.ts.
+  const isAsiaRegion = useIsAsiaRegion();
+
   const validSrc = (s: typeof src) => (s && String(s).trim() !== '' ? s : fallbackSrc);
 
   const [imgSrc, setImgSrc] = useState(() => validSrc(src));
@@ -50,6 +57,7 @@ export function ImageWithFallback({
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         style={{ width: '100%', height: 'auto', display: 'block' }}
         onError={onError}
+        unoptimized={isAsiaRegion}
         {...rest}
       />
     );
@@ -61,6 +69,7 @@ export function ImageWithFallback({
     className,
     quality,
     onError,
+    unoptimized: isAsiaRegion,
     ...rest,
   };
 

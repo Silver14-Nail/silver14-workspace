@@ -64,6 +64,7 @@ export function StoreProvider({
       <QueryClientProvider client={queryClientRef.current}>
         <AuthInitializer />
         <ExchangeRateInitializer initialCode={initialCurrencyCode} />
+        <RegionInitializer isAsiaRegion={isAsiaRegion} />
         {children}
       </QueryClientProvider>
     </Provider>
