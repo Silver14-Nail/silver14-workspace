@@ -26,6 +26,14 @@ import type {
   ApiProductVariant,
 } from '../products/types';
 
+// Mirrors ProductEditImagesTab.tsx's client-side guard — without it, oversized
+// mobile-camera photos (commonly 5-10MB) pass nginx's 10M client_max_body_size
+// and Next's 10mb server-action bodySizeLimit, then get rejected by the API's
+// multer limit (5MB), surfacing as Next's generic "unexpected response" error
+// instead of a real message. Catching it here avoids that trip entirely.
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_SIZE_MB = 5;
+
 interface SupplyFormDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -204,7 +212,22 @@ export default function SupplyFormDrawer({
     if (!supply?.id || files.length === 0) return;
     setImagesError('');
 
-    const fileArray = Array.from(files);
+    // Validate all files first, collect valid ones and validation errors separately
+    const validFiles: File[] = [];
+    const validationErrors: string[] = [];
+    for (const file of Array.from(files)) {
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        validationErrors.push(`${file.name}: unsupported file type`);
+      } else if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        validationErrors.push(`${file.name}: exceeds ${MAX_SIZE_MB}MB limit`);
+      } else {
+        validFiles.push(file);
+      }
+    }
+    if (validationErrors.length) setImagesError(validationErrors.join(' | '));
+    if (!validFiles.length) return;
+
+    const fileArray = validFiles;
     setUploadProgress({ current: 0, total: fileArray.length });
 
     // Upload all files in parallel using presigned URLs for direct browser→R2 upload
@@ -533,7 +556,7 @@ export default function SupplyFormDrawer({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept={ACCEPTED_TYPES.join(',')}
                 multiple
                 className="hidden"
                 onChange={(e) => {
@@ -561,6 +584,9 @@ export default function SupplyFormDrawer({
                   ? `Uploading ${uploadProgress.current}/${uploadProgress.total}…`
                   : 'Upload Images'}
               </button>
+              <p className={`mt-1.5 text-xs ${isDark ? 'text-gray-500' : 'text-[#9CA3AF]'}`}>
+                JPEG, PNG, WEBP, or GIF — max {MAX_SIZE_MB}MB per image
+              </p>
             </div>
 
             {/* Images grid */}
