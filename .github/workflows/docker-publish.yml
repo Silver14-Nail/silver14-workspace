@@ -1,0 +1,231 @@
+name: Build & Push Docker Images
+
+# Builds api/storefront/admin/migrate images and pushes them to GitHub
+# Container Registry (ghcr.io), tagged by git SHA. scripts/deploy.sh pulls
+# these images first and only builds directly on the EC2 host (a `next
+# build` needs 2-4GB RAM — this host has 1.9GB total) as a fallback when a
+# pull fails — see that script's header for the full pull-then-build
+# fallback flow.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  # ── Detect which apps actually changed ───────────────────────────────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      storefront: ${{ steps.filter.outputs.storefront }}
+      admin: ${{ steps.filter.outputs.admin }}
+      migrate: ${{ steps.filter.outputs.migrate }}
+      image_base: ${{ steps.image-base.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+      # github.repository_owner preserves the org's display casing
+      # (Silver14-Nail) — ghcr.io tags must be all-lowercase.
+      - id: image-base
+        run: echo "value=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/silver14" >> "$GITHUB_OUTPUT"
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            shared: &shared
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'nx.json'
+              - 'libs/**'
+              - 'Dockerfile'
+            api:
+              - *shared
+              - 'apps/api/**'
+            storefront:
+              - *shared
+              - 'apps/storefront/**'
+            admin:
+              - *shared
+              - 'apps/admin/**'
+            migrate:
+              - *shared
+              - 'apps/api/src/db/migrations/**'
+
+  # ── Pre-populate cache for the base+source stages shared by every app job
+  # (pnpm install, full monorepo COPY) — so that expensive shared work is
+  # cached once instead of independently per build-* job.
+  build-base-cache:
+    needs: changes
+    if: needs.changes.outputs.api == 'true' || needs.changes.outputs.storefront == 'true' || needs.changes.outputs.admin == 'true' || needs.changes.outputs.migrate == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: source
+          push: false
+          cache-from: type=gha,scope=shared-base
+          cache-to: type=gha,mode=max,scope=shared-base
+
+  # ── API (no build args — all config is runtime env, not baked in) ───────
+  build-api:
+    needs: [changes, build-base-cache]
+    if: needs.changes.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: api
+          push: true
+          provenance: false
+          tags: |
+            ${{ needs.changes.outputs.image_base }}-api:latest
+            ${{ needs.changes.outputs.image_base }}-api:${{ github.sha }}
+          cache-from: |
+            type=gha,scope=api
+            type=gha,scope=shared-base
+          cache-to: type=gha,mode=min,scope=api
+
+  # ── Migrate (one-off TypeORM migration runner — targets `source`, since
+  # migrations run straight off src/ via ts-node, no build step needed) ────
+  build-migrate:
+    needs: [changes, build-base-cache]
+    if: needs.changes.outputs.migrate == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: source
+          push: true
+          provenance: false
+          tags: |
+            ${{ needs.changes.outputs.image_base }}-migrate:latest
+            ${{ needs.changes.outputs.image_base }}-migrate:${{ github.sha }}
+          cache-from: |
+            type=gha,scope=migrate
+            type=gha,scope=shared-base
+          cache-to: type=gha,mode=min,scope=migrate
+
+  # ── Storefront (NEXT_PUBLIC_* baked in at build time — repo vars/secrets) ─
+  build-storefront:
+    needs: [changes, build-base-cache]
+    if: needs.changes.outputs.storefront == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: storefront
+          push: true
+          provenance: false
+          tags: |
+            ${{ needs.changes.outputs.image_base }}-storefront:latest
+            ${{ needs.changes.outputs.image_base }}-storefront:${{ github.sha }}
+          cache-from: |
+            type=gha,scope=storefront
+            type=gha,scope=shared-base
+          cache-to: type=gha,mode=min,scope=storefront
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_STOREFRONT_URL=${{ vars.NEXT_PUBLIC_STOREFRONT_URL }}
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_PAYPAL_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+
+  # ── Admin dashboard ──────────────────────────────────────────────────────
+  build-admin:
+    needs: [changes, build-base-cache]
+    if: needs.changes.outputs.admin == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          target: admin
+          push: true
+          provenance: false
+          tags: |
+            ${{ needs.changes.outputs.image_base }}-admin:latest
+            ${{ needs.changes.outputs.image_base }}-admin:${{ github.sha }}
+          cache-from: |
+            type=gha,scope=admin
+            type=gha,scope=shared-base
+          cache-to: type=gha,mode=min,scope=admin
+          build-args: |
+            NEXT_PUBLIC_STOREFRONT_URL=${{ vars.NEXT_PUBLIC_STOREFRONT_URL }}
+
+  # ── Keep only the 3 most recent versions of each image ───────────────────
+  cleanup:
+    needs: [build-api, build-storefront, build-admin, build-migrate]
+    if: always() && !cancelled()
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        package: [silver14-api, silver14-storefront, silver14-admin, silver14-migrate]
+    steps:
+      - uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: ${{ matrix.package }}
+          package-type: container
+          min-versions-to-keep: 3
